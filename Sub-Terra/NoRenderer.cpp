@@ -1,15 +1,7 @@
 #include "NoRenderer.h"
 #include <iostream>
 
-NoRenderer::NoRenderer() {
-
-}
-
-NoRenderer::~NoRenderer() {
-
-}
-
-void NoRenderer::Init() {
+void NoRenderer::Destroy() {
 	std::cout << "Press enter to continue.";
 	std::cin.ignore(1);
 }

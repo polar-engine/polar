@@ -1,17 +1,11 @@
 #include "SubTerra.h"
 #include "Polar.h"
 #include "NoRenderer.h"
+#include "StdOutComponent.h"
 
-SubTerra::SubTerra() {
-
-}
-
-SubTerra::~SubTerra() {
-
-}
-
-void SubTerra::Run(const std::vector<std::string> &&) {
-	NoRenderer renderer;
-	Polar engine = Polar(renderer);
-	engine.Init();
+void SubTerra::Run(std::vector<std::string const> const &args) {
+	Polar engine;
+	engine.AddSystem<NoRenderer>();
+	engine.AddObject({ new StdOutComponent("hello world") });
+	engine.Run();
 }

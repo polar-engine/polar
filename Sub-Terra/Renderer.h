@@ -1,8 +1,8 @@
 #pragma once
 
-class Renderer {
+#include "System.h"
+
+class Renderer : public System {
 public:
-	Renderer();
-	virtual ~Renderer();
-	virtual void Init() = 0;
+	static bool IsSupported() { return false; }
 };

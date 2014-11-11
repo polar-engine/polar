@@ -79,16 +79,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="NoRenderer.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Polar.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SubTerra.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Component.h" />
     <ClInclude Include="NoRenderer.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Polar.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="StdOutComponent.h" />
     <ClInclude Include="SubTerra.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="Tag.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
