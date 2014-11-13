@@ -8,6 +8,6 @@ public:
 	System() {}
 	virtual ~System() {}
 	virtual void Init() {}
-	virtual void Update(float) {}
+	virtual void Update(int) {}
 	virtual void Destroy() {}
 };

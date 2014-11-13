@@ -6,14 +6,17 @@
 #include "System.h"
 #include "Component.h"
 #include "Object.h"
+#include "JobManager.h"
 
 class Polar {
 private:
+	JobManager _jobManager;
 	std::vector<System *> _systems;
 	std::vector<Object *> _objects;
 	template<typename T> void AddSystemImpl(std::string const &, Tag<T>);
 	template<typename T, typename ...Ts> void AddSystemImpl(std::string const &, Tag<T>, Tag<Ts> ...);
 	void Init();
+	void Update(int);
 	void Destroy();
 public:
 	Polar() {}

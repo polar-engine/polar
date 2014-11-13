@@ -78,14 +78,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="NoRenderer.cpp" />
+    <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Polar.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SubTerra.cpp" />
+    <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Component.h" />
+    <ClInclude Include="DrawableComponent.h" />
+    <ClInclude Include="Job.h" />
+    <ClInclude Include="JobManager.h" />
     <ClInclude Include="NoRenderer.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Polar.h" />
@@ -94,6 +98,7 @@
     <ClInclude Include="SubTerra.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Tag.h" />
+    <ClInclude Include="Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

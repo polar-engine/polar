@@ -9,6 +9,8 @@ private:
 public:
 	StdOutComponent(std::string const & msg) : _msg(msg) {}
 	void Init() override final {
-		std::cout << _msg << std::endl;
+		jobManager->Do([this]() {
+			std::cout << _msg << std::endl;
+		});
 	}
 };

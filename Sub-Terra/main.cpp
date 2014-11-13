@@ -1,5 +1,4 @@
-//#include <string>
-
+#include <iostream>
 #include "SubTerra.h"
 
 int main(int argc, char **argv) {
@@ -9,4 +8,9 @@ int main(int argc, char **argv) {
 	}
 
 	SubTerra().Run(args);
+
+	std::cout << "Press enter to continue.";
+	std::cin.ignore(1);
+
+	return 0;
 }

@@ -16,7 +16,7 @@ void Object::Init() {
 	}
 }
 
-void Object::Update(float dt) {
+void Object::Update(int dt) {
 	for (auto component : _components) {
 		component->Update(dt);
 	}
