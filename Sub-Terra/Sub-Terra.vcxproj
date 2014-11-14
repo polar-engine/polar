@@ -41,6 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -78,6 +79,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GL32Renderer.cpp" />
     <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Polar.cpp" />
@@ -88,6 +90,7 @@
   <ItemGroup>
     <ClInclude Include="Component.h" />
     <ClInclude Include="DrawableComponent.h" />
+    <ClInclude Include="GL32Renderer.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="JobManager.h" />
     <ClInclude Include="NoRenderer.h" />
