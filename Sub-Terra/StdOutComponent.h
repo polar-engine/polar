@@ -5,12 +5,14 @@
 
 class StdOutComponent : public Component {
 private:
-	std::string const _msg;
+	const std::string _msg;
 public:
-	StdOutComponent(std::string const & msg) : _msg(msg) {}
+	StdOutComponent(const std::string &msg) : _msg(msg) {}
 	void Init() override final {
 		jobManager->Do([this]() {
-			std::cout << _msg << std::endl;
-		});
+			jobManager->Do([this]() {
+				std::cout << _msg << std::endl;
+			}, JobPriority::High, JobThread::Main);
+		}, JobPriority::Low, JobThread::Worker);
 	}
 };

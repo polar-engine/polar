@@ -1,5 +1,10 @@
 #include "JobManager.h"
-#include <iostream>
+
+JobManager::JobManager() {
+	for (int i = 0; i < numWorkers; ++i) {
+		_workers.push_back(new Worker());
+	}
+}
 
 JobManager::~JobManager() {
 	for (auto worker : _workers) {
@@ -14,35 +19,41 @@ JobManager::~JobManager() {
 }
 
 void JobManager::Init() {
-	for (int i = 0; i < numWorkers; ++i) {
-		_workers.push_back(new Worker());
-		_workers.back()->Start();
+	for (auto worker : _workers) {
+		worker->Start();
 	}
 }
 
 void JobManager::Update(int) {
-	if (_jobs.empty() || _workers.empty()) {
+	if (_jobs.empty()) {
 		std::this_thread::yield();
 	} else {
-		auto &job = _jobs.top();
+		auto job = _jobs.top();
 		_jobs.pop();
-		Worker *w = _workers.front();
-		std::unique_lock<std::mutex> lock(w->jobsLock, std::defer_lock);
-		lock.lock();
-		w->jobs.push(job);
-		lock.unlock();
+		switch (job->thread) {
+		case JobThread::Main:
+			job->fn();
+			break;
+		case JobThread::Any:
+			if (_jobs.empty()) { job->fn(); }
+			else { _workers.front()->AddJob(job); }
+			break;
+		case JobThread::Worker:
+			_workers.back()->AddJob(job);
+			break;
+		}
 	}
 }
 
 void JobManager::Destroy() {
 	for (auto worker : _workers) {
-		worker->Stop();
+		worker->AddJob(new Job(JobType::Stop));
 	}
 	for (auto worker : _workers) {
 		worker->Join();
 	}
 }
 
-void JobManager::Do(JobFunction const &fn, JobPriority const priority) {
-	_jobs.push(new Job(fn, priority));
+void JobManager::Do(const JobFunction &fn, const JobPriority priority, const JobThread thread) {
+	_jobs.push(new Job(fn, priority, thread));
 }

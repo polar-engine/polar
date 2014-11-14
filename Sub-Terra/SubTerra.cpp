@@ -4,7 +4,7 @@
 #include "StdOutComponent.h"
 #include "DrawableComponent.h"
 
-void SubTerra::Run(std::vector<std::string const> const &args) {
+void SubTerra::Run(const std::vector<const std::string> &args) {
 	Polar engine;
 	engine.AddSystem<NoRenderer>();
 	engine.AddObject({

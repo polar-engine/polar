@@ -13,6 +13,6 @@ public:
 	std::priority_queue<Job *> jobs;
 
 	void Start();
-	void Stop();
 	bool Join();
+	void AddJob(Job *);
 };

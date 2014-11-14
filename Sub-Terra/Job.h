@@ -2,18 +2,22 @@
 
 #include <functional>
 
-enum class JobPriority { Low, Normal, High };
 enum class JobType { Work, Stop };
+enum class JobPriority { Low, Normal, High };
+enum class JobThread { Main, Worker, Any };
 
-class Worker;
 typedef std::function<void()> JobFunction;
 
 class Job {
 public:
-	JobPriority priority;
 	JobType type;
+	JobPriority priority;
+	JobThread thread;
 	JobFunction fn;
-	Job(JobFunction fn, JobPriority const priority = JobPriority::Normal) : priority(priority), type(JobType::Work), fn(fn) {}
-	Job(JobPriority const priority = JobPriority::Normal) : priority(priority), type(JobType::Stop) {}
-	bool operator<(Job const &rhs) const { return priority < rhs.priority; }
+
+	Job(const JobFunction &fn, const JobPriority priority = JobPriority::Normal, const JobThread thread = JobThread::Any)
+		: type(JobType::Work), priority(priority), thread(thread), fn(fn) {}
+	Job(const JobType type, const JobPriority priority = JobPriority::Normal, const JobThread thread = JobThread::Any)
+		: type(type), priority(priority), thread(thread) {}
+	bool operator<(const Job &rhs) const { return priority < rhs.priority; }
 };

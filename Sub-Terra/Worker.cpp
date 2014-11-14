@@ -28,15 +28,15 @@ void Worker::Start() {
 	_thread = std::thread(fn);
 }
 
-void Worker::Stop() {
-	std::unique_lock<std::mutex> lock(jobsLock, std::defer_lock);
-	lock.lock();
-	jobs.push(new Job());
-	lock.unlock();
-}
-
 bool Worker::Join() {
 	bool joinable = _thread.joinable();
 	if (joinable) { _thread.join(); }
 	return joinable;
+}
+
+void Worker::AddJob(Job *job) {
+	std::unique_lock<std::mutex> lock(jobsLock, std::defer_lock);
+	lock.lock();
+	jobs.push(job);
+	lock.unlock();
 }

@@ -13,21 +13,21 @@ private:
 	JobManager _jobManager;
 	std::vector<System *> _systems;
 	std::vector<Object *> _objects;
-	template<typename T> void AddSystemImpl(std::string const &, Tag<T>);
-	template<typename T, typename ...Ts> void AddSystemImpl(std::string const &, Tag<T>, Tag<Ts> ...);
+	template<typename T> void AddSystemImpl(const std::string &, Tag<T>);
+	template<typename T, typename ...Ts> void AddSystemImpl(const std::string &, Tag<T>, Tag<Ts> ...);
 	void Init();
 	void Update(int);
 	void Destroy();
 public:
 	Polar() {}
 	virtual ~Polar();
-	template<typename ...Ts> void AddSystem(std::string const & = "no supported systems");
+	template<typename ...Ts> void AddSystem(const std::string & = "no supported systems");
 	void AddObject(std::initializer_list<Component *>);
 	void Run();
 };
 
 template<typename T>
-void Polar::AddSystemImpl(std::string const &msg, Tag<T>) {
+void Polar::AddSystemImpl(const std::string &msg, Tag<T>) {
 	if (T::IsSupported()) {
 		_systems.push_back(new T());
 	} else {
@@ -36,7 +36,7 @@ void Polar::AddSystemImpl(std::string const &msg, Tag<T>) {
 }
 
 template<typename T, typename ...Ts>
-void Polar::AddSystemImpl(std::string const &msg, Tag<T>, Tag<Ts> ...) {
+void Polar::AddSystemImpl(const std::string &msg, Tag<T>, Tag<Ts> ...) {
 	if (T::IsSupported()) {
 		_systems.push_back(new T());
 	} else {
@@ -45,6 +45,6 @@ void Polar::AddSystemImpl(std::string const &msg, Tag<T>, Tag<Ts> ...) {
 }
 
 template<typename ...Ts>
-void Polar::AddSystem(std::string const &msg) {
+void Polar::AddSystem(const std::string &msg) {
 	AddSystemImpl(msg, Tag<Ts>{}...);
 }

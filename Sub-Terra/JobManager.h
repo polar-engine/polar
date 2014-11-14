@@ -13,11 +13,12 @@ private:
 	std::priority_queue<Job *> _jobs;
 	std::vector<Worker *> _workers = std::vector<Worker *>(numWorkers);
 public:
-	const int numWorkers = std::thread::hardware_concurrency() - 1;
+	const int numWorkers = std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
 	static bool IsSupported() { return true; }
+	JobManager();
 	~JobManager() override;
 	void Init() override final;
 	void Update(int) override final;
 	void Destroy() override final;
-	void Do(JobFunction const &fn, JobPriority const = JobPriority::Normal);
+	void Do(const JobFunction &fn, const JobPriority = JobPriority::Normal, const JobThread = JobThread::Any);
 };

@@ -2,7 +2,7 @@
 #include "SubTerra.h"
 
 int main(int argc, char **argv) {
-	std::vector<std::string const> args;
+	std::vector<const std::string> args;
 	for (int i = 0; i < argc; ++i) {
 		args.emplace_back(std::string(argv[i]));
 	}
