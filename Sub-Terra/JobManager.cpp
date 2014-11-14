@@ -34,12 +34,12 @@ void JobManager::Update(int) {
 		case JobThread::Main:
 			job->fn();
 			break;
+		case JobThread::Worker:
+			_workers.back()->AddJob(job);
+			break;
 		case JobThread::Any:
 			if (_jobs.empty()) { job->fn(); }
 			else { _workers.front()->AddJob(job); }
-			break;
-		case JobThread::Worker:
-			_workers.back()->AddJob(job);
 			break;
 		}
 	}
