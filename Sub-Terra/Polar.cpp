@@ -12,6 +12,7 @@ Polar::~Polar() {
 
 void Polar::Init() {
 	_jobManager.Init();
+	_eventManager.Init();
 	for(auto system : _systems) {
 		system->Init();
 	}
@@ -22,6 +23,7 @@ void Polar::Init() {
 
 void Polar::Update(int ts) {
 	_jobManager.Update(ts);
+	_eventManager.Update(ts);
 	for(auto system : _systems) {
 		system->Update(ts);
 	}
@@ -34,14 +36,15 @@ void Polar::Destroy() {
 	for(auto system = _systems.rbegin(); system != _systems.rend(); ++system) {
 		(*system)->Destroy();
 	}
+	_eventManager.Destroy();
 	_jobManager.Destroy();
 }
 
 void Polar::AddObject(std::initializer_list<Component *> components) {
 	Object *object = new Object();
 	object->jobManager = &_jobManager;
+	object->eventManager = &_eventManager;
 	for(auto component : components) {
-		component->jobManager = &_jobManager;
 		object->AddComponent(component);
 	}
 	_objects.push_back(object);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <tuple>
 #include <queue>
+#include <unordered_map>
 #include <functional>
 #include <chrono>
 #include <thread>
@@ -46,7 +47,7 @@ inline const char *basename(const char *path) {
 
 inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
-	if(err[0] == '\0') {
+	if(err[0] != '\0') {
 		ERROR("SDL: " << err);
 		DEBUG("    " << file << ':' << line << '\n');
 		DEBUG("    " << code << "\n\n");

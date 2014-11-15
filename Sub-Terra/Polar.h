@@ -5,10 +5,12 @@
 #include "Component.h"
 #include "Object.h"
 #include "JobManager.h"
+#include "EventManager.h"
 
 class Polar {
 private:
 	JobManager _jobManager;
+	EventManager _eventManager;
 	std::vector<System *> _systems;
 	std::vector<Object *> _objects;
 	template<typename T> void AddSystemImpl(const std::string &, Tag<T>);
