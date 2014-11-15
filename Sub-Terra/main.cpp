@@ -8,9 +8,6 @@ int main(int argc, char **argv) {
 	}
 
 	SubTerra().Run(args);
-
-	std::cout << "Press enter to continue.";
-	std::cin.ignore(1);
-
+	CONTINUE;
 	return 0;
 }

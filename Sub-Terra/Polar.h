@@ -29,6 +29,8 @@ void Polar::AddSystemImpl(const std::string &msg, Tag<T>) {
 	if(T::IsSupported()) {
 		_systems.push_back(new T());
 	} else {
+		ERROR(msg);
+		CONTINUE;
 		throw std::runtime_error(msg);
 	}
 }
