@@ -1,7 +1,8 @@
+#include "stdafx.h"
 #include "Object.h"
 
 Object::~Object() {
-	for (auto component : _components) {
+	for(auto component : _components) {
 		delete component;
 	}
 }
@@ -11,19 +12,19 @@ void Object::AddComponent(Component *component) {
 }
 
 void Object::Init() {
-	for (auto component : _components) {
+	for(auto component : _components) {
 		component->Init();
 	}
 }
 
 void Object::Update(int dt) {
-	for (auto component : _components) {
+	for(auto component : _components) {
 		component->Update(dt);
 	}
 }
 
 void Object::Destroy() {
-	for (auto component : _components) {
+	for(auto component : _components) {
 		component->Destroy();
 	}
 }

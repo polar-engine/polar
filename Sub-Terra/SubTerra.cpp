@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SubTerra.h"
 #include "Polar.h"
 #include "GL32Renderer.h"
