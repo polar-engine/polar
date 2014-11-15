@@ -88,6 +88,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="GL32Renderer.cpp" />
     <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="Object.cpp" />

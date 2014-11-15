@@ -22,6 +22,7 @@ public:
 	Polar() {}
 	virtual ~Polar();
 	template<typename ...Ts> void AddSystem(const std::string & = "no supported systems");
+	void AddSystem(System *);
 	void AddObject(std::initializer_list<Component *>);
 	void Run();
 };
@@ -29,7 +30,7 @@ public:
 template<typename T>
 void Polar::AddSystemImpl(const std::string &msg, Tag<T>) {
 	if(T::IsSupported()) {
-		_systems.push_back(new T());
+		AddSystem(new T());
 	} else {
 		ERROR(msg);
 		CONTINUE;
@@ -40,7 +41,7 @@ void Polar::AddSystemImpl(const std::string &msg, Tag<T>) {
 template<typename T, typename ...Ts>
 void Polar::AddSystemImpl(const std::string &msg, Tag<T>, Tag<Ts> ...) {
 	if(T::IsSupported()) {
-		_systems.push_back(new T());
+		AddSystem(new T());
 	} else {
 		AddSystemImpl(msg, Tag < Ts > {}...);
 	}
