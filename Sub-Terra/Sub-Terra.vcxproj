@@ -99,6 +99,7 @@
   <ItemGroup>
     <ClInclude Include="Component.h" />
     <ClInclude Include="DrawableComponent.h" />
+    <ClInclude Include="EventManager.h" />
     <ClInclude Include="GL32Renderer.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="JobManager.h" />

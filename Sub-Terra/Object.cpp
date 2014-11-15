@@ -9,6 +9,8 @@ Object::~Object() {
 
 void Object::AddComponent(Component *component) {
 	_components.push_back(component);
+	component->jobManager = jobManager;
+	component->eventManager = eventManager;
 }
 
 void Object::Init() {
