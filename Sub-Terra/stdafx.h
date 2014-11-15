@@ -44,14 +44,14 @@ inline const char *basename(const char *path) {
 #define CONTINUE
 #endif
 
-inline int _SDL_real(const char *file, const long line, const char *code) {
+inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
-	if(strlen(err) > 0) {
+	if(err[0] == '\0') {
 		ERROR("SDL: " << err);
 		DEBUG("    " << file << ':' << line << '\n');
 		DEBUG("    " << code << "\n\n");
 	}
-	return strlen(err) == 0;
+	return err[0] == '\0';
 }
 
 #define SDL(CODE) ((CODE), _SDL_real(BASEFILE, __LINE__, #CODE))
