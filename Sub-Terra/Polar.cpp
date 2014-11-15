@@ -40,6 +40,12 @@ void Polar::Destroy() {
 	_jobManager.Destroy();
 }
 
+void Polar::AddSystem(System *system) {
+	system->jobManager = &_jobManager;
+	system->eventManager = &_eventManager;
+	_systems.push_back(system);
+}
+
 void Polar::AddObject(std::initializer_list<Component *> components) {
 	Object *object = new Object();
 	object->jobManager = &_jobManager;
@@ -52,7 +58,9 @@ void Polar::AddObject(std::initializer_list<Component *> components) {
 
 void Polar::Run() {
 	Init();
-	while(true) {
+	bool running = true;
+	_eventManager.ListenFor("destroy", [&running] () { running = false; });
+	while(running) {
 		Update(20000);
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}

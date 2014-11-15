@@ -44,7 +44,7 @@ void GL32Renderer::Destroy() {
 void GL32Renderer::HandleSDL(SDL_Event &event) {
 	switch(event.type) {
 	case SDL_QUIT:
-		//eventManager->Fire("destroy");
+		eventManager->Fire("destroy");
 		break;
 	}
 }

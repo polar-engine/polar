@@ -56,3 +56,7 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 }
 
 #define SDL(CODE) ((CODE), _SDL_real(BASEFILE, __LINE__, #CODE))
+
+#include "System.h"
+#include "JobManager.h"
+#include "EventManager.h"
