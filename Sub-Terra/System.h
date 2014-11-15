@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 class System {
 public:
 	static bool IsSupported() { return false; }

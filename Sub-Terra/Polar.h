@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-#include <vector>
 #include "Tag.h"
 #include "System.h"
 #include "Component.h"
@@ -28,7 +26,7 @@ public:
 
 template<typename T>
 void Polar::AddSystemImpl(const std::string &msg, Tag<T>) {
-	if (T::IsSupported()) {
+	if(T::IsSupported()) {
 		_systems.push_back(new T());
 	} else {
 		throw std::runtime_error(msg);
@@ -37,14 +35,14 @@ void Polar::AddSystemImpl(const std::string &msg, Tag<T>) {
 
 template<typename T, typename ...Ts>
 void Polar::AddSystemImpl(const std::string &msg, Tag<T>, Tag<Ts> ...) {
-	if (T::IsSupported()) {
+	if(T::IsSupported()) {
 		_systems.push_back(new T());
 	} else {
-		AddSystemImpl(msg, Tag<Ts>{}...);
+		AddSystemImpl(msg, Tag < Ts > {}...);
 	}
 }
 
 template<typename ...Ts>
 void Polar::AddSystem(const std::string &msg) {
-	AddSystemImpl(msg, Tag<Ts>{}...);
+	AddSystemImpl(msg, Tag < Ts > {}...);
 }

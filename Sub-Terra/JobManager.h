@@ -1,9 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <queue>
-#include <thread>
-#include <mutex>
 #include "System.h"
 #include "Job.h"
 #include "Worker.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 enum class JobType { Work, Stop };
 enum class JobPriority { Low, Normal, High };
 enum class JobThread { Main, Worker, Any };
