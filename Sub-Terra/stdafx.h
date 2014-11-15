@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <tuple>
 #include <queue>
@@ -17,14 +18,40 @@
 #undef main
 #endif
 
-static inline int _SDL_real(const char *file, const long line, const char *code) {
+const char pathSeparator =
+#ifdef _WIN32
+'\\'
+#else
+'/'
+#endif
+;
+
+inline const char *basename(const char *path) {
+	const char *r = strrchr(path, pathSeparator);
+	return r ? r + 1 : path;
+}
+
+#define BASEFILE (basename(__FILE__))
+
+#define OUTPUT(S) (std::cout << S)
+#define ERROR(S)  (std::cerr << "========== ERROR ==========\n" << S << '\n')
+
+#ifdef _DEBUG
+#define DEBUG(S) OUTPUT(S)
+#define CONTINUE ((std::cout << "Press enter to continue."), (std::cin.ignore(1)))
+#else
+#define DEBUG(S)
+#define CONTINUE
+#endif
+
+inline int _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	if(strlen(err) > 0) {
-		//ERR("SDL: %s\n", err);
-		//DEBUG("  %s:%ld\n", file, line);
-		//DEBUG("    %s\n\n", code);
+		ERROR("SDL: " << err);
+		DEBUG("    " << file << ':' << line << '\n');
+		DEBUG("    " << code << "\n\n");
 	}
 	return strlen(err) == 0;
 }
 
-#define SDL(CODE) ((CODE), _SDL_real(__FILE__, __LINE__, #CODE))
+#define SDL(CODE) ((CODE), _SDL_real(BASEFILE, __LINE__, #CODE))
