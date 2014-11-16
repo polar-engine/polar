@@ -44,17 +44,12 @@ void GL32Renderer::InitGL() {
 
 void GL32Renderer::Init() {
 	InitGL();
-	/*
-	eventManager->ListenFor("renderer", "bgcolor", [] (void *p) {
-		DEBUG(typeid(p).name());
-		assert(typeid(p) == typeid(std::tuple<float, float, float, float>));
-		auto &color = *reinterpret_cast<std::tuple<float, float, float, float> *>(p);
+	eventManager->ListenFor("renderer", "bgcolor", [] (Arg arg) {
+		auto &color = *arg.Get<Tuple4<float> *>();
 		GL(glClearColor(std::get<0>(color), std::get<1>(color), std::get<2>(color), std::get<3>(color)));
 	});
-
-	auto color = std::make_tuple(0.02f, 0.05f, 0.1f, 0.0f);
+	Tuple4<float> color = std::make_tuple(0.02f, 0.05f, 0.1f, 0.0f);
 	eventManager->FireIn("renderer", "bgcolor", &color);
-	*/
 }
 
 void GL32Renderer::Update(int) {

@@ -39,6 +39,21 @@ inline const char *basename(const char *path) {
 #define CONTINUE
 #endif
 
+/* TODO: use GLM types instead because who doesn't like SIMD :D */
+template<typename T> using Tuple2 = std::tuple<T, T>;
+template<typename T> using Tuple3 = std::tuple<T, T, T>;
+template<typename T> using Tuple4 = std::tuple<T, T, T, T>;
+
+union Arg {
+	void *v;
+	float *f;
+	Tuple2<Arg> *t2;
+	Tuple3<Arg> *t3;
+	Tuple4<Arg> *t4;
+	template<typename T> Arg(T p) { v = reinterpret_cast<void *>(p); }
+	template<typename T> T Get() { return reinterpret_cast<T>(v); }
+};
+
 #include "Tag.h"
 #include "System.h"
 #include "JobManager.h"

@@ -2,24 +2,27 @@
 
 #include "System.h"
 
+typedef std::function<void(const std::string &, Arg)> GlobalListener;
+typedef std::function<void(Arg)> Listener;
+
 class EventManager : public System {
 private:
-	template<typename ...Ts> std::vector<const std::function<void(const std::string &, const std::function<void(Ts...)>)>> _globalListeners;
-	template<typename ...Ts> std::unordered_multimap<std::string, const std::function<void(Ts...)>> _listeners;
+	std::vector<const GlobalListener> _globalListeners;
+	std::unordered_multimap<std::string, const Listener> _listeners;
 public:
-	template<typename ...Ts> void Listen(const std::function<void(const std::string &, Ts...)> &fn) {
-		_globalListeners.emplace(Tag<Ts...>, fn);
+	void Listen(const GlobalListener &fn) {
+		_globalListeners.emplace_back(fn);
 	}
-	template<typename ...Ts> void ListenFor(const std::string &msg, const std::function<void(Ts...)> &fn) {
+	void ListenFor(const std::string &msg, const Listener &fn) {
 		ListenFor("", msg, fn);
 	}
-	template<typename ...Ts> void ListenFor(const std::string &ns, const std::string &msg, const std::function<void(Ts...)> &fn) {
+	void ListenFor(const std::string &ns, const std::string &msg, const Listener &fn) {
 		_listeners.emplace(ns + '.' + msg, fn);
 	}
-	template<typename ...Ts> void Fire(const std::string &msg, Ts ...args) const {
-		FireIn("", msg, args...);
+	void Fire(const std::string &msg, Arg arg = nullptr) const {
+		FireIn("", msg, arg);
 	}
-	template<typename ...Ts> void FireIn(const std::string &ns, const std::string &msg, Ts ...) const {
+	void FireIn(const std::string &ns, const std::string &msg, Arg arg = nullptr) const {
 		auto m = ns + '.' + msg;
 		auto range = _listeners.equal_range(m);
 		for(auto i = range.first; i != range.second; ++i) {
