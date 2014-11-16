@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Renderer.h"
+#include "sdl.h"
+#include "gl.h"
 
 class GL32Renderer : public Renderer {
 private:
@@ -9,6 +11,7 @@ private:
 	void HandleSDL(SDL_Event &);
 public:
 	static bool IsSupported();
+	void InitGL();
 	void Init() override final;
 	void Update(int) override final;
 	void Destroy() override final;

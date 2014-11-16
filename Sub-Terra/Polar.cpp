@@ -59,7 +59,7 @@ void Polar::AddObject(std::initializer_list<Component *> components) {
 void Polar::Run() {
 	Init();
 	bool running = true;
-	_eventManager.ListenFor("destroy", [&running] () { running = false; });
+	//_eventManager.ListenFor("destroy", [&running] (void *) { running = false; });
 	while(running) {
 		Update(20000);
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));

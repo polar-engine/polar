@@ -43,11 +43,11 @@ void Polar::AddSystemImpl(const std::string &msg, Tag<T>, Tag<Ts> ...) {
 	if(T::IsSupported()) {
 		AddSystem(new T());
 	} else {
-		AddSystemImpl(msg, Tag < Ts > {}...);
+		AddSystemImpl(msg, Tag<Ts>()...);
 	}
 }
 
 template<typename ...Ts>
 void Polar::AddSystem(const std::string &msg) {
-	AddSystemImpl(msg, Tag < Ts > {}...);
+	AddSystemImpl(msg, Tag<Ts>()...);
 }
