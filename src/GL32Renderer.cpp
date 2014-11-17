@@ -15,7 +15,7 @@ bool GL32Renderer::IsSupported() {
 			throw e;
 		}
 		renderer.Destroy();
-	} catch(std::exception &e) {
+	} catch(std::exception &) {
 		renderer.Destroy();
 		return false;
 	}
