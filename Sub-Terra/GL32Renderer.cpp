@@ -45,11 +45,10 @@ void GL32Renderer::InitGL() {
 void GL32Renderer::Init() {
 	InitGL();
 	eventManager->ListenFor("renderer", "bgcolor", [] (Arg arg) {
-		auto &color = *arg.Get<Tuple4<float> *>();
-		GL(glClearColor(std::get<0>(color), std::get<1>(color), std::get<2>(color), std::get<3>(color)));
+		auto &color = arg.vec4;
+		GL(glClearColor(color.x, color.y, color.z, color.w));
 	});
-	Tuple4<float> color = std::make_tuple(0.02f, 0.05f, 0.1f, 0.0f);
-	eventManager->FireIn("renderer", "bgcolor", &color);
+	eventManager->FireIn("renderer", "bgcolor", glm::detail::fvec4SIMD(0.02f, 0.05f, 0.1f, 0.0f));
 }
 
 void GL32Renderer::Update(int) {
