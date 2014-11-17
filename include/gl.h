@@ -1,14 +1,14 @@
 #pragma once
 
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include "GL/glew.h"
 
 inline bool _GL_real(const char *file, const long line, const char *code) {
 	GLenum err = glGetError();
 	if(err != GL_NO_ERROR) {
-		ERROR("OpenGL: 0x" << std::hex << err);
-		DEBUG("    " << file << ':' << line);
-		DEBUG("    " << code << '\n');
+		ENGINE_ERROR("OpenGL: 0x" << std::hex << err);
+		ENGINE_DEBUG("    " << file << ':' << line);
+		ENGINE_DEBUG("    " << code << '\n');
 	}
 	return err == GL_NO_ERROR;
 }

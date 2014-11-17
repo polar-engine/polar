@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "common.h"
 #include "GL32Renderer.h"
 
 bool GL32Renderer::IsSupported() {
@@ -9,9 +9,13 @@ bool GL32Renderer::IsSupported() {
 		GLint major, minor;
 		if(!GL(glGetIntegerv(GL_MAJOR_VERSION, &major))) { throw e; }
 		if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) { throw e; }
-		if(major != 3 || minor != 2) { throw e; }
+		/* if OpenGL version is 3.2 or greater */
+		if(!(major > 3 || (major == 3 && minor >= 2))) {
+			ENGINE_ERROR("actual OpenGL version is " << major << '.' << minor);
+			throw e;
+		}
 		renderer.Destroy();
-	} catch(std::exception &) {
+	} catch(std::exception &e) {
 		renderer.Destroy();
 		return false;
 	}
@@ -32,14 +36,17 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { throw e; }
 
 	glewExperimental = GL_TRUE;
-
-	GLenum err;
-	GL(err = glewInit());
+	GLenum err = glewInit();
 
 	if(err != GLEW_OK) {
-		ERROR("GLEW: glewInit failed");
+		ENGINE_ERROR("GLEW: glewInit failed");
 		throw e;
 	}
+
+	/* GLEW cals glGetString(EXTENSIONS) which
+	 * causes GL_INVALID_ENUM on GL 3.2+ core contexts
+	 */
+	glGetError();
 }
 
 void GL32Renderer::Init() {

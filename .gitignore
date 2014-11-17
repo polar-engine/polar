@@ -154,3 +154,16 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# =========================
+# Xcode
+# =========================
+
+# User data
+xcuserdata/**/*
+
+# Except schemes
+!xcuserdata/**/xcschemes/*
+
+# User interface state
+UserInterfaceState.xcuserstate

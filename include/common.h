@@ -15,8 +15,8 @@
 
 #define GLM_SIMD_ENABLE_XYZW_UNION
 
-#include <glm/glm.hpp>
-#include <glm/gtx/simd_vec4.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtx/simd_vec4.hpp"
 
 const char pathSeparator =
 #ifdef _WIN32
@@ -33,15 +33,15 @@ inline const char *basename(const char *path) {
 
 #define BASEFILE (basename(__FILE__))
 
-#define OUTPUT(S) (std::cout << S)
-#define ERROR(S)  (std::cerr << "========== ERROR ==========\n" << S << '\n')
+#define ENGINE_OUTPUT(S) (std::cout << S)
+#define ENGINE_ERROR(S)  (std::cerr << "========== ERROR ==========\n" << S << '\n')
 
 #ifdef _DEBUG
-#define DEBUG(S) OUTPUT(S << '\n')
-#define CONTINUE ((std::cout << "Press enter to continue."), (std::cin.ignore(1)))
+#define ENGINE_DEBUG(S) ENGINE_OUTPUT(S << '\n')
+#define ENGINE_CONTINUE ((std::cout << "Press enter to continue."), (std::cin.ignore(1)))
 #else
-#define DEBUG(S)
-#define CONTINUE
+#define ENGINE_DEBUG(S)
+#define ENGINE_CONTINUE
 #endif
 
 union Arg {

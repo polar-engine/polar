@@ -1,0 +1,399 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7F529A521A1AB00E00C6F36D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407441A1AACC400B55B7A /* MainMenu.xib */; };
+		7F5407641A1AAD2900B55B7A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7F54075A1A1AAD2900B55B7A /* AppDelegate.mm */; };
+		7F5407651A1AAD2900B55B7A /* GL32Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F54075B1A1AAD2900B55B7A /* GL32Renderer.cpp */; };
+		7F5407661A1AAD2900B55B7A /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F54075C1A1AAD2900B55B7A /* glew.c */; };
+		7F5407671A1AAD2900B55B7A /* JobManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F54075D1A1AAD2900B55B7A /* JobManager.cpp */; };
+		7F5407691A1AAD2900B55B7A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F54075F1A1AAD2900B55B7A /* main.m */; };
+		7F54076A1A1AAD2900B55B7A /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F5407601A1AAD2900B55B7A /* Object.cpp */; };
+		7F54076B1A1AAD2900B55B7A /* Polar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F5407611A1AAD2900B55B7A /* Polar.cpp */; };
+		7F54076C1A1AAD2900B55B7A /* SubTerra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F5407621A1AAD2900B55B7A /* SubTerra.cpp */; };
+		7F54076D1A1AAD2900B55B7A /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F5407631A1AAD2900B55B7A /* Worker.cpp */; };
+		7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407711A1AADD100B55B7A /* OpenGL.framework */; };
+		7F54077A1A1AAF1100B55B7A /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
+		7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
+		7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F54077F1A1AAF8300B55B7A /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7F54073C1A1AAC2300B55B7A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = SOURCE_ROOT; };
+		7F54073E1A1AAC4100B55B7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = SOURCE_ROOT; };
+		7F5407451A1AACC400B55B7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = resources/Base.lproj/MainMenu.xib; sourceTree = SOURCE_ROOT; };
+		7F5407471A1AAD0E00B55B7A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = include/AppDelegate.h; sourceTree = SOURCE_ROOT; };
+		7F5407481A1AAD0E00B55B7A /* Component.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Component.h; path = include/Component.h; sourceTree = SOURCE_ROOT; };
+		7F5407491A1AAD0E00B55B7A /* EventManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventManager.h; path = include/EventManager.h; sourceTree = SOURCE_ROOT; };
+		7F54074A1A1AAD0E00B55B7A /* gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gl.h; path = include/gl.h; sourceTree = SOURCE_ROOT; };
+		7F54074B1A1AAD0E00B55B7A /* GL32Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GL32Renderer.h; path = include/GL32Renderer.h; sourceTree = SOURCE_ROOT; };
+		7F54074C1A1AAD0E00B55B7A /* Job.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Job.h; path = include/Job.h; sourceTree = SOURCE_ROOT; };
+		7F54074D1A1AAD0E00B55B7A /* JobManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JobManager.h; path = include/JobManager.h; sourceTree = SOURCE_ROOT; };
+		7F54074E1A1AAD0E00B55B7A /* ModelComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModelComponent.h; path = include/ModelComponent.h; sourceTree = SOURCE_ROOT; };
+		7F54074F1A1AAD0E00B55B7A /* NoRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NoRenderer.h; path = include/NoRenderer.h; sourceTree = SOURCE_ROOT; };
+		7F5407501A1AAD0E00B55B7A /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = include/Object.h; sourceTree = SOURCE_ROOT; };
+		7F5407511A1AAD0E00B55B7A /* Polar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Polar.h; path = include/Polar.h; sourceTree = SOURCE_ROOT; };
+		7F5407521A1AAD0E00B55B7A /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Renderer.h; path = include/Renderer.h; sourceTree = SOURCE_ROOT; };
+		7F5407531A1AAD0E00B55B7A /* sdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sdl.h; path = include/sdl.h; sourceTree = SOURCE_ROOT; };
+		7F5407541A1AAD0E00B55B7A /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = common.h; path = include/common.h; sourceTree = SOURCE_ROOT; };
+		7F5407551A1AAD0E00B55B7A /* StdOutComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StdOutComponent.h; path = include/StdOutComponent.h; sourceTree = SOURCE_ROOT; };
+		7F5407561A1AAD0E00B55B7A /* SubTerra.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SubTerra.h; path = include/SubTerra.h; sourceTree = SOURCE_ROOT; };
+		7F5407571A1AAD0E00B55B7A /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = include/System.h; sourceTree = SOURCE_ROOT; };
+		7F5407581A1AAD0E00B55B7A /* Tag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tag.h; path = include/Tag.h; sourceTree = SOURCE_ROOT; };
+		7F5407591A1AAD0E00B55B7A /* Worker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Worker.h; path = include/Worker.h; sourceTree = SOURCE_ROOT; };
+		7F54075A1A1AAD2900B55B7A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = src/AppDelegate.mm; sourceTree = SOURCE_ROOT; };
+		7F54075B1A1AAD2900B55B7A /* GL32Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GL32Renderer.cpp; path = src/GL32Renderer.cpp; sourceTree = SOURCE_ROOT; };
+		7F54075C1A1AAD2900B55B7A /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = src/glew.c; sourceTree = SOURCE_ROOT; };
+		7F54075D1A1AAD2900B55B7A /* JobManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JobManager.cpp; path = src/JobManager.cpp; sourceTree = SOURCE_ROOT; };
+		7F54075F1A1AAD2900B55B7A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/main.m; sourceTree = SOURCE_ROOT; };
+		7F5407601A1AAD2900B55B7A /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = src/Object.cpp; sourceTree = SOURCE_ROOT; };
+		7F5407611A1AAD2900B55B7A /* Polar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Polar.cpp; path = src/Polar.cpp; sourceTree = SOURCE_ROOT; };
+		7F5407621A1AAD2900B55B7A /* SubTerra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubTerra.cpp; path = src/SubTerra.cpp; sourceTree = SOURCE_ROOT; };
+		7F5407631A1AAD2900B55B7A /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = SOURCE_ROOT; };
+		7F5407711A1AADD100B55B7A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		7F5407781A1AAF0100B55B7A /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
+		7F54077F1A1AAF8300B55B7A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7FF31F151A1AA90D0008999E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */,
+				7F54077A1A1AAF1100B55B7A /* SDL2.framework in Frameworks */,
+				7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7F5407391A1AABC600B55B7A /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				7F54075A1A1AAD2900B55B7A /* AppDelegate.mm */,
+				7F54075B1A1AAD2900B55B7A /* GL32Renderer.cpp */,
+				7F54075C1A1AAD2900B55B7A /* glew.c */,
+				7F54075D1A1AAD2900B55B7A /* JobManager.cpp */,
+				7F54075F1A1AAD2900B55B7A /* main.m */,
+				7F5407601A1AAD2900B55B7A /* Object.cpp */,
+				7F5407611A1AAD2900B55B7A /* Polar.cpp */,
+				7F5407621A1AAD2900B55B7A /* SubTerra.cpp */,
+				7F5407631A1AAD2900B55B7A /* Worker.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		7F54073A1A1AABD000B55B7A /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				7F5407471A1AAD0E00B55B7A /* AppDelegate.h */,
+				7F5407481A1AAD0E00B55B7A /* Component.h */,
+				7F5407491A1AAD0E00B55B7A /* EventManager.h */,
+				7F54074A1A1AAD0E00B55B7A /* gl.h */,
+				7F54074B1A1AAD0E00B55B7A /* GL32Renderer.h */,
+				7F54074C1A1AAD0E00B55B7A /* Job.h */,
+				7F54074D1A1AAD0E00B55B7A /* JobManager.h */,
+				7F54074E1A1AAD0E00B55B7A /* ModelComponent.h */,
+				7F54074F1A1AAD0E00B55B7A /* NoRenderer.h */,
+				7F5407501A1AAD0E00B55B7A /* Object.h */,
+				7F5407511A1AAD0E00B55B7A /* Polar.h */,
+				7F5407521A1AAD0E00B55B7A /* Renderer.h */,
+				7F5407531A1AAD0E00B55B7A /* sdl.h */,
+				7F5407541A1AAD0E00B55B7A /* common.h */,
+				7F5407551A1AAD0E00B55B7A /* StdOutComponent.h */,
+				7F5407561A1AAD0E00B55B7A /* SubTerra.h */,
+				7F5407571A1AAD0E00B55B7A /* System.h */,
+				7F5407581A1AAD0E00B55B7A /* Tag.h */,
+				7F5407591A1AAD0E00B55B7A /* Worker.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		7F54073B1A1AABD600B55B7A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7F5407441A1AACC400B55B7A /* MainMenu.xib */,
+				7F54073E1A1AAC4100B55B7A /* Images.xcassets */,
+				7F54073C1A1AAC2300B55B7A /* Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		7F5407731A1AADDD00B55B7A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7F54077F1A1AAF8300B55B7A /* Cocoa.framework */,
+				7F5407781A1AAF0100B55B7A /* SDL2.framework */,
+				7F5407711A1AADD100B55B7A /* OpenGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7FF31F0F1A1AA90D0008999E = {
+			isa = PBXGroup;
+			children = (
+				7FF31F1A1A1AA90D0008999E /* Sub-Terra */,
+				7FF31F191A1AA90D0008999E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7FF31F191A1AA90D0008999E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7FF31F181A1AA90D0008999E /* Sub-Terra.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7FF31F1A1A1AA90D0008999E /* Sub-Terra */ = {
+			isa = PBXGroup;
+			children = (
+				7F54073A1A1AABD000B55B7A /* Header Files */,
+				7F5407391A1AABC600B55B7A /* Source Files */,
+				7F54073B1A1AABD600B55B7A /* Resources */,
+				7F5407731A1AADDD00B55B7A /* Frameworks */,
+			);
+			path = "Sub-Terra";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7FF31F171A1AA90D0008999E /* Sub-Terra */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Sub-Terra" */;
+			buildPhases = (
+				7FF31F141A1AA90D0008999E /* Sources */,
+				7FF31F151A1AA90D0008999E /* Frameworks */,
+				7FF31F161A1AA90D0008999E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Sub-Terra";
+			productName = "Sub-Terra";
+			productReference = 7FF31F181A1AA90D0008999E /* Sub-Terra.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7FF31F101A1AA90D0008999E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0600;
+				ORGANIZATIONNAME = "David Farrell";
+				TargetAttributes = {
+					7FF31F171A1AA90D0008999E = {
+						CreatedOnToolsVersion = 6.0;
+					};
+				};
+			};
+			buildConfigurationList = 7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Sub-Terra" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7FF31F0F1A1AA90D0008999E;
+			productRefGroup = 7FF31F191A1AA90D0008999E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7FF31F171A1AA90D0008999E /* Sub-Terra */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7FF31F161A1AA90D0008999E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F529A521A1AB00E00C6F36D /* MainMenu.xib in Resources */,
+				7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7FF31F141A1AA90D0008999E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F54076B1A1AAD2900B55B7A /* Polar.cpp in Sources */,
+				7F5407651A1AAD2900B55B7A /* GL32Renderer.cpp in Sources */,
+				7F5407671A1AAD2900B55B7A /* JobManager.cpp in Sources */,
+				7F5407641A1AAD2900B55B7A /* AppDelegate.mm in Sources */,
+				7F54076A1A1AAD2900B55B7A /* Object.cpp in Sources */,
+				7F54076C1A1AAD2900B55B7A /* SubTerra.cpp in Sources */,
+				7F54076D1A1AAD2900B55B7A /* Worker.cpp in Sources */,
+				7F5407691A1AAD2900B55B7A /* main.m in Sources */,
+				7F5407661A1AAD2900B55B7A /* glew.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		7F5407441A1AACC400B55B7A /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7F5407451A1AACC400B55B7A /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7FF31F331A1AA90E0008999E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"_DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				METAL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		7FF31F341A1AA90E0008999E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				METAL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		7FF31F361A1AA90E0008999E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Frameworks",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/resources/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = include;
+			};
+			name = Debug;
+		};
+		7FF31F371A1AA90E0008999E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Frameworks",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/resources/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = include;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Sub-Terra" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7FF31F331A1AA90E0008999E /* Debug */,
+				7FF31F341A1AA90E0008999E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Sub-Terra" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7FF31F361A1AA90E0008999E /* Debug */,
+				7FF31F371A1AA90E0008999E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7FF31F101A1AA90D0008999E /* Project object */;
+}

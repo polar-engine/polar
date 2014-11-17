@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "common.h"
 #include "SubTerra.h"
 #include "Polar.h"
 #include "NoRenderer.h"
