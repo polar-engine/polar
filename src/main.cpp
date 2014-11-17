@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "common.h"
 #include "SubTerra.h"
 
 int main(int argc, char **argv) {
@@ -8,6 +8,6 @@ int main(int argc, char **argv) {
 	}
 
 	SubTerra().Run(args);
-	CONTINUE;
+	ENGINE_CONTINUE;
 	return 0;
 }

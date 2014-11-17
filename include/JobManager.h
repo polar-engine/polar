@@ -7,7 +7,7 @@
 class JobManager : public System {
 private:
 	std::priority_queue<Job *> _jobs;
-	std::vector<Worker *> _workers = std::vector<Worker *>(numWorkers);
+	std::vector<Worker *> _workers;
 public:
 	const int numWorkers = std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
 	static bool IsSupported() { return true; }

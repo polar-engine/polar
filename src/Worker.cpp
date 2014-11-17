@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "common.h"
 #include "Worker.h"
 
 void Worker::Start() {
