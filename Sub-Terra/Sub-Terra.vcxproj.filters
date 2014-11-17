@@ -15,81 +15,81 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\src\GL32Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SubTerra.cpp">
+    <ClCompile Include="..\src\JobManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Polar.cpp">
+    <ClCompile Include="..\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
+    <ClCompile Include="..\src\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JobManager.cpp">
+    <ClCompile Include="..\src\Polar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Worker.cpp">
+    <ClCompile Include="..\src\SubTerra.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GL32Renderer.cpp">
+    <ClCompile Include="..\src\Worker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SubTerra.h">
+    <ClInclude Include="..\include\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Polar.h">
+    <ClInclude Include="..\include\EventManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
+    <ClInclude Include="..\include\gl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NoRenderer.h">
+    <ClInclude Include="..\include\GL32Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System.h">
+    <ClInclude Include="..\include\Job.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
+    <ClInclude Include="..\include\JobManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h">
+    <ClInclude Include="..\include\ModelComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StdOutComponent.h">
+    <ClInclude Include="..\include\NoRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tag.h">
+    <ClInclude Include="..\include\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JobManager.h">
+    <ClInclude Include="..\include\Polar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Job.h">
+    <ClInclude Include="..\include\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Worker.h">
+    <ClInclude Include="..\include\sdl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GL32Renderer.h">
+    <ClInclude Include="..\include\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="..\include\StdOutComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventManager.h">
+    <ClInclude Include="..\include\SubTerra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gl.h">
+    <ClInclude Include="..\include\System.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sdl.h">
+    <ClInclude Include="..\include\Tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelComponent.h">
+    <ClInclude Include="..\include\Worker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
