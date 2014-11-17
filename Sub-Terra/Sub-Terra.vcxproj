@@ -89,33 +89,33 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GL32Renderer.cpp" />
-    <ClCompile Include="JobManager.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Polar.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="SubTerra.cpp" />
-    <ClCompile Include="Worker.cpp" />
+    <ClCompile Include="..\src\GL32Renderer.cpp" />
+    <ClCompile Include="..\src\JobManager.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Object.cpp" />
+    <ClCompile Include="..\src\Polar.cpp" />
+    <ClCompile Include="..\src\SubTerra.cpp" />
+    <ClCompile Include="..\src\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="ModelComponent.h" />
-    <ClInclude Include="EventManager.h" />
-    <ClInclude Include="gl.h" />
-    <ClInclude Include="GL32Renderer.h" />
-    <ClInclude Include="Job.h" />
-    <ClInclude Include="JobManager.h" />
-    <ClInclude Include="NoRenderer.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Polar.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="sdl.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="StdOutComponent.h" />
-    <ClInclude Include="SubTerra.h" />
-    <ClInclude Include="System.h" />
-    <ClInclude Include="Tag.h" />
-    <ClInclude Include="Worker.h" />
+    <ClInclude Include="..\include\Component.h" />
+    <ClInclude Include="..\include\EventManager.h" />
+    <ClInclude Include="..\include\gl.h" />
+    <ClInclude Include="..\include\GL32Renderer.h" />
+    <ClInclude Include="..\include\Job.h" />
+    <ClInclude Include="..\include\JobManager.h" />
+    <ClInclude Include="..\include\ModelComponent.h" />
+    <ClInclude Include="..\include\NoRenderer.h" />
+    <ClInclude Include="..\include\Object.h" />
+    <ClInclude Include="..\include\Polar.h" />
+    <ClInclude Include="..\include\Renderer.h" />
+    <ClInclude Include="..\include\sdl.h" />
+    <ClInclude Include="..\include\stdafx.h" />
+    <ClInclude Include="..\include\StdOutComponent.h" />
+    <ClInclude Include="..\include\SubTerra.h" />
+    <ClInclude Include="..\include\System.h" />
+    <ClInclude Include="..\include\Tag.h" />
+    <ClInclude Include="..\include\Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
