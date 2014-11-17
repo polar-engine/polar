@@ -13,6 +13,11 @@
 #include <thread>
 #include <mutex>
 
+#define GLM_SIMD_ENABLE_XYZW_UNION
+
+#include <glm/glm.hpp>
+#include <glm/gtx/simd_vec4.hpp>
+
 const char pathSeparator =
 #ifdef _WIN32
 '\\'
@@ -39,19 +44,16 @@ inline const char *basename(const char *path) {
 #define CONTINUE
 #endif
 
-/* TODO: use GLM types instead because who doesn't like SIMD :D */
-template<typename T> using Tuple2 = std::tuple<T, T>;
-template<typename T> using Tuple3 = std::tuple<T, T, T>;
-template<typename T> using Tuple4 = std::tuple<T, T, T, T>;
-
 union Arg {
-	void *v;
-	float *f;
-	Tuple2<Arg> *t2;
-	Tuple3<Arg> *t3;
-	Tuple4<Arg> *t4;
-	template<typename T> Arg(T p) { v = reinterpret_cast<void *>(p); }
-	template<typename T> T Get() { return reinterpret_cast<T>(v); }
+	float float_;
+	glm::detail::fvec4SIMD &vec4;
+	void *pVoid;
+
+	Arg(float f) { float_ = f; }
+	Arg(glm::detail::fvec4SIMD &v) { vec4 = v; }
+	Arg(std::nullptr_t) { pVoid = nullptr; }
+	template<typename T> Arg(T *p) { pVoid = reinterpret_cast<void *>(p); }
+	template<typename T> T * Get() { return reinterpret_cast<T *>(pVoid); }
 };
 
 #include "Tag.h"
