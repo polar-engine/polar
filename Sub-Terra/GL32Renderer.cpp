@@ -45,10 +45,12 @@ void GL32Renderer::InitGL() {
 void GL32Renderer::Init() {
 	InitGL();
 	eventManager->ListenFor("renderer", "bgcolor", [] (Arg arg) {
-		auto &color = arg.vec4;
-		GL(glClearColor(color.x, color.y, color.z, color.w));
+		auto color = arg.Get<glm::detail::fvec4SIMD>();
+		GL(glClearColor(color->x, color->y, color->z, color->w));
 	});
-	eventManager->FireIn("renderer", "bgcolor", glm::detail::fvec4SIMD(0.02f, 0.05f, 0.1f, 0.0f));
+
+	auto color = glm::detail::fvec4SIMD(0.02f, 0.05f, 0.1f, 1.0f);
+	eventManager->FireIn("renderer", "bgcolor", &color);
 }
 
 void GL32Renderer::Update(int) {
@@ -56,6 +58,10 @@ void GL32Renderer::Update(int) {
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
 	}
+
+	static glm::detail::fvec4SIMD color;
+	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
+	eventManager->FireIn("renderer", "bgcolor", &color);
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	SDL(SDL_GL_SwapWindow(window));

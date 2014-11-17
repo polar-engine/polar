@@ -62,7 +62,7 @@ void Polar::Run() {
 	_eventManager.ListenFor("destroy", [&running] (Arg) { running = false; });
 	while(running) {
 		Update(20000);
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		std::this_thread::sleep_for(std::chrono::milliseconds(17));
 	}
 	Destroy();
 }

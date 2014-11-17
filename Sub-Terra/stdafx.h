@@ -46,11 +46,9 @@ inline const char *basename(const char *path) {
 
 union Arg {
 	float float_;
-	glm::detail::fvec4SIMD &vec4;
 	void *pVoid;
 
 	Arg(float f) { float_ = f; }
-	Arg(glm::detail::fvec4SIMD &v) { vec4 = v; }
 	Arg(std::nullptr_t) { pVoid = nullptr; }
 	template<typename T> Arg(T *p) { pVoid = reinterpret_cast<void *>(p); }
 	template<typename T> T * Get() { return reinterpret_cast<T *>(pVoid); }
