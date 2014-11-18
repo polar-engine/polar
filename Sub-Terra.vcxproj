@@ -94,7 +94,6 @@
     <ClCompile Include="src\GL32Renderer.cpp" />
     <ClCompile Include="src\JobManager.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Polar.cpp" />
     <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
@@ -113,7 +112,6 @@
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\sdl.h" />
     <ClInclude Include="include\common.h" />
-    <ClInclude Include="include\StdOutComponent.h" />
     <ClInclude Include="include\SubTerra.h" />
     <ClInclude Include="include\System.h" />
     <ClInclude Include="include\Tag.h" />

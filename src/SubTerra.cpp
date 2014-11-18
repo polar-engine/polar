@@ -3,15 +3,14 @@
 #include "Polar.h"
 #include "NoRenderer.h"
 #include "GL32Renderer.h"
-#include "StdOutComponent.h"
 #include "ModelComponent.h"
 
 void SubTerra::Run(const std::vector<const std::string> &args) {
 	Polar engine;
 	engine.AddSystem<GL32Renderer>("No supported renderers");
-	engine.AddObject({
-		new StdOutComponent("hello world"),
-		new ModelComponent()
+	auto obj = engine.AddObject();
+	obj->AddComponent<ModelComponent>(std::initializer_list<Triangle>{
+		std::make_tuple(Point(0, 0, 0, 1), Point(1, 0, 0, 1), Point(0, 1, 0, 1))
 	});
 	engine.Run();
 }

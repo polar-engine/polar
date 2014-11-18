@@ -11,6 +11,6 @@ public:
 	System() {}
 	virtual ~System() {}
 	virtual void Init() {}
-	virtual void Update(int) {}
+	virtual void Update(DeltaTicks, std::vector<Object *> &) {}
 	virtual void Destroy() {}
 };

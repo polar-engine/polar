@@ -16,14 +16,14 @@ private:
 	template<typename T> void AddSystemImpl(const std::string &, Tag<T>);
 	template<typename T, typename ...Ts> void AddSystemImpl(const std::string &, Tag<T>, Tag<Ts> ...);
 	void Init();
-	void Update(int);
+	void Update(DeltaTicks);
 	void Destroy();
 public:
 	Polar() {}
 	virtual ~Polar();
 	template<typename ...Ts> void AddSystem(const std::string & = "no supported systems");
 	void AddSystem(System *);
-	void AddObject(std::initializer_list<Component *>);
+	Object * AddObject();
 	void Run();
 };
 

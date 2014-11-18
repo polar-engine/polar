@@ -1,5 +1,6 @@
 #include "common.h"
 #include "GL32Renderer.h"
+#include "ModelComponent.h"
 
 bool GL32Renderer::IsSupported() {
 	GL32Renderer renderer;
@@ -27,7 +28,7 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { throw e; }
-	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { throw e; }
+	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { throw e; }
@@ -60,7 +61,7 @@ void GL32Renderer::Init() {
 	eventManager->FireIn("renderer", "bgcolor", &color);
 }
 
-void GL32Renderer::Update(int) {
+void GL32Renderer::Update(DeltaTicks dt, std::vector<Object *> &objects) {
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
@@ -71,6 +72,19 @@ void GL32Renderer::Update(int) {
 	eventManager->FireIn("renderer", "bgcolor", &color);
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+	glBegin(GL_TRIANGLES);
+	for(auto object : objects) {
+		auto model = object->GetComponent<ModelComponent>();
+		if(model != nullptr) {
+			for(auto point : model->points) {
+				ENGINE_DEBUG(point.x << ' ' << point.y << ' ' << point.z << ' ' << point.w);
+				glVertex4f(point.x, point.y, point.z, point.w);
+			}
+		}
+	}
+	glEnd();
+
 	SDL(SDL_GL_SwapWindow(window));
 }
 

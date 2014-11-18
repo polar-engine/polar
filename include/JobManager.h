@@ -14,7 +14,7 @@ public:
 	JobManager();
 	~JobManager() override;
 	void Init() override final;
-	void Update(int) override final;
+	void Update(DeltaTicks, std::vector<Object *> &) override final;
 	void Destroy() override final;
 	void Do(const JobFunction &fn, const JobPriority = JobPriority::Normal, const JobThread = JobThread::Any);
 };
