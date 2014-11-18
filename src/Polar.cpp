@@ -16,23 +16,17 @@ void Polar::Init() {
 	for(auto system : _systems) {
 		system->Init();
 	}
-	for(auto object : _objects) {
-		object->Init();
-	}
 }
 
-void Polar::Update(int ts) {
-	_jobManager.Update(ts);
-	_eventManager.Update(ts);
+void Polar::Update(DeltaTicks dt) {
+	_jobManager.Update(dt, _objects);
+	_eventManager.Update(dt, _objects);
 	for(auto system : _systems) {
-		system->Update(ts);
+		system->Update(dt, _objects);
 	}
 }
 
 void Polar::Destroy() {
-	for(auto object : _objects) {
-		object->Destroy();
-	}
 	for(auto system = _systems.rbegin(); system != _systems.rend(); ++system) {
 		(*system)->Destroy();
 	}
@@ -46,14 +40,10 @@ void Polar::AddSystem(System *system) {
 	_systems.push_back(system);
 }
 
-void Polar::AddObject(std::initializer_list<Component *> components) {
+Object * Polar::AddObject() {
 	Object *object = new Object();
-	object->jobManager = &_jobManager;
-	object->eventManager = &_eventManager;
-	for(auto component : components) {
-		object->AddComponent(component);
-	}
 	_objects.push_back(object);
+	return object;
 }
 
 void Polar::Run() {
@@ -61,8 +51,8 @@ void Polar::Run() {
 	bool running = true;
 	_eventManager.ListenFor("destroy", [&running] (Arg) { running = false; });
 	while(running) {
-		Update(20000);
-		std::this_thread::sleep_for(std::chrono::milliseconds(17));
+		Update(DeltaTicks(2));
+		std::this_thread::sleep_for(DeltaTicks(2));
 	}
 	Destroy();
 }

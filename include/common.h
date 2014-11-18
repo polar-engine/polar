@@ -4,9 +4,12 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <memory>
+#include <typeinfo>
+#include <array>
 #include <vector>
-#include <tuple>
 #include <queue>
+#include <tuple>
 #include <unordered_map>
 #include <functional>
 #include <chrono>
@@ -54,7 +57,15 @@ union Arg {
 	template<typename T> T * Get() { return reinterpret_cast<T *>(pVoid); }
 };
 
+#define ENGINE_TICKS_PER_SECOND 100
+
+typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> DeltaTicks;
+
+typedef glm::simdVec4 Point;
+typedef std::tuple<Point, Point, Point> Triangle;
+
 #include "Tag.h"
+#include "Object.h"
 #include "System.h"
 #include "JobManager.h"
 #include "EventManager.h"

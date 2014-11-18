@@ -10,6 +10,7 @@ private:
 	std::vector<const GlobalListener> _globalListeners;
 	std::unordered_multimap<std::string, const Listener> _listeners;
 public:
+	static bool IsSupported() { return true; }
 	void Listen(const GlobalListener &fn) {
 		_globalListeners.emplace_back(fn);
 	}
