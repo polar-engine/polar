@@ -73,17 +73,17 @@ void GL32Renderer::Update(DeltaTicks dt, std::vector<Object *> &objects) {
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-	glBegin(GL_TRIANGLES);
+	GL(glBegin(GL_TRIANGLES));
 	for(auto object : objects) {
 		auto model = object->GetComponent<ModelComponent>();
 		if(model != nullptr) {
 			for(auto point : model->points) {
 				ENGINE_DEBUG(point.x << ' ' << point.y << ' ' << point.z << ' ' << point.w);
-				glVertex4f(point.x, point.y, point.z, point.w);
+				GL(glVertex4f(point.x, point.y, point.z, point.w));
 			}
 		}
 	}
-	glEnd();
+	GL(glEnd());
 
 	SDL(SDL_GL_SwapWindow(window));
 }
