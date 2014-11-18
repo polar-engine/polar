@@ -6,7 +6,6 @@ class ModelComponent : public Component {
 public:
 	std::vector<Point> points;
 	ModelComponent() {}
-	~ModelComponent() override {}
 	ModelComponent(const std::vector<Point> &points) : points(points) {}
 	ModelComponent(const std::vector<Triangle> &triangles) {
 		points.resize(triangles.size() * 3);
@@ -17,4 +16,5 @@ public:
 			points.at(i + 2) = std::get<2>(triangle);
 		}
 	}
+	virtual ~ModelComponent() override {}
 };
