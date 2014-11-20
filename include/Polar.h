@@ -16,7 +16,7 @@ private:
 	template<typename T> void AddSystemImpl(const std::string &, Tag<T>);
 	template<typename T, typename ...Ts> void AddSystemImpl(const std::string &, Tag<T>, Tag<Ts> ...);
 	void Init();
-	void Update(DeltaTicks);
+	void Update(DeltaTicks &);
 	void Destroy();
 public:
 	Polar() {}

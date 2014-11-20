@@ -25,7 +25,7 @@ void JobManager::Init() {
 	}
 }
 
-void JobManager::Update(DeltaTicks, std::vector<Object *> &) {
+void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 	if(_jobs.empty()) {
 		std::this_thread::yield();
 	} else {

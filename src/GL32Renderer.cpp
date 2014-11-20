@@ -1,6 +1,7 @@
 #include "common.h"
 #include "GL32Renderer.h"
 #include "ModelComponent.h"
+#include <iomanip>
 
 bool GL32Renderer::IsSupported() {
 	GL32Renderer renderer;
@@ -61,7 +62,7 @@ void GL32Renderer::Init() {
 	eventManager->FireIn("renderer", "bgcolor", &color);
 }
 
-void GL32Renderer::Update(DeltaTicks dt, std::vector<Object *> &objects) {
+void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
@@ -78,7 +79,6 @@ void GL32Renderer::Update(DeltaTicks dt, std::vector<Object *> &objects) {
 		auto model = object->GetComponent<ModelComponent>();
 		if(model != nullptr) {
 			for(auto point : model->points) {
-				ENGINE_DEBUG(point.x << ' ' << point.y << ' ' << point.z << ' ' << point.w);
 				GL(glVertex4f(point.x, point.y, point.z, point.w));
 			}
 		}
