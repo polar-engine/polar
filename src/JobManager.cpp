@@ -37,9 +37,15 @@ void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 			break;
 		case JobThread::Worker:
 			_workers.back()->AddJob(job);
+			std::this_thread::yield();
 			break;
 		case JobThread::Any:
-			if(_jobs.empty()) { job->fn(); } else { _workers.front()->AddJob(job); }
+			if(_jobs.empty()) {
+				job->fn();
+			} else {
+				_workers.front()->AddJob(job);
+				std::this_thread::yield();
+			}
 			break;
 		}
 	}
