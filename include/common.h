@@ -38,9 +38,10 @@ inline const char *basename(const char *path) {
 
 #define ENGINE_OUTPUT(S) (std::cout << S)
 #define ENGINE_ERROR(S)  (std::cerr << "========== ERROR ==========\n" << S << '\n')
+#define ENGINE_RDEBUG(S) ENGINE_OUTPUT(S << '\n')
 
 #ifdef _DEBUG
-#define ENGINE_DEBUG(S) ENGINE_OUTPUT(S << '\n')
+#define ENGINE_DEBUG(S) ENGINE_RDEBUG(S)
 #define ENGINE_CONTINUE ((std::cout << "Press enter to continue."), (std::cin.ignore(1)))
 #else
 #define ENGINE_DEBUG(S)
@@ -61,7 +62,7 @@ union Arg {
 
 typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> DeltaTicks;
 
-typedef glm::simdVec4 Point;
+typedef glm::fvec4 Point;
 typedef std::tuple<Point, Point, Point> Triangle;
 
 #include "Tag.h"
