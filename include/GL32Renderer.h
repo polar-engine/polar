@@ -13,6 +13,6 @@ public:
 	static bool IsSupported();
 	void InitGL();
 	void Init() override final;
-	void Update(DeltaTicks, std::vector<Object *> &) override final;
+	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 	void Destroy() override final;
 };

@@ -18,7 +18,7 @@ void Polar::Init() {
 	}
 }
 
-void Polar::Update(DeltaTicks dt) {
+void Polar::Update(DeltaTicks &dt) {
 	_jobManager.Update(dt, _objects);
 	_eventManager.Update(dt, _objects);
 	for(auto system : _systems) {
@@ -47,12 +47,18 @@ Object * Polar::AddObject() {
 }
 
 void Polar::Run() {
-	Init();
 	bool running = true;
 	_eventManager.ListenFor("destroy", [&running] (Arg) { running = false; });
+	Init();
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
+	DeltaTicks iteration = DeltaTicks(ENGINE_TICKS_PER_SECOND / 200);
+
 	while(running) {
-		Update(DeltaTicks(2));
-		std::this_thread::sleep_for(DeltaTicks(2));
+		then = now;
+		now = std::chrono::high_resolution_clock::now();
+		DeltaTicks dt = std::chrono::duration_cast<DeltaTicks>(now - then);
+		Update(dt);
 	}
 	Destroy();
 }
