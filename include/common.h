@@ -68,7 +68,11 @@ typedef glm::fvec4 Point;
 typedef std::tuple<Point, Point, Point> Triangle;
 
 #include "Tag.h"
-#include "Object.h"
+#include "EntityBase.h"
+#include "Component.h"
+
+typedef EntityBase<Component> Object;
+
 #include "System.h"
 #include "Polar.h"
 #include "JobManager.h"

@@ -8,7 +8,7 @@ Polar::~Polar() {
 }
 
 void Polar::Init() {
-	for(auto &system : _systems) {
+	for(auto &system : *systems.Get()) {
 		system.second->Init();
 		for(auto object : _objects) {
 			system.second->ObjectAdded(object);
@@ -18,13 +18,14 @@ void Polar::Init() {
 }
 
 void Polar::Update(DeltaTicks &dt) {
-	for(auto &system : _systems) {
+	for(auto &system : *systems.Get()) {
 		system.second->Update(dt, _objects);
 	}
 }
 
 void Polar::Destroy() {
-	for(auto system = _systems.rbegin(); system != _systems.rend(); ++system) {
+	auto ss = systems.Get();
+	for(auto system = ss->rbegin(); system != ss->rend(); ++system) {
 		system->second->Destroy();
 	}
 }
@@ -32,7 +33,7 @@ void Polar::Destroy() {
 void Polar::AddObject(Object *object) {
 	_objects.push_back(object);
 	if(_initDone) {
-		for(auto &system : _systems) {
+		for(auto &system : *systems.Get()) {
 			system.second->ObjectAdded(object);
 		}
 	}
@@ -40,7 +41,7 @@ void Polar::AddObject(Object *object) {
 
 void Polar::Run() {
 	bool running = true;
-	GetSystem<EventManager>()->ListenFor("destroy", [&running] (Arg) { running = false; });
+	systems.Get<EventManager>()->ListenFor("destroy", [&running] (Arg) { running = false; });
 	Init();
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
