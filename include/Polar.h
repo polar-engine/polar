@@ -9,6 +9,7 @@
 
 class Polar {
 private:
+	bool _initDone = false;
 	JobManager _jobManager;
 	EventManager _eventManager;
 	std::vector<System *> _systems;
@@ -23,7 +24,7 @@ public:
 	virtual ~Polar();
 	template<typename ...Ts> void AddSystem(const std::string & = "no supported systems");
 	void AddSystem(System *);
-	Object * AddObject();
+	void AddObject(Object *);
 	void Run();
 };
 

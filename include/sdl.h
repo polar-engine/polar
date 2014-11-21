@@ -10,11 +10,12 @@
 inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	if(err[0] != '\0') {
-		ENGINE_ERROR("SDL: " << err);
-		ENGINE_DEBUG("    " << file << ':' << line);
-		ENGINE_DEBUG("    " << code << '\n');
+		ENGINE_DEBUGERROR("SDL: 0x" << err,
+						  "    " << file << ' ' << line << '\n' <<
+						  "    " << code);
 	}
 	return err[0] == '\0';
 }
 
-#define SDL(CODE) ((CODE), _SDL_real(BASEFILE, __LINE__, #CODE))
+#define ENGINE_SDL(CODE) ((CODE), _SDL_real(BASEFILE, __LINE__, #CODE))
+#define SDL ENGINE_SDL

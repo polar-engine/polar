@@ -15,4 +15,5 @@ public:
 	void Init() override final;
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 	void Destroy() override final;
+	void ObjectAdded(Object *) override final;
 };

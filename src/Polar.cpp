@@ -15,7 +15,11 @@ void Polar::Init() {
 	_eventManager.Init();
 	for(auto system : _systems) {
 		system->Init();
+		for(auto object : _objects) {
+			system->ObjectAdded(object);
+		}
 	}
+	_initDone = true;
 }
 
 void Polar::Update(DeltaTicks &dt) {
@@ -40,10 +44,13 @@ void Polar::AddSystem(System *system) {
 	_systems.push_back(system);
 }
 
-Object * Polar::AddObject() {
-	Object *object = new Object();
+void Polar::AddObject(Object *object) {
 	_objects.push_back(object);
-	return object;
+	if(_initDone) {
+		for(auto system : _systems) {
+			system->ObjectAdded(object);
+		}
+	}
 }
 
 void Polar::Run() {

@@ -27,16 +27,16 @@ public:
 		_components.erase(&typeid(T));
 	}
 
-	template<typename T> bool HasComponent() {
+	template<typename T> bool HasComponent() const {
 		static_assert(std::is_base_of<Component, T>::value, "HasComponent requires a Component");
 		return HasComponent(&typeid(T));
 	}
 
-	bool HasComponent(const std::type_info *ti) {
+	bool HasComponent(const std::type_info *ti) const {
 		return _components.find(ti) != _components.end();
 	}
 
-	template<typename T> T * GetComponent() {
+	template<typename T> T * GetComponent() const {
 		static_assert(std::is_base_of<Component, T>::value, "GetComponent requires a Component");
 		auto it = _components.find(&typeid(T));
 		if(it == _components.end()) { return nullptr; } else { return static_cast<T *>(it->second.get()); }
