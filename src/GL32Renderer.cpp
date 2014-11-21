@@ -4,7 +4,7 @@
 #include <iomanip>
 
 bool GL32Renderer::IsSupported() {
-	GL32Renderer renderer;
+	GL32Renderer renderer(nullptr);
 	try {
 		auto e = std::runtime_error(BASEFILE);
 		renderer.InitGL();
@@ -53,11 +53,14 @@ void GL32Renderer::InitGL() {
 
 void GL32Renderer::Init() {
 	InitGL();
-	eventManager->ListenFor("renderer", "bgcolor", [] (Arg arg) {
+	engine->GetSystem<EventManager>()->ListenFor("renderer", "bgcolor", [] (Arg arg) {
 		auto color = arg.Get<glm::fvec4>();
 		GL(glClearColor(color->x, color->y, color->z, color->w));
 	});
 }
+
+GLuint vao;
+GLuint vbo;
 
 void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	SDL_Event event;
@@ -67,7 +70,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	static glm::fvec4 color;
 	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
-	eventManager->FireIn("renderer", "bgcolor", &color);
+	engine->GetSystem<EventManager>()->FireIn("renderer", "bgcolor", &color);
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -88,7 +91,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	GL(glLoadIdentity());
 	GL(glRotatef(rot * alpha + previousRot * (1 - alpha), 0, 0, 1));
 
-	GL(glBegin(GL_TRIANGLES));
+	/*GL(glBegin(GL_TRIANGLES));
 	for(auto object : objects) {
 		auto model = object->GetComponent<ModelComponent>();
 		if(model != nullptr) {
@@ -97,7 +100,8 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			}
 		}
 	}
-	IGNORE_GL(glEnd());
+	IGNORE_GL(glEnd());*/
+	GL(glDrawArrays(GL_TRIANGLES, 0, 3));
 
 	SDL(SDL_GL_SwapWindow(window));
 }
@@ -115,8 +119,6 @@ void GL32Renderer::ObjectAdded(Object *object) {
 		ENGINE_DEBUG("blah");
 		auto &points = model->points;
 		auto v = points.data();
-		GLuint vao;
-		GLuint vbo;
 		GL(glGenVertexArrays(1, &vao));
 		GL(glBindVertexArray(vao));
 		GL(glGenBuffers(1, &vbo));
@@ -128,7 +130,7 @@ void GL32Renderer::ObjectAdded(Object *object) {
 void GL32Renderer::HandleSDL(SDL_Event &event) {
 	switch(event.type) {
 	case SDL_QUIT:
-		eventManager->Fire("destroy");
+		engine->GetSystem<EventManager>()->Fire("destroy");
 		break;
 	}
 }

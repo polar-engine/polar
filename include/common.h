@@ -70,5 +70,6 @@ typedef std::tuple<Point, Point, Point> Triangle;
 #include "Tag.h"
 #include "Object.h"
 #include "System.h"
+#include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"

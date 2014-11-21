@@ -7,7 +7,9 @@
 
 void SubTerra::Run(const std::vector<const std::string> &args) {
 	Polar engine;
-	engine.AddSystem<GL32Renderer>("No supported renderers");
+	engine.AddSystem<JobManager>();
+	engine.AddSystem<EventManager>();
+	engine.AddSystem<GL32Renderer>();
 	auto obj = new Object();
 	obj->AddComponent<PositionComponent>();
 	obj->AddComponent<ScaleComponent>();
