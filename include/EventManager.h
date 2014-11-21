@@ -11,6 +11,7 @@ private:
 	std::unordered_multimap<std::string, const Listener> _listeners;
 public:
 	static bool IsSupported() { return true; }
+	EventManager(const Polar *engine) : System(engine) {}
 	void Listen(const GlobalListener &fn) {
 		_globalListeners.emplace_back(fn);
 	}
