@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\components.h" />
+    <ClInclude Include="include\EntityBase.h" />
     <ClInclude Include="include\EventManager.h" />
     <ClInclude Include="include\gl.h" />
     <ClInclude Include="include\GL32Renderer.h" />
@@ -112,10 +113,10 @@
     <ClInclude Include="include\JobManager.h" />
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\NoRenderer.h" />
-    <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\Polar.h" />
     <ClInclude Include="include\PositionComponent.h" />
     <ClInclude Include="include\Renderer.h" />
+    <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\ScaleComponent.h" />
     <ClInclude Include="include\sdl.h" />
     <ClInclude Include="include\common.h" />

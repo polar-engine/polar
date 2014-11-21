@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <memory>
@@ -77,3 +78,4 @@ typedef EntityBase<Component> Object;
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"
+#include "AssetManager.h"
