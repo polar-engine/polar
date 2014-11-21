@@ -54,12 +54,9 @@ void GL32Renderer::InitGL() {
 void GL32Renderer::Init() {
 	InitGL();
 	eventManager->ListenFor("renderer", "bgcolor", [] (Arg arg) {
-		auto color = arg.Get<glm::detail::fvec4SIMD>();
+		auto color = arg.Get<glm::fvec4>();
 		GL(glClearColor(color->x, color->y, color->z, color->w));
 	});
-
-	auto color = glm::detail::fvec4SIMD(0.02f, 0.05f, 0.1f, 1.0f);
-	eventManager->FireIn("renderer", "bgcolor", &color);
 }
 
 void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
@@ -68,11 +65,28 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 		HandleSDL(event);
 	}
 
-	static glm::detail::fvec4SIMD color;
+	static glm::fvec4 color;
 	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
 	eventManager->FireIn("renderer", "bgcolor", &color);
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+	static float rot = 0;
+	static float previousRot = 0;
+
+	static DeltaTicks accumulator;
+	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / 7);
+	accumulator += dt;
+
+	while(accumulator >= timestep) {
+		previousRot = rot;
+		rot += 90.0f * timestep.count() / ENGINE_TICKS_PER_SECOND;
+		accumulator -= timestep;
+	}
+
+	float alpha = (float)accumulator.count() / (float)timestep.count();
+	GL(glLoadIdentity());
+	GL(glRotatef(rot * alpha + previousRot * (1 - alpha), 0, 0, 1));
 
 	GL(glBegin(GL_TRIANGLES));
 	for(auto object : objects) {
@@ -83,7 +97,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			}
 		}
 	}
-	GL(glEnd());
+	IGNORE_GL(glEnd());
 
 	SDL(SDL_GL_SwapWindow(window));
 }
@@ -93,6 +107,22 @@ void GL32Renderer::Destroy() {
 	SDL(SDL_DestroyWindow(window));
 	SDL(SDL_GL_ResetAttributes());
 	SDL(SDL_Quit());
+}
+
+void GL32Renderer::ObjectAdded(Object *object) {
+	auto model = object->GetComponent<ModelComponent>();
+	if(model != nullptr) {
+		ENGINE_DEBUG("blah");
+		auto &points = model->points;
+		auto v = points.data();
+		GLuint vao;
+		GLuint vbo;
+		GL(glGenVertexArrays(1, &vao));
+		GL(glBindVertexArray(vao));
+		GL(glGenBuffers(1, &vbo));
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * points.size(), points.data(), GL_STATIC_DRAW));
+	}
 }
 
 void GL32Renderer::HandleSDL(SDL_Event &event) {

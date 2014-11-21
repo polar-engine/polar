@@ -13,4 +13,5 @@ public:
 	virtual void Init() {}
 	virtual void Update(DeltaTicks &, std::vector<Object *> &) {}
 	virtual void Destroy() {}
+	virtual void ObjectAdded(Object *) {}
 };

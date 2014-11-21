@@ -17,7 +17,6 @@
 #include <mutex>
 
 #define GLM_SIMD_ENABLE_XYZW_UNION
-
 #include "glm/glm.hpp"
 #include "glm/gtx/simd_vec4.hpp"
 
@@ -36,16 +35,19 @@ inline const char *basename(const char *path) {
 
 #define BASEFILE (basename(__FILE__))
 
-#define ENGINE_OUTPUT(S) (std::cout << S)
-#define ENGINE_ERROR(S)  (std::cerr << "========== ERROR ==========\n" << S << '\n')
-#define ENGINE_RDEBUG(S) ENGINE_OUTPUT(S << '\n')
+#define ENGINE_OUTPUT(S)  (std::cout << S)
+#define ENGINE_ERROR(S) (std::cerr << "========== ERROR ==========\n" << S << '\n')
 
 #ifdef _DEBUG
-#define ENGINE_DEBUG(S) ENGINE_RDEBUG(S)
-#define ENGINE_CONTINUE ((std::cout << "Press enter to continue."), (std::cin.ignore(1)))
+#define ENGINE_DEBUG(S) ENGINE_OUTPUT(S << '\n')
+#define ENGINE_CONTINUE (ENGINE_DEBUG("Press enter to continue."), (std::cin.ignore(1)), ENGINE_DEBUG(""))
+#define ENGINE_NDEBUGERROR(E, D) (ENGINE_ERROR(E), ENGINE_DEBUG(D), ENGINE_DEBUG(""))
+#define ENGINE_DEBUGERROR(E, D) (ENGINE_NDEBUGERROR(E, D), ENGINE_CONTINUE)
 #else
-#define ENGINE_DEBUG(S)
 #define ENGINE_CONTINUE
+#define ENGINE_DEBUG
+#define ENGINE_NDEBUGERROR(E, D) ENGINE_ERROR(E)
+#define ENGINE_DEBUGERROR ENGINE_NDEBUGERROR
 #endif
 
 union Arg {
