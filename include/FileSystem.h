@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "debug.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -15,15 +16,25 @@ private:
 public:
 	static std::string FileRead(const std::string &name) {
 		std::ifstream file(name, std::ios::in | std::ios::binary | std::ios::ate);
-		if(file) {
-			std::streamoff len = file.tellg();
-			file.seekg(0, std::ios::beg);
-			char *sz = new char[static_cast<unsigned int>(len + 1)];
-			sz[len] = '\0';
-			file.read(sz, static_cast<unsigned int>(len));
-			file.close();
-			return std::string(sz);
-		} else { throw std::runtime_error(name + ": failed to load file"); }
+		if(file.fail()) { ENGINE_THROW(name + ": open"); }
+
+		std::streamoff len = file.tellg();
+		if(file.fail()) { ENGINE_THROW(name + ": tellg"); }
+
+		file.seekg(0, std::ios::beg);
+		if(file.fail()) { ENGINE_THROW(name + ": seekg"); }
+
+		char *sz = new char[static_cast<unsigned int>(len + 1)];
+		sz[len] = '\0';
+
+		file.read(sz, static_cast<unsigned int>(len));
+		if(file.fail()) { ENGINE_THROW(name + ": read"); }
+
+		file.close();
+		if(file.fail()) { ENGINE_THROW(name + ": close"); }
+
+		std::string s(sz);
+		return sz;
 	}
 	static void FileWrite(const std::string &name, std::string &data) {
 		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);

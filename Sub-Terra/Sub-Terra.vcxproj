@@ -69,7 +69,7 @@
       <AdditionalDependencies>SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
+      <Command>copy /y "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Inputs>
@@ -77,6 +77,9 @@
       <Command>
       </Command>
     </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -101,7 +104,7 @@
       </IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
+      <Command>copy /y "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Inputs>
@@ -109,6 +112,9 @@
       <Command>
       </Command>
     </CustomBuildStep>
+    <PreBuildEvent>
+      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp" />
@@ -121,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Asset.h" />
     <ClInclude Include="..\include\assets.h" />
+    <ClInclude Include="..\include\debug.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\TextAsset.h" />

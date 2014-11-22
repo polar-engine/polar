@@ -68,9 +68,6 @@
     <ClInclude Include="include\sdl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\SubTerra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,6 +114,12 @@
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
     <ClInclude Include="..\include\endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

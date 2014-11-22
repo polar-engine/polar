@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Asset.h" />
     <ClInclude Include="..\include\assets.h" />
+    <ClInclude Include="..\include\debug.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\TextAsset.h" />

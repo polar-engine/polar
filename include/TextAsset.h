@@ -7,6 +7,7 @@ public:
 	const uint64_t length;
 	const std::string text;
 
+	static std::string Type() { return "text"; }
 	static TextAsset Load(const std::string &data) {
 		const uint64_t dataLength = data.length();
 		if(dataLength < 8) { throw std::runtime_error("missing data length"); }

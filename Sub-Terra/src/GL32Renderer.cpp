@@ -52,10 +52,7 @@ void GL32Renderer::InitGL() {
 
 void GL32Renderer::Init() {
 	InitGL();
-	engine->systems.Get<EventManager>()->ListenFor("renderer", "bgcolor", [] (Arg arg) {
-		auto color = arg.Get<glm::fvec4>();
-		GL(glClearColor(color->x, color->y, color->z, color->w));
-	});
+	ENGINE_DEBUG(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text);
 }
 
 GLuint vao;
@@ -69,7 +66,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	static glm::fvec4 color;
 	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
-	engine->systems.Get<EventManager>()->FireIn("renderer", "bgcolor", &color);
+	SetClearColor(color);
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -115,7 +112,6 @@ void GL32Renderer::Destroy() {
 void GL32Renderer::ObjectAdded(Object *object) {
 	auto model = object->Get<ModelComponent>();
 	if(model != nullptr) {
-		ENGINE_DEBUG("blah");
 		auto &points = model->points;
 		auto v = points.data();
 		GL(glGenVertexArrays(1, &vao));
@@ -132,4 +128,8 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 		engine->systems.Get<EventManager>()->Fire("destroy");
 		break;
 	}
+}
+
+void GL32Renderer::SetClearColor(const glm::fvec4 &color) {
+	GL(glClearColor(color.x, color.y, color.z, color.w));
 }
