@@ -78,7 +78,7 @@
       </Command>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
+      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets" "$(TargetDir)assets"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,7 +113,7 @@
       </Command>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
+      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets" "$(TargetDir)assets"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
