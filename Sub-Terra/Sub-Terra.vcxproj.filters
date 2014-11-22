@@ -16,6 +16,9 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{d9162e04-bdd5-4cfc-aabd-9f804d9a6484}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Assets">
+      <UniqueIdentifier>{657fa1bc-8551-4408-b4a2-5a2a514953e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp">
@@ -98,13 +101,22 @@
     <ClInclude Include="include\EntityBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AssetManager.h">
+    <ClInclude Include="..\include\FileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Asset.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\FileSystem.h">
+    <ClInclude Include="include\AssetManager.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\assets.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\TextAsset.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

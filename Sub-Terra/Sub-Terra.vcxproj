@@ -43,11 +43,15 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>include;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>include;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -65,8 +69,14 @@
       <AdditionalDependencies>SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"</Command>
+      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+      <Command>
+      </Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -91,8 +101,14 @@
       </IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"</Command>
+      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets"</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+      <Command>
+      </Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp" />
@@ -104,7 +120,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Asset.h" />
+    <ClInclude Include="..\include\assets.h" />
+    <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
+    <ClInclude Include="..\include\TextAsset.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\components.h" />
     <ClInclude Include="include\EntityBase.h" />

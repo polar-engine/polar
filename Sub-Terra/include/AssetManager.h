@@ -16,12 +16,12 @@ public:
 			return std::string(sz);
 		}
 	}
-	template<typename T, typename ...Ts> T Get(const std::string name, Ts && ...args) {
+	template<typename T, typename ...Ts> T Get(const std::string name, Ts && ...args) const {
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires object of type Asset");
 		return T(Load(name), std::forward<Ts>(args)...);
 	}
 
-	template<typename T> T Get(const std::string name) {
+	template<typename T> T Get(const std::string name) const {
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires object of type Asset");
 		return T(Load(name));
 	}
