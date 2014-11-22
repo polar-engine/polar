@@ -33,15 +33,18 @@ public:
 		file.close();
 		if(file.fail()) { ENGINE_THROW(name + ": close"); }
 
-		std::string s(sz);
-		return sz;
+		std::string s(sz, len);
+		return s;
 	}
 	static void FileWrite(const std::string &name, std::string &data) {
 		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);
-		if(file) {
-			file << data;
-			file.close();
-		} else { throw std::runtime_error(name + ": failed to load file"); }
+		if(file.fail()) { ENGINE_THROW(name + ": open"); }
+
+		file << data;
+		if(file.fail()) { ENGINE_THROW(name + ": <<"); }
+
+		file.close();
+		if(file.fail()) { ENGINE_THROW(name + ": close"); }
 	}
 
 	static std::vector<std::string> DirList(std::string path) {
@@ -53,7 +56,7 @@ public:
 
 		WIN32_FIND_DATA fdd;
 		HANDLE handle = FindFirstFile(wPath.c_str(), &fdd);
-		if(handle == INVALID_HANDLE_VALUE) { throw std::runtime_error(path + ": failed to find first file"); }
+		if(handle == INVALID_HANDLE_VALUE) { ENGINE_THROW(path + ": failed to find first file"); }
 		do {
 			if(!(fdd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				std::wstring wFile = fdd.cFileName;
@@ -65,7 +68,7 @@ public:
 		DWORD dwError = GetLastError();
 		if(dwError != ERROR_NO_MORE_FILES) {
 			FindClose(handle);
-			throw std::runtime_error("failed to find next file");
+			ENGINE_THROW("failed to find next file");
 		}
 
 		FindClose(handle);
@@ -78,7 +81,7 @@ public:
 		std::wstring wPath(path.begin(), path.end());
 		if(::CreateDirectory(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
-			if(dwError != ERROR_ALREADY_EXISTS) { throw std::runtime_error(path + ": failed to create directory"); }
+			if(dwError != ERROR_ALREADY_EXISTS) { ENGINE_THROW(path + ": failed to create directory"); }
 		}
 #endif
 	}
