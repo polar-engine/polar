@@ -6,6 +6,7 @@
 
 int main(int argc, char **argv) {
 	std::string path = argc >= 2 ? argv[1] : "assets";
+	std::string buildPath = argc >= 3 ? argv[2] : path + "/build";
 	auto files = FileSystem::DirList(path);
 
 	std::unordered_map<std::string, std::function<Asset *(const std::string &)>> converters;
@@ -22,9 +23,9 @@ int main(int argc, char **argv) {
 			auto converter = converters.find(ext);
 			if(converter != converters.end()) {
 				Asset *asset = converter->second(data);
-				FileSystem::DirCreate(path + "/build");
-				FileSystem::DirCreate(path + "/build/" + asset->type);
-				FileSystem::FileWrite(path + "/build/" + asset->type + '/' + name + ".asset", asset->Save());
+				FileSystem::DirCreate(buildPath);
+				FileSystem::DirCreate(buildPath + '/' + asset->type);
+				FileSystem::FileWrite(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
 				delete asset;
 			} else {
 				std::cerr << file << ": no appropriate Asset class found" << std::endl;
