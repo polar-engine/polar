@@ -1,8 +1,6 @@
 #pragma once
 
-class Asset {
-
-};
+#include "Asset.h"
 
 class AssetManager : public System {
 public:
