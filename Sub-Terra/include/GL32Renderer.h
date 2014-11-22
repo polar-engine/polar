@@ -25,4 +25,5 @@ protected:
 public:
 	static bool IsSupported();
 	GL32Renderer(const Polar *engine) : Renderer(engine) {}
+	void SetClearColor(const glm::fvec4 &) override final;
 };

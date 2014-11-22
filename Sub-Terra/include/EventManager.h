@@ -2,6 +2,16 @@
 
 #include "System.h"
 
+union Arg {
+	float float_;
+	void *pVoid;
+
+	Arg(float f) { float_ = f; }
+	Arg(std::nullptr_t) { pVoid = nullptr; }
+	template<typename T> Arg(T *p) { pVoid = reinterpret_cast<void *>(p); }
+	template<typename T> T * Get() { return reinterpret_cast<T *>(pVoid); }
+};
+
 typedef std::function<void(const std::string &, Arg)> GlobalListener;
 typedef std::function<void(Arg)> Listener;
 

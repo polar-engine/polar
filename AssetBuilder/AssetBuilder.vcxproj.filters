@@ -35,5 +35,8 @@
     <ClInclude Include="..\include\endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
