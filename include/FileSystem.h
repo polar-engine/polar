@@ -18,7 +18,7 @@ public:
 		std::ifstream file(name, std::ios::in | std::ios::binary | std::ios::ate);
 		if(file.fail()) { ENGINE_THROW(name + ": open"); }
 
-		std::streamoff len = file.tellg();
+		auto len = static_cast<std::string::size_type>(file.tellg());
 		if(file.fail()) { ENGINE_THROW(name + ": tellg"); }
 
 		file.seekg(0, std::ios::beg);
