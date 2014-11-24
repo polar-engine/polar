@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+#include <string>
 #include "endian.h"
 
 class Asset {

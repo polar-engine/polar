@@ -130,6 +130,7 @@
     <ClInclude Include="..\include\debug.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
+    <ClInclude Include="..\include\ShaderAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\components.h" />
