@@ -47,7 +47,7 @@ void GL32Renderer::InitGL() {
 	/* GLEW cals glGetString(EXTENSIONS) which
 	 * causes GL_INVALID_ENUM on GL 3.2+ core contexts
 	 */
-	glGetError();
+	IGNORE_GL(false);
 }
 
 void GL32Renderer::Init() {
@@ -87,16 +87,16 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	GL(glLoadIdentity());
 	GL(glRotatef(rot * alpha + previousRot * (1 - alpha), 0, 0, 1));
 
-	/*GL(glBegin(GL_TRIANGLES));
+	GL(glBegin(GL_TRIANGLES));
 	for(auto object : objects) {
-		auto model = object->GetComponent<ModelComponent>();
+		auto model = object->Get<ModelComponent>();
 		if(model != nullptr) {
 			for(auto point : model->points) {
 				GL(glVertex4f(point.x, point.y, point.z, point.w));
 			}
 		}
 	}
-	IGNORE_GL(glEnd());*/
+	IGNORE_GL(glEnd());
 	GL(glDrawArrays(GL_TRIANGLES, 0, 3));
 
 	SDL(SDL_GL_SwapWindow(window));

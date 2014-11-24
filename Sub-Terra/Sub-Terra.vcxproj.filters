@@ -122,5 +122,8 @@
     <ClInclude Include="..\include\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ShaderAsset.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
