@@ -28,7 +28,7 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { throw e; }
-	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY))) { throw e; }
+	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { throw e; }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { throw e; }
@@ -52,7 +52,7 @@ void GL32Renderer::InitGL() {
 
 void GL32Renderer::Init() {
 	InitGL();
-	ENGINE_DEBUG(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text);
+	//ENGINE_DEBUG(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text);
 }
 
 GLuint vao;
@@ -63,6 +63,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
 	}
+	SDL_ClearError();
 
 	static glm::fvec4 color;
 	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
@@ -84,8 +85,9 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	}
 
 	float alpha = (float)accumulator.count() / (float)timestep.count();
-	GL(glLoadIdentity());
-	GL(glRotatef(rot * alpha + previousRot * (1 - alpha), 0, 0, 1));
+	float interpRot = rot * alpha + previousRot * (1 - alpha);
+	/*GL(glLoadIdentity());
+	GL(glRotatef(interpRot, 0, 0, 1));
 
 	GL(glBegin(GL_TRIANGLES));
 	for(auto object : objects) {
@@ -96,9 +98,8 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			}
 		}
 	}
-	IGNORE_GL(glEnd());
-	GL(glDrawArrays(GL_TRIANGLES, 0, 3));
-
+	IGNORE_GL(glEnd());*/
+	//GL(glDrawArrays(GL_TRIANGLES, 0, 3));
 	SDL(SDL_GL_SwapWindow(window));
 }
 
