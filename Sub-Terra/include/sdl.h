@@ -10,7 +10,7 @@
 inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	if(err[0] != '\0') {
-		ENGINE_DEBUGERROR("SDL: 0x" << err,
+		ENGINE_DEBUGERROR("SDL: " << err,
 						  "    " << file << ' ' << line << '\n' <<
 						  "    " << code);
 	}
@@ -19,3 +19,9 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 
 #define ENGINE_SDL(CODE) ((CODE), _SDL_real(BASEFILE, __LINE__, #CODE))
 #define SDL ENGINE_SDL
+
+#ifdef _DEBUG
+#define IGNORE_SDL(CODE) ((CODE), SDL_ClearError())
+#else
+#define IGNORE_SDL(CODE) (CODE)
+#endif
