@@ -1,6 +1,8 @@
 #pragma once
 
-class Component {
+class EngineComponent {
 public:
-	virtual ~Component() {};
+	virtual ~EngineComponent() {};
 };
+
+#define Component EngineComponent
