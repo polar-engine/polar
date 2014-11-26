@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7F529A521A1AB00E00C6F36D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407441A1AACC400B55B7A /* MainMenu.xib */; };
+		7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64B1A25D90B00623543 /* AppDelegate.mm */; };
+		7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */; };
+		7F0CB6551A25D90B00623543 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64D1A25D90B00623543 /* glew.c */; };
+		7F0CB6561A25D90B00623543 /* JobManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64E1A25D90B00623543 /* JobManager.cpp */; };
+		7F0CB6571A25D90B00623543 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64F1A25D90B00623543 /* main.m */; };
+		7F0CB6581A25D90B00623543 /* Polar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6501A25D90B00623543 /* Polar.cpp */; };
+		7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6511A25D90B00623543 /* SubTerra.cpp */; };
+		7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6521A25D90B00623543 /* Worker.cpp */; };
+		7F0CB65B1A25D98600623543 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F0CB63F1A25D8A500623543 /* MainMenu.xib */; };
 		7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407711A1AADD100B55B7A /* OpenGL.framework */; };
 		7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F54077F1A1AAF8300B55B7A /* Cocoa.framework */; };
 		7F558EB41A25CB6F006622FA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F558EB31A25CB6F006622FA /* main.cpp */; };
-		7FC8FC601A2359D100BBBB15 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC571A2359D100BBBB15 /* AppDelegate.mm */; };
-		7FC8FC611A2359D100BBBB15 /* GL32Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC581A2359D100BBBB15 /* GL32Renderer.cpp */; };
-		7FC8FC621A2359D100BBBB15 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC591A2359D100BBBB15 /* glew.c */; };
-		7FC8FC631A2359D100BBBB15 /* JobManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC5A1A2359D100BBBB15 /* JobManager.cpp */; };
-		7FC8FC651A2359D100BBBB15 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC5C1A2359D100BBBB15 /* main.m */; };
-		7FC8FC661A2359D100BBBB15 /* Polar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC5D1A2359D100BBBB15 /* Polar.cpp */; };
-		7FC8FC671A2359D100BBBB15 /* SubTerra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC5E1A2359D100BBBB15 /* SubTerra.cpp */; };
-		7FC8FC681A2359D100BBBB15 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FC8FC5F1A2359D100BBBB15 /* Worker.cpp */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 /* End PBXBuildFile section */
 
@@ -36,44 +36,51 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		7F54073C1A1AAC2300B55B7A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = SOURCE_ROOT; };
+		7F0CB6271A25D86E00623543 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = include/AppDelegate.h; sourceTree = "<group>"; };
+		7F0CB6281A25D86E00623543 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = include/AssetManager.h; sourceTree = "<group>"; };
+		7F0CB6291A25D86E00623543 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = common.h; path = include/common.h; sourceTree = "<group>"; };
+		7F0CB62A1A25D86E00623543 /* Component.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Component.h; path = include/Component.h; sourceTree = "<group>"; };
+		7F0CB62B1A25D86E00623543 /* components.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = components.h; path = include/components.h; sourceTree = "<group>"; };
+		7F0CB62C1A25D86E00623543 /* EntityBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityBase.h; path = include/EntityBase.h; sourceTree = "<group>"; };
+		7F0CB62D1A25D86E00623543 /* EventManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventManager.h; path = include/EventManager.h; sourceTree = "<group>"; };
+		7F0CB62E1A25D86E00623543 /* gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gl.h; path = include/gl.h; sourceTree = "<group>"; };
+		7F0CB62F1A25D86E00623543 /* GL32Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GL32Renderer.h; path = include/GL32Renderer.h; sourceTree = "<group>"; };
+		7F0CB6301A25D86E00623543 /* Job.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Job.h; path = include/Job.h; sourceTree = "<group>"; };
+		7F0CB6311A25D86E00623543 /* JobManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JobManager.h; path = include/JobManager.h; sourceTree = "<group>"; };
+		7F0CB6321A25D86E00623543 /* ModelComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModelComponent.h; path = include/ModelComponent.h; sourceTree = "<group>"; };
+		7F0CB6331A25D86E00623543 /* NoRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NoRenderer.h; path = include/NoRenderer.h; sourceTree = "<group>"; };
+		7F0CB6341A25D86E00623543 /* Polar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Polar.h; path = include/Polar.h; sourceTree = "<group>"; };
+		7F0CB6351A25D86E00623543 /* PositionComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PositionComponent.h; path = include/PositionComponent.h; sourceTree = "<group>"; };
+		7F0CB6361A25D86E00623543 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Renderer.h; path = include/Renderer.h; sourceTree = "<group>"; };
+		7F0CB6371A25D86E00623543 /* ScaleComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScaleComponent.h; path = include/ScaleComponent.h; sourceTree = "<group>"; };
+		7F0CB6381A25D86E00623543 /* sdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sdl.h; path = include/sdl.h; sourceTree = "<group>"; };
+		7F0CB6391A25D86E00623543 /* SubTerra.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SubTerra.h; path = include/SubTerra.h; sourceTree = "<group>"; };
+		7F0CB63A1A25D86E00623543 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = include/System.h; sourceTree = "<group>"; };
+		7F0CB63B1A25D86E00623543 /* Tag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tag.h; path = include/Tag.h; sourceTree = "<group>"; };
+		7F0CB63C1A25D86E00623543 /* Worker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Worker.h; path = include/Worker.h; sourceTree = "<group>"; };
+		7F0CB63D1A25D88C00623543 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
+		7F0CB6401A25D8A500623543 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = resources/Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		7F0CB6441A25D8DA00623543 /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Asset.h; path = include/Asset.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6451A25D8DA00623543 /* assets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = assets.h; path = include/assets.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6461A25D8DA00623543 /* ShaderAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderAsset.h; path = include/ShaderAsset.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6471A25D8DA00623543 /* TextAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextAsset.h; path = include/TextAsset.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6481A25D8E300623543 /* debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = debug.h; path = include/debug.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6491A25D8E300623543 /* endian.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = endian.h; path = include/endian.h; sourceTree = SOURCE_ROOT; };
+		7F0CB64A1A25D8E300623543 /* FileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileSystem.h; path = include/FileSystem.h; sourceTree = SOURCE_ROOT; };
+		7F0CB64B1A25D90B00623543 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = src/AppDelegate.mm; sourceTree = "<group>"; };
+		7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GL32Renderer.cpp; path = src/GL32Renderer.cpp; sourceTree = "<group>"; };
+		7F0CB64D1A25D90B00623543 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = src/glew.c; sourceTree = "<group>"; };
+		7F0CB64E1A25D90B00623543 /* JobManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JobManager.cpp; path = src/JobManager.cpp; sourceTree = "<group>"; };
+		7F0CB64F1A25D90B00623543 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/main.m; sourceTree = "<group>"; };
+		7F0CB6501A25D90B00623543 /* Polar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Polar.cpp; path = src/Polar.cpp; sourceTree = "<group>"; };
+		7F0CB6511A25D90B00623543 /* SubTerra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubTerra.cpp; path = src/SubTerra.cpp; sourceTree = "<group>"; };
+		7F0CB6521A25D90B00623543 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = "<group>"; };
 		7F54073E1A1AAC4100B55B7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = SOURCE_ROOT; };
-		7F5407451A1AACC400B55B7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = resources/Base.lproj/MainMenu.xib; sourceTree = SOURCE_ROOT; };
 		7F5407711A1AADD100B55B7A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7F5407781A1AAF0100B55B7A /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
 		7F54077F1A1AAF8300B55B7A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		7F558EB11A25CB6F006622FA /* AssetBuilder */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AssetBuilder; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F558EB31A25CB6F006622FA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		7FC8FC401A23593F00BBBB15 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = include/AppDelegate.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC411A23593F00BBBB15 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = include/AssetManager.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC421A23593F00BBBB15 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = common.h; path = include/common.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC431A23593F00BBBB15 /* Component.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Component.h; path = include/Component.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC441A23593F00BBBB15 /* components.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = components.h; path = include/components.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC451A23593F00BBBB15 /* EntityBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityBase.h; path = include/EntityBase.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC461A23593F00BBBB15 /* EventManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventManager.h; path = include/EventManager.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC471A23593F00BBBB15 /* gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gl.h; path = include/gl.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC481A23593F00BBBB15 /* GL32Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GL32Renderer.h; path = include/GL32Renderer.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC491A23593F00BBBB15 /* Job.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Job.h; path = include/Job.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC4A1A23593F00BBBB15 /* JobManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JobManager.h; path = include/JobManager.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC4B1A23593F00BBBB15 /* ModelComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModelComponent.h; path = include/ModelComponent.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC4C1A23593F00BBBB15 /* NoRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NoRenderer.h; path = include/NoRenderer.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC4D1A23593F00BBBB15 /* Polar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Polar.h; path = include/Polar.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC4E1A23593F00BBBB15 /* PositionComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PositionComponent.h; path = include/PositionComponent.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC4F1A23593F00BBBB15 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Renderer.h; path = include/Renderer.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC501A23593F00BBBB15 /* ScaleComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScaleComponent.h; path = include/ScaleComponent.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC511A23593F00BBBB15 /* sdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sdl.h; path = include/sdl.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC521A23593F00BBBB15 /* SubTerra.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SubTerra.h; path = include/SubTerra.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC531A23593F00BBBB15 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = include/System.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC541A23593F00BBBB15 /* Tag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tag.h; path = include/Tag.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC551A23593F00BBBB15 /* Worker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Worker.h; path = include/Worker.h; sourceTree = SOURCE_ROOT; };
-		7FC8FC571A2359D100BBBB15 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = src/AppDelegate.mm; sourceTree = SOURCE_ROOT; };
-		7FC8FC581A2359D100BBBB15 /* GL32Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GL32Renderer.cpp; path = src/GL32Renderer.cpp; sourceTree = SOURCE_ROOT; };
-		7FC8FC591A2359D100BBBB15 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = src/glew.c; sourceTree = SOURCE_ROOT; };
-		7FC8FC5A1A2359D100BBBB15 /* JobManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JobManager.cpp; path = src/JobManager.cpp; sourceTree = SOURCE_ROOT; };
-		7FC8FC5C1A2359D100BBBB15 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/main.m; sourceTree = SOURCE_ROOT; };
-		7FC8FC5D1A2359D100BBBB15 /* Polar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Polar.cpp; path = src/Polar.cpp; sourceTree = SOURCE_ROOT; };
-		7FC8FC5E1A2359D100BBBB15 /* SubTerra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubTerra.cpp; path = src/SubTerra.cpp; sourceTree = SOURCE_ROOT; };
-		7FC8FC5F1A2359D100BBBB15 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = SOURCE_ROOT; };
 		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -98,17 +105,41 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7F0CB6421A25D8B200623543 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				7F0CB62A1A25D86E00623543 /* Component.h */,
+				7F0CB62B1A25D86E00623543 /* components.h */,
+				7F0CB6321A25D86E00623543 /* ModelComponent.h */,
+				7F0CB6351A25D86E00623543 /* PositionComponent.h */,
+				7F0CB6371A25D86E00623543 /* ScaleComponent.h */,
+			);
+			name = Components;
+			sourceTree = "<group>";
+		};
+		7F0CB6431A25D8B700623543 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				7F0CB6441A25D8DA00623543 /* Asset.h */,
+				7F0CB6451A25D8DA00623543 /* assets.h */,
+				7F0CB6461A25D8DA00623543 /* ShaderAsset.h */,
+				7F0CB6471A25D8DA00623543 /* TextAsset.h */,
+				7F0CB6281A25D86E00623543 /* AssetManager.h */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
 		7F5407391A1AABC600B55B7A /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
-				7FC8FC571A2359D100BBBB15 /* AppDelegate.mm */,
-				7FC8FC581A2359D100BBBB15 /* GL32Renderer.cpp */,
-				7FC8FC591A2359D100BBBB15 /* glew.c */,
-				7FC8FC5A1A2359D100BBBB15 /* JobManager.cpp */,
-				7FC8FC5C1A2359D100BBBB15 /* main.m */,
-				7FC8FC5D1A2359D100BBBB15 /* Polar.cpp */,
-				7FC8FC5E1A2359D100BBBB15 /* SubTerra.cpp */,
-				7FC8FC5F1A2359D100BBBB15 /* Worker.cpp */,
+				7F0CB64B1A25D90B00623543 /* AppDelegate.mm */,
+				7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */,
+				7F0CB64D1A25D90B00623543 /* glew.c */,
+				7F0CB64E1A25D90B00623543 /* JobManager.cpp */,
+				7F0CB64F1A25D90B00623543 /* main.m */,
+				7F0CB6501A25D90B00623543 /* Polar.cpp */,
+				7F0CB6511A25D90B00623543 /* SubTerra.cpp */,
+				7F0CB6521A25D90B00623543 /* Worker.cpp */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
@@ -116,24 +147,27 @@
 		7F54073A1A1AABD000B55B7A /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
-				7FC8FC561A23594500BBBB15 /* Assets */,
-				7FC8FC691A2359FF00BBBB15 /* Components */,
-				7FC8FC401A23593F00BBBB15 /* AppDelegate.h */,
-				7FC8FC421A23593F00BBBB15 /* common.h */,
-				7FC8FC451A23593F00BBBB15 /* EntityBase.h */,
-				7FC8FC461A23593F00BBBB15 /* EventManager.h */,
-				7FC8FC471A23593F00BBBB15 /* gl.h */,
-				7FC8FC481A23593F00BBBB15 /* GL32Renderer.h */,
-				7FC8FC491A23593F00BBBB15 /* Job.h */,
-				7FC8FC4A1A23593F00BBBB15 /* JobManager.h */,
-				7FC8FC4C1A23593F00BBBB15 /* NoRenderer.h */,
-				7FC8FC4D1A23593F00BBBB15 /* Polar.h */,
-				7FC8FC4F1A23593F00BBBB15 /* Renderer.h */,
-				7FC8FC511A23593F00BBBB15 /* sdl.h */,
-				7FC8FC521A23593F00BBBB15 /* SubTerra.h */,
-				7FC8FC531A23593F00BBBB15 /* System.h */,
-				7FC8FC541A23593F00BBBB15 /* Tag.h */,
-				7FC8FC551A23593F00BBBB15 /* Worker.h */,
+				7F0CB6431A25D8B700623543 /* Assets */,
+				7F0CB6421A25D8B200623543 /* Components */,
+				7F0CB6271A25D86E00623543 /* AppDelegate.h */,
+				7F0CB6291A25D86E00623543 /* common.h */,
+				7F0CB6481A25D8E300623543 /* debug.h */,
+				7F0CB6491A25D8E300623543 /* endian.h */,
+				7F0CB62C1A25D86E00623543 /* EntityBase.h */,
+				7F0CB62D1A25D86E00623543 /* EventManager.h */,
+				7F0CB64A1A25D8E300623543 /* FileSystem.h */,
+				7F0CB62E1A25D86E00623543 /* gl.h */,
+				7F0CB62F1A25D86E00623543 /* GL32Renderer.h */,
+				7F0CB6301A25D86E00623543 /* Job.h */,
+				7F0CB6311A25D86E00623543 /* JobManager.h */,
+				7F0CB6331A25D86E00623543 /* NoRenderer.h */,
+				7F0CB6341A25D86E00623543 /* Polar.h */,
+				7F0CB6361A25D86E00623543 /* Renderer.h */,
+				7F0CB6381A25D86E00623543 /* sdl.h */,
+				7F0CB6391A25D86E00623543 /* SubTerra.h */,
+				7F0CB63A1A25D86E00623543 /* System.h */,
+				7F0CB63B1A25D86E00623543 /* Tag.h */,
+				7F0CB63C1A25D86E00623543 /* Worker.h */,
 			);
 			name = "Header Files";
 			sourceTree = "<group>";
@@ -141,9 +175,9 @@
 		7F54073B1A1AABD600B55B7A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				7F5407441A1AACC400B55B7A /* MainMenu.xib */,
+				7F0CB63F1A25D8A500623543 /* MainMenu.xib */,
+				7F0CB63D1A25D88C00623543 /* Info.plist */,
 				7F54073E1A1AAC4100B55B7A /* Images.xcassets */,
-				7F54073C1A1AAC2300B55B7A /* Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -164,26 +198,6 @@
 				7F558EB31A25CB6F006622FA /* main.cpp */,
 			);
 			path = AssetBuilder;
-			sourceTree = "<group>";
-		};
-		7FC8FC561A23594500BBBB15 /* Assets */ = {
-			isa = PBXGroup;
-			children = (
-				7FC8FC411A23593F00BBBB15 /* AssetManager.h */,
-			);
-			name = Assets;
-			sourceTree = "<group>";
-		};
-		7FC8FC691A2359FF00BBBB15 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				7FC8FC431A23593F00BBBB15 /* Component.h */,
-				7FC8FC441A23593F00BBBB15 /* components.h */,
-				7FC8FC4B1A23593F00BBBB15 /* ModelComponent.h */,
-				7FC8FC4E1A23593F00BBBB15 /* PositionComponent.h */,
-				7FC8FC501A23593F00BBBB15 /* ScaleComponent.h */,
-			);
-			name = Components;
 			sourceTree = "<group>";
 		};
 		7FF31F0F1A1AA90D0008999E = {
@@ -293,8 +307,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7F529A521A1AB00E00C6F36D /* MainMenu.xib in Resources */,
 				7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */,
+				7F0CB65B1A25D98600623543 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,24 +327,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7FC8FC611A2359D100BBBB15 /* GL32Renderer.cpp in Sources */,
-				7FC8FC631A2359D100BBBB15 /* JobManager.cpp in Sources */,
-				7FC8FC601A2359D100BBBB15 /* AppDelegate.mm in Sources */,
-				7FC8FC651A2359D100BBBB15 /* main.m in Sources */,
-				7FC8FC671A2359D100BBBB15 /* SubTerra.cpp in Sources */,
-				7FC8FC621A2359D100BBBB15 /* glew.c in Sources */,
-				7FC8FC661A2359D100BBBB15 /* Polar.cpp in Sources */,
-				7FC8FC681A2359D100BBBB15 /* Worker.cpp in Sources */,
+				7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */,
+				7F0CB6581A25D90B00623543 /* Polar.cpp in Sources */,
+				7F0CB6571A25D90B00623543 /* main.m in Sources */,
+				7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */,
+				7F0CB6561A25D90B00623543 /* JobManager.cpp in Sources */,
+				7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */,
+				7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */,
+				7F0CB6551A25D90B00623543 /* glew.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		7F5407441A1AACC400B55B7A /* MainMenu.xib */ = {
+		7F0CB63F1A25D8A500623543 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				7F5407451A1AACC400B55B7A /* Base */,
+				7F0CB6401A25D8A500623543 /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -442,10 +456,10 @@
 				CLANG_ENABLE_MODULES = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				INFOPLIST_FILE = "$(SRCROOT)/resources/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "include ../include";
+				USER_HEADER_SEARCH_PATHS = "include Sub-Terra/include";
 			};
 			name = Debug;
 		};
@@ -456,10 +470,10 @@
 				CLANG_ENABLE_MODULES = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				INFOPLIST_FILE = "$(SRCROOT)/resources/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "include ../include";
+				USER_HEADER_SEARCH_PATHS = "include Sub-Terra/include";
 			};
 			name = Release;
 		};
@@ -473,6 +487,7 @@
 				7F558EB61A25CB6F006622FA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Sub-Terra" */ = {
 			isa = XCConfigurationList;
