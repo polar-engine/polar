@@ -25,7 +25,12 @@ void Polar::Update(DeltaTicks &dt) {
 
 void Polar::Destroy() {
 	auto ss = systems.Get();
+	/* unordered_map rbegin and rend don't seem to exist on some platforms */
+#ifdef _WIN32
 	for(auto system = ss->rbegin(); system != ss->rend(); ++system) {
+#else
+	for(auto system = ss->begin(); system != ss->end(); ++system) {
+#endif
 		system->second->Destroy();
 	}
 }
