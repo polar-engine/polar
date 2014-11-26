@@ -47,7 +47,7 @@ void GL32Renderer::InitGL() {
 	/* GLEW cals glGetString(EXTENSIONS) which
 	 * causes GL_INVALID_ENUM on GL 3.2+ core contexts
 	 */
-	IGNORE_GL(false);
+	glGetError();
 }
 
 void GL32Renderer::Init() {
