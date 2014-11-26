@@ -6,7 +6,7 @@
 class AssetManager : public System {
 public:
 	static bool IsSupported() { return true; }
-	AssetManager(const Polar *engine) : System(engine) {}
+	AssetManager(Polar *engine) : System(engine) {}
 
 	template<typename T> std::string GetPath(const std::string &name) const {
 		return "assets/" + T::Type() + '/' + name + ".asset";

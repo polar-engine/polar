@@ -126,7 +126,7 @@ void GL32Renderer::ObjectAdded(Object *object) {
 void GL32Renderer::HandleSDL(SDL_Event &event) {
 	switch(event.type) {
 	case SDL_QUIT:
-		engine->systems.Get<EventManager>()->Fire("destroy");
+		engine->Quit();
 		break;
 	}
 }
