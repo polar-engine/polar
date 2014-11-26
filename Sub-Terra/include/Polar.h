@@ -13,11 +13,21 @@ public:
 	virtual ~Polar();
 
 	template<typename T> void AddSystem() {
-		systems.Add<T>(this);
+		if(T::IsSupported()) {
+			systems.Add<T>(this);
+		} else {
+			std::string msg = typeid(T).name() + std::string(": unsupported");
+			ENGINE_THROW(msg);
+		}
 	}
 
 	template<typename T, typename ...Ts> void AddSystem(Ts && ...args) {
-		systems.Add<T>(this, std::forward<Ts>(args)...);
+		if(T::IsSupported()) {
+			systems.Add<T>(this, std::forward<Ts>(args)...);
+		} else {
+			std::string msg = typeid(T).name() + std::string(": unsupported");
+			ENGINE_THROW(msg);
+		}
 	}
 
 	void AddObject(Object *);
