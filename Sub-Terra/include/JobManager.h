@@ -15,7 +15,7 @@ protected:
 public:
 	const int numWorkers = std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
 	static bool IsSupported() { return true; }
-	JobManager(const Polar *);
+	JobManager(Polar *);
 	~JobManager() override;
 	void Do(const JobFunction &fn, const JobPriority = JobPriority::Normal, const JobThread = JobThread::Any);
 };

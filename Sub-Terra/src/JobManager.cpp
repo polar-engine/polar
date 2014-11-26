@@ -1,7 +1,7 @@
 #include "common.h"
 #include "JobManager.h"
 
-JobManager::JobManager(const Polar *engine) : System(engine) {
+JobManager::JobManager(Polar *engine) : System(engine) {
 	for(int i = 0; i < numWorkers; ++i) {
 		_workers.push_back(new Worker());
 	}

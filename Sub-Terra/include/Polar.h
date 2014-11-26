@@ -3,6 +3,7 @@
 class Polar {
 private:
 	bool _initDone = false;
+	bool _running = false;
 	std::vector<EntityBase<Component> *> _objects;
 	void Init();
 	void Update(DeltaTicks &);
@@ -32,4 +33,5 @@ public:
 
 	void AddObject(Object *);
 	void Run();
+	void Quit();
 };

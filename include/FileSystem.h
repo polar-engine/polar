@@ -74,6 +74,7 @@ public:
 		FindClose(handle);
 		return files;
 #endif
+		return std::vector<std::string>();
 	}
 
 	static void DirCreate(const std::string &path) {
