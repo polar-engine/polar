@@ -26,8 +26,10 @@
 
 typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> DeltaTicks;
 
-typedef glm::fvec4 Point;
-typedef std::tuple<Point, Point, Point> Triangle;
+typedef glm::fvec4 EnginePoint;
+#define Point EnginePoint
+typedef std::tuple<Point, Point, Point> EngineTriangle;
+#define Triangle EngineTriangle
 
 #include "Tag.h"
 #include "EntityBase.h"
