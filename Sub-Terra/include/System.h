@@ -1,7 +1,6 @@
 #pragma once
 
-class JobManager;
-class EventManager;
+class Polar;
 
 class System {
 	friend class Polar;
