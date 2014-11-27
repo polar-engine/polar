@@ -20,7 +20,11 @@ private:
 public:
 	static std::string GetAppDir() {
 #ifdef _WIN32
-		ENGINE_THROW("GetAppDir: not implemented");
+		char sz[MAX_PATH];
+		GetModuleFileNameA(NULL, sz, MAX_PATH);
+		std::string s(sz);
+		std::string::size_type pos = s.find_last_of("\\/");
+		return s.substr(0, pos);
 #endif
 #ifdef __APPLE__
 		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());

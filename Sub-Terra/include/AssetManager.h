@@ -7,8 +7,7 @@ class AssetManager : public System {
 public:
 	static std::string GetAssetsDir() {
 #ifdef _WIN32
-		ENGINE_DEBUG("GetAssetsDir: not implemented");
-		return "assets";
+		return FileSystem::GetAppDir() + "/assets";
 #endif
 #ifdef __APPLE__
 		return FileSystem::GetAppDir() + "/Contents/Resources";
