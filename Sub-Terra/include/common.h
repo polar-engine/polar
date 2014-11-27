@@ -16,6 +16,11 @@
 #include <thread>
 #include <mutex>
 
+/* CF defines types Point and Component so it needs to be included early */
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 #define GLM_SIMD_ENABLE_XYZW_UNION
 #include "glm/glm.hpp"
 #include "glm/gtx/simd_vec4.hpp"
