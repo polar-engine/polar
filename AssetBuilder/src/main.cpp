@@ -13,7 +13,7 @@
 #include "debug.h"
 
 int main(int argc, char **argv) {
-	std::string path = argc >= 2 ? argv[1] : "assets";
+	std::string path = argc >= 2 ? argv[1] : FileSystem::GetAppDir() + "/assets";
 	std::string buildPath = argc >= 3 ? argv[2] : path + "/build";
 	auto files = FileSystem::ListDir(path);
 
