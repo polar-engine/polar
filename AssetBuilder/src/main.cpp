@@ -23,36 +23,38 @@ int main(int argc, char **argv) {
 	};
 	converters["gls"] = [] (const std::string &data) {
 		std::vector<Shader> shaders;
-
 		std::istringstream iss(data);
+		std::string line;
 		std::ostringstream oss;
-		std::string s;
-		while(std::getline(iss, s)) {
-			oss << s;
+		std::ostringstream header;
+		ShaderType type = ShaderType::Invalid;
+
+		for(int iLine = 1; std::getline(iss, line); ++iLine) {
+			auto len = line.length();
+			if(len > 0) {
+				if(line[0] == '@') {
+					if(len < 2) { ENGINE_THROW((iLine + ": missing shader directive")); }
+					auto directive = line.substr(1);
+					if(directive == "vertex") {
+						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
+						type = ShaderType::Vertex;
+						oss = std::ostringstream();
+						oss << header.str();
+					} else if(directive == "fragment") {
+						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
+						type = ShaderType::Fragment;
+						oss = std::ostringstream();
+						oss << header.str();
+					} else { ENGINE_ERROR(iLine << ": unknown shader directive"); }
+				} else {
+					if(type == ShaderType::Invalid) { header << line << '\n'; } else { oss << line << '\n'; }
+				}
+			}
 		}
+		std::string rest = oss.str();
+		if(!rest.empty()) { shaders.emplace_back(type, rest); }
 
-		const std::string delim = "##";
-		std::string::size_type pos = 0;
-		while((pos = data.find(delim, pos)) != data.npos) {
-			pos += 2;
-			if(data.substr(pos) == "end") { break; }
-			std::string::size_type nextPos = data.find(delim, pos);
-			if(nextPos == data.npos) { ENGINE_THROW("missing shader end of type"); }
-
-			std::string typeString = data.substr(pos, nextPos - pos);
-
-			ShaderType type;
-			if(typeString == "vertex") {
-				type = ShaderType::Vertex;
-			} else if(typeString == "fragment") {
-				type = ShaderType::Fragment;
-			} else if(typeString == "end") {
-				break;
-			} else { ENGINE_THROW("invalid shader type"); }
-
-			pos = nextPos + 2;
-		}
-		return new ShaderAsset(std::vector<Shader>());
+		return new ShaderAsset(shaders);
 	};
 
 	for(auto &file : files) {

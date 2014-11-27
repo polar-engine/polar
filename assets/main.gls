@@ -1,7 +1,7 @@
-@vertex
-
 #version 150
 precision highp float;
+
+@vertex
 
 uniform mat4 u_projection;
 uniform mat4 u_modelView;
@@ -9,13 +9,10 @@ in vec4 a_vertex;
 
 void main() {
 	vec4 modelViewVertex = u_modelView * a_vertex;
-	gl_Position = u_prpoject * modelViewVertex;
+	gl_Position = u_projection * modelViewVertex;
 }
 
 @fragment
-
-#version 150
-precision highp float;
 
 out vec4 o_color;
 
