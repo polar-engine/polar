@@ -52,7 +52,7 @@ void GL32Renderer::InitGL() {
 
 void GL32Renderer::Init() {
 	InitGL();
-	//ENGINE_DEBUG(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text);
+	ENGINE_DEBUG(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text);
 }
 
 GLuint vao;

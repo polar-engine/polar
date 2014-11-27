@@ -9,12 +9,31 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
+#ifdef __APPLE__
+#include <sys/stat.h>
+#include <dirent.h>
+#endif
 
 class FileSystem {
 private:
 	FileSystem() {}
 public:
-	static std::string FileRead(const std::string &name) {
+	static std::string GetAppDir() {
+#ifdef _WIN32
+		ENGINE_THROW("GetAppDir: not implemented");
+#endif
+#ifdef __APPLE__
+		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+		CFStringRef path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+		char sz[1024];
+		CFStringGetCString(path, sz, 1024, CFStringGetSystemEncoding());
+		CFRelease(url);
+		CFRelease(path);
+		return std::string(sz);
+#endif
+	}
+	
+	static std::string ReadFile(const std::string &name) {
 		std::ifstream file(name, std::ios::in | std::ios::binary | std::ios::ate);
 		if(file.fail()) { ENGINE_THROW(name + ": open"); }
 
@@ -36,7 +55,8 @@ public:
 		std::string s(sz, len);
 		return s;
 	}
-	static void FileWrite(const std::string &name, std::string &data) {
+
+	static void WriteFile(const std::string &name, std::string &data) {
 		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);
 		if(file.fail()) { ENGINE_THROW(name + ": open"); }
 
@@ -47,7 +67,11 @@ public:
 		if(file.fail()) { ENGINE_THROW(name + ": close"); }
 	}
 
-	static std::vector<std::string> DirList(std::string path) {
+	static void WriteFile(const std::string &name, std::string &&data) {
+		WriteFile(name, data);
+	}
+
+	static std::vector<std::string> ListDir(std::string path) {
 		std::vector<std::string> files;
 #ifdef _WIN32
 		/* append "\*" to path and create wstring */
@@ -72,18 +96,34 @@ public:
 		}
 
 		FindClose(handle);
-		return files;
 #endif
-		return std::vector<std::string>();
+#ifdef __APPLE__
+		DIR *dp = opendir(path.c_str());
+		if(dp == nullptr) { ENGINE_THROW(path + ": failed to open directory"); }
+
+		struct dirent *ep;
+		while((ep = readdir(dp))) {
+			struct stat st;
+			lstat(ep->d_name, &st);
+			if(S_ISDIR(st.st_mode)) {
+				files.emplace_back(ep->d_name);
+			}
+		}
+		closedir(dp);
+#endif
+		return files;
 	}
 
-	static void DirCreate(const std::string &path) {
+	static void CreateDir(const std::string &path) {
 #ifdef _WIN32
 		std::wstring wPath(path.begin(), path.end());
 		if(::CreateDirectory(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
 			if(dwError != ERROR_ALREADY_EXISTS) { ENGINE_THROW(path + ": failed to create directory"); }
 		}
+#endif
+#ifdef __APPLE__
+		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { ENGINE_THROW(path + ": failed to create directory"); }
 #endif
 	}
 };
