@@ -47,7 +47,15 @@ public:
 		return shaders;
 	}
 	std::string Save() const override final {
-		ENGINE_THROW("not implemented");
-		return "";
+		std::ostringstream oss;
+		oss << static_cast<uint8_t>(shaders.size());
+		for(auto &shader : shaders) {
+			oss << static_cast<char>(shader.type);
+			const uint16_t length = static_cast<uint16_t>(shader.source.length());
+			const uint16_t beLength = swapbe(length);
+			oss << std::string(reinterpret_cast<const char *>(&beLength), 2);
+			oss << shader.source;
+		}
+		return oss.str();
 	}
 };
