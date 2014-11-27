@@ -2,6 +2,12 @@
 #include <sstream>
 #include <unordered_map>
 #include <functional>
+
+/* CF defines types Point and Component so it needs to be included early */
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 #include "FileSystem.h"
 #include "assets.h"
 #include "debug.h"
@@ -9,7 +15,7 @@
 int main(int argc, char **argv) {
 	std::string path = argc >= 2 ? argv[1] : "assets";
 	std::string buildPath = argc >= 3 ? argv[2] : path + "/build";
-	auto files = FileSystem::DirList(path);
+	auto files = FileSystem::ListDir(path);
 
 	std::unordered_map<std::string, std::function<Asset *(const std::string &)>> converters;
 	converters["txt"] = [] (const std::string &data) {
@@ -54,19 +60,20 @@ int main(int argc, char **argv) {
 		if(pos != file.npos && pos < file.length() - 1) {
 			std::string ext = file.substr(pos + 1);
 			std::string name = file.substr(0, pos);
-			std::string data = FileSystem::FileRead(path + '/' + file);
+			std::string data = FileSystem::ReadFile(path + '/' + file);
 			auto converter = converters.find(ext);
 			if(converter != converters.end()) {
 				Asset *asset = converter->second(data);
-				FileSystem::DirCreate(buildPath);
-				FileSystem::DirCreate(buildPath + '/' + asset->type);
-				FileSystem::FileWrite(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
+				FileSystem::CreateDir(buildPath);
+				FileSystem::CreateDir(buildPath + '/' + asset->type);
+				FileSystem::WriteFile(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
 				delete asset;
 			} else {
 				std::cerr << file << ": no appropriate Asset class found" << std::endl;
 			}
 		}
 	}
+	std::cout << "Press enter to continue" << std::endl;
 	std::cin.ignore(1);
 	return 0;
 }

@@ -16,12 +16,22 @@
 		7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6511A25D90B00623543 /* SubTerra.cpp */; };
 		7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6521A25D90B00623543 /* Worker.cpp */; };
 		7F0CB65B1A25D98600623543 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F0CB63F1A25D8A500623543 /* MainMenu.xib */; };
+		7F0CB65F1A25DC7500623543 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB65E1A25DC7500623543 /* main.cpp */; };
 		7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407711A1AADD100B55B7A /* OpenGL.framework */; };
 		7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F54077F1A1AAF8300B55B7A /* Cocoa.framework */; };
-		7F558EB41A25CB6F006622FA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F558EB31A25CB6F006622FA /* main.cpp */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7F0CB6691A25DD8100623543 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7FF31F101A1AA90D0008999E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7F558EB01A25CB6F006622FA;
+			remoteInfo = AssetBuilder;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		7F558EAF1A25CB6F006622FA /* CopyFiles */ = {
@@ -75,12 +85,19 @@
 		7F0CB6501A25D90B00623543 /* Polar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Polar.cpp; path = src/Polar.cpp; sourceTree = "<group>"; };
 		7F0CB6511A25D90B00623543 /* SubTerra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubTerra.cpp; path = src/SubTerra.cpp; sourceTree = "<group>"; };
 		7F0CB6521A25D90B00623543 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = "<group>"; };
+		7F0CB65E1A25DC7500623543 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
+		7F0CB6601A25DC8100623543 /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Asset.h; path = include/Asset.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6611A25DC8100623543 /* assets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = assets.h; path = include/assets.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6621A25DC8100623543 /* debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = debug.h; path = include/debug.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6631A25DC8100623543 /* endian.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = endian.h; path = include/endian.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6641A25DC8100623543 /* FileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileSystem.h; path = include/FileSystem.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6651A25DC8100623543 /* ShaderAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderAsset.h; path = include/ShaderAsset.h; sourceTree = SOURCE_ROOT; };
+		7F0CB6661A25DC8100623543 /* TextAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextAsset.h; path = include/TextAsset.h; sourceTree = SOURCE_ROOT; };
 		7F54073E1A1AAC4100B55B7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		7F5407711A1AADD100B55B7A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7F5407781A1AAF0100B55B7A /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
 		7F54077F1A1AAF8300B55B7A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		7F558EB11A25CB6F006622FA /* AssetBuilder */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AssetBuilder; sourceTree = BUILT_PRODUCTS_DIR; };
-		7F558EB31A25CB6F006622FA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -127,6 +144,28 @@
 				7F0CB6281A25D86E00623543 /* AssetManager.h */,
 			);
 			name = Assets;
+			sourceTree = "<group>";
+		};
+		7F0CB65C1A25DAC100623543 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				7F0CB6601A25DC8100623543 /* Asset.h */,
+				7F0CB6611A25DC8100623543 /* assets.h */,
+				7F0CB6621A25DC8100623543 /* debug.h */,
+				7F0CB6631A25DC8100623543 /* endian.h */,
+				7F0CB6641A25DC8100623543 /* FileSystem.h */,
+				7F0CB6651A25DC8100623543 /* ShaderAsset.h */,
+				7F0CB6661A25DC8100623543 /* TextAsset.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		7F0CB65D1A25DACC00623543 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				7F0CB65E1A25DC7500623543 /* main.cpp */,
+			);
+			name = "Source Files";
 			sourceTree = "<group>";
 		};
 		7F5407391A1AABC600B55B7A /* Source Files */ = {
@@ -195,7 +234,8 @@
 		7F558EB21A25CB6F006622FA /* AssetBuilder */ = {
 			isa = PBXGroup;
 			children = (
-				7F558EB31A25CB6F006622FA /* main.cpp */,
+				7F0CB65C1A25DAC100623543 /* Header Files */,
+				7F0CB65D1A25DACC00623543 /* Source Files */,
 			);
 			path = AssetBuilder;
 			sourceTree = "<group>";
@@ -203,8 +243,8 @@
 		7FF31F0F1A1AA90D0008999E = {
 			isa = PBXGroup;
 			children = (
-				7FF31F1A1A1AA90D0008999E /* Sub-Terra */,
 				7F558EB21A25CB6F006622FA /* AssetBuilder */,
+				7FF31F1A1A1AA90D0008999E /* Sub-Terra */,
 				7FF31F191A1AA90D0008999E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -253,6 +293,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Sub-Terra" */;
 			buildPhases = (
+				7F0CB66B1A25E41700623543 /* ShellScript */,
 				7FF31F141A1AA90D0008999E /* Sources */,
 				7FF31F151A1AA90D0008999E /* Frameworks */,
 				7FF31F161A1AA90D0008999E /* Resources */,
@@ -260,6 +301,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7F0CB66A1A25DD8100623543 /* PBXTargetDependency */,
 			);
 			name = "Sub-Terra";
 			productName = "Sub-Terra";
@@ -314,12 +356,30 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7F0CB66B1A25E41700623543 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/assets",
+			);
+			outputPaths = (
+				"$(UNLOCALIZED_RESOURCES_FOLDER_PATH)",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$TARGET_BUILD_DIR/AssetBuilder\" \"$SRCROOT/assets\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		7F558EAD1A25CB6F006622FA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7F558EB41A25CB6F006622FA /* main.cpp in Sources */,
+				7F0CB65F1A25DC7500623543 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +399,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7F0CB66A1A25DD8100623543 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7F558EB01A25CB6F006622FA /* AssetBuilder */;
+			targetProxy = 7F0CB6691A25DD8100623543 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		7F0CB63F1A25D8A500623543 /* MainMenu.xib */ = {
@@ -459,7 +527,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "include Sub-Terra/include";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include $(SRCROOT)/Sub-Terra/include";
 			};
 			name = Debug;
 		};
@@ -473,7 +541,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "include Sub-Terra/include";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include $(SRCROOT)/Sub-Terra/include";
 			};
 			name = Release;
 		};
