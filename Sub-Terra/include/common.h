@@ -36,13 +36,6 @@ typedef glm::fvec4 EnginePoint;
 typedef std::tuple<Point, Point, Point> EngineTriangle;
 #define Triangle EngineTriangle
 
-#include "Tag.h"
-#include "EntityBase.h"
-#include "Component.h"
-
-typedef EntityBase<Component> Object;
-
-#include "System.h"
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"

@@ -125,5 +125,11 @@
     <ClInclude Include="..\include\ShaderAsset.h">
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
+    <ClInclude Include="include\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Property.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

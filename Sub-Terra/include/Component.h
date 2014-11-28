@@ -1,8 +1,7 @@
 #pragma once
 
-class EngineComponent {
-public:
-	virtual ~EngineComponent() {};
-};
+#include "EntityBase.h"
+#include "Property.h"
 
+typedef EntityBase<Property> EngineComponent;
 #define Component EngineComponent

@@ -2,6 +2,12 @@
 #include "GL32Renderer.h"
 #include "ModelComponent.h"
 
+class GL32ModelProperty : public Property {
+public:
+	const GLuint vao;
+	GL32ModelProperty(const GLuint vao) : vao(vao) {}
+};
+
 bool GL32Renderer::IsSupported() {
 	GL32Renderer renderer(nullptr);
 	try {
@@ -50,9 +56,6 @@ void GL32Renderer::Init() {
 	ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
 }
 
-GLuint vao;
-GLuint vbo;
-
 void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
@@ -94,7 +97,17 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 		}
 	}
 	IGNORE_GL(glEnd());*/
-	GL(glDrawArrays(GL_TRIANGLES, 0, 3));
+	for(auto object : objects) {
+		auto model = object->Get<ModelComponent>();
+		if(model != nullptr) {
+			auto property = model->Get<GL32ModelProperty>();
+			if(property != nullptr) {
+				GL(glBindVertexArray(property->vao));
+				GL(glDrawArrays(GL_TRIANGLES, 0, model->points.size()));
+			}
+		}
+	}
+
 	SDL(SDL_GL_SwapWindow(window));
 }
 
@@ -110,14 +123,24 @@ void GL32Renderer::ObjectAdded(Object *object) {
 	if(model != nullptr) {
 		auto &points = model->points;
 		auto v = points.data();
+
+		GLuint vao;
 		GL(glGenVertexArrays(1, &vao));
 		GL(glBindVertexArray(vao));
+
+		GLuint vbo;
 		GL(glGenBuffers(1, &vbo));
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * points.size(), points.data(), GL_STATIC_DRAW));
 
+		/* location   attribute
+		*
+		*        0   vertex
+		*/
 		GL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
+
+		model->Add<GL32ModelProperty>(vao);
 	}
 }
 
