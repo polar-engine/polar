@@ -143,8 +143,10 @@
     <ClInclude Include="include\JobManager.h" />
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\NoRenderer.h" />
+    <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\Polar.h" />
     <ClInclude Include="include\PositionComponent.h" />
+    <ClInclude Include="include\Property.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\ScaleComponent.h" />

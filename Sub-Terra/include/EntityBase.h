@@ -5,6 +5,7 @@ template<typename C> class EntityBase {
 private:
 	ComponentsType components;
 public:
+	virtual ~EntityBase() {}
 	template<typename T> void Add() {
 		Add(new T());
 	}

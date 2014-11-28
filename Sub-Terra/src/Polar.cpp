@@ -48,7 +48,6 @@ void Polar::AddObject(Object *object) {
 
 void Polar::Run() {
 	_running = true;
-	systems.Get<EventManager>()->ListenFor("destroy", [this] (Arg) { _running = false; });
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
 	DeltaTicks iteration = DeltaTicks(ENGINE_TICKS_PER_SECOND / 200);

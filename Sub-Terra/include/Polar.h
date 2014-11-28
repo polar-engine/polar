@@ -1,5 +1,7 @@
 #pragma once
 
+#include "System.h"
+
 class Polar {
 private:
 	bool _initDone = false;
