@@ -1,15 +1,21 @@
 #version 150
+#extension GL_ARB_explicit_attrib_location: enable
 precision highp float;
 
 @vertex
 
 uniform mat4 u_projection;
 uniform mat4 u_modelView;
-in vec4 a_vertex;
+layout(location = 0) in vec4 a_vertex;
 
 void main() {
-	vec4 modelViewVertex = u_modelView * a_vertex;
-	gl_Position = u_projection * modelViewVertex;
+	mat4 id;
+	id[0] = vec4(1, 0, 0, 0);
+	id[1] = vec4(0, 1, 0, 0);
+	id[2] = vec4(0, 0, 1, 0);
+	id[3] = vec4(0, 0, 0, 1);
+	vec4 modelViewVertex = id * a_vertex;
+	gl_Position = id * modelViewVertex;
 }
 
 @fragment
