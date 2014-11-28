@@ -11,6 +11,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	engine.AddSystem<EventManager>();
 	engine.AddSystem<AssetManager>();
 	engine.AddSystem<GL32Renderer>();
+
 	auto obj = new Object();
 	obj->Add<PositionComponent>();
 	obj->Add<ScaleComponent>();
@@ -18,5 +19,9 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 		std::make_tuple(Point(0, 0, 0, 1), Point(1, 0, 0, 1), Point(0, 1, 0, 1))
 	});
 	engine.AddObject(obj);
+
+	engine.Init();
+	engine.systems.Get<GL32Renderer>()->Use("main");
 	engine.Run();
+	engine.Destroy();
 }

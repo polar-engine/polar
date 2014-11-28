@@ -5,9 +5,7 @@ private:
 	bool _initDone = false;
 	bool _running = false;
 	std::vector<EntityBase<Component> *> _objects;
-	void Init();
 	void Update(DeltaTicks &);
-	void Destroy();
 public:
 	EntityBase<System> systems;
 	Polar() {}
@@ -32,6 +30,9 @@ public:
 	}
 
 	void AddObject(Object *);
+	void Init();
 	void Run();
+	void Destroy();
+
 	void Quit();
 };
