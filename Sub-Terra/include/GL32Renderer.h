@@ -26,4 +26,5 @@ public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine) : Renderer(engine) {}
 	void SetClearColor(const glm::fvec4 &) override final;
+	void Use(const std::string &) override final;
 };
