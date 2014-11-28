@@ -43,6 +43,7 @@ public:
 			if(dataLength - pos < length) { ENGINE_THROW("invalid shader source length"); }
 			std::string source(sz + pos, length);
 			shaders.emplace_back(type, source);
+			pos += length;
 		}
 		return shaders;
 	}
