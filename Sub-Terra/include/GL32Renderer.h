@@ -23,9 +23,10 @@ protected:
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 	void Destroy() override final;
 	void ObjectAdded(Object *) override final;
+	void Project();
 public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine) : Renderer(engine) {}
-	void SetClearColor(const glm::fvec4 &) override final;
+	void SetClearColor(const Point &) override final;
 	void Use(const std::string &) override final;
 };

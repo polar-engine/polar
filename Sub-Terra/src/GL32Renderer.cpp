@@ -38,7 +38,8 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { ENGINE_THROW("failed to set double buffer attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { ENGINE_THROW("failed to set multisample buffers attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { ENGINE_THROW("failed to set multisample samples attribute"); }
-	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN))) { ENGINE_THROW("failed to create window"); }
+	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE))) { ENGINE_THROW("failed to create window"); }
 	if(!SDL(context = SDL_GL_CreateContext(window))) { ENGINE_THROW("failed to create OpenGL context"); }
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { ENGINE_THROW("failed to set swap interval"); }
 
@@ -54,7 +55,12 @@ void GL32Renderer::InitGL() {
 }
 
 void GL32Renderer::Init() {
+	width = 1280;
+	height = 720;
+	fovy = 70;
+	zNear = 0.05f;
 	InitGL();
+	SetClearColor(Point(0.02f, 0.05f, 0.1f, 1));
 	ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
 }
 
@@ -65,9 +71,9 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	}
 	SDL_ClearError();
 
-	static glm::fvec4 color;
+	/*static Point color;
 	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
-	SetClearColor(color);
+	SetClearColor(color);*/
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -97,6 +103,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			auto property = model->Get<GL32ModelProperty>();
 			if(property != nullptr) {
 				glm::mat4 modelView;
+				modelView = glm::translate(modelView, glm::vec3(0, 0, -2));
 				modelView = glm::toMat4(qRot) * modelView;
 
 				auto pos = object->Get<PositionComponent>();
@@ -157,10 +164,27 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 	case SDL_QUIT:
 		engine->Quit();
 		break;
+	case SDL_WINDOWEVENT:
+		switch(event.window.event) {
+		case SDL_WINDOWEVENT_RESIZED:
+			width = event.window.data1;
+			height = event.window.data2;
+			GL(glViewport(0, 0, width, height));
+			Project();
+			break;
+		}
+		break;
 	}
 }
 
-void GL32Renderer::SetClearColor(const glm::fvec4 &color) {
+void GL32Renderer::Project() {
+	GLint locProjection;
+	GL(locProjection = glGetUniformLocation(activeProgram, "u_projection"));
+	glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
+	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
+}
+
+void GL32Renderer::SetClearColor(const Point &color) {
 	GL(glClearColor(color.x, color.y, color.z, color.w));
 }
 
@@ -236,4 +260,7 @@ void GL32Renderer::Use(const std::string &name) {
 	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
 
 	activeProgram = programID;
+
+	/* set projection matrix in new program */
+	Project();
 }
