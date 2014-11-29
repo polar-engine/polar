@@ -1,27 +1,44 @@
 #version 150
-#extension GL_ARB_explicit_attrib_location: enable
 precision highp float;
+
+uniform mat4 u_modelView;
 
 @vertex
 
+#extension GL_ARB_explicit_attrib_location: enable
+
 uniform mat4 u_projection;
-uniform mat4 u_modelView;
 layout(location = 0) in vec4 a_vertex;
+smooth out vec4 v_vertex;
+flat out vec4 v_normal;
 
 void main() {
-	mat4 id;
-	id[0] = vec4(1, 0, 0, 0);
-	id[1] = vec4(0, 1, 0, 0);
-	id[2] = vec4(0, 0, 1, 0);
-	id[3] = vec4(0, 0, 0, 1);
 	vec4 modelViewVertex = u_modelView * a_vertex;
-	gl_Position = id * modelViewVertex;
+	v_vertex = modelViewVertex;
+	v_normal = vec4(0.0, 0.0, 1.0, 1.0);
+	gl_Position = u_projection * modelViewVertex;
 }
 
 @fragment
 
+smooth in vec4 v_vertex;
+flat in vec4 v_normal;
 out vec4 o_color;
 
 void main() {
-	o_color = vec4(1.0, 0.0, 0.0, 1.0);
+	vec4 ambient = vec4(0.05, 0.05, 0.05, 1.0);
+
+	vec4 vAux = -v_vertex;
+	vec4 lightDir = normalize(vAux);
+	float distance = length(vAux);
+	float nDotL = max(0.0, dot(v_normal, lightDir));
+	float disivor = 0.0 +
+	                0.0 * distance +
+					0.05 * pow(distance, 2.0) +
+					0.03 * pow(distance, 3.0);
+	float attenuation = 1.0 / disivor;
+	vec4 diffuse = vec4(1.0, 0.5, 0.0, 1.0) * nDotL * attenuation;
+
+	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
+	o_color = ambient + diffuse + specular;
 }
