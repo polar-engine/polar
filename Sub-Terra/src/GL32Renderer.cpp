@@ -1,5 +1,7 @@
 #include "common.h"
 #include "GL32Renderer.h"
+#include "PositionComponent.h"
+#include "OrientationComponent.h"
 #include "ModelComponent.h"
 
 class GL32ModelProperty : public Property {
@@ -84,24 +86,30 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	float alpha = (float)accumulator.count() / (float)timestep.count();
 	float interpRot = rot * alpha + previousRot * (1 - alpha);
-	/*GL(glLoadIdentity());
-	GL(glRotatef(interpRot, 0, 0, 1));
+	auto qRot = glm::quat(glm::vec3(0, 0, interpRot * 3.1415 / 180));
 
-	GL(glBegin(GL_TRIANGLES));
-	for(auto object : objects) {
-		auto model = object->Get<ModelComponent>();
-		if(model != nullptr) {
-			for(auto point : model->points) {
-				GL(glVertex4f(point.x, point.y, point.z, point.w));
-			}
-		}
-	}
-	IGNORE_GL(glEnd());*/
+	GLint locModelView;
+	GL(locModelView = glGetUniformLocation(activeProgram, "u_modelView"));
+
 	for(auto object : objects) {
 		auto model = object->Get<ModelComponent>();
 		if(model != nullptr) {
 			auto property = model->Get<GL32ModelProperty>();
 			if(property != nullptr) {
+				glm::mat4 modelView;
+				modelView = glm::toMat4(qRot) * modelView;
+
+				auto pos = object->Get<PositionComponent>();
+				if(pos != nullptr) {
+					modelView = glm::translate(modelView, glm::fvec3(pos->position));
+				}
+
+				auto orient = object->Get<OrientationComponent>();
+				if(orient != nullptr) {
+					modelView *= glm::toMat4(glm::rotate(orient->orientation, interpRot * 7 * 3.1415f / 180, glm::vec3(0, 0, 1)));
+				}
+
+				GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
 				GL(glBindVertexArray(property->vao));
 				GL(glDrawArrays(GL_TRIANGLES, 0, model->points.size()));
 			}
@@ -226,4 +234,6 @@ void GL32Renderer::Use(const std::string &name) {
 	}
 
 	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
+
+	activeProgram = programID;
 }
