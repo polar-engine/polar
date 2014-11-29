@@ -21,8 +21,12 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#define GLM_FORCE_RADIANS
 #define GLM_SIMD_ENABLE_XYZW_UNION
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/simd_vec4.hpp"
 
 #include "debug.h"

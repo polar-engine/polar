@@ -15,6 +15,7 @@ class GL32Renderer : public Renderer {
 private:
 	SDL_Window *window;
 	SDL_GLContext context;
+	GLuint activeProgram;
 	void InitGL();
 	void HandleSDL(SDL_Event &);
 protected:

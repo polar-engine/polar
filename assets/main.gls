@@ -14,7 +14,7 @@ void main() {
 	id[1] = vec4(0, 1, 0, 0);
 	id[2] = vec4(0, 0, 1, 0);
 	id[3] = vec4(0, 0, 0, 1);
-	vec4 modelViewVertex = id * a_vertex;
+	vec4 modelViewVertex = u_modelView * a_vertex;
 	gl_Position = id * modelViewVertex;
 }
 

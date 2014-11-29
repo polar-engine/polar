@@ -131,5 +131,8 @@
     <ClInclude Include="include\Property.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\OrientationComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
