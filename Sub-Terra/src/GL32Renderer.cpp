@@ -19,8 +19,7 @@ bool GL32Renderer::IsSupported() {
 		if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) { ENGINE_THROW("failed to get OpenGL minor version"); }
 		/* if OpenGL version is 3.2 or greater */
 		if(!(major > 3 || (major == 3 && minor >= 2))) {
-			std::string msg = "actual OpenGL version is " + major + '.' + minor;
-			ENGINE_THROW(msg);
+			ENGINE_ERROR("actual OpenGL version is " << major << minor);
 		}
 		renderer.Destroy();
 	} catch(std::exception &) {
@@ -92,7 +91,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	float alpha = (float)accumulator.count() / (float)timestep.count();
 	float interpRot = rot * alpha + previousRot * (1 - alpha);
-	auto qRot = glm::quat(glm::vec3(0, interpRot * 3.1415 / 180, 0));
+	auto qRot = glm::quat(glm::vec3(0, 0, interpRot * 3.1415 / 180));
 
 	GLint locModelView;
 	GL(locModelView = glGetUniformLocation(activeProgram, "u_modelView"));
@@ -104,7 +103,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			if(property != nullptr) {
 				glm::mat4 modelView;
 				modelView = glm::translate(modelView, glm::vec3(0, 0, -2));
-				modelView = glm::toMat4(qRot) * modelView;
+				//modelView = glm::toMat4(qRot) * modelView;
 
 				auto pos = object->Get<PositionComponent>();
 				if(pos != nullptr) {
@@ -113,12 +112,12 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 				auto orient = object->Get<OrientationComponent>();
 				if(orient != nullptr) {
-					modelView *= glm::toMat4(glm::rotate(orient->orientation, interpRot * 7 * 3.1415f / 180, glm::vec3(0, 0, 1)));
+					modelView *= glm::toMat4(glm::rotate(orient->orientation, interpRot * 7 * 3.1415f / 180, glm::vec3(0, 1, 0)));
 				}
 
 				GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
 				GL(glBindVertexArray(property->vao));
-				GL(glDrawArrays(GL_TRIANGLES, 0, model->points.size()));
+				GL(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(model->points.size())));
 			}
 		}
 	}
@@ -137,7 +136,6 @@ void GL32Renderer::ObjectAdded(Object *object) {
 	auto model = object->Get<ModelComponent>();
 	if(model != nullptr) {
 		auto &points = model->points;
-		auto v = points.data();
 
 		GLuint vao;
 		GL(glGenVertexArrays(1, &vao));
@@ -195,10 +193,10 @@ void GL32Renderer::SetClearColor(const Point &color) {
 }
 
 void GL32Renderer::Use(const std::string &name) {
-	auto &asset = engine->systems.Get<AssetManager>()->Get<ShaderAsset>(name);
+	auto asset = engine->systems.Get<AssetManager>()->Get<ShaderAsset>(name);
 	std::vector<GLuint> ids;
 	for(auto &shader : asset.shaders) {
-		GLenum type;
+		GLenum type = 0;
 		switch(shader.type) {
 		case ShaderType::Vertex:
 			type = GL_VERTEX_SHADER;
@@ -206,13 +204,15 @@ void GL32Renderer::Use(const std::string &name) {
 		case ShaderType::Fragment:
 			type = GL_FRAGMENT_SHADER;
 			break;
+		default:
+			ENGINE_THROW("invalid shader type");
 		}
 
 		GLuint id;
 		if(!GL(id = glCreateShader(type))) { ENGINE_THROW("failed to create shader"); }
 
 		const GLchar *src = shader.source.c_str();
-		const GLint len = shader.source.length();
+		const GLint len = static_cast<GLint>(shader.source.length());
 		if(!GL(glShaderSource(id, 1, &src, &len))) { ENGINE_THROW("failed to upload shader source"); }
 		if(!GL(glCompileShader(id))) { ENGINE_THROW("shader compilation is unsupported on this platform"); }
 
