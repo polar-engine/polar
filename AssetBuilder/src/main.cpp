@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
 	std::unordered_map<std::string, std::function<Asset *(const std::string &)>> converters;
 	converters["txt"] = [] (const std::string &data) {
-		return new TextAsset(data.length(), data);
+		return new TextAsset(static_cast<uint32_t>(data.length()), data);
 	};
 	converters["gls"] = [] (const std::string &data) {
 		std::vector<Shader> shaders;
@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
 			auto len = line.length();
 			if(len > 0) {
 				if(line[0] == '@') {
-					if(len < 2) { ENGINE_THROW((iLine + ": missing shader directive")); }
+					std::string msg = (std::stringstream() << iLine << ": missing shader directive").str();
+					if(len < 2) { ENGINE_THROW(msg); }
 					auto directive = line.substr(1);
 					if(directive == "vertex") {
 						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }

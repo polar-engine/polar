@@ -17,6 +17,7 @@
 		7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6521A25D90B00623543 /* Worker.cpp */; };
 		7F0CB65B1A25D98600623543 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F0CB63F1A25D8A500623543 /* MainMenu.xib */; };
 		7F0CB65F1A25DC7500623543 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB65E1A25DC7500623543 /* main.cpp */; };
+		7F3F88711A2C93810078F5F9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */; };
 		7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407711A1AADD100B55B7A /* OpenGL.framework */; };
 		7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F54077F1A1AAF8300B55B7A /* Cocoa.framework */; };
@@ -93,6 +94,10 @@
 		7F0CB6641A25DC8100623543 /* FileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileSystem.h; path = include/FileSystem.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6651A25DC8100623543 /* ShaderAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderAsset.h; path = include/ShaderAsset.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6661A25DC8100623543 /* TextAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextAsset.h; path = include/TextAsset.h; sourceTree = SOURCE_ROOT; };
+		7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OrientationComponent.h; path = include/OrientationComponent.h; sourceTree = "<group>"; };
+		7F3F886E1A2C92A30078F5F9 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = include/Object.h; sourceTree = "<group>"; };
+		7F3F886F1A2C92A30078F5F9 /* Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Property.h; path = include/Property.h; sourceTree = "<group>"; };
+		7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		7F54073E1A1AAC4100B55B7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		7F5407711A1AADD100B55B7A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7F5407781A1AAF0100B55B7A /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
@@ -106,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7F3F88711A2C93810078F5F9 /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +131,7 @@
 		7F0CB6421A25D8B200623543 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */,
 				7F0CB62A1A25D86E00623543 /* Component.h */,
 				7F0CB62B1A25D86E00623543 /* components.h */,
 				7F0CB6321A25D86E00623543 /* ModelComponent.h */,
@@ -168,6 +175,14 @@
 			name = "Source Files";
 			sourceTree = "<group>";
 		};
+		7F3F88721A2C93880078F5F9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7F5407391A1AABC600B55B7A /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,7 +215,9 @@
 				7F0CB6301A25D86E00623543 /* Job.h */,
 				7F0CB6311A25D86E00623543 /* JobManager.h */,
 				7F0CB6331A25D86E00623543 /* NoRenderer.h */,
+				7F3F886E1A2C92A30078F5F9 /* Object.h */,
 				7F0CB6341A25D86E00623543 /* Polar.h */,
+				7F3F886F1A2C92A30078F5F9 /* Property.h */,
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
 				7F0CB6381A25D86E00623543 /* sdl.h */,
 				7F0CB6391A25D86E00623543 /* SubTerra.h */,
@@ -236,6 +253,7 @@
 			children = (
 				7F0CB65C1A25DAC100623543 /* Header Files */,
 				7F0CB65D1A25DACC00623543 /* Source Files */,
+				7F3F88721A2C93880078F5F9 /* Frameworks */,
 			);
 			path = AssetBuilder;
 			sourceTree = "<group>";
