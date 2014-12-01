@@ -4,10 +4,10 @@
 
 class Renderer : public System {
 protected:
-	uint16_t width;
-	uint16_t height;
-	float fovy;
-	float zNear;
+	uint16_t width = 1280;
+	uint16_t height = 720;
+	float fovy = 70;
+	float zNear = 0.05f;
 public:
 	static bool IsSupported() { return false; }
 	Renderer(Polar *engine) : System(engine) {}
