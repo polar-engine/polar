@@ -19,7 +19,8 @@ bool GL32Renderer::IsSupported() {
 		if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) { ENGINE_THROW("failed to get OpenGL minor version"); }
 		/* if OpenGL version is 3.2 or greater */
 		if(!(major > 3 || (major == 3 && minor >= 2))) {
-			ENGINE_ERROR("actual OpenGL version is " << major << minor);
+			std::string msg = (std::stringstream() << "actual OpenGL version is " << major << '.' << minor).str();
+			ENGINE_THROW(msg);
 		}
 		renderer.Destroy();
 	} catch(std::exception &) {
