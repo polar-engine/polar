@@ -92,7 +92,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	float alpha = (float)accumulator.count() / (float)timestep.count();
 	float interpRot = rot * alpha + previousRot * (1 - alpha);
-	auto qRot = glm::quat(glm::vec3(0, 0, interpRot * 3.1415 / 180));
+	auto qRot = glm::quat(glm::vec3(0, interpRot * 3.1415 / 180, 0));
 
 	GLint locModelView;
 	GL(locModelView = glGetUniformLocation(activeProgram, "u_modelView"));
@@ -171,6 +171,12 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
 			Project();
+			break;
+		}
+		break;
+	case SDL_KEYDOWN:
+		switch(event.key.keysym.sym) {
+		case SDLK_w:
 			break;
 		}
 		break;
