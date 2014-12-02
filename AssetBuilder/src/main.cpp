@@ -33,8 +33,9 @@ int main(int argc, char **argv) {
 			auto len = line.length();
 			if(len > 0) {
 				if(line[0] == '@') {
-					std::string msg = (std::stringstream() << iLine << ": missing shader directive").str();
-					if(len < 2) { ENGINE_THROW(msg); }
+					std::stringstream msg;
+					msg << iLine << ": missing shader directive";
+					if(len < 2) { ENGINE_THROW(msg.str()); }
 					auto directive = line.substr(1);
 					if(directive == "vertex") {
 						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
