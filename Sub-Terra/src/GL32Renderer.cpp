@@ -53,6 +53,13 @@ void GL32Renderer::InitGL() {
 	 * causes GL_INVALID_ENUM on GL 3.2+ core contexts
 	 */
 	glGetError();
+
+	GL(glEnable(GL_DEPTH_TEST));
+	GL(glEnable(GL_BLEND));
+	GL(glEnable(GL_CULL_FACE));
+	GL(glEnable(GL_MULTISAMPLE));
+	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GL(glCullFace(GL_BACK));
 }
 
 void GL32Renderer::Init() {
@@ -71,10 +78,6 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 		HandleSDL(event);
 	}
 	SDL_ClearError();
-
-	/*static Point color;
-	color.x += 0.001f; color.y += 0.0025f; color.z += 0.005f;
-	SetClearColor(color);*/
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -114,12 +117,25 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 				auto orient = object->Get<OrientationComponent>();
 				if(orient != nullptr) {
-					modelView *= glm::toMat4(glm::rotate(orient->orientation, interpRot * 7 * 3.1415f / 180, glm::vec3(0, 1, 0)));
+					modelView *= glm::toMat4(orient->orientation);
+					auto seconds = dt.count() / static_cast<float>(ENGINE_TICKS_PER_SECOND);
+					//orient->orientation *= glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
+					orient->orientation = glm::quat(glm::vec3(seconds * 21 * 3.1415 / 180, 0, 0)) * orient->orientation * glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
+				}
+
+				GLenum drawMode = GL_TRIANGLES;
+				switch(model->type) {
+				case GeometryType::Triangles:
+					drawMode = GL_TRIANGLES;
+					break;
+				case GeometryType::TriangleStrip:
+					drawMode = GL_TRIANGLE_STRIP;
+					break;
 				}
 
 				GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
 				GL(glBindVertexArray(property->vao));
-				GL(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(model->points.size())));
+				GL(glDrawArrays(drawMode, 0, static_cast<GLsizei>(model->points.size())));
 			}
 		}
 	}
