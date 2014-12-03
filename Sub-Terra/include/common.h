@@ -10,6 +10,7 @@
 #include <vector>
 #include <queue>
 #include <tuple>
+#include <map>
 #include <unordered_map>
 #include <functional>
 #include <chrono>
@@ -39,6 +40,12 @@ typedef glm::fvec4 EnginePoint;
 #define Point EnginePoint
 typedef std::tuple<Point, Point, Point> EngineTriangle;
 #define Triangle EngineTriangle
+
+enum class GeometryType : uint8_t {
+	None,
+	Triangles,
+	TriangleStrip
+};
 
 #include "Polar.h"
 #include "JobManager.h"
