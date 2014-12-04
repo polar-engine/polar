@@ -74,6 +74,8 @@ void GL32Renderer::Init() {
 }
 
 void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
+	auto seconds = dt.count() / static_cast<float>(ENGINE_TICKS_PER_SECOND);
+
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
@@ -117,7 +119,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			}
 			cameraView = glm::translate(cameraView, glm::vec3(-camera->position));
 
-			camera->orientation *= glm::quat(glm::vec3(0, 0.01, 0));
+			camera->orientation *= glm::quat(glm::vec3(0, 0.5f * seconds, 0));
 		}
 	}
 
@@ -136,7 +138,6 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 				auto orient = object->Get<OrientationComponent>();
 				if(orient != nullptr) {
 					modelView *= glm::toMat4(orient->orientation);
-					auto seconds = dt.count() / static_cast<float>(ENGINE_TICKS_PER_SECOND);
 					//orient->orientation *= glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
 					orient->orientation = glm::quat(glm::vec3(seconds * 21 * 3.1415 / 180, 0, 0)) * orient->orientation * glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
 				}
