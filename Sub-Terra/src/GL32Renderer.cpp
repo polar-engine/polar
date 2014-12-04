@@ -3,6 +3,7 @@
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
 #include "ModelComponent.h"
+#include "PlayerCameraComponent.h"
 
 class GL32ModelProperty : public Property {
 public:
@@ -81,6 +82,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+	/*
 	static float rot = 0;
 	static float previousRot = 0;
 
@@ -97,18 +99,34 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	float alpha = (float)accumulator.count() / (float)timestep.count();
 	float interpRot = rot * alpha + previousRot * (1 - alpha);
 	auto qRot = glm::quat(glm::vec3(0, 0, interpRot * 3.1415 / 180));
+	*/
 
 	GLint locModelView;
 	GL(locModelView = glGetUniformLocation(activeProgram, "u_modelView"));
+
+	glm::mat4 cameraView;
+	for(auto object : objects) {
+		auto camera = object->Get<PlayerCameraComponent>();
+		if(camera != nullptr) {
+			cameraView = glm::translate(cameraView, glm::vec3(-camera->distance));
+			cameraView *= glm::toMat4(camera->orientation);
+
+			auto pos = object->Get<PositionComponent>();
+			if(pos != nullptr) {
+				cameraView = glm::translate(cameraView, glm::vec3(-pos->position));
+			}
+			cameraView = glm::translate(cameraView, glm::vec3(-camera->position));
+
+			camera->orientation *= glm::quat(glm::vec3(0, 0.01, 0));
+		}
+	}
 
 	for(auto object : objects) {
 		auto model = object->Get<ModelComponent>();
 		if(model != nullptr) {
 			auto property = model->Get<GL32ModelProperty>();
 			if(property != nullptr) {
-				glm::mat4 modelView;
-				modelView = glm::translate(modelView, glm::vec3(-3, -2, -5));
-				//modelView = glm::toMat4(qRot) * modelView;
+				glm::mat4 modelView = cameraView;
 
 				auto pos = object->Get<PositionComponent>();
 				if(pos != nullptr) {
