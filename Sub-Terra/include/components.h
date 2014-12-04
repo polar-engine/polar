@@ -4,3 +4,4 @@
 #include "OrientationComponent.h"
 #include "ScaleComponent.h"
 #include "ModelComponent.h"
+#include "PlayerCameraComponent.h"
