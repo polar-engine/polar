@@ -107,7 +107,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			auto property = model->Get<GL32ModelProperty>();
 			if(property != nullptr) {
 				glm::mat4 modelView;
-				modelView = glm::translate(modelView, glm::vec3(0, 0, -2));
+				modelView = glm::translate(modelView, glm::vec3(-3, -2, -5));
 				//modelView = glm::toMat4(qRot) * modelView;
 
 				auto pos = object->Get<PositionComponent>();
@@ -153,23 +153,29 @@ void GL32Renderer::Destroy() {
 void GL32Renderer::ObjectAdded(Object *object) {
 	auto model = object->Get<ModelComponent>();
 	if(model != nullptr) {
-		auto &points = model->points;
-
 		GLuint vao;
 		GL(glGenVertexArrays(1, &vao));
 		GL(glBindVertexArray(vao));
 
-		GLuint vbo;
-		GL(glGenBuffers(1, &vbo));
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * points.size(), points.data(), GL_STATIC_DRAW));
-
 		/* location   attribute
 		*
 		*        0   vertex
+		*        1   normal
 		*/
+
+		GLuint vbos[2];
+		GL(glGenBuffers(2, vbos));
+
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL));
+
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * model->normals.size(), model->normals.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL));
+
 		GL(glEnableVertexAttribArray(0));
+		GL(glEnableVertexAttribArray(1));
 
 		model->Add<GL32ModelProperty>(vao);
 	}
