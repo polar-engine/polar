@@ -47,7 +47,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 
 	auto camera = new Object();
 	camera->Add<PositionComponent>(Point(3, 2, 5, 1));
-	camera->Add<PlayerCameraComponent>(Point(0, 0, 5, 1));
+	camera->Add<PlayerCameraComponent>(Point(0, 0, 5, 1), Point(0, 0, 0, 1), Point(30 * 3.1415 / 180, 0, 0, 1));
 	camera->Add<ModelComponent>(cubeVertices);
 	engine.AddObject(camera);
 
