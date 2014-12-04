@@ -9,13 +9,14 @@ uniform mat4 u_modelView;
 
 uniform mat4 u_projection;
 layout(location = 0) in vec4 a_vertex;
+layout(location = 1) in vec4 a_normal;
 smooth out vec4 v_vertex;
 flat out vec4 v_normal;
 
 void main() {
 	vec4 modelViewVertex = u_modelView * a_vertex;
 	v_vertex = modelViewVertex;
-	v_normal = vec4(0.0, 0.0, 1.0, 1.0);
+	v_normal = u_modelView * a_normal;
 	gl_Position = u_projection * modelViewVertex;
 }
 
@@ -26,19 +27,26 @@ flat in vec4 v_normal;
 out vec4 o_color;
 
 void main() {
-	vec4 ambient = vec4(0.05, 0.05, 0.05, 1.0);
+	vec4 ambient = vec4(vec3(0.01), 1.0);
 
-	vec4 vAux = -v_vertex;
+	vec4 vAux = vec4(0.0) - v_vertex;
 	vec4 lightDir = normalize(vAux);
 	float distance = length(vAux);
-	float nDotL = max(0.0, dot(v_normal, lightDir));
+
 	float disivor = 0.0 +
-	                0.0 * distance +
-					0.05 * pow(distance, 2.0) +
-					0.03 * pow(distance, 3.0);
+	                0.1 * distance +
+					0.07 * pow(distance, 2.0) +
+					0.0 * pow(distance, 3.0);
 	float attenuation = 1.0 / disivor;
-	vec4 diffuse = vec4(1.0, 0.5, 0.0, 1.0) * nDotL * attenuation;
+
+	float nDotL = max(0.0, dot(v_normal, lightDir));
+	vec4 diffuse = vec4(1.0, 0.5, 0.0, 1.0) * 1.5 * nDotL * attenuation;
 
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
+	if(nDotL > 0.0) {
+		vec4 halfway = normalize(lightDir + normalize(-v_vertex));
+		float nDotH = max(0.0, dot(v_normal, halfway));
+		specular += pow(nDotH, 8.0) * attenuation;
+	}
 	o_color = ambient + diffuse + specular;
 }
