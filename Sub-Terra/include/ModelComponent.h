@@ -34,5 +34,4 @@ public:
 			normals.at(i * 3 + 2) = normal;
 		}
 	}
-	virtual ~ModelComponent() override {}
 };
