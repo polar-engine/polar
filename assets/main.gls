@@ -37,7 +37,7 @@ void main() {
 	                0.1 * distance +
 					0.07 * pow(distance, 2.0) +
 					0.0 * pow(distance, 3.0);
-	float attenuation = 1.0 / disivor;
+	float attenuation = 1.0;// / disivor;
 
 	float nDotL = max(0.0, dot(v_normal, lightDir));
 	vec4 diffuse = vec4(1.0, 0.5, 0.0, 1.0) * 1.5 * nDotL * attenuation;
@@ -50,7 +50,7 @@ void main() {
 	}
 	o_color = ambient + diffuse + specular;
 
-	vec4 hdr = 1.0 - exp2(-o_color * 1.5);
-	hdr *= max(1.0, length(o_color) / 2);
-	o_color = hdr;
+	vec3 hdr = 1.0 - exp2(-o_color.xyz * 1.5);
+	hdr *= max(1.0, length(o_color.xyz) / 2);
+	o_color.xyz = hdr;
 }
