@@ -54,23 +54,32 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	cameraObj->Add<ModelComponent>(cubeVertices);
 	engine.AddObject(cameraObj);
 
+	auto cameraPos = cameraObj->Get<PositionComponent>();
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
+
+	float speed = 3.5f;
 
 	auto inputM = engine.systems.Get<InputManager>();
 	inputM->On(Key::Escape, [&engine] (Key) {
 		engine.Quit();
 	});
-	inputM->When(Key::W, [camera] (Key, const DeltaTicks &dt) {
-		camera->orientation = glm::quat(glm::vec3(glm::radians(-45.0f) * dt.Seconds(), 0, 0)) * camera->orientation;
+	inputM->When(Key::W, [cameraPos, camera, speed] (Key, const DeltaTicks &dt) {
+		cameraPos->position += glm::inverse(camera->orientation) * Point(0, 0, -speed, 1) * dt.Seconds();
 	});
-	inputM->When(Key::S, [camera] (Key, const DeltaTicks &dt) {
-		camera->orientation = glm::quat(glm::vec3(glm::radians(45.0f) * dt.Seconds(), 0, 0)) * camera->orientation;
+	inputM->When(Key::S, [cameraPos, camera, speed] (Key, const DeltaTicks &dt) {
+		cameraPos->position += glm::inverse(camera->orientation) * Point(0, 0, speed, 1) * dt.Seconds();
 	});
-	inputM->When(Key::A, [camera] (Key, const DeltaTicks &dt) {
-		camera->orientation *= glm::quat(glm::vec3(0, glm::radians(-45.0f) * dt.Seconds(), 0));
+	inputM->When(Key::A, [cameraPos, camera, speed] (Key, const DeltaTicks &dt) {
+		cameraPos->position += glm::inverse(camera->orientation) * Point(-speed, 0, 0, 1) * dt.Seconds();
 	});
-	inputM->When(Key::D, [camera] (Key, const DeltaTicks &dt) {
-		camera->orientation *= glm::quat(glm::vec3(0, glm::radians(45.0f) * dt.Seconds(), 0));
+	inputM->When(Key::D, [cameraPos, camera, speed] (Key, const DeltaTicks &dt) {
+		cameraPos->position += glm::inverse(camera->orientation) * Point(speed, 0, 0, 1) * dt.Seconds();
+	});
+	inputM->When(Key::Space, [cameraPos, speed] (Key, const DeltaTicks &dt) {
+		cameraPos->position.y += speed * dt.Seconds();
+	});
+	inputM->When(Key::C, [cameraPos, speed] (Key, const DeltaTicks &dt) {
+		cameraPos->position.y -= speed * dt.Seconds();
 	});
 	inputM->OnMouseMove([camera] (const Point2 &delta) {
 		camera->orientation = glm::quat(glm::vec3(glm::radians(0.1f) * delta.y, 0, 0)) * camera->orientation * glm::quat(glm::vec3(0, glm::radians(0.1f) * delta.x, 0));
