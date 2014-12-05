@@ -134,6 +134,7 @@
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\ShaderAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
+    <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\components.h" />
     <ClInclude Include="include\DeltaTicks.h" />

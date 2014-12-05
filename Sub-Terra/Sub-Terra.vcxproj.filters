@@ -149,5 +149,8 @@
     <ClInclude Include="include\DeltaTicks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Chunk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
