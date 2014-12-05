@@ -83,6 +83,8 @@ inline Key mkKeyFromSDL(SDL_Keycode k) {
 		return Key::Z;
 	case SDLK_ESCAPE:
 		return Key::Escape;
+	case SDLK_SPACE:
+		return Key::Space;
 	default:
 		return Key::None;
 	}

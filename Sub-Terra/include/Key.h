@@ -28,5 +28,6 @@ enum class Key : uint8_t {
 	X,
 	Y,
 	Z,
-	Escape
+	Escape,
+	Space
 };
