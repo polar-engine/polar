@@ -49,7 +49,8 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 
 	auto cameraObj = new Object();
 	cameraObj->Add<PositionComponent>(Point(3, 2, 5, 1));
-	cameraObj->Add<PlayerCameraComponent>(Point(0, 0, 5, 1), Point(0, 0, 0, 1), Point(glm::radians(30.0f), 0, 0, 1));
+	//cameraObj->Add<PlayerCameraComponent>(Point(0, 0, 5, 1), Point(0, 0, 0, 1), Point(glm::radians(30.0f), 0, 0, 1));
+	cameraObj->Add<PlayerCameraComponent>();
 	cameraObj->Add<ModelComponent>(cubeVertices);
 	engine.AddObject(cameraObj);
 
@@ -59,17 +60,20 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	inputM->On(Key::Escape, [&engine] (Key) {
 		engine.Quit();
 	});
-	inputM->When(Key::W, [camera] (Key, DeltaTicks &dt) {
-		camera->orientation = glm::quat(glm::vec3(glm::radians(45.0f) * dt.Seconds(), 0, 0)) * camera->orientation;
-	});
-	inputM->When(Key::S, [camera] (Key, DeltaTicks &dt) {
+	inputM->When(Key::W, [camera] (Key, const DeltaTicks &dt) {
 		camera->orientation = glm::quat(glm::vec3(glm::radians(-45.0f) * dt.Seconds(), 0, 0)) * camera->orientation;
 	});
-	inputM->When(Key::A, [camera] (Key, DeltaTicks &dt) {
+	inputM->When(Key::S, [camera] (Key, const DeltaTicks &dt) {
+		camera->orientation = glm::quat(glm::vec3(glm::radians(45.0f) * dt.Seconds(), 0, 0)) * camera->orientation;
+	});
+	inputM->When(Key::A, [camera] (Key, const DeltaTicks &dt) {
+		camera->orientation *= glm::quat(glm::vec3(0, glm::radians(-45.0f) * dt.Seconds(), 0));
+	});
+	inputM->When(Key::D, [camera] (Key, const DeltaTicks &dt) {
 		camera->orientation *= glm::quat(glm::vec3(0, glm::radians(45.0f) * dt.Seconds(), 0));
 	});
-	inputM->When(Key::D, [camera] (Key, DeltaTicks &dt) {
-		camera->orientation *= glm::quat(glm::vec3(0, glm::radians(-45.0f) * dt.Seconds(), 0));
+	inputM->OnMouseMove([camera] (const Point2 &delta) {
+		camera->orientation = glm::quat(glm::vec3(glm::radians(0.1f) * delta.y, 0, 0)) * camera->orientation * glm::quat(glm::vec3(0, glm::radians(0.1f) * delta.x, 0));
 	});
 
 	engine.Init();

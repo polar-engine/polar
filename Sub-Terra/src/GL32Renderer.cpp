@@ -44,6 +44,7 @@ void GL32Renderer::InitGL() {
 		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE))) { ENGINE_THROW("failed to create window"); }
 	if(!SDL(context = SDL_GL_CreateContext(window))) { ENGINE_THROW("failed to create OpenGL context"); }
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { ENGINE_THROW("failed to set swap interval"); }
+	if(!SDL(SDL_SetRelativeMouseMode(SDL_TRUE))) { ENGINE_THROW("failed to set relative mouse mode"); }
 
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
@@ -223,6 +224,10 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 	case SDL_KEYUP:
 		key = mkKeyFromSDL(event.key.keysym.sym);
 		engine->systems.Get<EventManager>()->Fire("keyup", &key);
+		break;
+	case SDL_MOUSEMOTION:
+		Point2 delta(event.motion.xrel, event.motion.yrel);
+		engine->systems.Get<EventManager>()->Fire("mousemove", &delta);
 		break;
 	}
 }
