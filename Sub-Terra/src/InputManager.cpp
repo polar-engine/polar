@@ -2,7 +2,8 @@
 #include "InputManager.h"
 
 void InputManager::Init() {
-	engine->systems.Get<EventManager>()->ListenFor("keydown", [this] (Arg arg) {
+	auto eventM = engine->systems.Get<EventManager>();
+	eventM->ListenFor("keydown", [this] (Arg arg) {
 		auto key = *arg.Get<Key>();
 
 		auto range = onKeyHandlers.equal_range(key);
@@ -14,8 +15,14 @@ void InputManager::Init() {
 			keys.emplace_back(key);
 		}
 	});
-	engine->systems.Get<EventManager>()->ListenFor("keyup", [this] (Arg arg) {
+	eventM->ListenFor("keyup", [this] (Arg arg) {
 		keys.erase(std::remove(keys.begin(), keys.end(), *arg.Get<Key>()), keys.end());
+	});
+	eventM->ListenFor("mousemove", [this] (Arg arg) {
+		auto &delta = *arg.Get<Point2>();
+		for(auto handler : mouseMoveHandlers) {
+			handler(delta);
+		}
 	});
 }
 
