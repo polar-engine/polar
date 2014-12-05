@@ -17,7 +17,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	const unsigned char size = 16;
 
 	for(int x = 0; x < 16; ++x) {
-		for(int y = 0; y < 4; ++y) {
+		for(int y = 0; y < 1; ++y) {
 			for(int z = 0; z < 16; ++z) {
 				auto obj = new Chunk(size, size, size);
 				obj->Add<PositionComponent>(Point(x * size, y * size, -z * size, 1));

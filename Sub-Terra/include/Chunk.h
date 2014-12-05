@@ -31,13 +31,30 @@ public:
 			std::make_tuple(Point(-0.5, -0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1), Point(-0.5,  0.5, -0.5, 1))
 		};
 
+		std::vector<unsigned char> heights;
+		heights.resize(width * depth);
+
+		std::random_device rDevice;
+		//std::minstd_rand0 rGen;
+		std::default_random_engine rGen(rDevice());
+		//std::uniform_int_distribution<int> rDist(1, height);
+		std::binomial_distribution<> rDist(height, 0.95);
+		auto rHeight = std::bind(rDist, rGen);
+		for(unsigned char x = 0; x < width; ++x) {
+			for(unsigned char z = 0; z < depth; ++z) {
+				heights[x * depth + z] = rHeight();
+			}
+		}
+
 		std::vector<bool> blocks;
 		blocks.resize(width * height * depth);
 		for(unsigned char x = 0; x < width; ++x) {
-			for(unsigned char y = 0; y < height; ++y) {
-				for(unsigned char z = 0; z < depth; ++z) {
+			for(unsigned char z = 0; z < depth; ++z) {
+				for(unsigned char y = 0; y < height; ++y) {
 					auto current = z * width * height + x * height + y;
-					blocks.at(current) = y % 5 | x % 5;
+					blocks.at(current) = y <= heights[x * depth + z]
+						//&& (x % 4 | y % 4 | z % 4) != 0
+						;
 				}
 			}
 		}
@@ -48,7 +65,7 @@ public:
 				for(unsigned char z = 0; z < depth; ++z) {
 					auto current = z * width * height + x * height + y;
 					if(blocks.at(current)) {
-						Point offset(x, y, -z, 1.0f / 4);
+						Point offset(x, y, -z, 0);
 						if(x == 0 || !blocks.at(current - height)) {
 							for(auto &triangle : blockLeft) {
 								triangles.emplace_back(std::get<0>(triangle) +offset, std::get<1>(triangle) +offset, std::get<2>(triangle) +offset);
