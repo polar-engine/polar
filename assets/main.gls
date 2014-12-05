@@ -49,4 +49,8 @@ void main() {
 		specular += pow(nDotH, 8.0) * attenuation;
 	}
 	o_color = ambient + diffuse + specular;
+
+	vec4 hdr = 1.0 - exp2(-o_color * 1.5);
+	hdr *= max(1.0, length(o_color) / 2);
+	o_color = hdr;
 }
