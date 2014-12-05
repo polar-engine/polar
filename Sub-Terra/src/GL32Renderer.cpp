@@ -74,8 +74,6 @@ void GL32Renderer::Init() {
 }
 
 void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
-	auto seconds = dt.count() / static_cast<float>(ENGINE_TICKS_PER_SECOND);
-
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
@@ -112,14 +110,12 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 		if(camera != nullptr) {
 			cameraView = glm::translate(cameraView, glm::vec3(-camera->distance));
 			cameraView *= glm::toMat4(camera->orientation);
+			cameraView = glm::translate(cameraView, glm::vec3(-camera->position));
 
 			auto pos = object->Get<PositionComponent>();
 			if(pos != nullptr) {
 				cameraView = glm::translate(cameraView, glm::vec3(-pos->position));
 			}
-			cameraView = glm::translate(cameraView, glm::vec3(-camera->position));
-
-			camera->orientation *= glm::quat(glm::vec3(0, 0.5f * seconds, 0));
 		}
 	}
 
@@ -139,7 +135,9 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 				if(orient != nullptr) {
 					modelView *= glm::toMat4(orient->orientation);
 					//orient->orientation *= glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
-					orient->orientation = glm::quat(glm::vec3(seconds * 21 * 3.1415 / 180, 0, 0)) * orient->orientation * glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
+					orient->orientation = glm::quat(glm::vec3(dt.Seconds() * glm::radians(21.0f), 0, 0))
+						* orient->orientation
+						* glm::quat(glm::vec3(0, dt.Seconds() * glm::radians(70.0f), 0));
 				}
 
 				GLenum drawMode = GL_TRIANGLES;
@@ -201,6 +199,7 @@ void GL32Renderer::ObjectAdded(Object *object) {
 }
 
 void GL32Renderer::HandleSDL(SDL_Event &event) {
+	Key key;
 	switch(event.type) {
 	case SDL_QUIT:
 		engine->Quit();
@@ -216,10 +215,14 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 		}
 		break;
 	case SDL_KEYDOWN:
-		switch(event.key.keysym.sym) {
-		case SDLK_w:
-			break;
+		if(event.key.repeat == 0) {
+			key = mkKeyFromSDL(event.key.keysym.sym);
+			engine->systems.Get<EventManager>()->Fire("keydown", &key);
 		}
+		break;
+	case SDL_KEYUP:
+		key = mkKeyFromSDL(event.key.keysym.sym);
+		engine->systems.Get<EventManager>()->Fire("keyup", &key);
 		break;
 	}
 }
