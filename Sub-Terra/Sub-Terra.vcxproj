@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp" />
+    <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\JobManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Polar.cpp" />
@@ -135,12 +136,15 @@
     <ClInclude Include="..\include\TextAsset.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\components.h" />
+    <ClInclude Include="include\DeltaTicks.h" />
     <ClInclude Include="include\EntityBase.h" />
     <ClInclude Include="include\EventManager.h" />
     <ClInclude Include="include\gl.h" />
     <ClInclude Include="include\GL32Renderer.h" />
+    <ClInclude Include="include\InputManager.h" />
     <ClInclude Include="include\Job.h" />
     <ClInclude Include="include\JobManager.h" />
+    <ClInclude Include="include\Key.h" />
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\NoRenderer.h" />
     <ClInclude Include="include\Object.h" />

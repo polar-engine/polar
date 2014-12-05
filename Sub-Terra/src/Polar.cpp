@@ -55,7 +55,7 @@ void Polar::Run() {
 	while(_running) {
 		then = now;
 		now = std::chrono::high_resolution_clock::now();
-		DeltaTicks dt = std::chrono::duration_cast<DeltaTicks>(now - then);
+		DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
 		Update(dt);
 	}
 }
