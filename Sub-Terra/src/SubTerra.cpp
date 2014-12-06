@@ -16,10 +16,42 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 
 	const unsigned char size = 16;
 
+	std::random_device rDevice;
+	auto seed = rDevice();
+	OpenSimplexNoise noise(seed);
+	noise.
+
 	for(int x = 0; x < 16; ++x) {
-		for(int y = 0; y < 1; ++y) {
+		for(int y = 0; y < 2; ++y) {
 			for(int z = 0; z < 16; ++z) {
-				auto obj = new Chunk(size, size, size);
+				/* 2D - height map */
+
+				std::vector<unsigned char> heights;
+				heights.resize(size * size);
+				for(unsigned char x_ = 0; x_ < size; ++x_) {
+					for(unsigned char z_ = 0; z_ < size; ++z_) {
+						float f = static_cast<float>(size);
+						float scale = 0.5f;
+						float random = noise.eval((x + x_ / f) * scale, (z + z_ / f) * scale);
+						float heightf = (random + 1) / 2.0f * size * 2;
+						char height = static_cast<char>(heightf - size * y);
+						if(height < 0) { height = 0; }
+						heights[x_ * size + z_] = height;
+					}
+				}
+
+				std::vector<bool> blocks;
+				blocks.resize(size * size * size);
+				for(unsigned char x_ = 0; x_ < size; ++x_) {
+					for(unsigned char z_ = 0; z_ < size; ++z_) {
+						for(unsigned char y_ = 0; y_ < size; ++y_) {
+							auto current = z_ * size * size + x_ * size + y_;
+							blocks.at(current) = y_ < heights[x_ * size + z_];
+						}
+					}
+				}
+
+				auto obj = new Chunk(size, size, size, blocks);
 				obj->Add<PositionComponent>(Point(x * size, y * size, -z * size, 1));
 				engine.AddObject(obj);
 			}
