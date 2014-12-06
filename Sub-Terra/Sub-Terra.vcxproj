@@ -126,6 +126,7 @@
     <ClCompile Include="src\Polar.cpp" />
     <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Asset.h" />
