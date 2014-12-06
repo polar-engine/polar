@@ -15,6 +15,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(glm::fvec3(pos->position) / chunkSizeF));
 			const unsigned char distance = 2;
+			auto jobM = engine->systems.Get<JobManager>();
 			for(int x = -distance; x <= distance; ++x) {
 				for(int y = -distance; y <= distance; ++y) {
 					for(int z = -distance; z <= distance; ++z) {
@@ -22,11 +23,17 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 						auto keyTuple = std::make_tuple(key.x, key.y, key.z);
 						auto chunk = chunks.find(keyTuple);
 						if(chunk == chunks.end()) {
-							auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, Generate(keyTuple));
-							auto chunkPos = glm::fvec3(key) * chunkSizeF;
-							chunkObj->Add<PositionComponent>(Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1));
-							chunks.emplace(keyTuple, chunkObj);
-							engine->AddObject(chunkObj);
+							chunks.emplace(keyTuple, nullptr);
+							jobM->Do([this, jobM, key, keyTuple, chunkSizeF, x, y, z] () {
+								auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, Generate(keyTuple));
+								auto chunkPos = glm::fvec3(key) * chunkSizeF;
+								chunkObj->Add<PositionComponent>(Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1));
+								//chunks.emplace(keyTuple, chunkObj);
+								chunks.at(keyTuple) = chunkObj;
+								jobM->Do([this, chunkObj] () {
+									engine->AddObject(chunkObj);
+								}, JobPriority::Low, JobThread::Main);
+							}, JobPriority::Low, JobThread::Any);
 						}
 					}
 				}
