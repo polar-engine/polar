@@ -26,27 +26,32 @@ void JobManager::Init() {
 }
 
 void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
-	if(_jobs.empty()) {
-		std::this_thread::yield();
-	} else {
-		auto job = _jobs.top();
-		_jobs.pop();
-		switch(job->thread) {
-		case JobThread::Main:
-			job->fn();
-			break;
-		case JobThread::Worker:
-			_workers.back()->AddJob(job);
+	for(std::vector<Worker *>::size_type i = 0; i < _workers.size(); ++i) {
+		if(_jobs.empty()) {
 			std::this_thread::yield();
 			break;
-		case JobThread::Any:
-			if(_jobs.empty()) {
+		} else {
+			auto job = _jobs.top();
+			_jobs.pop();
+			switch(job->thread) {
+			case JobThread::Main:
 				job->fn();
-			} else {
-				_workers.front()->AddJob(job);
+				break;
+			case JobThread::Worker:
+				_workers.at(nextWorker++)->AddJob(job);
+				if(nextWorker >= _workers.size()) { nextWorker = 0; }
 				std::this_thread::yield();
+				break;
+			case JobThread::Any:
+				if(_jobs.empty()) {
+					job->fn();
+				} else {
+					_workers.at(nextWorker++)->AddJob(job);
+					if(nextWorker >= _workers.size()) { nextWorker = 0; }
+					std::this_thread::yield();
+				}
+				break;
 			}
-			break;
 		}
 	}
 }
