@@ -8,6 +8,7 @@ class JobManager : public System {
 private:
 	std::priority_queue<Job *> _jobs;
 	std::vector<Worker *> _workers;
+	std::vector<Worker *>::size_type nextWorker = 0;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
