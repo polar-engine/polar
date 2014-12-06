@@ -3,6 +3,7 @@
 #include "Polar.h"
 #include "InputManager.h"
 #include "GL32Renderer.h"
+#include "World.h"
 #include "components.h"
 #include "Chunk.h"
 
@@ -13,72 +14,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	engine.AddSystem<InputManager>();
 	engine.AddSystem<AssetManager>();
 	engine.AddSystem<GL32Renderer>();
-
-	const unsigned char size = 16;
-
-	std::random_device rDevice;
-	auto seed = rDevice();
-	OpenSimplexNoise noise(seed);
-
-	for(int x = 0; x < 8; ++x) {
-		for(int y = 0; y < 8; ++y) {
-			for(int z = 0; z < 8; ++z) {
-				/* 2D (height map) */
-
-				/*std::vector<unsigned char> heights;
-				heights.resize(size * size);
-				for(unsigned char x_ = 0; x_ < size; ++x_) {
-					for(unsigned char z_ = 0; z_ < size; ++z_) {
-						float f = static_cast<float>(size);
-						float scale = 0.5f;
-						float random = noise.eval((x + x_ / f) * scale, (z + z_ / f) * scale);
-						float heightf = (random + 1) / 2.0f * size * 2;
-						char height = static_cast<char>(heightf - size * y);
-						if(height < 0) { height = 0; }
-						heights[x_ * size + z_] = height;
-					}
-				}
-
-				std::vector<bool> blocks;
-				blocks.resize(size * size * size);
-				for(unsigned char x_ = 0; x_ < size; ++x_) {
-					for(unsigned char z_ = 0; z_ < size; ++z_) {
-						for(unsigned char y_ = 0; y_ < size; ++y_) {
-							auto current = z_ * size * size + x_ * size + y_;
-							blocks.at(current) = y_ < heights[x_ * size + z_];
-						}
-					}
-				}*/
-
-				/* 3D */
-
-				std::vector<bool> blocks;
-				blocks.resize(size * size * size);
-				for(unsigned char x_ = 0; x_ < size; ++x_) {
-					for(unsigned char z_ = 0; z_ < size; ++z_) {
-						for(unsigned char y_ = 0; y_ < size; ++y_) {
-							auto current = z_ * size * size + x_ * size + y_;
-							float f = static_cast<float>(size);
-							float scaleX = 0.5f, scaleY = 0.9f, scaleZ = 0.5f;;
-							float random = noise.eval((x + x_ / f) * scaleX, (y + y_ / f) * scaleY, (z + z_ / f) * scaleZ);
-							blocks.at(current) = random > -0.4;
-						}
-					}
-				}
-
-				auto obj = new Chunk(size, size, size, blocks);
-				obj->Add<PositionComponent>(Point(x * size, y * size, -z * size, 1));
-				engine.AddObject(obj);
-			}
-		}
-	}
-
-	auto triangleObj = new Object();
-	triangleObj->Add<PositionComponent>(Point(-0.75, 0, 0, 1));
-	triangleObj->Add<ModelComponent>(std::initializer_list<Triangle>{
-		std::make_tuple(Point(-0.5, -0.5, 0, 1), Point(0.5, -0.5, 0, 1), Point(-0.5, 0.5, 0, 1))
-	});
-	engine.AddObject(triangleObj);
+	engine.AddSystem<World>(16, 16, 16);
 
 	auto cameraObj = new Object();
 	cameraObj->Add<PositionComponent>(Point(3, 2, 5, 1));
@@ -88,7 +24,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	auto cameraPos = cameraObj->Get<PositionComponent>();
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 
-	float speed = 5.5f;
+	float speed = 15.5f;
 
 	auto inputM = engine.systems.Get<InputManager>();
 	inputM->On(Key::Escape, [&engine] (Key) {
