@@ -19,14 +19,13 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	std::random_device rDevice;
 	auto seed = rDevice();
 	OpenSimplexNoise noise(seed);
-	noise.
 
-	for(int x = 0; x < 16; ++x) {
-		for(int y = 0; y < 2; ++y) {
-			for(int z = 0; z < 16; ++z) {
-				/* 2D - height map */
+	for(int x = 0; x < 8; ++x) {
+		for(int y = 0; y < 8; ++y) {
+			for(int z = 0; z < 8; ++z) {
+				/* 2D (height map) */
 
-				std::vector<unsigned char> heights;
+				/*std::vector<unsigned char> heights;
 				heights.resize(size * size);
 				for(unsigned char x_ = 0; x_ < size; ++x_) {
 					for(unsigned char z_ = 0; z_ < size; ++z_) {
@@ -47,6 +46,22 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 						for(unsigned char y_ = 0; y_ < size; ++y_) {
 							auto current = z_ * size * size + x_ * size + y_;
 							blocks.at(current) = y_ < heights[x_ * size + z_];
+						}
+					}
+				}*/
+
+				/* 3D */
+
+				std::vector<bool> blocks;
+				blocks.resize(size * size * size);
+				for(unsigned char x_ = 0; x_ < size; ++x_) {
+					for(unsigned char z_ = 0; z_ < size; ++z_) {
+						for(unsigned char y_ = 0; y_ < size; ++y_) {
+							auto current = z_ * size * size + x_ * size + y_;
+							float f = static_cast<float>(size);
+							float scaleX = 0.5f, scaleY = 0.9f, scaleZ = 0.5f;;
+							float random = noise.eval((x + x_ / f) * scaleX, (y + y_ / f) * scaleY, (z + z_ / f) * scaleZ);
+							blocks.at(current) = random > -0.4;
 						}
 					}
 				}
@@ -73,7 +88,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	auto cameraPos = cameraObj->Get<PositionComponent>();
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 
-	float speed = 30.5f;
+	float speed = 5.5f;
 
 	auto inputM = engine.systems.Get<InputManager>();
 	inputM->On(Key::Escape, [&engine] (Key) {
