@@ -27,30 +27,28 @@ flat in vec4 v_normal;
 out vec4 o_color;
 
 void main() {
-	vec4 ambient = vec4(vec3(0.01), 1.0);
+	vec3 ambient = vec3(0.01);
 
 	vec4 vAux = vec4(0.0) - v_vertex;
 	vec4 lightDir = normalize(vAux);
 	float distance = length(vAux);
 
-	float disivor = 0.0 +
-	                0.1 * distance +
-					0.07 * pow(distance, 2.0) +
-					0.0 * pow(distance, 3.0);
-	float attenuation = 1.0;// / disivor;
+	float radius = 64.0;
+	float attenuation = clamp(1.0 - distance * distance / (radius * radius), 0.0, 1.0);
+	attenuation *= attenuation;
 
 	float nDotL = max(0.0, dot(v_normal, lightDir));
-	vec4 diffuse = vec4(1.0, 0.5, 0.0, 1.0) * 1.5 * nDotL * attenuation;
+	vec3 diffuse = vec3(1.0, 0.5, 0.0) * nDotL * attenuation;
 
-	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
+	vec3 specular = vec3(0.0, 0.0, 0.0);
 	if(nDotL > 0.0) {
 		vec4 halfway = normalize(lightDir + normalize(-v_vertex));
 		float nDotH = max(0.0, dot(v_normal, halfway));
-		specular += pow(nDotH, 8.0) * attenuation;
+		specular += pow(nDotH, 64.0) * attenuation;
 	}
-	o_color = ambient + diffuse + specular;
+	vec3 final = ambient + diffuse + specular;
 
-	vec3 hdr = 1.0 - exp2(-o_color.xyz * 1.5);
-	hdr *= max(1.0, length(o_color.xyz) / 2);
-	o_color.xyz = hdr;
+	vec3 hdr = 1.0 - exp2(-final * 1.5);
+	hdr *= max(1.0, length(final) / 2);
+	o_color = vec4(hdr, 1.0);
 }
