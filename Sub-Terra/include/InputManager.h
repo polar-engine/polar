@@ -13,11 +13,12 @@ private:
 	std::unordered_multimap<Key, OnKeyHandler> onKeyHandlers;
 	std::unordered_multimap<Key, WhenKeyHandler> whenKeyHandlers;
 	std::vector<MouseMoveHandler> mouseMoveHandlers;
+protected:
+	void Init() override final;
+	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 public:
 	static bool IsSupported() { return true; }
 	InputManager(Polar *engine) : System(engine) {}
-	void Init() override final;
-	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 	void On(Key key, const OnKeyHandler &handler) {
 		onKeyHandlers.emplace(key, handler);
 	}
