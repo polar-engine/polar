@@ -32,41 +32,6 @@ public:
 			std::make_tuple(Point(-0.5, -0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1), Point(-0.5,  0.5, -0.5, 1))
 		};
 
-		/*std::vector<unsigned char> heights;
-		heights.resize(width * depth);
-
-		std::random_device rDevice;
-		auto seed = rDevice();
-		OpenSimplexNoise noise(seed);
-
-		for(unsigned char x = 0; x < width; ++x) {
-			for(unsigned char z = 0; z < depth; ++z) {
-				heights[x * depth + z] = static_cast<unsigned char>(noise.eval(x / 100.0f, z / 100.0f) * height);
-			}
-		}*/
-
-		/*std::default_random_engine rGen(seed);
-		std::negative_binomial_distribution<> rDist(height, 0.95);
-		auto rHeight = std::bind(rDist, rGen);
-		for(unsigned char x = 0; x < width; ++x) {
-			for(unsigned char z = 0; z < depth; ++z) {
-				heights[x * depth + z] = rHeight();
-			}
-		}*/
-
-		/*std::vector<bool> blocks;
-		blocks.resize(width * height * depth);
-		for(unsigned char x = 0; x < width; ++x) {
-			for(unsigned char z = 0; z < depth; ++z) {
-				for(unsigned char y = 0; y < height; ++y) {
-					auto current = z * width * height + x * height + y;
-					blocks.at(current) = y <= heights[x * depth + z]
-						//&& (x % 4 | y % 4 | z % 4) != 0
-						;
-				}
-			}
-		}*/
-
 		std::vector<Triangle> triangles;
 		for(unsigned char x = 0; x < width; ++x) {
 			for(unsigned char y = 0; y < height; ++y) {
