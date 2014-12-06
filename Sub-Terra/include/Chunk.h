@@ -2,10 +2,11 @@
 
 #include "Object.h"
 #include "ModelComponent.h"
+#include "OpenSimplexNoise.h"
 
 class Chunk : public Object {
 public:
-	Chunk(unsigned char width, unsigned char height, unsigned char depth) {
+	Chunk(unsigned char width, unsigned char height, unsigned char depth, const std::vector<bool> &blocks) {
 		const std::vector<Triangle> blockFront = {
 			std::make_tuple(Point(-0.5, -0.5,  0.5, 1), Point( 0.5, -0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1)),
 			std::make_tuple(Point( 0.5, -0.5,  0.5, 1), Point( 0.5,  0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1))
@@ -31,22 +32,29 @@ public:
 			std::make_tuple(Point(-0.5, -0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1), Point(-0.5,  0.5, -0.5, 1))
 		};
 
-		std::vector<unsigned char> heights;
+		/*std::vector<unsigned char> heights;
 		heights.resize(width * depth);
 
 		std::random_device rDevice;
-		//std::minstd_rand0 rGen;
-		std::default_random_engine rGen(rDevice());
-		//std::uniform_int_distribution<int> rDist(1, height);
-		std::binomial_distribution<> rDist(height, 0.95);
+		auto seed = rDevice();
+		OpenSimplexNoise noise(seed);
+
+		for(unsigned char x = 0; x < width; ++x) {
+			for(unsigned char z = 0; z < depth; ++z) {
+				heights[x * depth + z] = static_cast<unsigned char>(noise.eval(x / 100.0f, z / 100.0f) * height);
+			}
+		}*/
+
+		/*std::default_random_engine rGen(seed);
+		std::negative_binomial_distribution<> rDist(height, 0.95);
 		auto rHeight = std::bind(rDist, rGen);
 		for(unsigned char x = 0; x < width; ++x) {
 			for(unsigned char z = 0; z < depth; ++z) {
 				heights[x * depth + z] = rHeight();
 			}
-		}
+		}*/
 
-		std::vector<bool> blocks;
+		/*std::vector<bool> blocks;
 		blocks.resize(width * height * depth);
 		for(unsigned char x = 0; x < width; ++x) {
 			for(unsigned char z = 0; z < depth; ++z) {
@@ -57,7 +65,7 @@ public:
 						;
 				}
 			}
-		}
+		}*/
 
 		std::vector<Triangle> triangles;
 		for(unsigned char x = 0; x < width; ++x) {

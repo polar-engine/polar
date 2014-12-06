@@ -122,6 +122,7 @@
     <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\JobManager.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\OpenSimplexNoise.cpp" />
     <ClCompile Include="src\Polar.cpp" />
     <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\NoRenderer.h" />
     <ClInclude Include="include\Object.h" />
+    <ClInclude Include="include\OpenSimplexNoise.h" />
     <ClInclude Include="include\OrientationComponent.h" />
     <ClInclude Include="include\PlayerCameraComponent.h" />
     <ClInclude Include="include\Polar.h" />
