@@ -7,7 +7,7 @@ typedef std::tuple<int64_t, int64_t, int64_t> ChunkKey;
 
 struct ChunkKeyHash : public std::unary_function<ChunkKey, std::size_t> {
 	std::size_t operator()(const ChunkKey &k) const {
-		return std::get<0>(k) * 32 * 32 + std::get<1>(k) * 32 + std::get<2>(k);
+		return static_cast<size_t>(std::get<0>(k) * 32 * 32 + std::get<1>(k) * 32 + std::get<2>(k));
 	}
 };
 
