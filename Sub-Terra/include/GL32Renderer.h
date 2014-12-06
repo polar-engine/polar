@@ -4,13 +4,6 @@
 #include "sdl.h"
 #include "gl.h"
 
-class GL32Drawable {
-public:
-	size_t count;
-	GLuint array;
-	//std::unordered_map<const std::string, GLuint> buffers;
-};
-
 class GL32Renderer : public Renderer {
 private:
 	SDL_Window *window;
