@@ -18,49 +18,41 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 			auto jobM = engine->systems.Get<JobManager>();
 
 			/* clean up chunks outside distance */
-			for(auto it = chunks.begin(); it != chunks.end();) {
-				auto &keyTuple = it->first;
-				if(it->second != nullptr &&
-				   abs(std::get<0>(keyTuple) - keyBase.x) > distance ||
-				   abs(std::get<1>(keyTuple) - keyBase.y) > distance ||
-				   abs(std::get<2>(keyTuple) - keyBase.z) > distance) {
-					engine->RemoveObject(it->second);
-					chunks.erase(it++);
-				} else { ++it; }
-			}
+			chunks.With([this, distance, &keyBase] (ChunksType &chunks) {
+				for(auto it = chunks.begin(); it != chunks.end();) {
+					auto &keyTuple = it->first;
+					if(it->second != nullptr &&
+					   abs(std::get<0>(keyTuple) -keyBase.x) > distance ||
+					   abs(std::get<1>(keyTuple) -keyBase.y) > distance ||
+					   abs(std::get<2>(keyTuple) -keyBase.z) > distance) {
+						engine->RemoveObject(it->second);
+						chunks.erase(it++);
+					} else { ++it; }
+				}
+			});
 
 			/* dispatch chunk generation jobs in a cube around the player of size (distance * 2 + 1) */
 			for(int d = 0; d <= distance; ++d) {
 				for(int x = -d; x <= d; ++x) {
 					for(int y = -d; y <= d; ++y) {
 						for(int z = -d; z <= d; ++z) {
-							JobPriority priority = JobPriority::Low;
-							switch(d) {
-							case 0:
-							case 1:
-								priority = JobPriority::High;
-								break;
-							case 2:
-								priority = JobPriority::Normal;
-								break;
-							}
 							auto key = keyBase + glm::ivec3(x, y, z);
 							auto keyTuple = std::make_tuple(key.x, key.y, key.z);
-							auto chunk = chunks.find(keyTuple);
-							if(chunk == chunks.end()) {
-								chunks.emplace(keyTuple, nullptr);
-								jobM->Do([this, jobM, key, keyTuple, chunkSizeF, x, y, z] () {
+							auto chunk = chunks.With<ChunksType::iterator>([&keyTuple] (ChunksType &chunks) { return chunks.find(keyTuple); });
+							if(chunk == chunks.With<ChunksType::iterator>([] (ChunksType &chunks) { return chunks.end(); })) {
+								chunks.With([&keyTuple] (ChunksType &chunks) { chunks.emplace(keyTuple, nullptr); });
+								jobM->Do([this, jobM, key, keyTuple, chunkSizeF] () {
 									auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, Generate(keyTuple));
 									auto chunkPos = glm::fvec3(key) * chunkSizeF;
 									chunkObj->Add<PositionComponent>(Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1));
 									jobM->Do([this, keyTuple, chunkObj] () {
-										auto chunk = chunks.find(keyTuple);
-										if(chunk != chunks.end()) {
+										auto chunk = chunks.With<ChunksType::iterator>([&keyTuple] (ChunksType &chunks) { return chunks.find(keyTuple); });
+										if(chunk == chunks.With<ChunksType::iterator>([] (ChunksType &chunks) { return chunks.end(); })) {
 											engine->AddObject(chunkObj);
-											chunks.at(keyTuple) = chunkObj;
+											chunks.With([&keyTuple, chunkObj] (ChunksType &chunks) {chunks.at(keyTuple) = chunkObj; });
 										}
 									}, JobPriority::High, JobThread::Main);
-								}, priority, JobThread::Main);
+								}, JobPriority::High, JobThread::Main);
 								/* TODO: make thread-safe */
 							}
 						}
@@ -82,7 +74,7 @@ void World::ObjectAdded(Object *obj) {
 	}
 }
 
-std::vector<bool> World::Generate(const ChunkKey &keyTuple) const {
+std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 	auto chunkSizeF = glm::fvec3(chunkSize);
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
