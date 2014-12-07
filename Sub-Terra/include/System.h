@@ -12,6 +12,7 @@ protected:
 	virtual void Update(DeltaTicks &, std::vector<Object *> &) {}
 	virtual void Destroy() {}
 	virtual void ObjectAdded(Object *) {}
+	virtual void ObjectRemoved(Object *) {}
 public:
 	static bool IsSupported() { return false; }
 	System(Polar *engine) : engine(engine) {}

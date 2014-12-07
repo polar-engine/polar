@@ -32,6 +32,7 @@ public:
 	}
 
 	void AddObject(Object *);
+	void RemoveObject(Object *);
 	void Init();
 	void Run();
 	void Destroy();
