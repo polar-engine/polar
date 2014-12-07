@@ -50,7 +50,7 @@ public:
 	}
 
 	// 2D OpenSimplex (Simplectic) Noise.
-	double eval(double x, double y) {
+	double eval(double x, double y) const {
 		// Place input coordinates onto grid.
 		double stretchOffset = (x + y) * STRETCH_CONSTANT_2D;
 		double xs = x + stretchOffset;
@@ -164,7 +164,7 @@ public:
 	}
 
 	// 3D OpenSimplex (Simplectic) Noise.
-	double eval(double x, double y, double z) {
+	double eval(double x, double y, double z) const {
 
 		// Place input coordinates on simplectic honeycomb.
 		double stretchOffset = (x + y + z) * STRETCH_CONSTANT_3D;
@@ -724,13 +724,13 @@ public:
 		return value / NORM_CONSTANT_3D;
 	}
 
-	double extrapolate(int32_t xsb, int32_t ysb, double dx, double dy) {
+	double extrapolate(int32_t xsb, int32_t ysb, double dx, double dy) const {
 		int32_t index = perm[(perm[xsb & 0xFF] + ysb) & 0xFF] & 0x0E;
 		return gradients2D[index] * dx
 			+ gradients2D[index + 1] * dy;
 	}
 
-	double extrapolate(int32_t xsb, int32_t ysb, int32_t zsb, double dx, double dy, double dz) {
+	double extrapolate(int32_t xsb, int32_t ysb, int32_t zsb, double dx, double dy, double dz) const {
 		int32_t index = permGradIndex3D[(perm[(perm[xsb & 0xFF] + ysb) & 0xFF] + zsb) & 0xFF];
 		return gradients3D[index] * dx
 			+ gradients3D[index + 1] * dy

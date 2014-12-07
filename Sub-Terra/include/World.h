@@ -24,7 +24,6 @@ struct ChunkKeyEqual : public std::binary_function<ChunkKey, ChunkKey, bool> {
 class World : public System {
 private:
 	const glm::ivec3 chunkSize;
-
 	OpenSimplexNoise noise = OpenSimplexNoise(std::random_device()());
 	std::unordered_map<ChunkKey, Chunk *, ChunkKeyHash, ChunkKeyEqual> chunks;
 	Object *cameraObj = nullptr;
@@ -37,5 +36,5 @@ public:
 	static bool IsSupported() { return true; }
 	World(Polar *engine, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
 		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
-	std::vector<bool> Generate(const ChunkKey &);
+	std::vector<bool> Generate(const ChunkKey &) const;
 };

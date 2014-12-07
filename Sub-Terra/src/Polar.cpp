@@ -38,12 +38,22 @@ void Polar::Destroy() {
 }
 
 void Polar::AddObject(Object *object) {
+	if(object == nullptr) { return; }
 	_objects.push_back(object);
 	if(_initDone) {
 		for(auto &system : *systems.Get()) {
 			system.second->ObjectAdded(object);
 		}
 	}
+}
+
+void Polar::RemoveObject(Object *object) {
+	if(object == nullptr) { return; }
+	_objects.erase(std::remove(_objects.begin(), _objects.end(), object), _objects.end());
+	for(auto &system : *systems.Get()) {
+		system.second->ObjectRemoved(object);
+	}
+	delete object;
 }
 
 void Polar::Run() {

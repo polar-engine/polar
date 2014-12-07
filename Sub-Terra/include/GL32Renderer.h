@@ -16,6 +16,7 @@ protected:
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 	void Destroy() override final;
 	void ObjectAdded(Object *) override final;
+	void ObjectRemoved(Object *) override final;
 	void Project();
 public:
 	static bool IsSupported();

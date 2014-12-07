@@ -8,7 +8,9 @@
 class GL32ModelProperty : public Property {
 public:
 	const GLuint vao;
-	GL32ModelProperty(const GLuint vao) : vao(vao) {}
+	const std::vector<GLuint> vbos;
+	GL32ModelProperty(const GLuint vao, const std::vector<GLuint> &vbos) : vao(vao), vbos(vbos) {}
+	GL32ModelProperty(const GLuint vao, std::vector<GLuint> &&vbos) : vao(vao), vbos(vbos) {}
 };
 
 bool GL32Renderer::IsSupported() {
@@ -195,7 +197,25 @@ void GL32Renderer::ObjectAdded(Object *object) {
 		GL(glEnableVertexAttribArray(0));
 		GL(glEnableVertexAttribArray(1));
 
-		model->Add<GL32ModelProperty>(vao);
+		std::vector<GLuint> vbosVector;
+		for(unsigned int i = 0; i < sizeof(vbos) / sizeof(*vbos); ++i) {
+			vbosVector.emplace_back(vbos[i]);
+		}
+
+		model->Add<GL32ModelProperty>(vao, vbosVector);
+	}
+}
+
+void GL32Renderer::ObjectRemoved(Object *object) {
+	auto model = object->Get<ModelComponent>();
+	if(model != nullptr) {
+		auto property = model->Get<GL32ModelProperty>();
+		if(property != nullptr) {
+			for(auto vbo : property->vbos) {
+				GL(glDeleteBuffers(1, &vbo));
+			}
+			GL(glDeleteVertexArrays(1, &property->vao));
+		}
 	}
 }
 
