@@ -45,12 +45,14 @@
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets>PreBuildEvent</CustomBuildAfterTargets>
     <CustomBuildBeforeTargets>PreBuildEvent</CustomBuildBeforeTargets>
+    <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>include;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets>PreBuildEvent</CustomBuildAfterTargets>
+    <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -136,6 +138,7 @@
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\ShaderAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
+    <ClInclude Include="include\Atomic.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\components.h" />

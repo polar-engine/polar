@@ -164,5 +164,8 @@
     <ClInclude Include="include\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Atomic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

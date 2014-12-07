@@ -53,6 +53,7 @@ enum class GeometryType : uint8_t {
 	TriangleStrip
 };
 
+#include "Atomic.h"
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"
