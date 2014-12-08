@@ -4,9 +4,12 @@
 #include "Job.h"
 #include "Worker.h"
 
+typedef std::priority_queue<Job *> JobsType;
+
 class JobManager : public System {
 private:
-	std::priority_queue<Job *> _jobs;
+	const int numCycles = 4;
+	Atomic<JobsType> jobs;
 	std::vector<Worker *> _workers;
 	std::vector<Worker *>::size_type nextWorker = 0;
 protected:
@@ -18,5 +21,9 @@ public:
 	static bool IsSupported() { return true; }
 	JobManager(Polar *);
 	~JobManager() override;
-	void Do(const JobFunction &fn, const JobPriority = JobPriority::Normal, const JobThread = JobThread::Any);
+	inline void Do(const JobFunction &fn, const JobPriority priority = JobPriority::Normal, const JobThread thread = JobThread::Any) {
+		jobs.With([&fn, priority, thread] (JobsType &jobs) {
+			jobs.emplace(new Job(fn, priority, thread));
+		});
+	}
 };
