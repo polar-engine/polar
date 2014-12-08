@@ -4,7 +4,7 @@
 #include "Job.h"
 #include "Worker.h"
 
-typedef std::priority_queue<Job *> JobsType;
+typedef std::priority_queue<Job> JobsType;
 
 class JobManager : public System {
 private:
@@ -23,7 +23,7 @@ public:
 	~JobManager() override;
 	inline void Do(const JobFunction &fn, const JobPriority priority = JobPriority::Normal, const JobThread thread = JobThread::Any) {
 		jobs.With([&fn, priority, thread] (JobsType &jobs) {
-			jobs.emplace(new Job(fn, priority, thread));
+			jobs.emplace(fn, priority, thread);
 		});
 	}
 };

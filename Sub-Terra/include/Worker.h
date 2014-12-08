@@ -7,9 +7,9 @@ private:
 	std::thread _thread;
 public:
 	std::mutex jobsLock;
-	std::priority_queue<Job *> jobs;
+	std::priority_queue<Job> jobs;
 
 	void Start();
 	bool Join();
-	void AddJob(Job *);
+	void AddJob(Job &);
 };
