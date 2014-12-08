@@ -12,11 +12,11 @@ JobManager::~JobManager() {
 		delete worker;
 	}
 
-	while(!_jobs.empty()) {
-		auto job = _jobs.top();
-		_jobs.pop();
+	jobs.With([] (JobsType &jobs) {
+		auto job = jobs.top();
+		jobs.pop();
 		delete job;
-	}
+	});
 }
 
 void JobManager::Init() {
@@ -26,28 +26,33 @@ void JobManager::Init() {
 }
 
 void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
-	for(std::vector<Worker *>::size_type i = 0; i < _workers.size(); ++i) {
-		if(_jobs.empty()) {
+	for(std::vector<Worker *>::size_type i = 0; i < _workers.size() * numCycles; ++i) {
+		if(jobs.With<bool>([] (JobsType &jobs) { return jobs.empty(); })) {
 			std::this_thread::yield();
 			break;
 		} else {
-			auto job = _jobs.top();
-			_jobs.pop();
+			auto job = jobs.With<Job *>([] (JobsType &jobs) {
+				auto job = jobs.top();
+				jobs.pop();
+				return job;
+			});
 			switch(job->thread) {
 			case JobThread::Main:
 				job->fn();
+				delete job;
 				break;
 			case JobThread::Worker:
-				_workers.at(nextWorker++)->AddJob(job);
 				if(nextWorker >= _workers.size()) { nextWorker = 0; }
+				_workers.at(nextWorker++)->AddJob(job);
 				std::this_thread::yield();
 				break;
 			case JobThread::Any:
-				if(_jobs.empty()) {
+				if(nextWorker == _workers.size()) {
 					job->fn();
+					delete job;
 				} else {
+					if(nextWorker > _workers.size()) { nextWorker = 0; }
 					_workers.at(nextWorker++)->AddJob(job);
-					if(nextWorker >= _workers.size()) { nextWorker = 0; }
 					std::this_thread::yield();
 				}
 				break;
@@ -63,8 +68,4 @@ void JobManager::Destroy() {
 	for(auto worker : _workers) {
 		worker->Join();
 	}
-}
-
-void JobManager::Do(const JobFunction &fn, const JobPriority priority, const JobThread thread) {
-	_jobs.push(new Job(fn, priority, thread));
 }
