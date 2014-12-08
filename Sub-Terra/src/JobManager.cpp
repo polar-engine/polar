@@ -11,12 +11,6 @@ JobManager::~JobManager() {
 	for(auto worker : _workers) {
 		delete worker;
 	}
-
-	jobs.With([] (JobsType &jobs) {
-		auto job = jobs.top();
-		jobs.pop();
-		delete job;
-	});
 }
 
 void JobManager::Init() {
@@ -31,15 +25,14 @@ void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 			std::this_thread::yield();
 			break;
 		} else {
-			auto job = jobs.With<Job *>([] (JobsType &jobs) {
+			auto job = jobs.With<Job>([] (JobsType &jobs) {
 				auto job = jobs.top();
 				jobs.pop();
 				return job;
 			});
-			switch(job->thread) {
+			switch(job.thread) {
 			case JobThread::Main:
-				job->fn();
-				delete job;
+				job.fn();
 				break;
 			case JobThread::Worker:
 				if(nextWorker >= _workers.size()) { nextWorker = 0; }
@@ -48,8 +41,7 @@ void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 				break;
 			case JobThread::Any:
 				if(nextWorker == _workers.size()) {
-					job->fn();
-					delete job;
+					job.fn();
 				} else {
 					if(nextWorker > _workers.size()) { nextWorker = 0; }
 					_workers.at(nextWorker++)->AddJob(job);
@@ -63,7 +55,7 @@ void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 
 void JobManager::Destroy() {
 	for(auto worker : _workers) {
-		worker->AddJob(new Job(JobType::Stop));
+		worker->AddJob(Job(JobType::Stop));
 	}
 	for(auto worker : _workers) {
 		worker->Join();

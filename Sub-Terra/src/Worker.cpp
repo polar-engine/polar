@@ -14,14 +14,13 @@ void Worker::Start() {
 				auto job = jobs.top();
 				jobs.pop();
 				lock.unlock();
-				switch(job->type) {
+				switch(job.type) {
 				case JobType::Work:
-					job->fn();
+					job.fn();
 					break;
 				case JobType::Stop:
 					return;
 				}
-				delete job;
 			}
 		}
 	};
@@ -34,9 +33,9 @@ bool Worker::Join() {
 	return joinable;
 }
 
-void Worker::AddJob(Job *job) {
+void Worker::AddJob(Job &job) {
 	std::unique_lock<std::mutex> lock(jobsLock, std::defer_lock);
 	lock.lock();
-	jobs.push(job);
+	jobs.emplace(job);
 	lock.unlock();
 }
