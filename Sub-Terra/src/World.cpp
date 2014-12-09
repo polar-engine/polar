@@ -46,8 +46,8 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 								chunks.With([&keyTuple] (ChunksType &chunks) { chunks.emplace(keyTuple, nullptr); });
 								jobM->Do([this, jobM, key, keyTuple, chunkSizeF] () {
 									auto data = Generate(keyTuple);
-									jobM->Do([this, keyTuple, key, chunkSizeF, data] () {
-										auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, data);
+									auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, data);
+									jobM->Do([this, keyTuple, key, chunkSizeF, chunkObj] () {
 										auto chunkPos = glm::fvec3(key) * chunkSizeF;
 										chunkObj->Add<PositionComponent>(Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1));
 										engine->AddObject(chunkObj);
@@ -75,6 +75,11 @@ void World::ObjectAdded(Object *obj) {
 }
 
 std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
+	const float start = -1, end = 0;
+	static double factor = 1.0f;
+	factor /= 1.0001f;
+	auto r = factor * (start - end) + end;
+
 	auto chunkSizeF = glm::fvec3(chunkSize);
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
@@ -89,7 +94,7 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 					( std::get<1>(keyTuple) + y / chunkSizeF.y) * scaleY,
 					(-std::get<2>(keyTuple) + z / chunkSizeF.z) * scaleZ
 				);
-				blocks.at(current) = random > 0.35;
+				blocks.at(current) = random > 0.35f || random < r;
 			}
 		}
 	}
