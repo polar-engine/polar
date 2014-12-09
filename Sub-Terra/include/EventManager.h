@@ -9,7 +9,7 @@ union Arg {
 	Arg(float f) { float_ = f; }
 	Arg(std::nullptr_t) { pVoid = nullptr; }
 	template<typename T> Arg(T *p) { pVoid = reinterpret_cast<void *>(p); }
-	template<typename T> T * Get() { return reinterpret_cast<T *>(pVoid); }
+	template<typename T> inline T * Get() { return reinterpret_cast<T *>(pVoid); }
 };
 
 typedef std::function<void(const std::string &, Arg)> GlobalListener;
@@ -22,19 +22,19 @@ private:
 public:
 	static bool IsSupported() { return true; }
 	EventManager(Polar *engine) : System(engine) {}
-	void Listen(const GlobalListener &fn) {
+	inline void Listen(const GlobalListener &fn) {
 		_globalListeners.emplace_back(fn);
 	}
-	void ListenFor(const std::string &msg, const Listener &fn) {
+	inline void ListenFor(const std::string &msg, const Listener &fn) {
 		ListenFor("", msg, fn);
 	}
-	void ListenFor(const std::string &ns, const std::string &msg, const Listener &fn) {
+	inline void ListenFor(const std::string &ns, const std::string &msg, const Listener &fn) {
 		_listeners.emplace(ns + '.' + msg, fn);
 	}
-	void Fire(const std::string &msg, Arg arg = nullptr) const {
+	inline void Fire(const std::string &msg, Arg arg = nullptr) const {
 		FireIn("", msg, arg);
 	}
-	void FireIn(const std::string &ns, const std::string &msg, Arg arg = nullptr) const {
+	inline void FireIn(const std::string &ns, const std::string &msg, Arg arg = nullptr) const {
 		auto m = ns + '.' + msg;
 		auto range = _listeners.equal_range(m);
 		for(auto i = range.first; i != range.second; ++i) {
