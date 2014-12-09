@@ -24,7 +24,7 @@ void SubTerra::Run(const std::vector<const std::string> &args) {
 	auto cameraPos = cameraObj->Get<PositionComponent>();
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 
-	float speed = 15.5f;
+	float speed = 35.5f;
 
 	auto inputM = engine.systems.Get<InputManager>();
 	inputM->On(Key::Escape, [&engine] (Key) {
