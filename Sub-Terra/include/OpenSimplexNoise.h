@@ -50,7 +50,7 @@ public:
 	}
 
 	// 2D OpenSimplex (Simplectic) Noise.
-	double eval(double x, double y) const {
+	double eval(const double x, const double y) const {
 		// Place input coordinates onto grid.
 		double stretchOffset = (x + y) * STRETCH_CONSTANT_2D;
 		double xs = x + stretchOffset;
@@ -164,7 +164,7 @@ public:
 	}
 
 	// 3D OpenSimplex (Simplectic) Noise.
-	double eval(double x, double y, double z) const {
+	double eval(const double x, const double y, const double z) const {
 
 		// Place input coordinates on simplectic honeycomb.
 		double stretchOffset = (x + y + z) * STRETCH_CONSTANT_3D;

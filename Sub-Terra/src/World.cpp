@@ -75,7 +75,7 @@ void World::ObjectAdded(Object *obj) {
 }
 
 std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
-	const float start = -1, end = 0;
+	const float start = -0.5, end = -0;
 	static double factor = 1.0f;
 	factor /= 1.0001f;
 	auto r = factor * (start - end) + end;
@@ -94,7 +94,9 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 					( std::get<1>(keyTuple) + y / chunkSizeF.y) * scaleY,
 					(-std::get<2>(keyTuple) + z / chunkSizeF.z) * scaleZ
 				);
-				blocks.at(current) = random > 0.35f || random < r;
+				static double sine = 0;
+				sine += 0.000001;
+				blocks.at(current) = random > (0.35f + glm::sin(sine) * 0.0625) || random < r;
 			}
 		}
 	}
