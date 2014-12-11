@@ -1,8 +1,7 @@
 #include "FileSystem.h"
 #include "curl-config-win32.h"
 #include "curl/curl.h"
-
-
+#include "zip/zip.h"
 
 int main(int argc, char **argv) {
 	curl_global_init(CURL_GLOBAL_ALL);
