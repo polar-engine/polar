@@ -46,6 +46,7 @@
     <CustomBuildAfterTargets>PreBuildEvent</CustomBuildAfterTargets>
     <CustomBuildBeforeTargets>PreBuildEvent</CustomBuildBeforeTargets>
     <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <SourcePath>src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -53,6 +54,7 @@
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets>PreBuildEvent</CustomBuildAfterTargets>
     <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <SourcePath>src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,7 +72,7 @@
       <AdditionalDependencies>SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"</Command>
+      <Command>copy /y "$(SolutionDir)lib\win32\SDL2.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Inputs>$(SolutionDir)assets</Inputs>
@@ -106,7 +108,7 @@
       </IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"</Command>
+      <Command>copy /y "$(SolutionDir)lib\win32\SDL2.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Inputs>$(SolutionDir)assets</Inputs>
