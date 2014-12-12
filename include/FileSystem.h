@@ -118,7 +118,7 @@ public:
 		return files;
 	}
 
-	static void CreateDir(const std::string &path) {
+	static void CreateDirImpl(const std::string &path) {
 #ifdef _WIN32
 		std::wstring wPath(path.begin(), path.end());
 		if(::CreateDirectory(wPath.c_str(), NULL) == 0) {
@@ -129,5 +129,13 @@ public:
 #ifdef __APPLE__
 		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { ENGINE_THROW(path + ": failed to create directory"); }
 #endif
+	}
+
+	static void CreateDir(const std::string &path) {
+		size_t pos = 0;
+		do {
+			pos = path.find_first_of("\/\\", pos + 1);
+			CreateDirImpl(path.substr(0, pos));
+		} while(pos != path.npos);
 	}
 };
