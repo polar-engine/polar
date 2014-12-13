@@ -151,7 +151,7 @@ public:
 
 	static bool FileExists(const std::string &path) {
 		std::ifstream file(path);
-		return !file.bad();
+		return file.good();
 	}
 
 	static uint64_t GetModifiedTime(const std::string &path) {
