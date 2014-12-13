@@ -4,5 +4,5 @@ class SubTerra {
 public:
 	SubTerra() {}
 	virtual ~SubTerra() {}
-	void Run(const std::vector<const std::string> &);
+	void Run(const std::vector<std::string> &);
 };
