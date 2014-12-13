@@ -8,9 +8,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include "debug.h"
+#include "getline.h"
 #include "FileSystem.h"
 #include "assets.h"
-#include "debug.h"
 
 int main(int argc, char **argv) {
 	std::string path = argc >= 2 ? argv[1] : FileSystem::GetAppDir() + "/assets";
@@ -29,7 +30,7 @@ int main(int argc, char **argv) {
 		std::ostringstream header;
 		ShaderType type = ShaderType::Invalid;
 
-		for(int iLine = 1; std::getline(iss, line); ++iLine) {
+		for(int iLine = 1; getline(iss, line); ++iLine) {
 			auto len = line.length();
 			if(len > 0) {
 				if(line[0] == '@') {
@@ -66,12 +67,14 @@ int main(int argc, char **argv) {
 		auto pos = file.find_last_of('.');
 		if(pos != file.npos && pos < file.length() - 1) {
 			std::string ext = file.substr(pos + 1);
-			std::string name = file.substr(0, pos);
-			std::string data = FileSystem::ReadFile(path + '/' + file);
 			auto converter = converters.find(ext);
 			if(converter != converters.end()) {
 				INFOS("found converter for `" << ext << '`');
+
+				std::string data = FileSystem::ReadFile(path + '/' + file);
 				Asset *asset = converter->second(data);
+
+				std::string name = file.substr(0, pos);
 				FileSystem::CreateDir(buildPath + '/' + asset->type);
 				FileSystem::WriteFile(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
 				delete asset;
