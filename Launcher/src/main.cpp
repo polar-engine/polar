@@ -1,14 +1,20 @@
 #include <string>
+#include <sstream>
 #include "FileSystem.h"
 #include "curl-config-win32.h"
 #include "curl/curl.h"
 #include "zip/zip.h"
 
+#ifdef _WIN32
+#include "Process.h"
+#define execl _execl
+#endif
+
 #define INFO(msg) (std::cout << "[INFO] " << (msg) << std::endl)
 #define INFOS(msg) (std::cout << "[INFO] " << msg << std::endl)
 #define FATAL(msg) (std::cerr << "[FATAL] " << (msg) << std::endl, throw std::runtime_error(msg))
 #ifdef _DEBUG
-#define CONTINUE (std::cin.ignore(1))
+#define CONTINUE (std::cout << "Press enter to continue.", std::cin.ignore(1))
 #else
 #define CONTINUE
 #endif
@@ -19,35 +25,70 @@ size_t cbWrite(void *buffer, size_t size, size_t nmemb, void *userp) {
 	return nBytes;
 }
 
-int main(int argc, char **argv) {
-	std::string zipBuffer;
-
-	curl_global_init(CURL_GLOBAL_ALL);
-
-	const std::string archiveURL = "http://shockk.me/sub-terra/files/sub-terra-latest.zip";
-	INFO("downloading latest archive from server...");
-
+std::string GetRemote(const char *url) {
+	std::string data;
 	auto handle = curl_easy_init();
-	curl_easy_setopt(handle, CURLOPT_URL, archiveURL.c_str());
-	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, cbWrite);
-	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &zipBuffer);
-	curl_easy_perform(handle);
+	if(handle == NULL) { FATAL("failed to init cURL easy handle"); }
+	if(curl_easy_setopt(handle, CURLOPT_URL, url) != CURLE_OK) { FATAL("failed to set CURLOPT_URL"); }
+	if(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, cbWrite) != CURLE_OK) { FATAL("failed to set CURLOPT_WRITEFUNCTION"); }
+	if(curl_easy_setopt(handle, CURLOPT_WRITEDATA, &data) != CURLE_OK) { FATAL("failed to set CURLOPT_WRITEDATA"); }
+	if(curl_easy_setopt(handle, CURLOPT_FILETIME, 1) != CURLE_OK) { FATAL("failed to set CURLOPT_FILETIME"); }
+	if(curl_easy_perform(handle) != CURLE_OK) { FATAL("failed to perform cURL request"); }
 	curl_easy_cleanup(handle);
+	return data;
+}
+std::string GetRemote(const std::string &url) { return GetRemote(url.c_str()); }
+std::string GetRemote(std::string &&url) { return GetRemote(url.c_str()); }
 
+void UpdateLauncher() {
+	const std::string appPath = FileSystem::GetApp();
+	const std::string appDir = FileSystem::GetAppDir();
+	const std::string subTerraDir = appDir + "/sub-terra";
+	const std::string archiveName = "sub-terra-latest.zip";
+	const std::string archivePath = appDir + '/' + archiveName;
+
+	CURLcode curlResult = CURLE_OK;
+
+	if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) { FATAL("failed to init cURL"); }
+
+	INFO("checking for newer version of launcher");
+
+	const std::string versionPath = appDir + "/version";
+	auto localVersion = FileSystem::FileExists(versionPath) ? FileSystem::ReadFile(versionPath) : "";
+
+	auto remoteVersion = GetRemote("http://shockk.me/sub-terra/files/launcher-latest");
+	std::istringstream iss(remoteVersion);
+	std::getline(iss, remoteVersion);
+
+	if(localVersion != remoteVersion) {
+		INFO("newer version of launcher detected");
+		INFO("downloading launcher");
+
+		auto launcher = GetRemote("http://shockk.me/sub-terra/files/launcher-" + remoteVersion + ".exe");
+
+		INFO("writing new launcher to disk");
+
+		const std::string old = appPath + ".old";
+		if(FileSystem::FileExists(old)) { FileSystem::RemoveFile(old); }
+		FileSystem::Rename(appPath, appPath + ".old");
+		FileSystem::WriteFile(appPath, launcher);
+		FileSystem::WriteFile(versionPath, remoteVersion);
+
+		INFO("restarting launcher");
+
+		curl_global_cleanup();
+		auto sz = appPath.c_str();
+		execl(sz, sz, 0);
+	}
+
+	INFO("downloading latest archive from server...");
+	auto archiveBuffer = GetRemote("http://shockk.me/sub-terra/files/sub-terra-latest.zip");
+	FileSystem::WriteFile(archivePath, archiveBuffer);
 	INFO("done");
 
 	curl_global_cleanup();
 
-	const std::string launcherDir = FileSystem::GetAppDir();
-	const std::string appDir = launcherDir + "/sub-terra";
-	const std::string archiveName = "sub-terra-latest.zip";
-	const std::string archivePath = launcherDir + '/' + archiveName;
-
-	INFO("writing archive to launcher dir...");
-	FileSystem::WriteFile(archivePath, zipBuffer);
-	INFO("done");
-
-	FileSystem::CreateDir(appDir);
+	FileSystem::CreateDir(subTerraDir);
 
 	struct zip *archive = zip_open(archivePath.c_str(), ZIP_CHECKCONS, NULL);
 	if(archive == NULL) { FATAL("failed to open archive `" + archiveName + '`'); }
@@ -59,7 +100,7 @@ int main(int argc, char **argv) {
 		std::string name(szName);
 
 		if(name.back() == '/') { /* directory */
-			FileSystem::CreateDir(appDir + '/' + name);
+			FileSystem::CreateDir(subTerraDir + '/' + name);
 			INFOS("D: " << name);
 		} else {
 			struct zip_stat st;
@@ -73,7 +114,7 @@ int main(int argc, char **argv) {
 			zip_int64_t len = zip_fread(fh, buf, st.size);
 			if(len == -1) { FATAL("failed to read `" + name + "` in `" + archiveName + '`'); }
 
-			FileSystem::WriteFile(appDir + '/' + name, std::string(buf, len));
+			FileSystem::WriteFile(subTerraDir + '/' + name, std::string(buf, len));
 
 			delete buf;
 
@@ -83,7 +124,10 @@ int main(int argc, char **argv) {
 
 	if(zip_close(archive) != 0) { FATAL("failed to close archive `" + archiveName + '`'); }
 	INFO("closed archive");
+}
 
+int main(int argc, char **argv) {
+	UpdateLauncher();
 	CONTINUE;
 	return 0;
 }
