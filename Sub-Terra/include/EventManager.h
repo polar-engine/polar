@@ -17,8 +17,8 @@ typedef std::function<void(Arg)> Listener;
 
 class EventManager : public System {
 private:
-	std::vector<const GlobalListener> _globalListeners;
-	std::unordered_multimap<std::string, const Listener> _listeners;
+	std::vector<GlobalListener> _globalListeners;
+	std::unordered_multimap<std::string, Listener> _listeners;
 public:
 	static bool IsSupported() { return true; }
 	EventManager(Polar *engine) : System(engine) {}
