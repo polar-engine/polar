@@ -134,7 +134,7 @@ public:
 	static void CreateDir(const std::string &path) {
 		size_t pos = 0;
 		do {
-			pos = path.find_first_of("\/\\", pos + 1);
+			pos = path.find_first_of("/\\", pos + 1);
 			CreateDirImpl(path.substr(0, pos));
 		} while(pos != path.npos);
 	}
