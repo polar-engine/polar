@@ -92,7 +92,7 @@ public:
 		path += "\\*";
 		std::wstring wPath(path.begin(), path.end());
 
-		WIN32_FIND_DATA fdd;
+		WIN32_FIND_DATAW fdd;
 		HANDLE handle = FindFirstFileW(wPath.c_str(), &fdd);
 		if(handle == INVALID_HANDLE_VALUE) { ENGINE_THROW(path + ": failed to find first file"); }
 		do {
