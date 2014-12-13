@@ -11,5 +11,5 @@ public:
 
 	void Start();
 	bool Join();
-	void AddJob(Job &);
+	void AddJob(Job);
 };

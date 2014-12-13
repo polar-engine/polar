@@ -33,9 +33,7 @@ bool Worker::Join() {
 	return joinable;
 }
 
-void Worker::AddJob(Job &job) {
-	std::unique_lock<std::mutex> lock(jobsLock, std::defer_lock);
-	lock.lock();
+void Worker::AddJob(Job job) {
+	std::lock_guard<std::mutex> lock(jobsLock);
 	jobs.emplace(job);
-	lock.unlock();
 }
