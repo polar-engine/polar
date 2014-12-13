@@ -7,7 +7,7 @@
 #include "components.h"
 #include "Chunk.h"
 
-void SubTerra::Run(const std::vector<const std::string> &args) {
+void SubTerra::Run(const std::vector<std::string> &args) {
 	Polar engine;
 	engine.AddSystem<JobManager>();
 	engine.AddSystem<EventManager>();
