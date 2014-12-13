@@ -41,7 +41,6 @@ std::string GetRemote(const std::string &url) { return GetRemote(url.c_str()); }
 std::string GetRemote(std::string &&url) { return GetRemote(url.c_str()); }
 
 void UpdateLauncher() {
-	const std::string appPath = FileSystem::GetApp();
 
 	INFO("checking for newer version of launcher");
 
@@ -54,12 +53,13 @@ void UpdateLauncher() {
 
 	if(localVersion != remoteVersion) {
 		INFO("newer version of launcher detected");
-		INFO("downloading launcher");
+		INFOS("downloading launcher v" << remoteVersion);
 
 		auto launcher = GetRemote("http://shockk.me/sub-terra/files/launcher-" + remoteVersion + ".exe");
 
 		INFO("writing new launcher to disk");
 
+		const std::string appPath = FileSystem::GetApp();
 		const std::string old = appPath + ".old";
 		if(FileSystem::FileExists(old)) { FileSystem::RemoveFile(old); }
 		FileSystem::Rename(appPath, appPath + ".old");
@@ -75,59 +75,75 @@ void UpdateLauncher() {
 	}
 }
 
-void UpdateApp() {
+void UpdateSubTerra() {
 	const std::string appDir = FileSystem::GetAppDir();
 	const std::string subTerraDir = appDir + "/sub-terra";
 	const std::string archiveName = "sub-terra-latest.zip";
 	const std::string archivePath = appDir + '/' + archiveName;
 
-	INFO("downloading latest archive from server");
-	auto archiveBuffer = GetRemote("http://shockk.me/sub-terra/files/sub-terra-latest.zip");
-	FileSystem::WriteFile(archivePath, archiveBuffer);
+	INFO("checking for newer version of Sub-Terra");
 
-	FileSystem::CreateDir(subTerraDir);
+	const std::string versionPath = appDir + "/sub-terra-version";
+	auto localVersion = FileSystem::FileExists(versionPath) ? FileSystem::ReadFile(versionPath) : "";
 
-	struct zip *archive = zip_open(archivePath.c_str(), ZIP_CHECKCONS, NULL);
-	if(archive == NULL) { FATAL("failed to open archive `" + archiveName + '`'); }
-	INFO("opened archive");
+	auto remoteVersion = GetRemote("http://shockk.me/sub-terra/files/sub-terra-latest");
+	std::istringstream iss(remoteVersion);
+	std::getline(iss, remoteVersion);
 
-	for(int i = 0; i < zip_get_num_files(archive); ++i) {
-		const char *szName = zip_get_name(archive, i, ZIP_FL_ENC_GUESS);
-		if(szName == NULL) { FATAL("failed to get file name in `" + archiveName + "` at index " + std::to_string(i)); }
-		std::string name(szName);
+	if(localVersion != remoteVersion) {
+		INFO("newer version of Sub-Terra detected");
+		INFOS("downloading Sub-Terra v" << remoteVersion);
 
-		if(name.back() == '/') { /* directory */
-			FileSystem::CreateDir(subTerraDir + '/' + name);
-			INFOS("D: " << name);
-		} else {
-			struct zip_stat st;
-			if(zip_stat_index(archive, i, 0, &st) != 0) { FATAL("failed to stat `" + name + "` in `" + archiveName + '`'); }
+		auto archiveData = GetRemote("http://shockk.me/sub-terra/files/sub-terra-" + remoteVersion + ".zip");
 
-			struct zip_file *fh = zip_fopen_index(archive, i, 0);
-			if(fh == NULL) { FATAL("failed to open `" + name + "` in `" + archiveName + '`'); }
+		INFO("writing archive to disk");
+		FileSystem::WriteFile(archivePath, archiveData);
+		FileSystem::WriteFile(versionPath, remoteVersion);
 
-			char *buf = new char[st.size];
+		FileSystem::CreateDir(subTerraDir);
 
-			zip_int64_t len = zip_fread(fh, buf, st.size);
-			if(len == -1) { FATAL("failed to read `" + name + "` in `" + archiveName + '`'); }
+		struct zip *archive = zip_open(archivePath.c_str(), ZIP_CHECKCONS, NULL);
+		if(archive == NULL) { FATAL("failed to open archive `" + archiveName + '`'); }
+		INFO("opened archive");
 
-			FileSystem::WriteFile(subTerraDir + '/' + name, std::string(buf, len));
+		for(int i = 0; i < zip_get_num_files(archive); ++i) {
+			const char *szName = zip_get_name(archive, i, ZIP_FL_ENC_GUESS);
+			if(szName == NULL) { FATAL("failed to get file name in `" + archiveName + "` at index " + std::to_string(i)); }
+			std::string name(szName);
 
-			delete buf;
+			if(name.back() == '/') { /* directory */
+				FileSystem::CreateDir(subTerraDir + '/' + name);
+				INFOS("D: " << name);
+			} else {
+				struct zip_stat st;
+				if(zip_stat_index(archive, i, 0, &st) != 0) { FATAL("failed to stat `" + name + "` in `" + archiveName + '`'); }
 
-			INFOS("F: " << name);
+				struct zip_file *fh = zip_fopen_index(archive, i, 0);
+				if(fh == NULL) { FATAL("failed to open `" + name + "` in `" + archiveName + '`'); }
+
+				char *buf = new char[st.size];
+
+				zip_int64_t len = zip_fread(fh, buf, st.size);
+				if(len == -1) { FATAL("failed to read `" + name + "` in `" + archiveName + '`'); }
+
+				FileSystem::WriteFile(subTerraDir + '/' + name, std::string(buf, len));
+
+				delete buf;
+
+				INFOS("F: " << name);
+			}
 		}
-	}
 
-	if(zip_close(archive) != 0) { FATAL("failed to close archive `" + archiveName + '`'); }
-	INFO("closed archive");
+		if(zip_close(archive) != 0) { FATAL("failed to close archive `" + archiveName + '`'); }
+		INFO("closed archive");
+	}
 }
 
 int main(int argc, char **argv) {
 	if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) { FATAL("failed to init cURL"); }
 
 	UpdateLauncher();
-	UpdateApp();
+	UpdateSubTerra();
 
 	curl_global_cleanup();
 
