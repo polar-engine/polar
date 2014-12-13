@@ -20,6 +20,12 @@ class FileSystem {
 private:
 	FileSystem() {}
 public:
+	static std::string GetDirOf(const std::string &path) {
+		std::string::size_type pos = path.find_last_of("\\/");
+		return path.substr(0, pos);
+	}
+	static std::string GetDirOf(std::string &&path) { return GetDirOf(path); }
+
 	static std::string GetApp() {
 #ifdef _WIN32
 		char sz[MAX_PATH];
@@ -30,12 +36,10 @@ public:
 #error "FileSystem::GetApp: not implemented"
 #endif
 	}
+
 	static std::string GetAppDir() {
-#ifdef _WIN32
-		auto app = GetApp();
-		std::string::size_type pos = app.find_last_of("\\/");
-		return app.substr(0, pos);
-#endif
+		return GetDirOf(GetApp());
+		/*
 #ifdef __APPLE__
 		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
 		CFStringRef path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
@@ -45,6 +49,7 @@ public:
 		CFRelease(path);
 		return std::string(sz);
 #endif
+		*/
 	}
 	
 	static std::string ReadFile(const std::string &name) {
@@ -71,6 +76,8 @@ public:
 	}
 
 	static void WriteFile(const std::string &name, std::string &data) {
+		CreateDir(GetDirOf(name));
+
 		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);
 		if(file.fail()) { ENGINE_THROW(name + ": open"); }
 
@@ -80,9 +87,30 @@ public:
 		file.close();
 		if(file.fail()) { ENGINE_THROW(name + ": close"); }
 	}
+	static void WriteFile(const std::string &name, std::string &&data) { WriteFile(name, data); }
 
-	static void WriteFile(const std::string &name, std::string &&data) {
-		WriteFile(name, data);
+	static bool FileExists(const std::string &path) {
+		std::ifstream file(path);
+		return file.good();
+	}
+
+	static uint64_t GetModifiedTime(const std::string &path) {
+#ifdef _WIN32
+		struct _stat st;
+		if(_stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
+		return st.st_mtime;
+#endif
+#ifdef __APPLE__
+#error "FileSystem::GetModifiedTime: not implemented"
+#endif
+	}
+
+	static void Rename(const std::string &oldPath, const std::string &newPath) {
+		rename(oldPath.c_str(), newPath.c_str());
+	}
+
+	static void RemoveFile(const std::string &path) {
+		remove(path.c_str());
 	}
 
 	static std::vector<std::string> ListDir(std::string path) {
@@ -148,28 +176,5 @@ public:
 			CreateDirImpl(path.substr(0, pos));
 		} while(pos != path.npos);
 	}
-
-	static bool FileExists(const std::string &path) {
-		std::ifstream file(path);
-		return file.good();
-	}
-
-	static uint64_t GetModifiedTime(const std::string &path) {
-#ifdef _WIN32
-		struct _stat st;
-		if(_stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
-		return st.st_mtime;
-#endif
-#ifdef __APPLE__
-#error "FileSystem::GetModifiedTime: not implemented"
-#endif
-	}
-
-	static void Rename(const std::string &oldPath, const std::string &newPath) {
-		rename(oldPath.c_str(), newPath.c_str());
-	}
-
-	static void RemoveFile(const std::string &path) {
-		remove(path.c_str());
-	}
+	static void CreateDir(std::string &&path) { CreateDir(path); }
 };
