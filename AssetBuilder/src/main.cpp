@@ -38,11 +38,13 @@ int main(int argc, char **argv) {
 					if(len < 2) { ENGINE_THROW(msg.str()); }
 					auto directive = line.substr(1);
 					if(directive == "vertex") {
+						INFOS("    found vertex shader at line " << std::to_string(iLine));
 						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
 						type = ShaderType::Vertex;
 						oss = std::ostringstream();
 						oss << header.str();
 					} else if(directive == "fragment") {
+						INFOS("    found fragment shader at line " << std::to_string(iLine));
 						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
 						type = ShaderType::Fragment;
 						oss = std::ostringstream();
@@ -60,6 +62,7 @@ int main(int argc, char **argv) {
 	};
 
 	for(auto &file : files) {
+		INFOS("processing `" << file << '`');
 		auto pos = file.find_last_of('.');
 		if(pos != file.npos && pos < file.length() - 1) {
 			std::string ext = file.substr(pos + 1);
@@ -67,8 +70,8 @@ int main(int argc, char **argv) {
 			std::string data = FileSystem::ReadFile(path + '/' + file);
 			auto converter = converters.find(ext);
 			if(converter != converters.end()) {
+				INFOS("found converter for `" << ext << '`');
 				Asset *asset = converter->second(data);
-				FileSystem::CreateDir(buildPath);
 				FileSystem::CreateDir(buildPath + '/' + asset->type);
 				FileSystem::WriteFile(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
 				delete asset;
@@ -77,7 +80,6 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-	std::cout << "Press enter to continue" << std::endl;
-	std::cin.ignore(1);
+	ENGINE_CONTINUE;
 	return 0;
 }
