@@ -41,5 +41,8 @@
     <ClInclude Include="..\include\FileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\getline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
