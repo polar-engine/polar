@@ -1,6 +1,8 @@
 #pragma once
 
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include "GL/glew.h"
 
 inline bool _GL_real(const char *file, const long line, const char *code) {
