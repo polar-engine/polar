@@ -17,6 +17,9 @@ inline const char *basename(const char *path) {
 
 #define BASEFILE (basename(__FILE__))
 
+#define INFO(msg) (std::cout << "[INFO] " << (msg) << std::endl)
+#define INFOS(msg) (std::cout << "[INFO] " << msg << std::endl)
+
 #define ENGINE_OUTPUT(S)  (std::cout << S)
 #define ENGINE_ERROR(S) (std::cerr << "========== ERROR ==========\n" << S << '\n')
 #define ENGINE_THROW(S) (ENGINE_ERROR(S), throw std::runtime_error(S))
