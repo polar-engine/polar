@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 						type = ShaderType::Fragment;
 						oss = std::ostringstream();
 						oss << header.str();
-					} else { ENGINE_ERROR(iLine << ": unknown shader directive"); }
+					} else { ENGINE_ERROR(iLine << ": unknown shader directive `" << directive << '`'); }
 				} else {
 					if(type == ShaderType::Invalid) { header << line << '\n'; } else { oss << line << '\n'; }
 				}
