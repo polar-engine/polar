@@ -93,14 +93,14 @@ public:
 		std::wstring wPath(path.begin(), path.end());
 
 		WIN32_FIND_DATA fdd;
-		HANDLE handle = FindFirstFile(wPath.c_str(), &fdd);
+		HANDLE handle = FindFirstFileW(wPath.c_str(), &fdd);
 		if(handle == INVALID_HANDLE_VALUE) { ENGINE_THROW(path + ": failed to find first file"); }
 		do {
 			if(!(fdd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				std::wstring wFile = fdd.cFileName;
 				files.emplace_back(wFile.begin(), wFile.end());
 			}
-		} while(FindNextFile(handle, &fdd));
+		} while(FindNextFileW(handle, &fdd));
 
 		/* check for errors */
 		DWORD dwError = GetLastError();
@@ -131,7 +131,7 @@ public:
 	static void CreateDirImpl(const std::string &path) {
 #ifdef _WIN32
 		std::wstring wPath(path.begin(), path.end());
-		if(::CreateDirectory(wPath.c_str(), NULL) == 0) {
+		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
 			if(dwError != ERROR_ALREADY_EXISTS) { ENGINE_THROW(path + ": failed to create directory"); }
 		}

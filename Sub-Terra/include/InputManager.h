@@ -10,8 +10,8 @@ typedef std::function<void(const Point2 &)> MouseMoveHandler;
 class InputManager : public System {
 private:
 	std::vector<Key> keys;
-	std::unordered_multimap<Key, OnKeyHandler> onKeyHandlers;
-	std::unordered_multimap<Key, WhenKeyHandler> whenKeyHandlers;
+	std::unordered_multimap<Key, OnKeyHandler, KeyHash> onKeyHandlers;
+	std::unordered_multimap<Key, WhenKeyHandler, KeyHash> whenKeyHandlers;
 	std::vector<MouseMoveHandler> mouseMoveHandlers;
 protected:
 	void Init() override final;
