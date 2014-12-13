@@ -37,3 +37,9 @@ struct KeyHash : public std::unary_function<Key, std::size_t> {
 		return static_cast<size_t>(k);
 	}
 };
+
+struct KeyEqual : public std::binary_function<Key, Key, bool> {
+	bool operator()(const Key &v0, const Key &v1) const {
+		return v0 == v1;
+	}
+};
