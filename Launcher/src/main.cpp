@@ -42,18 +42,10 @@ std::string GetRemote(std::string &&url) { return GetRemote(url.c_str()); }
 
 void UpdateLauncher() {
 	const std::string appPath = FileSystem::GetApp();
-	const std::string appDir = FileSystem::GetAppDir();
-	const std::string subTerraDir = appDir + "/sub-terra";
-	const std::string archiveName = "sub-terra-latest.zip";
-	const std::string archivePath = appDir + '/' + archiveName;
-
-	CURLcode curlResult = CURLE_OK;
-
-	if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) { FATAL("failed to init cURL"); }
 
 	INFO("checking for newer version of launcher");
 
-	const std::string versionPath = appDir + "/version";
+	const std::string versionPath = FileSystem::GetAppDir() + "/version";
 	auto localVersion = FileSystem::FileExists(versionPath) ? FileSystem::ReadFile(versionPath) : "";
 
 	auto remoteVersion = GetRemote("http://shockk.me/sub-terra/files/launcher-latest");
@@ -77,16 +69,21 @@ void UpdateLauncher() {
 		INFO("restarting launcher");
 
 		curl_global_cleanup();
+
 		auto sz = appPath.c_str();
 		execl(sz, sz, 0);
 	}
+}
 
-	INFO("downloading latest archive from server...");
+void UpdateApp() {
+	const std::string appDir = FileSystem::GetAppDir();
+	const std::string subTerraDir = appDir + "/sub-terra";
+	const std::string archiveName = "sub-terra-latest.zip";
+	const std::string archivePath = appDir + '/' + archiveName;
+
+	INFO("downloading latest archive from server");
 	auto archiveBuffer = GetRemote("http://shockk.me/sub-terra/files/sub-terra-latest.zip");
 	FileSystem::WriteFile(archivePath, archiveBuffer);
-	INFO("done");
-
-	curl_global_cleanup();
 
 	FileSystem::CreateDir(subTerraDir);
 
@@ -127,7 +124,16 @@ void UpdateLauncher() {
 }
 
 int main(int argc, char **argv) {
+	if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) { FATAL("failed to init cURL"); }
+
 	UpdateLauncher();
-	CONTINUE;
+	UpdateApp();
+
+	curl_global_cleanup();
+
+	const std::string path = FileSystem::GetAppDir() + "/sub-terra/Sub-Terra.exe";
+	auto sz = path.c_str();
+	execl(sz, sz, 0);
+
 	return 0;
 }
