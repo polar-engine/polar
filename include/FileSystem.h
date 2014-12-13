@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdio.h>
+#include <stdint.h>
+#include <sys/stat.h>
 #include <string>
 #include <fstream>
 #include <vector>
@@ -10,7 +13,6 @@
 #include <Windows.h>
 #endif
 #ifdef __APPLE__
-#include <sys/stat.h>
 #include <dirent.h>
 #endif
 
@@ -18,13 +20,21 @@ class FileSystem {
 private:
 	FileSystem() {}
 public:
-	static std::string GetAppDir() {
+	static std::string GetApp() {
 #ifdef _WIN32
 		char sz[MAX_PATH];
 		GetModuleFileNameA(NULL, sz, MAX_PATH);
-		std::string s(sz);
-		std::string::size_type pos = s.find_last_of("\\/");
-		return s.substr(0, pos);
+		return std::string(sz);
+#endif
+#ifdef __APPLE__
+#error "FileSystem::GetApp: not implemented"
+#endif
+	}
+	static std::string GetAppDir() {
+#ifdef _WIN32
+		auto app = GetApp();
+		std::string::size_type pos = app.find_last_of("\\/");
+		return app.substr(0, pos);
 #endif
 #ifdef __APPLE__
 		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
@@ -137,5 +147,29 @@ public:
 			pos = path.find_first_of("/\\", pos + 1);
 			CreateDirImpl(path.substr(0, pos));
 		} while(pos != path.npos);
+	}
+
+	static bool FileExists(const std::string &path) {
+		std::ifstream file(path);
+		return file.good();
+	}
+
+	static uint64_t GetModifiedTime(const std::string &path) {
+#ifdef _WIN32
+		struct _stat st;
+		if(_stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
+		return st.st_mtime;
+#endif
+#ifdef __APPLE__
+#error "FileSystem::GetModifiedTime: not implemented"
+#endif
+	}
+
+	static void Rename(const std::string &oldPath, const std::string &newPath) {
+		rename(oldPath.c_str(), newPath.c_str());
+	}
+
+	static void RemoveFile(const std::string &path) {
+		remove(path.c_str());
 	}
 };
