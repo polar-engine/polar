@@ -37,7 +37,7 @@
 
 
 #ifndef ZIP_EXTERN
-#ifdef _WIN32
+#if defined(_WIN32) && defined(HAVE_WIN32_SHARED)
 #define ZIP_EXTERN __declspec(dllimport)
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #define ZIP_EXTERN __attribute__ ((visibility ("default")))
