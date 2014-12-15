@@ -33,19 +33,21 @@ public:
 #else
 
 template<typename T> class Atomic {
+public:
+	typedef std::recursive_mutex mutex_type;
 private:
 	T value;
-	std::recursive_mutex mutex;
+	mutex_type mutex;
 public:
 	template<typename ...Ts> Atomic(Ts && ...args) : value(std::forward<Ts>(args)...) {}
 
 	inline void With(const std::function<void(T &)> &fn) {
-		std::lock_guard<Mutex> lock(mutex);
+		std::lock_guard<mutex_type> lock(mutex);
 		fn(value);
 	}
 
 	template<typename Ret> inline Ret With(const std::function<Ret(T &)> &fn) {
-		std::lock_guard<Mutex> lock(mutex);
+		std::lock_guard<mutex_type> lock(mutex);
 		return fn(value);
 	}
 };
