@@ -15,7 +15,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
-			const unsigned char distance = 3;
+			const unsigned char distance = 5;
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(glm::fvec3(pos->position) / chunkSizeF));
 			auto jobM = engine->systems.Get<JobManager>();
@@ -24,11 +24,19 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 			chunks.With([this, distance, &keyBase] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
 					auto &keyTuple = it->first;
-					if(it->second != nullptr) {
-						if(abs(std::get<0>(keyTuple) -keyBase.x) > distance ||
-						   abs(std::get<1>(keyTuple) -keyBase.y) > distance ||
-						   abs(std::get<2>(keyTuple) -keyBase.z) > distance) {
-							engine->RemoveObject(it->second);
+					auto obj = std::get<1>(it->second);
+
+					if(abs(std::get<0>(keyTuple) -keyBase.x) > distance ||
+					   abs(std::get<1>(keyTuple) -keyBase.y) > distance ||
+					   abs(std::get<2>(keyTuple) -keyBase.z) > distance) {
+						auto &status = std::get<0>(it->second);
+						switch(status) {
+						case ChunkStatus::Generating:
+							status = ChunkStatus::Dying;
+							break;
+						case ChunkStatus::Alive:
+						case ChunkStatus::Dead:
+							engine->RemoveObject(obj);
 							chunks.erase(it++);
 							continue;
 						}
@@ -43,18 +51,32 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 						for(int z = -d; z <= d; ++z) {
 							auto key = keyBase + glm::ivec3(x, y, z);
 							auto keyTuple = std::make_tuple(key.x, key.y, key.z);
+
 							if(chunks.With<bool>([&keyTuple] (ChunksType &chunks) {
 								return chunks.find(keyTuple) == chunks.end();
 							})) {
-								chunks.With([&keyTuple] (ChunksType &chunks) { chunks.emplace(keyTuple, nullptr); });
+								chunks.With([&keyTuple] (ChunksType &chunks) {
+									chunks.emplace(keyTuple, std::make_tuple(ChunkStatus::Generating, nullptr));
+								});
 								jobM->Do([this, jobM, key, keyTuple, chunkSizeF] () {
+									auto dead = chunks.With<bool>([&keyTuple] (ChunksType &chunks) {
+										auto &status = std::get<0>(chunks.at(keyTuple));
+										if(status == ChunkStatus::Dying) {
+											status = ChunkStatus::Dead;
+											return true;
+										} else { return false; }
+									});
+									if(dead) { return; }
+
 									auto data = Generate(keyTuple);
 									auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, data);
 									jobM->Do([this, keyTuple, key, chunkSizeF, chunkObj] () {
 										auto chunkPos = glm::fvec3(key) * chunkSizeF;
 										chunkObj->Add<PositionComponent>(Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1));
 										engine->AddObject(chunkObj);
-										chunks.With([&keyTuple, chunkObj] (ChunksType &chunks) { chunks.at(keyTuple) = chunkObj; });
+										chunks.With([&keyTuple, chunkObj] (ChunksType &chunks) {
+											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, chunkObj);
+										});
 									}, JobPriority::High, JobThread::Main);
 								}, JobPriority::Normal, JobThread::Any);
 							}

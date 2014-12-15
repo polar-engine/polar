@@ -7,7 +7,7 @@ typedef std::tuple<int64_t, int64_t, int64_t> ChunkKeyType;
 
 struct ChunkKeyHash : public std::unary_function<ChunkKeyType, std::size_t> {
 	std::size_t operator()(const ChunkKeyType &k) const {
-		return static_cast<size_t>(std::get<0>(k) * 32 * 32 + std::get<1>(k) * 32 + std::get<2>(k));
+		return static_cast<size_t>((std::get<0>(k) << 8) + (std::get<1>(k) << 4) + std::get<2>(k));
 	}
 };
 
@@ -21,7 +21,15 @@ struct ChunkKeyEqual : public std::binary_function<ChunkKeyType, ChunkKeyType, b
 	}
 };
 
-typedef std::unordered_map<ChunkKeyType, Chunk *, ChunkKeyHash, ChunkKeyEqual> ChunksType;
+enum class ChunkStatus {
+	Generating,
+	Alive,
+	Dying,
+	Dead
+};
+
+typedef std::tuple<ChunkStatus, Chunk *> ChunkContainerType;
+typedef std::unordered_map<ChunkKeyType, ChunkContainerType, ChunkKeyHash, ChunkKeyEqual> ChunksType;
 
 class World : public System {
 private:
