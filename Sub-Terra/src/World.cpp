@@ -85,9 +85,9 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 
 	auto chunkSizeF = glm::fvec3(chunkSize);
 	std::vector<bool> blocks;
-	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
-	for(unsigned char x = 0; x < chunkSize.x; ++x) {
-		for(unsigned char z = 0; z < chunkSize.z; ++z) {
+	blocks.reserve(chunkSize.x * chunkSize.y * chunkSize.z);
+	for(unsigned char z = 0; z < chunkSize.z; ++z) {
+		for(unsigned char x = 0; x < chunkSize.x; ++x) {
 			for(unsigned char y = 0; y < chunkSize.y; ++y) {
 				auto current = z * chunkSize.x * chunkSize.y + x * chunkSize.y + y;
 				float scale = 0.5f;
@@ -99,7 +99,8 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 				);
 				static double sine = 0;
 				sine += 0.000001;
-				blocks.at(current) = random > (0.35f + glm::sin(sine) * 0.0625) || random < r;
+				//blocks.push_back(random > (0.35f + glm::sin(sine) * 0.0625) || random < r);
+				blocks.push_back(random > 0.45f);
 			}
 		}
 	}
