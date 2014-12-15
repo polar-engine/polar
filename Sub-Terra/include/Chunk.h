@@ -33,6 +33,7 @@ public:
 		};
 
 		std::vector<Triangle> triangles;
+		triangles.reserve(width * height * depth);
 		for(unsigned char x = 0; x < width; ++x) {
 			for(unsigned char y = 0; y < height; ++y) {
 				for(unsigned char z = 0; z < depth; ++z) {
