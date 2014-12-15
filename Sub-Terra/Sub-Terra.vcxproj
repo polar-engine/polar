@@ -141,6 +141,7 @@
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\ShaderAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
+    <ClInclude Include="include\Allocator.h" />
     <ClInclude Include="include\Atomic.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
