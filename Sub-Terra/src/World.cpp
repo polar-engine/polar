@@ -89,16 +89,16 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 	for(unsigned char z = 0; z < chunkSize.z; ++z) {
 		for(unsigned char x = 0; x < chunkSize.x; ++x) {
 			for(unsigned char y = 0; y < chunkSize.y; ++y) {
-				auto current = z * chunkSize.x * chunkSize.y + x * chunkSize.y + y;
-				float scale = 0.5f;
+				//auto current = z * chunkSize.x * chunkSize.y + x * chunkSize.y + y;
+				const float scale = 0.5f;
 				float scaleX = scale, scaleY = scale * 2, scaleZ = scale;
 				double random = noise.eval(
 					( std::get<0>(keyTuple) + x / chunkSizeF.x) * scaleX,
 					( std::get<1>(keyTuple) + y / chunkSizeF.y) * scaleY,
 					(-std::get<2>(keyTuple) + z / chunkSizeF.z) * scaleZ
 				);
-				static double sine = 0;
-				sine += 0.000001;
+				//static double sine = 0;
+				//sine += 0.000001;
 				//blocks.push_back(random > (0.35f + glm::sin(sine) * 0.0625) || random < r);
 				blocks.push_back(random > 0.45f);
 			}
