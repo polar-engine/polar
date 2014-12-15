@@ -3,17 +3,15 @@
 
 void Worker::Start() {
 	auto fn = [this] () {
-		std::unique_lock<std::mutex> lock(jobsLock, std::defer_lock);
 		while(true) {
-			lock.lock();
-			/* we get a debug assertion failure if we try to get the top() of an empty vector */
-			if(jobs.empty()) {
-				lock.unlock();
+			if(jobs.With<bool>([] (JobsType &jobs) { return jobs.empty(); })) {
 				std::this_thread::yield();
 			} else {
-				auto job = jobs.top();
-				jobs.pop();
-				lock.unlock();
+				auto job = jobs.With<Job>([] (JobsType &jobs) {
+					auto job = jobs.top();
+					jobs.pop();
+					return job;
+				});
 				switch(job.type) {
 				case JobType::Work:
 					job.fn();
@@ -35,6 +33,7 @@ bool Worker::Join() {
 }
 
 void Worker::AddJob(Job job) {
-	std::lock_guard<std::mutex> lock(jobsLock);
-	jobs.emplace(job);
+	jobs.With([&job] (JobsType &jobs) {
+		jobs.emplace(job);
+	});
 }
