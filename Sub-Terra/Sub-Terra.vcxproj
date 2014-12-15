@@ -45,7 +45,7 @@
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets>PreBuildEvent</CustomBuildAfterTargets>
     <CustomBuildBeforeTargets>PreBuildEvent</CustomBuildBeforeTargets>
-    <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <SourcePath>src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -53,7 +53,7 @@
     <IncludePath>include;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib\win32;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets>PreBuildEvent</CustomBuildAfterTargets>
-    <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <SourcePath>src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

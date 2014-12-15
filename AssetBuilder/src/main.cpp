@@ -73,14 +73,16 @@ int main(int argc, char **argv) {
 
 				std::string data = FileSystem::ReadFile(path + '/' + file);
 				Asset *asset = converter->second(data);
+				if(asset == nullptr) {
+					ENGINE_ERROR(file << ": converter function returned a null pointer");
+					continue;
+				}
 
 				std::string name = file.substr(0, pos);
 				FileSystem::CreateDir(buildPath + '/' + asset->type);
 				FileSystem::WriteFile(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
 				delete asset;
-			} else {
-				std::cerr << file << ": no appropriate Asset class found" << std::endl;
-			}
+			} else { ENGINE_ERROR(file << ": no appropriate converter found"); }
 		}
 	}
 	ENGINE_CONTINUE;

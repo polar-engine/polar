@@ -107,7 +107,7 @@ public:
 	}
 
 	static void Rename(const std::string &oldPath, const std::string &newPath) {
-		rename(oldPath.c_str(), newPath.c_str());
+		if(rename(oldPath.c_str(), newPath.c_str()) != 0) { ENGINE_THROW("failed to rename `" + oldPath + "` to `" + newPath + '`'); }
 	}
 
 	static void RemoveFile(const std::string &path) {
