@@ -8,6 +8,9 @@ void World::Init() {
 }
 
 void World::Update(DeltaTicks &, std::vector<Object *> &) {
+	chunks.With([] (ChunksType &chunks) {
+		INFO(chunks.size());
+	});
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
