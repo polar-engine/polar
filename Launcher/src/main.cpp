@@ -128,7 +128,7 @@ void UpdateSubTerra() {
 
 				FileSystem::WriteFile(subTerraDir + '/' + name, std::string(buf, len));
 
-				delete buf;
+				delete[] buf;
 
 				INFOS("F: " << name);
 			}
