@@ -2,14 +2,16 @@
 
 #include "Component.h"
 
+typedef std::vector<Point> PointsType;
+
 class ModelComponent : public Component {
 public:
 	GeometryType type;
-	std::vector<Point> points;
-	std::vector<Point> normals;
+	PointsType points;
+	PointsType normals;
 
 	ModelComponent() : type(GeometryType::None) {}
-	ModelComponent(GeometryType type, const std::vector<Point> &points, const std::vector<Point> &normals)
+	ModelComponent(GeometryType type, const PointsType &points, const PointsType &normals)
 		: type(type), points(points), normals(normals) {}
 	ModelComponent(const std::vector<Triangle> &triangles) : type(GeometryType::Triangles) {
 		auto size = triangles.size() * 3;
