@@ -16,7 +16,7 @@ protected:
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 	void Destroy() override final;
 public:
-	const int numWorkers = std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
+	const int numWorkers = (std::max)(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
 	static bool IsSupported() { return true; }
 	JobManager(Polar *);
 	~JobManager() override;

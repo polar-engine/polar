@@ -19,6 +19,7 @@ void Worker::Start() {
 					job.fn();
 					break;
 				case JobType::Stop:
+					INFO("worker received stop command");
 					return;
 				}
 			}
