@@ -8,7 +8,6 @@ typedef std::priority_queue<Job> JobsType;
 
 class JobManager : public System {
 private:
-	const int numCycles = 4;
 	Atomic<JobsType> jobs;
 	std::vector<Worker *> _workers;
 	std::vector<Worker *>::size_type nextWorker = 0;

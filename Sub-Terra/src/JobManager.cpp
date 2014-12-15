@@ -1,6 +1,11 @@
 #include "common.h"
 #include "JobManager.h"
 
+/* prevent macros from overriding standard functions */
+#ifdef max
+#undef max
+#endif
+
 JobManager::JobManager(Polar *engine) : System(engine) {
 	for(int i = 0; i < numWorkers; ++i) {
 		_workers.push_back(new Worker());
@@ -20,7 +25,14 @@ void JobManager::Init() {
 }
 
 void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
-	for(std::vector<Worker *>::size_type i = 0; i < _workers.size() * numCycles; ++i) {
+	auto numJobs = jobs.With<JobsType::size_type>([] (JobsType &jobs) { return jobs.size(); });
+	if(numJobs == 0) {
+		std::this_thread::yield();
+		return;
+	}
+
+	auto numCycles = numWorkers * std::max(1U, numJobs / 48);
+	for(std::vector<Worker *>::size_type i = 0; i < numCycles; ++i) {
 		if(jobs.With<bool>([] (JobsType &jobs) { return jobs.empty(); })) {
 			std::this_thread::yield();
 			break;
