@@ -72,6 +72,7 @@ public:
 		if(file.fail()) { ENGINE_THROW(name + ": close"); }
 
 		std::string s(sz, len);
+		delete[] sz;
 		return s;
 	}
 
