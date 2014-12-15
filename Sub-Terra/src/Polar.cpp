@@ -55,7 +55,7 @@ void Polar::Run() {
 	_running = true;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
-	DeltaTicks iteration = DeltaTicks(ENGINE_TICKS_PER_SECOND / 200);
+	//DeltaTicks iteration = DeltaTicks(ENGINE_TICKS_PER_SECOND / 200);
 
 	while(_running) {
 		then = now;
