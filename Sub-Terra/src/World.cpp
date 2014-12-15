@@ -78,28 +78,26 @@ void World::ObjectAdded(Object *obj) {
 }
 
 std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
-	const float start = -0.5, end = -0;
+	/*const float start = -0.5, end = -0;
 	static double factor = 1.0f;
 	factor /= 1.0001f;
-	auto r = factor * (start - end) + end;
+	auto r = factor * (start - end) + end;*/
 
-	auto chunkSizeF = glm::fvec3(chunkSize);
+	const float scale = 0.5f;
+	const float scaleX = scale, scaleY = scale * 2, scaleZ = scale;
+
 	std::vector<bool> blocks;
 	blocks.reserve(chunkSize.x * chunkSize.y * chunkSize.z);
-	for(unsigned char z = 0; z < chunkSize.z; ++z) {
-		for(unsigned char x = 0; x < chunkSize.x; ++x) {
-			for(unsigned char y = 0; y < chunkSize.y; ++y) {
-				//auto current = z * chunkSize.x * chunkSize.y + x * chunkSize.y + y;
-				const float scale = 0.5f;
-				float scaleX = scale, scaleY = scale * 2, scaleZ = scale;
+
+	float xIncr = 1.0f / chunkSize.x, yIncr = 1.0f / chunkSize.y, zIncr = 1.0f / chunkSize.z;
+	for(float z = 0; z < 1; z += zIncr) {
+		for(float x = 0; x < 1; x += xIncr) {
+			for(float y = 0; y < 1; y += yIncr) {
 				double random = noise.eval(
-					( std::get<0>(keyTuple) + x / chunkSizeF.x) * scaleX,
-					( std::get<1>(keyTuple) + y / chunkSizeF.y) * scaleY,
-					(-std::get<2>(keyTuple) + z / chunkSizeF.z) * scaleZ
+					( std::get<0>(keyTuple) + x) * scaleX,
+					( std::get<1>(keyTuple) + y) * scaleY,
+					(-std::get<2>(keyTuple) + z) * scaleZ
 				);
-				//static double sine = 0;
-				//sine += 0.000001;
-				//blocks.push_back(random > (0.35f + glm::sin(sine) * 0.0625) || random < r);
 				blocks.push_back(random > 0.45f);
 			}
 		}
