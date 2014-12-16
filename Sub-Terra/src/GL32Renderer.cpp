@@ -215,6 +215,7 @@ void GL32Renderer::ObjectRemoved(Object *object) {
 				GL(glDeleteBuffers(1, &vbo));
 			}
 			GL(glDeleteVertexArrays(1, &property->vao));
+			model->Remove<GL32ModelProperty>();
 		}
 	}
 }
