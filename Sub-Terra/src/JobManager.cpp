@@ -26,12 +26,11 @@ void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 		return;
 	}
 
-	auto numCycles = numWorkers * (std::max)(1U, numJobs / 48);
-	for(std::vector<Worker *>::size_type i = 0; i < numCycles; ++i) {
-		if(jobs.With<bool>([] (JobsType &jobs) { return jobs.empty(); })) {
-			std::this_thread::yield();
-			break;
-		}
+	auto numOnMain = (std::max)(128U, numJobs / 64);
+
+	std::vector<Job> todo;
+
+	for(; numJobs > 0; --numJobs) {
 		auto job = jobs.With<Job>([] (JobsType &jobs) {
 			auto job = jobs.top();
 			jobs.pop();
@@ -39,24 +38,27 @@ void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
 		});
 		switch(job.thread) {
 		case JobThread::Main:
-			job.fn();
+			if(numOnMain > 0) {
+				job.fn();
+				numOnMain--;
+			} else { todo.emplace_back(job); }
 			break;
+		case JobThread::Any:
+			if(numOnMain > 0) {
+				job.fn();
+				numOnMain--;
+				break;
+			}
 		case JobThread::Worker:
 			if(nextWorker >= _workers.size()) { nextWorker = 0; }
 			_workers.at(nextWorker++)->AddJob(job);
-			std::this_thread::yield();
-			break;
-		case JobThread::Any:
-			if(nextWorker == _workers.size()) {
-				job.fn();
-			} else {
-				if(nextWorker > _workers.size()) { nextWorker = 0; }
-				_workers.at(nextWorker++)->AddJob(job);
-				std::this_thread::yield();
-			}
 			break;
 		}
 	}
+
+	jobs.With([&todo] (JobsType &jobs) {
+		for(auto &job : todo) { jobs.emplace(job); }
+	});
 }
 
 void JobManager::Destroy() {
