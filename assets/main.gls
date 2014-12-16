@@ -42,8 +42,8 @@ vec3 light(in vec4 lightPosition, in vec3 color, in float shininess, in float ra
 			clamp((fogPeak * fogPeak - distance * distance) / (fogPeak * fogPeak - fogStart * fogStart), -fogIntensity, fogIntensity));
 	}
 
-	float diffuseAttenuation = clamp(1.0 - distance * distance / (radius * radius), 0.0, 1.0);
-	diffuseAttenuation *= diffuseAttenuation;
+	float diffuseAttenuation = 1.0 / (1 + 0.05 * distance);//clamp(1.0 - distance * distance / (radius * radius), 0.0, 1.0);
+	//diffuseAttenuation *= diffuseAttenuation;
 	if(diffuseAttenuation < 0.15) {
 		//diffuseAttenuation = sqrt(diffuseAttenuation) * 0.15 * 0.15;
 		//diffuseAttenuation *= diffuseAttenuation;
