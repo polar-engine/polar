@@ -9,7 +9,7 @@ void World::Init() {
 
 void World::Update(DeltaTicks &, std::vector<Object *> &) {
 	chunks.With([] (ChunksType &chunks) {
-		INFO(chunks.size());
+		//INFO(chunks.size());
 	});
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 	if(camera != nullptr) {
@@ -78,7 +78,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, chunkObj);
 										});
 									}, JobPriority::High, JobThread::Main);
-								}, JobPriority::Normal, JobThread::Any);
+								}, JobPriority::Normal, JobThread::Worker);
 							}
 						}
 					}
