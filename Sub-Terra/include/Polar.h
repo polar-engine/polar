@@ -32,7 +32,7 @@ public:
 	}
 
 	void AddObject(Object *);
-	void RemoveObject(Object *);
+	void RemoveObject(Object *, const bool doDelete = true);
 	void Init();
 	void Run();
 	void Destroy();
