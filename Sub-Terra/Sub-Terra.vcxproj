@@ -122,6 +122,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\GL32Renderer.cpp" />
     <ClCompile Include="src\glew.c" />
     <ClCompile Include="src\InputManager.cpp" />

@@ -15,7 +15,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
-			const unsigned char distance = 5;
+			const unsigned char distance = 7;
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(glm::fvec3(pos->position) / chunkSizeF));
 			auto jobM = engine->systems.Get<JobManager>();
@@ -36,7 +36,10 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 							break;
 						case ChunkStatus::Alive:
 						case ChunkStatus::Dead:
-							engine->RemoveObject(obj);
+							if(obj != nullptr) {
+								engine->RemoveObject(obj, false);
+								obj->Pool();
+							}
 							chunks.erase(it++);
 							continue;
 						}
@@ -69,10 +72,12 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 									if(dead) { return; }
 
 									auto data = Generate(keyTuple);
-									auto chunkObj = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, data);
+									auto chunkObj = Chunk::New(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
+									auto pos = chunkObj->Get<PositionComponent>();
+									auto chunkPos = glm::fvec3(key) * chunkSizeF;
+									pos->position = Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1);
+
 									jobM->Do([this, keyTuple, key, chunkSizeF, chunkObj] () {
-										auto chunkPos = glm::fvec3(key) * chunkSizeF;
-										chunkObj->Add<PositionComponent>(Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1));
 										engine->AddObject(chunkObj);
 										chunks.With([&keyTuple, chunkObj] (ChunksType &chunks) {
 											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, chunkObj);
