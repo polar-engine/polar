@@ -12,6 +12,10 @@ void Polar::Init() {
 
 	for(auto &system : *systems.Get()) {
 		system.second->Init();
+	}
+
+	/* iterate again in case any systems added objects during initialization */
+	for(auto &system : *systems.Get()) {
 		for(auto object : _objects) {
 			system.second->ObjectAdded(object);
 		}
