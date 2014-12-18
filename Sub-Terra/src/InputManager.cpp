@@ -11,12 +11,17 @@ void InputManager::Init() {
 			it->second(key);
 		}
 
-		if(std::find(keys.begin(), keys.end(), key) == keys.end()) {
-			keys.emplace_back(key);
-		}
+		keys.emplace(key);
 	});
 	eventM->ListenFor("keyup", [this] (Arg arg) {
-		keys.erase(std::remove(keys.begin(), keys.end(), *arg.Get<Key>()), keys.end());
+		auto key = *arg.Get<Key>();
+
+		keys.erase(key);
+
+		auto range = afterKeyHandlers.equal_range(key);
+		for(auto it = range.first; it != range.second; ++it) {
+			it->second(key);
+		}
 	});
 	eventM->ListenFor("mousemove", [this] (Arg arg) {
 		auto &delta = *arg.Get<Point2>();
