@@ -11,13 +11,15 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 	chunks.With([] (ChunksType &chunks) {
 		//INFO(chunks.size());
 	});
+
+	if(cameraObj == nullptr) { return; }
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
-			const unsigned char distance = 7;
+			const unsigned char distance = 6;
 			auto chunkSizeF = glm::fvec3(chunkSize);
-			auto keyBase = glm::ivec3(glm::floor(glm::fvec3(pos->position) / chunkSizeF));
+			auto keyBase = glm::ivec3(glm::floor(pos->position.To<glm::fvec3>()) / chunkSizeF);
 			auto jobM = engine->systems.Get<JobManager>();
 
 			/* clean up chunks outside distance */
