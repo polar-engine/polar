@@ -117,7 +117,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 			auto pos = object->Get<PositionComponent>();
 			if(pos != nullptr) {
-				cameraView = glm::translate(cameraView, glm::vec3(-pos->position));
+				cameraView = glm::translate(cameraView, -pos->position.To<glm::vec3>());
 			}
 		}
 	}
@@ -131,7 +131,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 				auto pos = object->Get<PositionComponent>();
 				if(pos != nullptr) {
-					modelView = glm::translate(modelView, glm::fvec3(pos->position));
+					modelView = glm::translate(modelView, pos->position.To<glm::vec3>());
 				}
 
 				auto orient = object->Get<OrientationComponent>();
