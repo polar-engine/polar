@@ -7,7 +7,7 @@ private:
 public:
 	virtual ~EntityBase() {}
 	template<typename T> inline void Add() {
-		Add(new T());
+		if(!Has<T>()) { Add(new T()); }
 	}
 
 	template<typename T, typename ...Ts> inline void Add(Ts && ...args) {
