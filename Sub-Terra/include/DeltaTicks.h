@@ -4,6 +4,8 @@ class DeltaTicks {
 private:
 	DeltaTicksBase base;
 public:
+	typedef float seconds_type;
+
 	DeltaTicks(const DeltaTicksBase &base) : base(base) {}
 	DeltaTicks(const DeltaTicksBase::rep ticks) : base(ticks) {}
 
@@ -11,7 +13,7 @@ public:
 		return base.count();
 	}
 
-	inline float Seconds() const {
-		return base.count() / static_cast<float>(ENGINE_TICKS_PER_SECOND);
+	inline seconds_type Seconds() const {
+		return base.count() / static_cast<seconds_type>(ENGINE_TICKS_PER_SECOND);
 	}
 };
