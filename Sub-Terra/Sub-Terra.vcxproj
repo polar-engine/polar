@@ -125,6 +125,7 @@
     <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\GL32Renderer.cpp" />
     <ClCompile Include="src\glew.c" />
+    <ClCompile Include="src\HumanPlayerController.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\Integrator.cpp" />
     <ClCompile Include="src\JobManager.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="include\EventManager.h" />
     <ClInclude Include="include\gl.h" />
     <ClInclude Include="include\GL32Renderer.h" />
+    <ClInclude Include="include\HumanPlayerController.h" />
     <ClInclude Include="include\InputManager.h" />
     <ClInclude Include="include\Integrable.h" />
     <ClInclude Include="include\IntegrableProperty.h" />

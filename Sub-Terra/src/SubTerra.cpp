@@ -5,7 +5,7 @@
 #include "Integrator.h"
 #include "GL32Renderer.h"
 #include "World.h"
-#include "PlayerController.h"
+#include "HumanPlayerController.h"
 #include "components.h"
 
 void SubTerra::Run(const std::vector<std::string> &args) {
@@ -17,7 +17,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.AddSystem<Integrator>();
 	engine.AddSystem<GL32Renderer>();
 	engine.AddSystem<World>(16, 16, 16);
-	engine.AddSystem<PlayerController>();
+	engine.AddSystem<HumanPlayerController>();
 
 	auto inputM = engine.systems.Get<InputManager>();
 	inputM->On(Key::Escape, [&engine] (Key) {
