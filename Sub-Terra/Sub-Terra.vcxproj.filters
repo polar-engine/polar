@@ -60,6 +60,9 @@
     <ClCompile Include="src\PlayerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\HumanPlayerController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EventManager.h">
@@ -192,6 +195,9 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="include\PlayerController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HumanPlayerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
