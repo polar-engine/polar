@@ -113,6 +113,12 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 		if(camera != nullptr) {
 			cameraView = glm::translate(cameraView, glm::vec3(-camera->distance));
 			cameraView *= glm::toMat4(camera->orientation);
+
+			auto orient = object->Get<OrientationComponent>();
+			if(orient != nullptr) {
+				cameraView *= glm::toMat4(orient->orientation);
+			}
+
 			cameraView = glm::translate(cameraView, glm::vec3(-camera->position));
 
 			auto pos = object->Get<PositionComponent>();
