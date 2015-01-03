@@ -18,6 +18,7 @@ private:
 public:
 	template<typename ...Ts> Integrable(Ts && ...args) : value(std::forward<Ts>(args)...) {}
 
+	inline T & Get() { return value; }
 	template<typename _To> inline _To To() { return static_cast<_To>(value); }
 
 	inline bool HasDerivative(unsigned char n = 0) override final {
@@ -54,6 +55,9 @@ public:
 			value += Derivative().value * seconds;
 		}
 	}
+
+	inline T & operator*() { return value; }
+	inline T * operator->() { return &value; }
 
 	inline Integrable<T> & operator=(const T &rhs) {
 		value = rhs;
