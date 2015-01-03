@@ -25,6 +25,7 @@
 #endif
 
 #define GLM_FORCE_RADIANS
+#define GLM_SWIZZLE
 #define GLM_SIMD_ENABLE_XYZW_UNION
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
