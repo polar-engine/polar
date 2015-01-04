@@ -64,6 +64,10 @@ public:
 		return *this;
 	}
 
+	inline Integrable<T> & operator-() {
+		return -value;
+	}
+
 	inline Integrable<T> & operator+=(const DeltaTicks::seconds_type rhs) {
 		value += rhs;
 		return *this;
