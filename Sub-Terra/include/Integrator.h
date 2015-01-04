@@ -10,6 +10,9 @@ private:
 protected:
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 public:
+	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / 50);
+
 	static bool IsSupported() { return true; }
 	Integrator(Polar *engine) : System(engine) {}
+	const DeltaTicks & Accumulator() { return accumulator; }
 };
