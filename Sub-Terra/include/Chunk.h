@@ -39,28 +39,28 @@ public:
 
 	inline void Construct(unsigned char width, unsigned char height, unsigned char depth, const std::vector<bool> &blocks) {
 		const std::vector<Triangle> blockFront = {
-			std::make_tuple(Point(-0.5, -0.5, 0.5, 1), Point(0.5, -0.5, 0.5, 1), Point(-0.5, 0.5, 0.5, 1)),
-			std::make_tuple(Point(0.5, -0.5, 0.5, 1), Point(0.5, 0.5, 0.5, 1), Point(-0.5, 0.5, 0.5, 1))
+			std::make_tuple(Point(-0.5, -0.5,  0.5, 1), Point( 0.5, -0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1)),
+			std::make_tuple(Point( 0.5, -0.5,  0.5, 1), Point( 0.5,  0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1))
 		};
 		const std::vector<Triangle> blockTop = {
-			std::make_tuple(Point(-0.5, 0.5, 0.5, 1), Point(0.5, 0.5, 0.5, 1), Point(-0.5, 0.5, -0.5, 1)),
-			std::make_tuple(Point(0.5, 0.5, 0.5, 1), Point(0.5, 0.5, -0.5, 1), Point(-0.5, 0.5, -0.5, 1))
+			std::make_tuple(Point(-0.5,  0.5,  0.5, 1), Point( 0.5,  0.5,  0.5, 1), Point(-0.5,  0.5, -0.5, 1)),
+			std::make_tuple(Point( 0.5,  0.5,  0.5, 1), Point( 0.5,  0.5, -0.5, 1), Point(-0.5,  0.5, -0.5, 1))
 		};
 		const std::vector<Triangle> blockBack = {
-			std::make_tuple(Point(-0.5, 0.5, -0.5, 1), Point(0.5, 0.5, -0.5, 1), Point(-0.5, -0.5, -0.5, 1)),
-			std::make_tuple(Point(0.5, 0.5, -0.5, 1), Point(0.5, -0.5, -0.5, 1), Point(-0.5, -0.5, -0.5, 1))
+			std::make_tuple(Point(-0.5,  0.5, -0.5, 1), Point( 0.5,  0.5, -0.5, 1), Point(-0.5, -0.5, -0.5, 1)),
+			std::make_tuple(Point( 0.5,  0.5, -0.5, 1), Point( 0.5, -0.5, -0.5, 1), Point(-0.5, -0.5, -0.5, 1))
 		};
 		const std::vector<Triangle> blockBottom = {
-			std::make_tuple(Point(-0.5, -0.5, -0.5, 1), Point(0.5, -0.5, -0.5, 1), Point(-0.5, -0.5, 0.5, 1)),
-			std::make_tuple(Point(0.5, -0.5, -0.5, 1), Point(0.5, -0.5, 0.5, 1), Point(-0.5, -0.5, 0.5, 1))
+			std::make_tuple(Point(-0.5, -0.5, -0.5, 1), Point( 0.5, -0.5, -0.5, 1), Point(-0.5, -0.5,  0.5, 1)),
+			std::make_tuple(Point( 0.5, -0.5, -0.5, 1), Point( 0.5, -0.5,  0.5, 1), Point(-0.5, -0.5,  0.5, 1))
 		};
 		const std::vector<Triangle> blockRight = {
-			std::make_tuple(Point(0.5, -0.5, 0.5, 1), Point(0.5, -0.5, -0.5, 1), Point(0.5, 0.5, 0.5, 1)),
-			std::make_tuple(Point(0.5, -0.5, -0.5, 1), Point(0.5, 0.5, -0.5, 1), Point(0.5, 0.5, 0.5, 1))
+			std::make_tuple(Point( 0.5, -0.5,  0.5, 1), Point( 0.5, -0.5, -0.5, 1), Point( 0.5,  0.5,  0.5, 1)),
+			std::make_tuple(Point( 0.5, -0.5, -0.5, 1), Point( 0.5,  0.5, -0.5, 1), Point( 0.5,  0.5,  0.5, 1))
 		};
 		const std::vector<Triangle> blockLeft = {
-			std::make_tuple(Point(-0.5, -0.5, -0.5, 1), Point(-0.5, -0.5, 0.5, 1), Point(-0.5, 0.5, -0.5, 1)),
-			std::make_tuple(Point(-0.5, -0.5, 0.5, 1), Point(-0.5, 0.5, 0.5, 1), Point(-0.5, 0.5, -0.5, 1))
+			std::make_tuple(Point(-0.5, -0.5, -0.5, 1), Point(-0.5, -0.5,  0.5, 1), Point(-0.5,  0.5, -0.5, 1)),
+			std::make_tuple(Point(-0.5, -0.5,  0.5, 1), Point(-0.5,  0.5,  0.5, 1), Point(-0.5,  0.5, -0.5, 1))
 		};
 
 		auto model = Get<ModelComponent>();
