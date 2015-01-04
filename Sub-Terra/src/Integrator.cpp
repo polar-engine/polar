@@ -3,7 +3,6 @@
 #include "IntegrableProperty.h"
 
 void Integrator::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
-	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / 50);
 	accumulator += dt;
 	auto seconds = dt.Seconds();
 
