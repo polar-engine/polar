@@ -1,5 +1,6 @@
 #include "common.h"
 #include "GL32Renderer.h"
+#include "Integrator.h"
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
 #include "ModelComponent.h"
@@ -85,24 +86,8 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-	/*
-	static float rot = 0;
-	static float previousRot = 0;
-
-	static DeltaTicks accumulator;
-	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / 7);
-	accumulator += dt;
-
-	while(accumulator >= timestep) {
-		previousRot = rot;
-		rot += 90.0f * timestep.count() / ENGINE_TICKS_PER_SECOND;
-		accumulator -= timestep;
-	}
-
-	float alpha = (float)accumulator.count() / (float)timestep.count();
-	float interpRot = rot * alpha + previousRot * (1 - alpha);
-	auto qRot = glm::quat(glm::vec3(0, 0, interpRot * 3.1415 / 180));
-	*/
+	auto integrator = engine->systems.Get<Integrator>();
+	float alpha = integrator->Accumulator().Seconds();
 
 	GLint locModelView;
 	GL(locModelView = glGetUniformLocation(activeProgram, "u_modelView"));
@@ -111,7 +96,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	for(auto object : objects) {
 		auto camera = object->Get<PlayerCameraComponent>();
 		if(camera != nullptr) {
-			cameraView = glm::translate(cameraView, -camera->distance.To<glm::vec3>());
+			cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
 			cameraView *= glm::toMat4(camera->orientation);
 
 			auto orient = object->Get<OrientationComponent>();
@@ -119,11 +104,11 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 				cameraView *= glm::toMat4(orient->orientation);
 			}
 
-			cameraView = glm::translate(cameraView, -camera->position.To<glm::vec3>());
+			cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<glm::vec3>());
 
 			auto pos = object->Get<PositionComponent>();
 			if(pos != nullptr) {
-				cameraView = glm::translate(cameraView, -pos->position.To<glm::vec3>());
+				cameraView = glm::translate(cameraView, -pos->position.Temporal(alpha).To<glm::vec3>());
 			}
 		}
 	}
@@ -137,16 +122,12 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 				auto pos = object->Get<PositionComponent>();
 				if(pos != nullptr) {
-					modelView = glm::translate(modelView, pos->position.To<glm::vec3>());
+					modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>());
 				}
 
 				auto orient = object->Get<OrientationComponent>();
 				if(orient != nullptr) {
 					modelView *= glm::toMat4(glm::inverse(orient->orientation));
-					/*orient->orientation *= glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
-					orient->orientation = glm::quat(glm::vec3(dt.Seconds() * glm::radians(21.0f), 0, 0))
-						* orient->orientation
-						* glm::quat(glm::vec3(0, dt.Seconds() * glm::radians(70.0f), 0));*/
 				}
 
 				GLenum drawMode = GL_TRIANGLES;

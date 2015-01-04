@@ -49,6 +49,14 @@ public:
 		}
 	}
 
+	inline Integrable<T> Temporal(const DeltaTicks::seconds_type alpha) {
+		T newValue(value);
+		if(HasDerivative()) {
+			newValue += Derivative().Temporal(alpha).value;
+		}
+		return Integrable<T>(newValue * alpha + value * (1 - alpha));
+	}
+
 	inline void Integrate(const DeltaTicks::seconds_type seconds) override final {
 		if(HasDerivative()) {
 			if(HasDerivative(1)) { Derivative().Integrate(seconds); }
