@@ -10,7 +10,8 @@ private:
 protected:
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 public:
-	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / 50);
+	const int fps = 30;
+	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
 
 	static bool IsSupported() { return true; }
 	Integrator(Polar *engine) : System(engine) {}
