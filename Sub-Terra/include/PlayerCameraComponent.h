@@ -4,9 +4,16 @@
 
 class PlayerCameraComponent : public Component {
 public:
-	Point distance;
-	Point position;
+	Integrable<Point> distance;
+	Integrable<Point> position;
 	glm::quat orientation;
 	PlayerCameraComponent(const Point &distance = Point(0, 0, 0, 1), const Point &position = Point(0, 0, 0, 1), const Point &euler = Point(0, 0, 0, 1))
-		: distance(distance), position(position), orientation(glm::vec3(euler)) {}
+		: distance(distance), position(position), orientation(glm::vec3(euler)) {
+		Add<IntegrableProperty>();
+		auto component = Get<IntegrableProperty>();
+		if(component != nullptr) {
+			component->AddIntegrable(&this->distance);
+			component->AddIntegrable(&this->position);
+		}
+	}
 };

@@ -111,7 +111,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	for(auto object : objects) {
 		auto camera = object->Get<PlayerCameraComponent>();
 		if(camera != nullptr) {
-			cameraView = glm::translate(cameraView, glm::vec3(-camera->distance));
+			cameraView = glm::translate(cameraView, -camera->distance.To<glm::vec3>());
 			cameraView *= glm::toMat4(camera->orientation);
 
 			auto orient = object->Get<OrientationComponent>();
@@ -119,7 +119,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 				cameraView *= glm::toMat4(orient->orientation);
 			}
 
-			cameraView = glm::translate(cameraView, glm::vec3(-camera->position));
+			cameraView = glm::translate(cameraView, -camera->position.To<glm::vec3>());
 
 			auto pos = object->Get<PositionComponent>();
 			if(pos != nullptr) {
@@ -142,11 +142,11 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 				auto orient = object->Get<OrientationComponent>();
 				if(orient != nullptr) {
-					modelView *= glm::toMat4(orient->orientation);
-					//orient->orientation *= glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
+					modelView *= glm::toMat4(glm::inverse(orient->orientation));
+					/*orient->orientation *= glm::quat(glm::vec3(0, seconds * 70 * 3.1415 / 180, 0));
 					orient->orientation = glm::quat(glm::vec3(dt.Seconds() * glm::radians(21.0f), 0, 0))
 						* orient->orientation
-						* glm::quat(glm::vec3(0, dt.Seconds() * glm::radians(70.0f), 0));
+						* glm::quat(glm::vec3(0, dt.Seconds() * glm::radians(70.0f), 0));*/
 				}
 
 				GLenum drawMode = GL_TRIANGLES;
