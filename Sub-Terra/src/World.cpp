@@ -128,8 +128,7 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 					( std::get<1>(keyTuple) + y) * scaleY,
 					(-std::get<2>(keyTuple) + z) * scaleZ
 				);
-				blocks.at(i++) = random > 0.45f;
-				//blocks.push_back(random > 0.45f);
+				blocks.at(i++) = random > 0.25f;
 			}
 		}
 	}
