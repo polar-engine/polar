@@ -1,17 +1,13 @@
-#version 150
-precision highp float;
+@uniform mat4 u_modelView
+@uniform mat4 u_projection
+@attrib vec4 a_vertex
+@attrib vec4 a_normal
+@varying smooth vec4 v_vertex
+@varying flat vec4 v_normal
+@out color o_color
+@out depth
 
-uniform mat4 u_modelView;
-
-@vertex
-
-#extension GL_ARB_explicit_attrib_location: enable
-
-uniform mat4 u_projection;
-layout(location = 0) in vec4 a_vertex;
-layout(location = 1) in vec4 a_normal;
-smooth out vec4 v_vertex;
-flat out vec4 v_normal;
+@shader vertex
 
 void main() {
 	vec4 modelViewVertex = u_modelView * a_vertex;
@@ -20,11 +16,7 @@ void main() {
 	gl_Position = u_projection * modelViewVertex;
 }
 
-@fragment
-
-smooth in vec4 v_vertex;
-flat in vec4 v_normal;
-out vec4 o_color;
+@shader fragment
 
 vec3 light(in vec4 lightPosition, in vec3 color, in float shininess, in float radius, in float fogDistance, in float fogIntensity) {
 	vec3 ambient = vec3(0.01);
@@ -32,7 +24,7 @@ vec3 light(in vec4 lightPosition, in vec3 color, in float shininess, in float ra
 	vec4 vAux = lightPosition - v_vertex;
 	vec4 lightDir = normalize(vAux);
 	float distance = length(vAux);
-	
+
 	float sr = sqrt(radius);
 	float fogStart = sr * 1.0;
 	float fogPeak = max(fogStart + sr, fogDistance);

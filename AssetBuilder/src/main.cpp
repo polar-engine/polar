@@ -23,43 +23,110 @@ int main(int argc, char **argv) {
 		return new TextAsset(static_cast<uint32_t>(data.length()), data);
 	};
 	converters["gls"] = [] (const std::string &data) {
-		std::vector<Shader> shaders;
+		ShaderAsset *asset = new ShaderAsset(std::vector<Shader>());
+
+		std::ostringstream header;
+
+		std::vector<std::tuple<std::string, std::string>> uniforms;
+		std::vector<std::tuple<std::string, std::string>> attribs;
+		std::vector<std::tuple<std::string, std::string, std::string>> varyings;
+		std::vector<std::tuple<std::string, std::string>> outs;
+
 		std::istringstream iss(data);
 		std::string line;
-		std::ostringstream oss;
-		std::ostringstream header;
-		ShaderType type = ShaderType::Invalid;
-
 		for(int iLine = 1; getline(iss, line); ++iLine) {
 			auto len = line.length();
 			if(len > 0) {
 				if(line[0] == '@') {
-					std::stringstream msg;
-					msg << iLine << ": missing shader directive";
-					if(len < 2) { ENGINE_THROW(msg.str()); }
-					auto directive = line.substr(1);
-					if(directive == "vertex") {
-						INFOS("    found vertex shader at line " << std::to_string(iLine));
-						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
-						type = ShaderType::Vertex;
-						oss = std::ostringstream();
-						oss << header.str();
-					} else if(directive == "fragment") {
-						INFOS("    found fragment shader at line " << std::to_string(iLine));
-						if(type != ShaderType::Invalid) { shaders.emplace_back(type, oss.str()); }
-						type = ShaderType::Fragment;
-						oss = std::ostringstream();
-						oss << header.str();
-					} else { ENGINE_ERROR(iLine << ": unknown shader directive `" << directive << '`'); }
+					std::istringstream ls(line.substr(1));
+
+					std::string directive;
+					std::getline(ls, directive, ' ');
+					if(!ls.good() && directive.empty()) { ENGINE_ERROR(iLine << ": missing directive"); }
+
+					std::vector<std::string> args;
+					std::string tmp;
+					while(ls.good()) {
+						std::getline(ls, tmp, ' ');
+						if(!tmp.empty()) { args.emplace_back(tmp); }
+					}
+
+					if(directive == "shader") {
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing shader type"); }
+
+						if(args[0] == "vertex") {
+							asset->shaders.emplace_back(ShaderType::Vertex, header.str());
+						} else if(args[0] == "fragment") {
+							asset->shaders.emplace_back(ShaderType::Fragment, header.str());
+						} else { ENGINE_ERROR(iLine << ": unknown shader type `" << args[0] << '`'); }
+					} else if(directive == "uniform") {
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing uniform type"); }
+						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing uniform name"); }
+						uniforms.emplace_back(args[0], args[1]);
+					} else if(directive == "attrib") {
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing attribute type"); }
+						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing attribute name"); }
+						attribs.emplace_back(args[0], args[1]);
+					} else if(directive == "varying") {
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing varying interpolation method"); }
+						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing varying type"); }
+						if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing varying name"); }
+						varyings.emplace_back(args[0], args[1], args[2]);
+					} else if(directive == "in") {
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input type"); }
+						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
+
+						if(args[0] == "color") {
+							ENGINE_ERROR(iLine << ": color program input not implemented yet");
+						} else if(args[0] == "depth") {
+							ENGINE_ERROR(iLine << ": depth program input not implemented yet");
+						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
+
+						uniforms.emplace_back("sampler2D", args[1]);
+					} else if(directive == "out") {
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program output type"); }
+
+						if(args[0] == "color") {
+							if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output name"); }
+							outs.emplace_back("vec4", args[1]);
+						} else if(args[0] == "depth") {
+							ENGINE_ERROR(iLine << ": depth program output not implemented yet");
+						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
+					} else { ENGINE_ERROR(iLine << ": unknown directive `" << directive << '`'); }
 				} else {
-					if(type == ShaderType::Invalid) { header << line << '\n'; } else { oss << line << '\n'; }
+					if(asset->shaders.empty()) { header << line << '\n'; } else { asset->shaders.back().source += line + '\n'; }
 				}
 			}
 		}
-		std::string rest = oss.str();
-		if(!rest.empty()) { shaders.emplace_back(type, rest); }
 
-		return new ShaderAsset(shaders);
+		for(auto &shader : asset->shaders) {
+			std::string prepend;
+			prepend += "#version 150\n";
+			prepend += "precision highp float;\n";
+			for(auto &uniform : uniforms) {
+				prepend += "uniform " + std::get<0>(uniform) + ' ' + std::get<1>(uniform) + ";\n";
+			}
+			if(shader.type == ShaderType::Vertex) {
+				prepend += "#extension GL_ARB_explicit_attrib_location: enable\n";
+				int attribLoc = 0;
+				for(auto &attrib : attribs) {
+					prepend += "layout(location=" + std::to_string(attribLoc++) + ") in " + std::get<0>(attrib) +' ' + std::get<1>(attrib) +";\n";
+				}
+				for(auto &varying : varyings) {
+					prepend += std::get<0>(varying) + " out " + std::get<1>(varying) + ' ' + std::get<2>(varying) + ";\n";
+				}
+			} else if(shader.type == ShaderType::Fragment) {
+				for(auto &varying : varyings) {
+					prepend += std::get<0>(varying) + " in " + std::get<1>(varying) + ' ' + std::get<2>(varying) + ";\n";
+				}
+				for(auto &out : outs) {
+					prepend += "out " + std::get<0>(out) + ' ' + std::get<1>(out) + ";\n";
+				}
+			}
+			shader.source = prepend + shader.source;
+		}
+
+		return asset;
 	};
 
 	for(auto &file : files) {
