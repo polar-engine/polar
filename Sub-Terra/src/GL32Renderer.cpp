@@ -44,7 +44,9 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { ENGINE_THROW("failed to set multisample buffers attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { ENGINE_THROW("failed to set multisample samples attribute"); }
 	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE))) { ENGINE_THROW("failed to create window"); }
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE))) {
+		ENGINE_THROW("failed to create window");
+	}
 	if(!SDL(context = SDL_GL_CreateContext(window))) { ENGINE_THROW("failed to create OpenGL context"); }
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { ENGINE_THROW("failed to set swap interval"); }
 	if(!SDL(SDL_SetRelativeMouseMode(SDL_TRUE))) { ENGINE_THROW("failed to set relative mouse mode"); }
@@ -74,7 +76,7 @@ void GL32Renderer::Init() {
 	zNear = 0.05f;
 	InitGL();
 	SetClearColor(Point(0.02f, 0.05f, 0.1f, 1));
-	ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
+	//ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
 }
 
 void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
@@ -84,6 +86,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	}
 	SDL_ClearError();
 
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	auto integrator = engine->systems.Get<Integrator>();
@@ -251,8 +254,75 @@ void GL32Renderer::SetClearColor(const Point &color) {
 	GL(glClearColor(color.x, color.y, color.z, color.w));
 }
 
+struct PipelineNode {
+	GLuint program;
+	GLuint fbo;
+	std::vector<GLuint> buffers;
+	PipelineNode(GLuint program) : program(program) {}
+};
+
+void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
+	std::vector<ShaderAsset> assets;
+	std::vector<PipelineNode> nodes;
+
+	for(auto &name : names) {
+		INFOS("loading shader asset `" << name << '`');
+		auto asset = engine->systems.Get<AssetManager>()->Get<ShaderAsset>(name);
+		assets.emplace_back(asset);
+		nodes.emplace_back(MakeProgram(asset));
+	}
+
+	for(unsigned int i = 0; i < nodes.size() - 1; ++i) {
+		auto &asset = assets[i], &nextAsset = assets[i + 1];
+		auto &node = nodes[i], &nextNode = nodes[i + 1];
+
+		GL(glGenFramebuffers(1, &node.fbo));
+		GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, node.fbo));
+
+		for(auto out : asset.outs) {
+			GLuint buffer;
+			GL(glGenTextures(1, &buffer));
+			GL(glBindTexture(GL_TEXTURE_2D, buffer));
+			switch(out) {
+			case ProgramInOutType::Color:
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, NULL));
+				GL(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, buffer, 0));
+				break;
+			case ProgramInOutType::Depth:
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+				GL(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, buffer, 0));
+				break;
+			default:
+				ENGINE_THROW("invalid program output type");
+				break;
+			}
+			node.buffers.emplace_back(buffer);
+		}
+
+		GLenum status;
+		GL(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+		if(status != GL_FRAMEBUFFER_COMPLETE) {
+			std::stringstream msg;
+			msg << "framebuffer status incomplete (0x" << std::hex << status << ')';
+			ENGINE_THROW(msg.str());
+		}
+	}
+}
+
 void GL32Renderer::Use(const std::string &name) {
+	INFOS("loading shader asset `" << name << '`');
 	auto asset = engine->systems.Get<AssetManager>()->Get<ShaderAsset>(name);
+	auto programID = MakeProgram(asset);
+
+	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
+	activeProgram = programID;
+
+	/* set projection matrix in new program */
+	Project();
+}
+
+GLuint GL32Renderer::MakeProgram(ShaderAsset &asset) {
 	std::vector<GLuint> ids;
 	for(auto &shader : asset.shaders) {
 		GLenum type = 0;
@@ -321,11 +391,5 @@ void GL32Renderer::Use(const std::string &name) {
 		}
 		ENGINE_THROW("failed to link program");
 	}
-
-	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
-
-	activeProgram = programID;
-
-	/* set projection matrix in new program */
-	Project();
+	return programID;
 }
