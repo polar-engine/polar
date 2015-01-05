@@ -22,7 +22,10 @@ class ShaderAsset : public Asset {
 public:
 	std::vector<Shader> shaders;
 	static std::string Type() { return "shader"; }
+
+	ShaderAsset() : Asset("shader") {}
 	ShaderAsset(const std::vector<Shader> &shaders) : Asset("shader"), shaders(shaders) {}
+
 	static ShaderAsset Load(const std::string &data) {
 		std::vector<Shader> shaders;
 		const std::string::size_type dataLength = data.length();
