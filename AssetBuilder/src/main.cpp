@@ -77,9 +77,9 @@ int main(int argc, char **argv) {
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
 
 						if(args[0] == "color") {
-							ENGINE_ERROR(iLine << ": color program input not implemented yet");
+							asset->ins.emplace_back(ProgramInOutType::Color, args[1]);
 						} else if(args[0] == "depth") {
-							ENGINE_ERROR(iLine << ": depth program input not implemented yet");
+							asset->ins.emplace_back(ProgramInOutType::Depth, args[1]);
 						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
 
 						uniforms.emplace_back("sampler2D", args[1]);
@@ -88,9 +88,10 @@ int main(int argc, char **argv) {
 
 						if(args[0] == "color") {
 							if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output name"); }
+							asset->outs.emplace_back(ProgramInOutType::Color);
 							outs.emplace_back("vec4", args[1]);
 						} else if(args[0] == "depth") {
-							ENGINE_ERROR(iLine << ": depth program output not implemented yet");
+							asset->outs.emplace_back(ProgramInOutType::Depth);
 						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
 					} else { ENGINE_ERROR(iLine << ": unknown directive `" << directive << '`'); }
 				} else {

@@ -60,5 +60,3 @@ enum class GeometryType : uint8_t {
 #include "JobManager.h"
 #include "EventManager.h"
 #include "AssetManager.h"
-
-#include "assets.h"
