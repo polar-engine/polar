@@ -5,11 +5,20 @@
 #include "gl.h"
 #include "ShaderAsset.h"
 
+struct PipelineNode {
+	GLuint program;
+	GLuint fbo = 0;
+	std::vector<GLuint> buffers;
+	std::vector<std::string> bufferNames;
+	PipelineNode(GLuint program) : program(program) {}
+};
+
 class GL32Renderer : public Renderer {
 private:
 	SDL_Window *window;
 	SDL_GLContext context;
 	GLuint activeProgram;
+	std::vector<PipelineNode> nodes;
 
 	void InitGL();
 	void HandleSDL(SDL_Event &);
@@ -20,7 +29,7 @@ protected:
 	void Destroy() override final;
 	void ObjectAdded(Object *) override final;
 	void ObjectRemoved(Object *) override final;
-	void Project();
+	void Project(GLuint);
 public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine) : Renderer(engine) {}
