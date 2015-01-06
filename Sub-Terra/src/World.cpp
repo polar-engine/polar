@@ -18,6 +18,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
 			const unsigned char distance = 6;
+
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(pos->position.To<glm::fvec3>()) / chunkSizeF);
 			auto jobM = engine->systems.Get<JobManager>();
@@ -128,7 +129,7 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 					( std::get<1>(keyTuple) + y) * scaleY,
 					(-std::get<2>(keyTuple) + z) * scaleZ
 				);
-				blocks.at(i++) = random > 0.25f;
+				blocks.at(i++) = random > 0.45f;
 			}
 		}
 	}
