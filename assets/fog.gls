@@ -109,6 +109,6 @@ void main() {
 	color += (colorNorth + colorSouth + colorEast + colorWest) * (dv + dh) / 2.0;
 	color /= 5.0;
 
-	color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), max(0, pow(depth, 64.0)));
+	color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), max(0, pow(depth, 50.0)));
 	o_color = color;
 }
