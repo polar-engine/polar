@@ -4,6 +4,8 @@
 
 class HumanPlayerController : public PlayerController {
 protected:
+	Point2 orientVel;
+
 	virtual void InitObject() override;
 	virtual void Init() override;
 	virtual void Update(DeltaTicks &, std::vector<Object *> &) override;
