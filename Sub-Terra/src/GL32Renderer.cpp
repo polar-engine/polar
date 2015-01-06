@@ -39,7 +39,7 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { ENGINE_THROW("failed to init SDL"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { ENGINE_THROW("failed to set major version attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { ENGINE_THROW("failed to set minor version attribute"); }
-	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { ENGINE_THROW("failed to set profile mask attribute"); }
+	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY))) { ENGINE_THROW("failed to set profile mask attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { ENGINE_THROW("failed to set double buffer attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { ENGINE_THROW("failed to set multisample buffers attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { ENGINE_THROW("failed to set multisample samples attribute"); }
@@ -86,14 +86,8 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	}
 	SDL_ClearError();
 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
 	auto integrator = engine->systems.Get<Integrator>();
 	float alpha = integrator->Accumulator().Seconds();
-
-	GLint locModelView;
-	GL(locModelView = glGetUniformLocation(activeProgram, "u_modelView"));
 
 	glm::mat4 cameraView;
 	for(auto object : objects) {
@@ -116,37 +110,77 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 		}
 	}
 
-	for(auto object : objects) {
-		auto model = object->Get<ModelComponent>();
-		if(model != nullptr) {
-			auto property = model->Get<GL32ModelProperty>();
-			if(property != nullptr) {
-				glm::mat4 modelView = cameraView;
+	for(unsigned int i = 0; i < nodes.size(); ++i) {
+		auto &node = nodes[i];
+		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
+		GL(glUseProgram(node.program));
+		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-				auto pos = object->Get<PositionComponent>();
-				if(pos != nullptr) {
-					modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>());
+		for(unsigned int iBuffer = 0; iBuffer < node.buffers.size(); ++iBuffer) {
+			auto buffer = node.buffers[iBuffer];
+			GL(glActiveTexture(GL_TEXTURE0 + iBuffer));
+			GL(glBindTexture(GL_TEXTURE_2D, buffer));
+			GLint locBuffer;
+			GL(locBuffer = glGetUniformLocation(node.program, node.bufferNames[iBuffer].c_str()));
+			GL(glUniform1i(locBuffer, iBuffer));
+		}
+
+		switch(i) {
+		case 0: {
+			GLint locModelView;
+			GL(locModelView = glGetUniformLocation(node.program, "u_modelView"));
+
+			for(auto object : objects) {
+				auto model = object->Get<ModelComponent>();
+				if(model != nullptr) {
+					auto property = model->Get<GL32ModelProperty>();
+					if(property != nullptr) {
+						glm::mat4 modelView = cameraView;
+
+						auto pos = object->Get<PositionComponent>();
+						if(pos != nullptr) { modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>()); }
+
+						auto orient = object->Get<OrientationComponent>();
+						if(orient != nullptr) { modelView *= glm::toMat4(glm::inverse(orient->orientation)); }
+
+						GLenum drawMode = GL_TRIANGLES;
+						switch(model->type) {
+						case GeometryType::Triangles:
+							drawMode = GL_TRIANGLES;
+							break;
+						case GeometryType::TriangleStrip:
+							drawMode = GL_TRIANGLE_STRIP;
+							break;
+						}
+
+						GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
+						GL(glBindVertexArray(property->vao));
+						GL(glDrawArrays(drawMode, 0, static_cast<GLsizei>(model->points.size())));
+					}
 				}
-
-				auto orient = object->Get<OrientationComponent>();
-				if(orient != nullptr) {
-					modelView *= glm::toMat4(glm::inverse(orient->orientation));
-				}
-
-				GLenum drawMode = GL_TRIANGLES;
-				switch(model->type) {
-				case GeometryType::Triangles:
-					drawMode = GL_TRIANGLES;
-					break;
-				case GeometryType::TriangleStrip:
-					drawMode = GL_TRIANGLE_STRIP;
-					break;
-				}
-
-				GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
-				GL(glBindVertexArray(property->vao));
-				GL(glDrawArrays(drawMode, 0, static_cast<GLsizei>(model->points.size())));
 			}
+			break;
+		}
+		default:
+			/*GLuint vbo;
+			GL(glGenBuffers(2, &vbo));
+
+			std::vector<Point> points = {
+				Point(-1, -1, 0, 1),
+				Point(1, -1, 0, 1)
+			};
+			GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+			GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * points.size(), points.data(), GL_STATIC_DRAW));
+			GL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL));*/
+
+			GL(glEnableVertexAttribArray(0));
+			glBegin(GL_QUADS);
+			glVertex2f(-1, -1);
+			glVertex2f( 1, -1);
+			glVertex2f( 1,  1);
+			glVertex2f(-1,  1);
+			glEnd();
+			break;
 		}
 	}
 
@@ -222,7 +256,7 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			width = event.window.data1;
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
-			Project();
+			Project(nodes.front().program);
 			break;
 		}
 		break;
@@ -243,10 +277,11 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 	}
 }
 
-void GL32Renderer::Project() {
+void GL32Renderer::Project(GLuint programID) {
 	GLint locProjection;
-	GL(locProjection = glGetUniformLocation(activeProgram, "u_projection"));
-	glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
+	GL(locProjection = glGetUniformLocation(programID, "u_projection"));
+	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
+	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, 90.0f);
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 }
 
@@ -254,16 +289,9 @@ void GL32Renderer::SetClearColor(const Point &color) {
 	GL(glClearColor(color.x, color.y, color.z, color.w));
 }
 
-struct PipelineNode {
-	GLuint program;
-	GLuint fbo;
-	std::vector<GLuint> buffers;
-	PipelineNode(GLuint program) : program(program) {}
-};
-
 void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 	std::vector<ShaderAsset> assets;
-	std::vector<PipelineNode> nodes;
+	nodes.clear();
 
 	for(auto &name : names) {
 		INFOS("loading shader asset `" << name << '`');
@@ -277,27 +305,38 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 		auto &node = nodes[i], &nextNode = nodes[i + 1];
 
 		GL(glGenFramebuffers(1, &node.fbo));
-		GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, node.fbo));
+		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 
-		for(auto out : asset.outs) {
+		std::vector<GLenum> drawBuffers;
+		int colorAttachment = 0;
+
+		for(auto &in : nextAsset.ins) {
 			GLuint buffer;
 			GL(glGenTextures(1, &buffer));
 			GL(glBindTexture(GL_TEXTURE_2D, buffer));
-			switch(out) {
+			switch(in.type) {
 			case ProgramInOutType::Color:
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, NULL));
-				GL(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, buffer, 0));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, buffer, 0));
+				drawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + colorAttachment);
 				break;
 			case ProgramInOutType::Depth:
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
-				GL(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, buffer, 0));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, buffer, 0));
 				break;
 			default:
 				ENGINE_THROW("invalid program output type");
 				break;
 			}
-			node.buffers.emplace_back(buffer);
+			nextNode.buffers.emplace_back(buffer);
+			nextNode.bufferNames.emplace_back(in.name);
 		}
+
+		GL(glDrawBuffers(drawBuffers.size(), drawBuffers.data()));
 
 		GLenum status;
 		GL(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
@@ -308,6 +347,10 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 			ENGINE_THROW(msg.str());
 		}
 	}
+
+	/* upload projection matrix to first stage of pipeline */
+	GL(glUseProgram(nodes.front().program));
+	Project(nodes.front().program);
 }
 
 void GL32Renderer::Use(const std::string &name) {
@@ -316,10 +359,10 @@ void GL32Renderer::Use(const std::string &name) {
 	auto programID = MakeProgram(asset);
 
 	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
-	activeProgram = programID;
+	//activeProgram = programID;
 
 	/* set projection matrix in new program */
-	Project();
+	Project(programID);
 }
 
 GLuint GL32Renderer::MakeProgram(ShaderAsset &asset) {
