@@ -84,6 +84,7 @@ void main() {
 	vec2 texCoord = v_vertex;
 	vec4 color;
 
+	/* FXAA */
 	vec2 rcpFrame = vec2(1.0 / 1280.0, 1.0 / 720.0);
 	vec4 posPos;
 	posPos.xy = texCoord;
@@ -91,24 +92,35 @@ void main() {
 	color.rgb = Fxaa(posPos, u_colorBuffer, rcpFrame);
 	color.a = 1.0;
 
+	/* depth enhancement */
+
+	vec2 factor = vec2(1.0 / 1280.0, 1.0 / 720.0);
+	
+	vec2 north = texCoord + vec2( 0,  factor.y);
+	vec2 south = texCoord + vec2( 0, -factor.y);
+	vec2 east  = texCoord + vec2( factor.x,  0);
+	vec2 west  = texCoord + vec2(-factor.x,  0);
+
 	float depth = Depth(texCoord);
-	vec2 factor = vec2(1.0 / 1280.0, 1.0 / 720.0) * depth;
+	float depthNorth = Depth(north);
+	float depthSouth = Depth(south);
+	float depthEast  = Depth(east);
+	float depthWest  = Depth(west);
+	float depthNS = (depthNorth + depthSouth) / 2.0;
+	float depthEW = (depthEast + depthWest) / 2.0;
+	float diffV = abs(depth - depthNS);
+	float diffH = abs(depth - depthEW);
 
-	float depthNorth = Depth(texCoord + vec2( 0,  1) * factor);
-	float depthSouth = Depth(texCoord + vec2( 0, -1) * factor);
-	float depthEast  = Depth(texCoord + vec2( 1,  0) * factor);
-	float depthWest  = Depth(texCoord + vec2(-1,  0) * factor);
-	float dv = (depthNorth + depthSouth) / 2.0;
-	float dh = (depthEast + depthWest) / 2.0;
+	vec4 colorNorth = mix(vec4(Fxaa(posPos + vec4( 0,  1,  0,  1) * factor.y, u_colorBuffer, rcpFrame), 1.0), color, diffV);
+	vec4 colorSouth = mix(vec4(Fxaa(posPos + vec4( 0, -1,  0, -1) * factor.y, u_colorBuffer, rcpFrame), 1.0), color, diffV);
+	vec4 colorEast  = mix(vec4(Fxaa(posPos + vec4( 1,  0,  1,  0) * factor.x, u_colorBuffer, rcpFrame), 1.0), color, diffH);
+	vec4 colorWest  = mix(vec4(Fxaa(posPos + vec4(-1,  0, -1,  0) * factor.x, u_colorBuffer, rcpFrame), 1.0), color, diffH);
 
-	vec4 colorNorth = mix(vec4(Fxaa(posPos + vec4( 0,  1, 0, 0) * factor.y, u_colorBuffer, rcpFrame), 1.0), color, abs(depth - dv));
-	vec4 colorSouth = mix(vec4(Fxaa(posPos + vec4( 0, -1, 0, 0) * factor.y, u_colorBuffer, rcpFrame), 1.0), color, abs(depth - dv));
-	vec4 colorEast  = mix(vec4(Fxaa(posPos + vec4( 1,  0, 0, 0) * factor.x, u_colorBuffer, rcpFrame), 1.0), color, abs(depth - dh));
-	vec4 colorWest  = mix(vec4(Fxaa(posPos + vec4(-1,  0, 0, 0) * factor.x, u_colorBuffer, rcpFrame), 1.0), color, abs(depth - dh));
-
-	color += (colorNorth + colorSouth + colorEast + colorWest) * (dv + dh) / 2.0;
+	color += (colorNorth + colorSouth + colorEast + colorWest) * (depthNS + depthEW) / 2.0;
 	color /= 5.0;
 
+	/* depth fog */
 	color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), max(0, pow(depth, 50.0)));
+
 	o_color = color;
 }
