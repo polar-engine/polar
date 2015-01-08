@@ -25,10 +25,10 @@ vec3 light(in vec4 lightPosition, in vec3 color, in float shininess, in float ra
 	vec4 lightDir = normalize(vAux);
 	float distance = length(vAux);
 
-	//float diffuseAttenuation = clamp(1.0 - distance * distance / (radius * radius), 0.0, 1.0);
-	//diffuseAttenuation *= diffuseAttenuation;
+	float diffuseAttenuation = clamp(1.0 - distance * distance / (radius * radius), 0.0, 1.0);
+	diffuseAttenuation *= diffuseAttenuation;
 
-	float diffuseAttenuation = 1.0 / (1 + 0.05 * distance);
+	//float diffuseAttenuation = 1.0;// / (0.2 + 0.05 * distance * distance);
 
 	float nDotL = max(0.0, dot(v_normal, lightDir));
 	vec3 diffuse = color * nDotL * diffuseAttenuation;
@@ -41,16 +41,17 @@ vec3 light(in vec4 lightPosition, in vec3 color, in float shininess, in float ra
 		if(specularAttenuation < 0.1) { specularAttenuation = 0.0; }
 		specular += sqrt(color) * pow(nDotH, shininess) * specularAttenuation;
 	}
-	vec3 final = (ambient + diffuse + specular);
+	vec3 final = ambient + diffuse + specular;
 	return final;
 }
 
 void main() {
 	vec3 final = vec3(0.0);
-	final += light(vec4(0.0), vec3(1.0, 0.5, 0.0) * 4.0, 64.0, 24.0);
+	final += light(vec4(0.0), vec3(1.0, 0.5, 0.0) * 1.0, 64.0, 240.0);
 	//final += light(vec4(25.0, 3.0, -40.0, 1.0), vec3(1.0, 0.7, 0.74), 256.0, 40.0, 1.0);
 
-	vec3 hdr = 1.0 - exp2(-final * 1.02);
+	vec3 hdr = 1.0 - exp2(-final * 1.52);
 	hdr *= max(1.0, length(final) / 2);
-	o_color = vec4(hdr, 1.0);
+	final = hdr;
+	o_color = vec4(final, 1.0);
 }
