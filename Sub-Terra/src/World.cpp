@@ -8,16 +8,12 @@ void World::Init() {
 }
 
 void World::Update(DeltaTicks &, std::vector<Object *> &) {
-	chunks.With([] (ChunksType &chunks) {
-		//INFO(chunks.size());
-	});
-
 	if(cameraObj == nullptr) { return; }
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
-			const unsigned char distance = 6;
+			const unsigned char distance = 5;
 
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(pos->position.To<glm::fvec3>()) / chunkSizeF);
@@ -108,13 +104,8 @@ void World::ObjectAdded(Object *obj) {
 }
 
 std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
-	/*const float start = -0.5, end = -0;
-	static double factor = 1.0f;
-	factor /= 1.0001f;
-	auto r = factor * (start - end) + end;*/
-
-	const float scale = 0.5f;
-	const float scaleX = scale, scaleY = scale * 2, scaleZ = scale;
+	const float scale = 1.0f;
+	const float scaleX = scale, scaleY = scale, scaleZ = scale;
 
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
@@ -124,14 +115,17 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 	for(float z = 0; z < 1; z += zIncr) {
 		for(float x = 0; x < 1; x += xIncr) {
 			for(float y = 0; y < 1; y += yIncr) {
-				double random = noise.eval(
+				blocks.at(i++) = GenerateBlock(
 					( std::get<0>(keyTuple) + x) * scaleX,
 					( std::get<1>(keyTuple) + y) * scaleY,
 					(-std::get<2>(keyTuple) + z) * scaleZ
 				);
-				blocks.at(i++) = random > 0.45f;
 			}
 		}
 	}
 	return blocks;
+}
+
+bool World::GenerateBlock(const float x, const float y, const float z) const {
+	return noise.eval(x, y, z) > 0.45f;
 }
