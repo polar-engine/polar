@@ -281,7 +281,7 @@ void GL32Renderer::Project(GLuint programID) {
 	GLint locProjection;
 	GL(locProjection = glGetUniformLocation(programID, "u_projection"));
 	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
-	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, 90.0f);
+	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, 80.0f);
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 }
 
