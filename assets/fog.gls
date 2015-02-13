@@ -113,7 +113,7 @@ void main() {
 	float diffH = abs(depth - depthEW);
 	float diff = (diffV + diffH) / 2.0;
 
-	if(depth > 0.2 && diffV + diffH > 0.00001) {
+	if(diffV + diffH > 0.0001) {
 		vec4 colorNorth = mix(vec4(Fxaa(posPos + vec4( 0,  1,  0,  1) * factor.y, u_colorBuffer, rcpFrame), 1.0), color, diffV);
 		vec4 colorSouth = mix(vec4(Fxaa(posPos + vec4( 0, -1,  0, -1) * factor.y, u_colorBuffer, rcpFrame), 1.0), color, diffV);
 		vec4 colorEast  = mix(vec4(Fxaa(posPos + vec4( 1,  0,  1,  0) * factor.x, u_colorBuffer, rcpFrame), 1.0), color, diffH);
@@ -125,7 +125,7 @@ void main() {
 
 		const float NEAR = 0.6;
 		const float FAR = 0.999999995;
-		color = mix(color, newColor, clamp((depth - NEAR) * 1 / (FAR - NEAR), 0.0, 1.0));
+		color = mix(color, newColor, clamp((depth - NEAR) / (FAR - NEAR), 0.0, 1.0));
 	}
 
 	/* depth fog */
