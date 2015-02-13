@@ -10,7 +10,7 @@ private:
 protected:
 	void Update(DeltaTicks &, std::vector<Object *> &) override final;
 public:
-	const int fps = 30;
+	const int fps = 50;
 	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
 
 	static bool IsSupported() { return true; }
