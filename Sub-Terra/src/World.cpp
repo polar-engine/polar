@@ -127,5 +127,15 @@ std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
 }
 
 bool World::GenerateBlock(const float x, const float y, const float z) const {
-	return noise.eval(x, y, z) > 0.45f;
+	auto fDensity = [] (const double x) {
+		return glm::pow(1.0 - glm::abs(glm::sin(x)), 1.0);
+	};
+
+	const float scale = 1.2f;
+	auto result = noise.eval(x / scale, y * 1.4f / scale, z / scale);
+	return (
+		result > (fDensity(x / 32.0f) - 1) * 1.5f + 0.1f ||
+		result > (fDensity(y / 10.0f) - 1) * 1.5f + 0.1f ||
+		result > (fDensity(z / 32.0f) - 1) * 1.5f + 0.1f
+		);
 }
