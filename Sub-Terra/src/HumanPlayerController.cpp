@@ -34,8 +34,8 @@ void HumanPlayerController::Init() {
 	});
 
 	inputM->OnMouseMove([this] (const Point2 &delta) {
-		orientVel.y += glm::radians(0.05f) * delta.x;
-		orientVel.x += glm::radians(0.05f) * delta.y;
+		orientVel.y += glm::radians(0.005f) * delta.x;
+		orientVel.x += glm::radians(0.005f) * delta.y;
 	});
 }
 
@@ -46,5 +46,5 @@ void HumanPlayerController::Update(DeltaTicks &dt, std::vector<Object *> &object
 	orient->orientation = orient->orientation * glm::quat(glm::vec3(0, orientVel.y, 0));
 	orient->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * orient->orientation;
 	//camera->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * camera->orientation;
-	orientVel *= 1 - 20 * dt.Seconds();
+	orientVel *= 1 - 2 * dt.Seconds();
 }
