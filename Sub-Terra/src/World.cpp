@@ -70,11 +70,11 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 									});
 									if(dead) { return; }
 
-									auto data = Generate(Point(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple), 1));
+									auto data = GenerateChunk(Point3(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple)));
 									auto chunkObj = Chunk::New(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
 									auto pos = chunkObj->Get<PositionComponent>();
 									auto chunkPos = glm::fvec3(key) * chunkSizeF;
-									pos->position = Point(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z, 1);
+									pos->position = Point3(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z);
 
 									jobM->Do([this, keyTuple, key, chunkSizeF, chunkObj] () {
 										engine->AddObject(chunkObj);
@@ -103,25 +103,25 @@ void World::ObjectAdded(Object *obj) {
 	}
 }
 
-std::vector<bool> World::GenerateChunk(const Point &&p) const {
+std::vector<bool> World::GenerateChunk(const Point3 &&p) const {
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
 
-	const Point blockSize = Point(1, 1, 1, 1);
-	Point actual = p * Point(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, -blockSize.z * chunkSize.z, 1);
+	const Point3 blockSize(1, 1, 1);
+	Point3 actual = p * Point3(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, -blockSize.z * chunkSize.z);
 
 	int i = 0;
 	for(float z = 0; z < blockSize.z * chunkSize.z; z += blockSize.z) {
 		for(float x = 0; x < blockSize.x * chunkSize.x; x += blockSize.x) {
 			for(float y = 0; y < blockSize.y * chunkSize.y; y += blockSize.y) {
-				blocks.at(i++) = GenerateBlock(actual + Point(x, y, z, 0));
+				blocks.at(i++) = GenerateBlock(actual + Point3(x, y, z));
 			}
 		}
 	}
 	return blocks;
 }
 
-bool World::GenerateBlock(const Point &&p) const {
+bool World::GenerateBlock(const Point3 &&p) const {
 	auto fDensity = [] (const double x) {
 		return glm::pow(1.0 - glm::abs(glm::sin(x)), 1.0);
 	};

@@ -33,7 +33,7 @@ protected:
 public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine) : Renderer(engine) {}
-	void SetClearColor(const Point &) override final;
+	void SetClearColor(const Point4 &) override final;
 	void Use(const std::string &) override final;
 	void MakePipeline(const std::vector<std::string> &) override final;
 };

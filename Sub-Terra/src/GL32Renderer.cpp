@@ -75,7 +75,7 @@ void GL32Renderer::Init() {
 	fovy = 70;
 	zNear = 0.05f;
 	InitGL();
-	SetClearColor(Point(0.02f, 0.05f, 0.1f, 1));
+	SetClearColor(Point4(0.02f, 0.05f, 0.1f, 1));
 	//ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
 }
 
@@ -211,12 +211,12 @@ void GL32Renderer::ObjectAdded(Object *object) {
 		GL(glGenBuffers(2, vbos));
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * model->normals.size(), model->normals.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->normals.size(), model->normals.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
 		GL(glEnableVertexAttribArray(0));
 		GL(glEnableVertexAttribArray(1));
@@ -285,7 +285,7 @@ void GL32Renderer::Project(GLuint programID) {
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 }
 
-void GL32Renderer::SetClearColor(const Point &color) {
+void GL32Renderer::SetClearColor(const Point4 &color) {
 	GL(glClearColor(color.x, color.y, color.z, color.w));
 }
 

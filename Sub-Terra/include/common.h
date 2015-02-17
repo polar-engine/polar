@@ -42,11 +42,11 @@ typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> 
 
 typedef glm::fvec2 EnginePoint2;
 typedef glm::fvec3 EnginePoint3;
-typedef glm::fvec4 EnginePoint;
+typedef glm::fvec4 EnginePoint4;
 #define Point2 EnginePoint2
 #define Point3 EnginePoint3
-#define Point EnginePoint
-typedef std::tuple<Point, Point, Point> EngineTriangle;
+#define Point4 EnginePoint4
+typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 #define Triangle EngineTriangle
 
 enum class GeometryType : uint8_t {
