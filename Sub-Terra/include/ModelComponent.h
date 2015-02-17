@@ -4,7 +4,7 @@
 
 class ModelComponent : public Component {
 public:
-	typedef std::vector<Point> PointsType;
+	typedef std::vector<Point3> PointsType;
 	typedef std::vector<Triangle> TrianglesType;
 
 	GeometryType type;
@@ -24,8 +24,8 @@ public:
 			points.emplace_back(std::get<1>(triangle));
 			points.emplace_back(std::get<2>(triangle));
 
-			Point deltaPos1 = std::get<1>(triangle) - std::get<0>(triangle);
-			Point deltaPos2 = std::get<2>(triangle) - std::get<0>(triangle);
+			Point3 deltaPos1 = std::get<1>(triangle) - std::get<0>(triangle);
+			Point3 deltaPos2 = std::get<2>(triangle) - std::get<0>(triangle);
 
 			auto normal = CalculateNormal(triangle);
 			normals.emplace_back(normal);
@@ -34,11 +34,11 @@ public:
 		}
 	}
 
-	static Point CalculateNormal(const Triangle &triangle) {
-		Point deltaPos1 = std::get<1>(triangle) -std::get<0>(triangle);
-		Point deltaPos2 = std::get<2>(triangle) -std::get<0>(triangle);
+	static Point3 CalculateNormal(const Triangle &triangle) {
+		Point3 deltaPos1 = std::get<1>(triangle) -std::get<0>(triangle);
+		Point3 deltaPos2 = std::get<2>(triangle) -std::get<0>(triangle);
 
-		Point normal;
+		Point3 normal;
 		normal.x = deltaPos1.y * deltaPos2.z - deltaPos1.z * deltaPos2.y;
 		normal.y = deltaPos1.z * deltaPos2.x - deltaPos1.x * deltaPos2.z;
 		normal.z = deltaPos1.x * deltaPos2.y - deltaPos1.y * deltaPos2.x;

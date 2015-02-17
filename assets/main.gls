@@ -1,7 +1,7 @@
 @uniform mat4 u_modelView
 @uniform mat4 u_projection
-@attrib vec4 a_vertex
-@attrib vec4 a_normal
+@attrib vec3 a_vertex
+@attrib vec3 a_normal
 @varying smooth vec4 v_vertex
 @varying flat vec4 v_normal
 @out color o_color
@@ -10,9 +10,9 @@
 @shader vertex
 
 void main() {
-	vec4 modelViewVertex = u_modelView * a_vertex;
+	vec4 modelViewVertex = u_modelView * vec4(a_vertex, 1.0);
 	v_vertex = modelViewVertex;
-	v_normal = u_modelView * a_normal;
+	v_normal = u_modelView * vec4(a_normal, 0.0);
 	gl_Position = u_projection * modelViewVertex;
 }
 

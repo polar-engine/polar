@@ -4,8 +4,8 @@
 
 class ScaleComponent : public Component {
 public:
-	Point scale;
+	Point3 scale;
 	ScaleComponent() : scale(1) {}
-	ScaleComponent(Point &scale) : scale(scale) {}
+	ScaleComponent(Point3 &scale) : scale(scale) {}
 	virtual ~ScaleComponent() override {}
 };

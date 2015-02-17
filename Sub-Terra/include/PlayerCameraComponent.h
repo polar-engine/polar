@@ -4,10 +4,10 @@
 
 class PlayerCameraComponent : public Component {
 public:
-	Integrable<Point> distance;
-	Integrable<Point> position;
+	Integrable<Point3> distance;
+	Integrable<Point3> position;
 	glm::quat orientation;
-	PlayerCameraComponent(const Point &distance = Point(0, 0, 0, 1), const Point &position = Point(0, 0, 0, 1), const Point &euler = Point(0, 0, 0, 1))
+	PlayerCameraComponent(const Point3 &distance = Point3(0, 0, 0), const Point3 &position = Point3(0, 0, 0), const Point3 &euler = Point3(0, 0, 0))
 		: distance(distance), position(position), orientation(glm::vec3(euler)) {
 		Add<IntegrableProperty>();
 		auto component = Get<IntegrableProperty>();

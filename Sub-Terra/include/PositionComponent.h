@@ -6,9 +6,9 @@
 
 class PositionComponent : public Component {
 public:
-	Integrable<Point> position;
-	PositionComponent() : PositionComponent(Point(0, 0, 0, 1)) {}
-	PositionComponent(const Point position) : position(position) {
+	Integrable<Point3> position;
+	PositionComponent() : PositionComponent(Point3(0, 0, 0)) {}
+	PositionComponent(const Point3 position) : position(position) {
 		Add<IntegrableProperty>();
 		auto component = Get<IntegrableProperty>();
 		if(component != nullptr) {
