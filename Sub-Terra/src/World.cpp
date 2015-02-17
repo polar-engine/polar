@@ -103,7 +103,7 @@ void World::ObjectAdded(Object *obj) {
 	}
 }
 
-std::vector<bool> World::Generate(const Point &&p) const {
+std::vector<bool> World::GenerateChunk(const Point &&p) const {
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
 
