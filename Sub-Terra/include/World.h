@@ -46,6 +46,6 @@ public:
 	static bool IsSupported() { return true; }
 	World(Polar *engine, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
 		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
-	std::vector<bool> Generate(const ChunkKeyType &) const;
-	bool GenerateBlock(const float, const float, const float) const;
+	std::vector<bool> Generate(const Point &&) const;
+	bool GenerateBlock(const Point &&) const;
 };
