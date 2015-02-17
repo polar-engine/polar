@@ -13,7 +13,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
-			const unsigned char distance = 5;
+			const unsigned char distance = 4;
 
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(pos->position.To<glm::fvec3>()) / chunkSizeF);
@@ -70,7 +70,7 @@ void World::Update(DeltaTicks &, std::vector<Object *> &) {
 									});
 									if(dead) { return; }
 
-									auto data = Generate(keyTuple);
+									auto data = Generate(Point(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple), 1));
 									auto chunkObj = Chunk::New(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
 									auto pos = chunkObj->Get<PositionComponent>();
 									auto chunkPos = glm::fvec3(key) * chunkSizeF;
@@ -103,39 +103,34 @@ void World::ObjectAdded(Object *obj) {
 	}
 }
 
-std::vector<bool> World::Generate(const ChunkKeyType &keyTuple) const {
-	const float scale = 1.0f;
-	const float scaleX = scale, scaleY = scale, scaleZ = scale;
-
+std::vector<bool> World::Generate(const Point &&p) const {
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
 
-	float xIncr = 1.0f / chunkSize.x, yIncr = 1.0f / chunkSize.y, zIncr = 1.0f / chunkSize.z;
+	const Point blockSize = Point(1, 1, 1, 1);
+	Point actual = p * Point(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, -blockSize.z * chunkSize.z, 1);
+
 	int i = 0;
-	for(float z = 0; z < 1; z += zIncr) {
-		for(float x = 0; x < 1; x += xIncr) {
-			for(float y = 0; y < 1; y += yIncr) {
-				blocks.at(i++) = GenerateBlock(
-					( std::get<0>(keyTuple) + x) * scaleX,
-					( std::get<1>(keyTuple) + y) * scaleY,
-					(-std::get<2>(keyTuple) + z) * scaleZ
-				);
+	for(float z = 0; z < blockSize.z * chunkSize.z; z += blockSize.z) {
+		for(float x = 0; x < blockSize.x * chunkSize.x; x += blockSize.x) {
+			for(float y = 0; y < blockSize.y * chunkSize.y; y += blockSize.y) {
+				blocks.at(i++) = GenerateBlock(actual + Point(x, y, z, 0));
 			}
 		}
 	}
 	return blocks;
 }
 
-bool World::GenerateBlock(const float x, const float y, const float z) const {
+bool World::GenerateBlock(const Point &&p) const {
 	auto fDensity = [] (const double x) {
 		return glm::pow(1.0 - glm::abs(glm::sin(x)), 1.0);
 	};
 
-	const float scale = 1.2f;
-	auto result = noise.eval(x / scale, y * 1.4f / scale, z / scale);
+	const float scale = 16.0f;
+	auto result = noise.eval(p.x / scale, p.y * 1.5f / scale, p.z / scale);
 	return (
-		result > (fDensity(x / 32.0f) - 1) * 1.5f + 0.1f ||
-		result > (fDensity(y / 10.0f) - 1) * 1.5f + 0.1f ||
-		result > (fDensity(z / 32.0f) - 1) * 1.5f + 0.1f
+		result > (fDensity(p.x / scale / 32.0f) - 1) * 1.5f + 0.1f ||
+		result > (fDensity(p.y / scale / 10.0f) - 1) * 1.5f + 0.1f ||
+		result > (fDensity(p.z / scale / 32.0f) - 1) * 1.5f + 0.1f
 		);
 }
