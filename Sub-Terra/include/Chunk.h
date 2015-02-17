@@ -65,12 +65,9 @@ public:
 
 		auto model = Get<ModelComponent>();
 		auto &points = model->points;
-		auto &normals = model->normals;
 
 		points.clear();
-		normals.clear();
 		points.reserve(width * height * depth * 3);
-		normals.reserve(width * height * depth * 3);
 
 		for(unsigned char x = 0; x < width; ++x) {
 			for(unsigned char y = 0; y < height; ++y) {
@@ -83,10 +80,6 @@ public:
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
-								auto normal = ModelComponent::CalculateNormal(triangle);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
 							}
 						}
 						if(x == width - 1 || !blocks.at(current + height)) {
@@ -94,10 +87,6 @@ public:
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
-								auto normal = ModelComponent::CalculateNormal(triangle);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
 							}
 						}
 						if(y == 0 || !blocks.at(current - 1)) {
@@ -105,10 +94,6 @@ public:
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
-								auto normal = ModelComponent::CalculateNormal(triangle);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
 							}
 						}
 						if(y == height - 1 || !blocks.at(current + 1)) {
@@ -116,10 +101,6 @@ public:
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
-								auto normal = ModelComponent::CalculateNormal(triangle);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
 							}
 						}
 						if(z == 0 || !blocks.at(current - width * height)) {
@@ -127,10 +108,6 @@ public:
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
-								auto normal = ModelComponent::CalculateNormal(triangle);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
 							}
 						}
 						if(z == depth - 1 || !blocks.at(current + width * height)) {
@@ -138,10 +115,6 @@ public:
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
-								auto normal = ModelComponent::CalculateNormal(triangle);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
-								normals.emplace_back(normal);
 							}
 						}
 					}

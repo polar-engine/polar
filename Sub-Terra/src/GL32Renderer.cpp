@@ -214,8 +214,9 @@ void GL32Renderer::ObjectAdded(Object *object) {
 		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
+		auto normals = model->CalculateNormals();
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->normals.size(), model->normals.data(), GL_STATIC_DRAW));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * normals.size(), normals.data(), GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
 		GL(glEnableVertexAttribArray(0));
