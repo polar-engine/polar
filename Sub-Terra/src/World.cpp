@@ -122,6 +122,7 @@ std::vector<bool> World::GenerateChunk(const Point3 &&p) const {
 }
 
 bool World::GenerateBlock(const Point3 &&p) const {
+	/* periodic 'normal distribution' function */
 	auto fDensity = [] (const double x) {
 		return glm::pow(1.0 - glm::abs(glm::sin(x)), 1.0);
 	};
