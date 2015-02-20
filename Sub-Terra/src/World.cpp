@@ -127,8 +127,8 @@ bool World::GenerateBlock(const Point3 &&p) const {
 		return 1.0 - glm::abs(glm::sin(x));
 	};
 
-	const float scale = 16.0f;
-	auto result = noise.eval(p.x / scale, p.y * 1.5f / scale, p.z / scale);
+	const float scale = 17.0f;
+	auto result = noise.eval(p.x / scale, p.y * 1.6f / scale, p.z / scale);
 	return (
 		result > (fDensity(p.x / scale / 32.0f) - 1) * 1.5f + 0.1f ||
 		result > (fDensity(p.y / scale / 10.0f) - 1) * 1.5f + 0.1f ||
