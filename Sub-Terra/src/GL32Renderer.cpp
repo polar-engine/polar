@@ -90,23 +90,24 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	float alpha = integrator->Accumulator().Seconds();
 
 	glm::mat4 cameraView;
-	for(auto object : objects) {
+	auto pair = engine->GetObjectsWithComponent<PlayerCameraComponent>();
+	for(auto it = pair.first; it != pair.second; ++it) {
+		auto object = it->second;
 		auto camera = object->Get<PlayerCameraComponent>();
-		if(camera != nullptr) {
-			cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
-			cameraView *= glm::toMat4(camera->orientation);
 
-			auto orient = object->Get<OrientationComponent>();
-			if(orient != nullptr) {
-				cameraView *= glm::toMat4(orient->orientation);
-			}
+		cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
+		cameraView *= glm::toMat4(camera->orientation);
 
-			cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<glm::vec3>());
+		auto orient = object->Get<OrientationComponent>();
+		if(orient != nullptr) {
+			cameraView *= glm::toMat4(orient->orientation);
+		}
 
-			auto pos = object->Get<PositionComponent>();
-			if(pos != nullptr) {
-				cameraView = glm::translate(cameraView, -pos->position.Temporal(alpha).To<glm::vec3>());
-			}
+		cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<glm::vec3>());
+
+		auto pos = object->Get<PositionComponent>();
+		if(pos != nullptr) {
+			cameraView = glm::translate(cameraView, -pos->position.Temporal(alpha).To<glm::vec3>());
 		}
 	}
 
