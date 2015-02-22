@@ -38,7 +38,12 @@ void Polar::Destroy() {
 
 void Polar::AddObject(Object *object) {
 	if(object == nullptr) { return; }
+
 	_objects.push_back(object);
+	for(auto &pair : *object->Get()) {
+		_components.emplace(pair.first, object);
+	}
+
 	if(_initDone) {
 		for(auto &system : *systems.Get()) {
 			system.second->ObjectAdded(object);
