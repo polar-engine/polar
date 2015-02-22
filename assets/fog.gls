@@ -3,7 +3,6 @@
 @in color u_colorBuffer
 @in depth u_depthBuffer
 @out color o_color
-@out depth
 
 @shader vertex
 
