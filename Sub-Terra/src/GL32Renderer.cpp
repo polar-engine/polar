@@ -8,10 +8,11 @@
 
 class GL32ModelProperty : public Property {
 public:
+	const GLsizei numVertices;
 	const GLuint vao;
 	const std::vector<GLuint> vbos;
-	GL32ModelProperty(const GLuint vao, const std::vector<GLuint> &vbos) : vao(vao), vbos(vbos) {}
-	GL32ModelProperty(const GLuint vao, std::vector<GLuint> &&vbos) : vao(vao), vbos(vbos) {}
+	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, const std::vector<GLuint> &vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
+	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, std::vector<GLuint> &&vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
 };
 
 bool GL32Renderer::IsSupported() {
@@ -156,7 +157,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 
 						GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
 						GL(glBindVertexArray(property->vao));
-						GL(glDrawArrays(drawMode, 0, static_cast<GLsizei>(model->points.size())));
+						GL(glDrawArrays(drawMode, 0, property->numVertices));
 					}
 				}
 			}
@@ -228,7 +229,8 @@ void GL32Renderer::ObjectAdded(Object *object) {
 			vbosVector.emplace_back(vbos[i]);
 		}
 
-		model->Add<GL32ModelProperty>(vao, vbosVector);
+		model->Add<GL32ModelProperty>(model->points.size(), vao, vbosVector);
+		model->points = ModelComponent::PointsType();
 	}
 }
 
