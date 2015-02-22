@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 						if(!tmp.empty()) { args.emplace_back(tmp); }
 					}
 
-					if(directive == "shader") {
+					if(directive == "shader") { /* shader stage */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing shader type"); }
 
 						if(args[0] == "vertex") {
@@ -59,20 +59,20 @@ int main(int argc, char **argv) {
 						} else if(args[0] == "fragment") {
 							asset->shaders.emplace_back(ShaderType::Fragment, header.str());
 						} else { ENGINE_ERROR(iLine << ": unknown shader type `" << args[0] << '`'); }
-					} else if(directive == "uniform") {
+					} else if(directive == "uniform") { /* uniform variable */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing uniform type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing uniform name"); }
 						uniforms.emplace_back(args[0], args[1]);
-					} else if(directive == "attrib") {
+					} else if(directive == "attrib") { /* vertex attribute*/
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing attribute type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing attribute name"); }
 						attribs.emplace_back(args[0], args[1]);
-					} else if(directive == "varying") {
+					} else if(directive == "varying") { /* vertex->fragment interpolable */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing varying interpolation method"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing varying type"); }
 						if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing varying name"); }
 						varyings.emplace_back(args[0], args[1], args[2]);
-					} else if(directive == "in") {
+					} else if(directive == "in") { /* input from previous pipeline stage */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
 
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
 
 						uniforms.emplace_back("sampler2D", args[1]);
-					} else if(directive == "out") {
+					} else if(directive == "out") { /* output buffer */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program output type"); }
 
 						if(args[0] == "color") {
