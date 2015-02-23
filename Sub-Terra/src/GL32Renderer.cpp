@@ -164,18 +164,29 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			break;
 		}
 		default:
-			/*GLuint vbo;
-			GL(glGenBuffers(2, &vbo));
+			/*GLuint vao;
+			GL(glGenVertexArrays(1, &vao));
+			GL(glBindVertexArray(vao));
 
-			std::vector<Point> points = {
-				Point(-1, -1, 0, 1),
-				Point(1, -1, 0, 1)
+			GLuint vbo;
+			GL(glGenBuffers(1, &vbo));
+
+			std::vector<Point2> points = {
+				Point2(-1, -1),
+				Point2( 1, -1),
+				Point2(-1,  1),
+				Point2( 1,  1)
 			};
+
 			GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-			GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * points.size(), points.data(), GL_STATIC_DRAW));
-			GL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL));*/
+			GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point2) * 4, points.data(), GL_STATIC_DRAW));
+			GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
 
 			GL(glEnableVertexAttribArray(0));
+			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+			glDeleteBuffers(1, &vbo);
+			glDeleteVertexArrays(1, &vao);*/
+
 			glBegin(GL_QUADS);
 			glVertex2f(-1, -1);
 			glVertex2f( 1, -1);
