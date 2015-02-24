@@ -8,7 +8,7 @@ protected:
 
 	virtual void InitObject() override;
 	virtual void Init() override;
-	virtual void Update(DeltaTicks &, std::vector<Object *> &) override;
+	virtual void Update(DeltaTicks &) override;
 public:
 	static bool IsSupported() { return true; }
 	HumanPlayerController(Polar *engine) : PlayerController(engine) {}

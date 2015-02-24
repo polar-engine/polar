@@ -2,8 +2,8 @@
 #include "Polar.h"
 
 Polar::~Polar() {
-	for(auto object : _objects) {
-		delete object;
+	for(auto it = components.left.begin(); it != components.left.end(); it = components.left.upper_bound(it->first)) {
+		delete it->first;
 	}
 }
 
@@ -16,8 +16,8 @@ void Polar::Init() {
 
 	/* iterate again in case any systems added objects during initialization */
 	for(auto &system : *systems.Get()) {
-		for(auto object : _objects) {
-			system.second->ObjectAdded(object);
+		for(auto it = components.left.begin(); it != components.left.end(); ++it) {
+			system.second->ObjectAdded(it->first);
 		}
 	}
 	_initDone = true;
@@ -25,7 +25,7 @@ void Polar::Init() {
 
 void Polar::Update(DeltaTicks &dt) {
 	for(auto &system : *systems.Get()) {
-		system.second->Update(dt, _objects);
+		system.second->Update(dt);
 	}
 }
 
@@ -39,7 +39,6 @@ void Polar::Destroy() {
 void Polar::AddObject(Object *object) {
 	if(object == nullptr) { return; }
 
-	_objects.push_back(object);
 	for(auto &pair : *object->Get()) {
 		components.insert(ComponentsBimap::value_type(object, pair.first, pair.second.get()));
 	}
@@ -55,7 +54,6 @@ void Polar::RemoveObject(Object *object, const bool doDelete) {
 	if(object == nullptr) { return; }
 
 	components.left.erase(object);
-	_objects.erase(std::remove(_objects.begin(), _objects.end(), object), _objects.end());
 	for(auto &system : *systems.Get()) {
 		system.second->ObjectRemoved(object);
 	}

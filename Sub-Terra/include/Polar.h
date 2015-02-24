@@ -3,6 +3,7 @@
 #include <map>
 #include <boost/range/iterator_range.hpp>
 #include <boost/bimap.hpp>
+#include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
 #include "System.h"
 
@@ -10,7 +11,7 @@ class Polar {
 public:
 	typedef boost::bimap<
 		//boost::bimaps::unordered_multiset_of<std::uint_fast64_t>,
-		boost::bimaps::unordered_multiset_of<Object *>,
+		boost::bimaps::multiset_of<Object *>,
 		boost::bimaps::unordered_multiset_of<const std::type_info *>,
 		boost::bimaps::with_info<Component *>
 	> ComponentsBimap;
@@ -18,7 +19,6 @@ public:
 private:
 	bool _initDone = false;
 	bool _running = false;
-	std::vector<EntityBase<Component> *> _objects;
 
 	void Update(DeltaTicks &);
 public:

@@ -25,7 +25,7 @@ private:
 	GLuint MakeProgram(ShaderAsset &);
 protected:
 	void Init() override final;
-	void Update(DeltaTicks &, std::vector<Object *> &) override final;
+	void Update(DeltaTicks &) override final;
 	void Destroy() override final;
 	void ObjectAdded(Object *) override final;
 	void ObjectRemoved(Object *) override final;

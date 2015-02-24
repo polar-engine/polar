@@ -19,7 +19,7 @@ void JobManager::Init() {
 	}
 }
 
-void JobManager::Update(DeltaTicks &, std::vector<Object *> &) {
+void JobManager::Update(DeltaTicks &) {
 	auto numJobs = jobs.With<JobsType::size_type>([] (JobsType &jobs) { return jobs.size(); });
 	if(numJobs == 0) {
 		std::this_thread::yield();

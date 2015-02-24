@@ -12,7 +12,7 @@ protected:
 
 	virtual void InitObject() {};
 	virtual void Init() override;
-	virtual void Update(DeltaTicks &, std::vector<Object *> &) override;
+	virtual void Update(DeltaTicks &) override;
 public:
 	static bool IsSupported() { return true; }
 	PlayerController(Polar *engine) : System(engine) {}

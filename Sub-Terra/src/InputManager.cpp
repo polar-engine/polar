@@ -31,7 +31,7 @@ void InputManager::Init() {
 	});
 }
 
-void InputManager::Update(DeltaTicks &dt, std::vector<Object *> &) {
+void InputManager::Update(DeltaTicks &dt) {
 	for(auto key : keys) {
 		auto range = whenKeyHandlers.equal_range(key);
 		for(auto it = range.first; it != range.second; ++it) {

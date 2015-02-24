@@ -7,13 +7,13 @@ void World::Init() {
 	
 }
 
-void World::Update(DeltaTicks &, std::vector<Object *> &) {
+void World::Update(DeltaTicks &) {
 	if(cameraObj == nullptr) { return; }
 	auto camera = cameraObj->Get<PlayerCameraComponent>();
 	if(camera != nullptr) {
 		auto pos = cameraObj->Get<PositionComponent>();
 		if(pos != nullptr) {
-			const unsigned char distance = 4;
+			const unsigned char distance = 5;
 
 			auto chunkSizeF = glm::fvec3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(pos->position.To<glm::fvec3>()) / chunkSizeF);
