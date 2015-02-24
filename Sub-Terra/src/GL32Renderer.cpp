@@ -80,7 +80,7 @@ void GL32Renderer::Init() {
 	//ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
 }
 
-void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
+void GL32Renderer::Update(DeltaTicks &dt) {
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);

@@ -9,7 +9,7 @@ void HumanPlayerController::InitObject() {
 	PlayerController::InitObject();
 	object->Add<PlayerCameraComponent>();
 	auto camera = object->Get<PlayerCameraComponent>();
-	//camera->distance = glm::fvec4(0, 0, 4, 1);
+	//camera->distance = Point3(0, 0, 4);
 }
 
 void HumanPlayerController::Init() {
@@ -39,8 +39,8 @@ void HumanPlayerController::Init() {
 	});
 }
 
-void HumanPlayerController::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
-	PlayerController::Update(dt, objects);
+void HumanPlayerController::Update(DeltaTicks &dt) {
+	PlayerController::Update(dt);
 	auto orient = object->Get<OrientationComponent>();
 	auto camera = object->Get<PlayerCameraComponent>();
 	orient->orientation = orient->orientation * glm::quat(glm::vec3(0, orientVel.y, 0));

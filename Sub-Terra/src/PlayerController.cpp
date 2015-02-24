@@ -33,11 +33,11 @@ void PlayerController::Init() {
 	//pos->position.Derivative(1) = Point(0, -9.8f, 0, 1);
 }
 
-void PlayerController::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
+void PlayerController::Update(DeltaTicks &dt) {
 	auto pos = object->Get<PositionComponent>();
 	auto orient = object->Get<OrientationComponent>();
 
-	auto rel = glm::normalize(glm::fvec4(moveLeft ? -1 : 0 + moveRight ? 1 : 0, 0, moveForward ? -1 : 0 + moveBackward ? 1 : 0, 1));
+	auto rel = glm::normalize(glm::fvec4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
 	auto abs = (glm::inverse(orient->orientation) * rel) * 2.0f * 16.0f * 0.25f;
 	pos->position.Derivative()->x = abs.x;
 	pos->position.Derivative()->y = abs.y;

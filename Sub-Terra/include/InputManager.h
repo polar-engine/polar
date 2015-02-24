@@ -18,7 +18,7 @@ private:
 	std::vector<MouseMoveHandler> mouseMoveHandlers;
 protected:
 	void Init() override final;
-	void Update(DeltaTicks &, std::vector<Object *> &) override final;
+	void Update(DeltaTicks &) override final;
 public:
 	static bool IsSupported() { return true; }
 	InputManager(Polar *engine) : System(engine) {}

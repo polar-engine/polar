@@ -9,7 +9,7 @@ class System {
 protected:
 	Polar *engine;
 	virtual void Init() {}
-	virtual void Update(DeltaTicks &, std::vector<Object *> &) {}
+	virtual void Update(DeltaTicks &) {}
 	virtual void Destroy() {}
 	virtual void ObjectAdded(Object *) {}
 	virtual void ObjectRemoved(Object *) {}

@@ -39,7 +39,7 @@ private:
 	Object *cameraObj = nullptr;
 protected:
 	void Init() override final;
-	void Update(DeltaTicks &, std::vector<Object *> &) override final;
+	void Update(DeltaTicks &) override final;
 	void Destroy() override final;
 	void ObjectAdded(Object *) override final;
 public:
