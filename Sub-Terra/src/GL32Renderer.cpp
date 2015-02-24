@@ -91,10 +91,10 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	float alpha = integrator->Accumulator().Seconds();
 
 	glm::mat4 cameraView;
-	auto pair = engine->GetObjectsWithComponent<PlayerCameraComponent>();
+	auto pair = engine->components.left.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
-		auto object = it->second;
-		auto camera = object->Get<PlayerCameraComponent>();
+		auto object = it->get_left();
+		auto camera = static_cast<PlayerCameraComponent *>(it->info);
 
 		cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
 		cameraView *= glm::toMat4(camera->orientation);
@@ -132,33 +132,35 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			GLint locModelView;
 			GL(locModelView = glGetUniformLocation(node.program, "u_modelView"));
 
-			for(auto object : objects) {
+			auto pair = engine->_components.equal_range(&typeid(ModelComponent));
+			//auto pair = engine->GetObjectsWithComponent<ModelComponent>();
+			for(auto it = pair.first; it != pair.second; ++it) {
+				auto object = it->second;
 				auto model = object->Get<ModelComponent>();
-				if(model != nullptr) {
-					auto property = model->Get<GL32ModelProperty>();
-					if(property != nullptr) {
-						glm::mat4 modelView = cameraView;
 
-						auto pos = object->Get<PositionComponent>();
-						if(pos != nullptr) { modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>()); }
+				auto property = model->Get<GL32ModelProperty>();
+				if(property != nullptr) {
+					glm::mat4 modelView = cameraView;
 
-						auto orient = object->Get<OrientationComponent>();
-						if(orient != nullptr) { modelView *= glm::toMat4(glm::inverse(orient->orientation)); }
+					auto pos = object->Get<PositionComponent>();
+					if(pos != nullptr) { modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>()); }
 
-						GLenum drawMode = GL_TRIANGLES;
-						switch(model->type) {
-						case GeometryType::Triangles:
-							drawMode = GL_TRIANGLES;
-							break;
-						case GeometryType::TriangleStrip:
-							drawMode = GL_TRIANGLE_STRIP;
-							break;
-						}
+					auto orient = object->Get<OrientationComponent>();
+					if(orient != nullptr) { modelView *= glm::toMat4(glm::inverse(orient->orientation)); }
 
-						GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
-						GL(glBindVertexArray(property->vao));
-						GL(glDrawArrays(drawMode, 0, property->numVertices));
+					GLenum drawMode = GL_TRIANGLES;
+					switch(model->type) {
+					case GeometryType::Triangles:
+						drawMode = GL_TRIANGLES;
+						break;
+					case GeometryType::TriangleStrip:
+						drawMode = GL_TRIANGLE_STRIP;
+						break;
 					}
+
+					GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
+					GL(glBindVertexArray(property->vao));
+					GL(glDrawArrays(drawMode, 0, property->numVertices));
 				}
 			}
 			break;
