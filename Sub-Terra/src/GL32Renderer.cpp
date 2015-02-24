@@ -91,7 +91,7 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 	float alpha = integrator->Accumulator().Seconds();
 
 	glm::mat4 cameraView;
-	auto pair = engine->components.left.equal_range(&typeid(PlayerCameraComponent));
+	auto pair = engine->components.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
 		auto object = it->get_left();
 		auto camera = static_cast<PlayerCameraComponent *>(it->info);
@@ -132,11 +132,10 @@ void GL32Renderer::Update(DeltaTicks &dt, std::vector<Object *> &objects) {
 			GLint locModelView;
 			GL(locModelView = glGetUniformLocation(node.program, "u_modelView"));
 
-			auto pair = engine->_components.equal_range(&typeid(ModelComponent));
-			//auto pair = engine->GetObjectsWithComponent<ModelComponent>();
+			auto pair = engine->components.right.equal_range(&typeid(ModelComponent));
 			for(auto it = pair.first; it != pair.second; ++it) {
-				auto object = it->second;
-				auto model = object->Get<ModelComponent>();
+				auto object = it->get_left();
+				auto model = static_cast<ModelComponent *>(it->info);
 
 				auto property = model->Get<GL32ModelProperty>();
 				if(property != nullptr) {

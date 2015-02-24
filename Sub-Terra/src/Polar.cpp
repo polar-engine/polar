@@ -41,7 +41,6 @@ void Polar::AddObject(Object *object) {
 
 	_objects.push_back(object);
 	for(auto &pair : *object->Get()) {
-		_components.emplace(pair.first, object);
 		components.insert(ComponentsBimap::value_type(object, pair.first, pair.second.get()));
 	}
 
@@ -55,6 +54,7 @@ void Polar::AddObject(Object *object) {
 void Polar::RemoveObject(Object *object, const bool doDelete) {
 	if(object == nullptr) { return; }
 
+	components.left.erase(object);
 	_objects.erase(std::remove(_objects.begin(), _objects.end(), object), _objects.end());
 	for(auto &system : *systems.Get()) {
 		system.second->ObjectRemoved(object);
