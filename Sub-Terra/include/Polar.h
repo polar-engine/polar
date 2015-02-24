@@ -8,8 +8,6 @@
 
 class Polar {
 public:
-	typedef std::multimap<const std::type_info *, Object *> ComponentsType;
-	ComponentsType _components;
 	typedef boost::bimap<
 		//boost::bimaps::unordered_multiset_of<std::uint_fast64_t>,
 		boost::bimaps::unordered_multiset_of<Object *>,
