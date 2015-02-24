@@ -1,16 +1,26 @@
 #pragma once
 
-#include <unordered_map>
+#include <map>
+#include <boost/range/iterator_range.hpp>
+#include <boost/bimap.hpp>
+#include <boost/bimap/unordered_multiset_of.hpp>
 #include "System.h"
 
 class Polar {
 public:
-	typedef std::unordered_multimap<const std::type_info *, Object *> ComponentsType;
+	typedef std::multimap<const std::type_info *, Object *> ComponentsType;
+	ComponentsType _components;
+	typedef boost::bimap<
+		//boost::bimaps::unordered_multiset_of<std::uint_fast64_t>,
+		boost::bimaps::unordered_multiset_of<Object *>,
+		boost::bimaps::unordered_multiset_of<const std::type_info *>,
+		boost::bimaps::with_info<Component *>
+	> ComponentsBimap;
+	ComponentsBimap components;
 private:
 	bool _initDone = false;
 	bool _running = false;
 	std::vector<EntityBase<Component> *> _objects;
-	ComponentsType _components;
 
 	void Update(DeltaTicks &);
 public:
@@ -37,9 +47,9 @@ public:
 		}
 	}
 
-	template<typename T> std::pair<Polar::ComponentsType::const_iterator, Polar::ComponentsType::const_iterator> GetObjectsWithComponent() {
+	template<typename T> auto GetObjectsWithComponent() -> decltype(components.right.equal_range(&typeid(T))) {
 		static_assert(std::is_base_of<Component, T>::value, "Polar::GetObjectsWithComponent requires object of type Component");
-		return _components.equal_range(&typeid(T));
+		return components.right.equal_range(&typeid(T));
 	}
 
 	void AddObject(Object *);
