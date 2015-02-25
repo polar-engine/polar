@@ -8,10 +8,12 @@ void World::Init() {
 }
 
 void World::Update(DeltaTicks &) {
-	if(cameraObj == nullptr) { return; }
-	auto camera = cameraObj->Get<PlayerCameraComponent>();
-	if(camera != nullptr) {
-		auto pos = cameraObj->Get<PositionComponent>();
+	auto pair = engine->components.right.equal_range(&typeid(PlayerCameraComponent));
+	for(auto it = pair.first; it != pair.second; ++it) {
+		auto object = it->get_left();
+		auto camera = static_cast<PlayerCameraComponent *>(it->info);
+
+		auto pos = object->Get<PositionComponent>();
 		if(pos != nullptr) {
 			const unsigned char distance = 5;
 
@@ -94,13 +96,6 @@ void World::Update(DeltaTicks &) {
 
 void World::Destroy() {
 
-}
-
-void World::ObjectAdded(Object *obj) {
-	auto camera = obj->Get<PlayerCameraComponent>();
-	if(camera != nullptr) {
-		cameraObj = obj;
-	}
 }
 
 std::vector<bool> World::GenerateChunk(const Point3 &&p) const {
