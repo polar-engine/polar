@@ -91,13 +91,17 @@ inline std::istream & operator>>(std::istream &is, ShaderAsset &asset) {
 }
 
 /******************** ShaderProgramAsset ********************
- * ListAsset<ShaderProgramInputAsset>    inputs of the program
+ * ListAsset<ShaderProgramInputAsset>    inputs to the program
  * ListAsset<ShaderProgramOutputAsset>   outputs of the program
+ * ListAsset<ShaderProgramInputAsset>    global inputs to the program
+ * ListAsset<ShaderProgramOutputAsset>   global outputs of the program
  * ListAsset<ShaderAsset>                shaders of the program
  */
 struct ShaderProgramAsset : Asset {
 	ListAsset<ShaderProgramInputAsset> ins;
 	ListAsset<ShaderProgramOutputAsset> outs;
+	ListAsset<ShaderProgramInputAsset> globalIns;
+	ListAsset<ShaderProgramOutputAsset> globalOuts;
 	ListAsset<ShaderAsset> shaders;
 
 	ShaderProgramAsset() {}
@@ -106,6 +110,8 @@ struct ShaderProgramAsset : Asset {
 inline std::ostream & operator<<(std::ostream &os, ShaderProgramAsset asset) {
 	os << asset.ins;
 	os << asset.outs;
+	os << asset.globalIns;
+	os << asset.globalOuts;
 	os << asset.shaders;
 	return os;
 }
@@ -113,6 +119,8 @@ inline std::ostream & operator<<(std::ostream &os, ShaderProgramAsset asset) {
 inline std::istream & operator>>(std::istream &is, ShaderProgramAsset &asset) {
 	is >> asset.ins;
 	is >> asset.outs;
+	is >> asset.globalIns;
+	is >> asset.globalOuts;
 	is >> asset.shaders;
 	return is;
 }

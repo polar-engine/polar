@@ -1,7 +1,7 @@
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
-@in depth u_depthBuffer
+@gin depth u_depthBuffer
 @out color color o_color
 
 @shader vertex
