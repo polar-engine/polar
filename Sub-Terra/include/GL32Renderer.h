@@ -10,6 +10,8 @@ struct PipelineNode {
 	GLuint fbo = 0;
 	std::unordered_map<std::string, GLuint> outs;
 	std::unordered_map<std::string, std::string> ins;
+	std::unordered_map<std::string, GLuint> globalOuts;
+	std::unordered_map<std::string, std::string> globalIns;
 	PipelineNode(GLuint program) : program(program) {}
 };
 
