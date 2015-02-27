@@ -11,19 +11,23 @@
 #include "debug.h"
 #include "getline.h"
 #include "FileSystem.h"
-#include "assets.h"
+#include "TextAsset.h"
+#include "ShaderProgramAsset.h"
 
 int main(int argc, char **argv) {
 	std::string path = argc >= 2 ? argv[1] : FileSystem::GetAppDir() + "/assets";
 	std::string buildPath = argc >= 3 ? argv[2] : path + "/build";
 	auto files = FileSystem::ListDir(path);
 
-	std::unordered_map<std::string, std::function<Asset *(const std::string &)>> converters;
-	converters["txt"] = [] (const std::string &data) {
-		return new TextAsset(static_cast<uint32_t>(data.length()), data);
+	std::unordered_map < std::string, std::function<std::string(const std::string &, std::ostream &)>> converters;
+	converters["txt"] = [] (const std::string &data, std::ostream &os) {
+		TextAsset asset;
+		asset.text = data;
+		os << asset;
+		return AssetName<TextAsset>();
 	};
-	converters["gls"] = [] (const std::string &data) {
-		ShaderAsset *asset = new ShaderAsset(std::vector<Shader>());
+	converters["gls"] = [] (const std::string &data, std::ostream &os) {
+		ShaderProgramAsset asset;
 
 		std::ostringstream header;
 
@@ -55,9 +59,9 @@ int main(int argc, char **argv) {
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing shader type"); }
 
 						if(args[0] == "vertex") {
-							asset->shaders.emplace_back(ShaderType::Vertex, header.str());
+							asset.shaders.elements.emplace_back(ShaderType::Vertex, header.str());
 						} else if(args[0] == "fragment") {
-							asset->shaders.emplace_back(ShaderType::Fragment, header.str());
+							asset.shaders.elements.emplace_back(ShaderType::Fragment, header.str());
 						} else { ENGINE_ERROR(iLine << ": unknown shader type `" << args[0] << '`'); }
 					} else if(directive == "uniform") { /* uniform variable */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing uniform type"); }
@@ -73,14 +77,8 @@ int main(int argc, char **argv) {
 						if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing varying name"); }
 						varyings.emplace_back(args[0], args[1], args[2]);
 					} else if(directive == "in") { /* input from previous pipeline stage */
-						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input type"); }
+						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input key"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
-
-						if(args[0] == "color") {
-							asset->ins.emplace_back(ProgramInOutType::Color, args[1]);
-						} else if(args[0] == "depth") {
-							asset->ins.emplace_back(ProgramInOutType::Depth, args[1]);
-						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
 
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "out") { /* output buffer */
@@ -88,19 +86,19 @@ int main(int argc, char **argv) {
 
 						if(args[0] == "color") {
 							if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset->outs.emplace_back(ProgramInOutType::Color);
+							asset.outs.elements.emplace_back(ProgramOutputType::Color, "", "");
 							outs.emplace_back("vec4", args[1]);
 						} else if(args[0] == "depth") {
-							asset->outs.emplace_back(ProgramInOutType::Depth);
+							asset.outs.elements.emplace_back(ProgramOutputType::Depth, "", "");
 						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
 					} else { ENGINE_ERROR(iLine << ": unknown directive `" << directive << '`'); }
 				} else {
-					if(asset->shaders.empty()) { header << line << '\n'; } else { asset->shaders.back().source += line + '\n'; }
+					if(asset.shaders.elements.empty()) { header << line << '\n'; } else { asset.shaders.elements.back().source.text += line + '\n'; }
 				}
 			}
 		}
 
-		for(auto &shader : asset->shaders) {
+		for(auto &shader : asset.shaders.elements) {
 			std::string prepend;
 			prepend += "#version 150\n";
 			prepend += "precision highp float;\n";
@@ -124,10 +122,11 @@ int main(int argc, char **argv) {
 					prepend += "out " + std::get<0>(out) + ' ' + std::get<1>(out) + ";\n";
 				}
 			}
-			shader.source = prepend + shader.source;
+			shader.source.text = prepend + shader.source.text;
 		}
 
-		return asset;
+		os << asset;
+		return AssetName<ShaderProgramAsset>();
 	};
 
 	for(auto &file : files) {
@@ -140,16 +139,12 @@ int main(int argc, char **argv) {
 				INFOS("found converter for `" << ext << '`');
 
 				std::string data = FileSystem::ReadFile(path + '/' + file);
-				Asset *asset = converter->second(data);
-				if(asset == nullptr) {
-					ENGINE_ERROR(file << ": converter function returned a null pointer");
-					continue;
-				}
+				std::stringstream ss;
+				std::string type = converter->second(data, ss);
 
 				std::string name = file.substr(0, pos);
-				FileSystem::CreateDir(buildPath + '/' + asset->type);
-				FileSystem::WriteFile(buildPath + '/' + asset->type + '/' + name + ".asset", asset->Save());
-				delete asset;
+				FileSystem::CreateDir(buildPath + '/' + type);
+				FileSystem::WriteFile(buildPath + '/' + type + '/' + name + ".asset", ss);
 			} else { ENGINE_ERROR(file << ": no appropriate converter found"); }
 		}
 	}
