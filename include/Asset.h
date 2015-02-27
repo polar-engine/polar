@@ -1,14 +1,15 @@
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 #include <string>
+#include <type_traits>
 #include "endian.h"
 
-class Asset {
-public:
-	const std::string type = Type();
-	static std::string Type() { return "text"; }
-	Asset(const std::string &type) : type(type) {}
+struct Asset {
 	virtual ~Asset() {}
-	virtual std::string Save() const = 0;
 };
+
+template<typename T> inline std::string AssetName() {
+	static_assert(false, "AssetName not specialized");
+	return "";
+}

@@ -306,12 +306,12 @@ void GL32Renderer::SetClearColor(const Point4 &color) {
 }
 
 void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
-	std::vector<ShaderAsset> assets;
+	std::vector<ShaderProgramAsset> assets;
 	nodes.clear();
 
 	for(auto &name : names) {
 		INFOS("loading shader asset `" << name << '`');
-		auto asset = engine->systems.Get<AssetManager>()->Get<ShaderAsset>(name);
+		auto asset = engine->systems.Get<AssetManager>()->Get<ShaderProgramAsset>(name);
 		assets.emplace_back(asset);
 		nodes.emplace_back(MakeProgram(asset));
 	}
@@ -326,12 +326,12 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 		std::vector<GLenum> drawBuffers;
 		int colorAttachment = 0;
 
-		for(auto &in : nextAsset.ins) {
+		for(auto &out : asset.outs.elements) {
 			GLuint buffer;
 			GL(glGenTextures(1, &buffer));
 			GL(glBindTexture(GL_TEXTURE_2D, buffer));
-			switch(in.type) {
-			case ProgramInOutType::Color:
+			switch(out.type) {
+			case ProgramOutputType::Color:
 				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -340,7 +340,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, buffer, 0));
 				drawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + colorAttachment);
 				break;
-			case ProgramInOutType::Depth:
+			case ProgramOutputType::Depth:
 				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
 				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, buffer, 0));
 				break;
@@ -349,7 +349,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				break;
 			}
 			nextNode.buffers.emplace_back(buffer);
-			nextNode.bufferNames.emplace_back(in.name);
+			nextNode.bufferNames.emplace_back("u_colorBuffer");
 		}
 
 		GL(glDrawBuffers(drawBuffers.size(), drawBuffers.data()));
@@ -371,7 +371,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 
 void GL32Renderer::Use(const std::string &name) {
 	INFOS("loading shader asset `" << name << '`');
-	auto asset = engine->systems.Get<AssetManager>()->Get<ShaderAsset>(name);
+	auto asset = engine->systems.Get<AssetManager>()->Get<ShaderProgramAsset>(name);
 	auto programID = MakeProgram(asset);
 
 	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
@@ -381,9 +381,9 @@ void GL32Renderer::Use(const std::string &name) {
 	Project(programID);
 }
 
-GLuint GL32Renderer::MakeProgram(ShaderAsset &asset) {
+GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
 	std::vector<GLuint> ids;
-	for(auto &shader : asset.shaders) {
+	for(auto &shader : asset.shaders.elements) {
 		GLenum type = 0;
 		switch(shader.type) {
 		case ShaderType::Vertex:
@@ -399,8 +399,8 @@ GLuint GL32Renderer::MakeProgram(ShaderAsset &asset) {
 		GLuint id;
 		if(!GL(id = glCreateShader(type))) { ENGINE_THROW("failed to create shader"); }
 
-		const GLchar *src = shader.source.c_str();
-		const GLint len = static_cast<GLint>(shader.source.length());
+		const GLchar *src = shader.source.text.c_str();
+		const GLint len = static_cast<GLint>(shader.source.text.length());
 		if(!GL(glShaderSource(id, 1, &src, &len))) { ENGINE_THROW("failed to upload shader source"); }
 		if(!GL(glCompileShader(id))) { ENGINE_THROW("shader compilation is unsupported on this platform"); }
 

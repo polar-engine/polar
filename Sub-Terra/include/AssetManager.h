@@ -18,16 +18,23 @@ public:
 	AssetManager(Polar *engine) : System(engine) {}
 
 	template<typename T> std::string GetPath(const std::string &name) const {
-		return GetAssetsDir() + '/' + T::Type() + '/' + name + ".asset";
+		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::GetPath requires typename of type Asset");
+		return GetAssetsDir() + '/' + AssetName<T>() + '/' + name + ".asset";
 	}
 
 	template<typename T, typename ...Ts> T Get(const std::string name, Ts && ...args) const {
-		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires object of type Asset");
-		return T::Load(FileSystem::ReadFile(GetPath<T>(name)), std::forward<Ts>(args)...);
+		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
+		T asset(std::forward<Ts>(args)...);
+		std::istringstream ss(FileSystem::ReadFile(GetPath<T>(name)));
+		ss >> asset;
+		return asset;
 	}
 
 	template<typename T> T Get(const std::string name) const {
-		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires object of type Asset");
-		return T::Load(FileSystem::ReadFile(GetPath<T>(name)));
+		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
+		T asset;
+		std::istringstream ss(FileSystem::ReadFile(GetPath<T>(name)));
+		ss >> asset;
+		return asset;
 	}
 };

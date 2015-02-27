@@ -3,7 +3,7 @@
 #include "Renderer.h"
 #include "sdl.h"
 #include "gl.h"
-#include "ShaderAsset.h"
+#include "ShaderProgramAsset.h"
 
 struct PipelineNode {
 	GLuint program;
@@ -22,7 +22,7 @@ private:
 
 	void InitGL();
 	void HandleSDL(SDL_Event &);
-	GLuint MakeProgram(ShaderAsset &);
+	GLuint MakeProgram(ShaderProgramAsset &);
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;

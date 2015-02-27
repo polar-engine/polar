@@ -1,23 +1,33 @@
 #pragma once
 
+#include <string>
 #include "Asset.h"
 
-class TextAsset : public Asset {
-public:
-	const uint32_t length;
-	const std::string text;
+struct TextAsset : Asset {
+	std::string text;
 
-	static std::string Type() { return "text"; }
-	TextAsset(const uint32_t length, const std::string &text) : Asset("text"), length(length), text(text) {}
-	static TextAsset Load(const std::string &data) {
-		const uint32_t dataLength = static_cast<uint32_t>(data.length());
-		if(dataLength < 4) { ENGINE_THROW("missing data length"); }
-		const uint32_t length = swapbe(*reinterpret_cast<const uint32_t *>(data.c_str()));
-		if(length > dataLength - 4) { ENGINE_THROW("invalid data length"); }
-		return TextAsset(length, data.substr(4, static_cast<unsigned int>(length)));
-	}
-	std::string Save() const override final {
-		const uint32_t beLength = swapbe(length);
-		return std::string(reinterpret_cast<const char *>(&beLength), 4) + text;
-	}
+	TextAsset() {}
+	TextAsset(const char *text) : text(text) {}
+	TextAsset(const std::string &text) : text(text) {}
+	TextAsset(std::string &&text) : text(text) {}
 };
+
+inline std::ostream & operator<<(std::ostream &os, TextAsset asset) {
+	const uint32_t length = swapbe(asset.text.length());
+	os << std::string(reinterpret_cast<const char *>(&length), 4);
+	os << asset.text;
+	return os;
+}
+
+inline std::istream & operator>>(std::istream &is, TextAsset &asset) {
+	uint32_t length;
+	is.read(reinterpret_cast<char *>(&length), 4);
+	length = swapbe(length);
+
+	asset.text = std::string(length, '\0');
+	is.read(&asset.text[0], length);
+
+	return is;
+}
+
+template<> inline std::string AssetName<TextAsset>() { return "Text"; }
