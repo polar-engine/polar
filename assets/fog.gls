@@ -13,10 +13,6 @@ void main() {
 
 @shader fragment
 
-vec4 Color(in vec2 texCoord) {
-	return texture(u_colorBuffer, texCoord);
-}
-
 float Depth(in vec2 texCoord) {
 	float depthRange = 1.0 / 64.0;
 	float lowerDepth = 1.0 - depthRange;
@@ -25,46 +21,7 @@ float Depth(in vec2 texCoord) {
 
 void main() {
 	vec2 texCoord = v_vertex;
-	vec4 color = Color(texCoord);
-
-	/* depth enhancement */
-
-	vec2 factor = vec2(1.0 / 1280.0, 1.0 / 720.0);
-	
-	vec2 north = texCoord + vec2( 0,  factor.y);
-	vec2 south = texCoord + vec2( 0, -factor.y);
-	vec2 east  = texCoord + vec2( factor.x,  0);
-	vec2 west  = texCoord + vec2(-factor.x,  0);
-
-	const float MIN_DEPTH = 0;
-	float depth      = max(MIN_DEPTH, Depth(texCoord));
-	float depthNorth = max(MIN_DEPTH, Depth(north));
-	float depthSouth = max(MIN_DEPTH, Depth(south));
-	float depthEast  = max(MIN_DEPTH, Depth(east));
-	float depthWest  = max(MIN_DEPTH, Depth(west));
-	float depthNS = (depthNorth + depthSouth) / 2.0;
-	float depthEW = (depthEast + depthWest) / 2.0;
-	float diffV = abs(depth - depthNS);
-	float diffH = abs(depth - depthEW);
-	float diff = (diffV + diffH) / 2.0;
-
-	if(diffV + diffH > 0.0001) {
-		vec4 colorNorth = mix(Color(texCoord + vec2( 0,  1) * factor.y), color, diffV);
-		vec4 colorSouth = mix(Color(texCoord + vec2( 0, -1) * factor.y), color, diffV);
-		vec4 colorEast  = mix(Color(texCoord + vec2( 1,  0) * factor.x), color, diffH);
-		vec4 colorWest  = mix(Color(texCoord + vec2(-1,  0) * factor.x), color, diffH);
-
-		vec4 newColor = color;
-		newColor += (colorNorth + colorSouth + colorEast + colorWest) * (depthNS + depthEW) / 2.0;
-		newColor /= 5.0;
-
-		const float NEAR = 0.6;
-		const float FAR = 0.999999995;
-		color = mix(color, newColor, clamp((depth - NEAR) / (FAR - NEAR), 0.0, 1.0));
-	}
-
-	/* depth fog */
-	color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), max(0.0, pow(depth, 50.0)));
-
-	o_color = color;
+	vec4 color = texture(u_colorBuffer, texCoord);
+	float depth = Depth(texCoord);
+	o_color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), max(0.0, pow(depth, 50.0)));
 }
