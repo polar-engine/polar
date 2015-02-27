@@ -44,23 +44,20 @@ enum class ProgramOutputType : uint8_t {
 struct ShaderProgramOutputAsset : Asset {
 	ProgramOutputType type;
 	TextAsset key;
-	TextAsset name;
 
 	ShaderProgramOutputAsset() {}
-	ShaderProgramOutputAsset(ProgramOutputType type, TextAsset key, TextAsset name) : type(type), key(key), name(name) {}
+	ShaderProgramOutputAsset(ProgramOutputType type, TextAsset key) : type(type), key(key) {}
 };
 
 inline std::ostream & operator<<(std::ostream &os, ShaderProgramOutputAsset asset) {
 	os << static_cast<uint8_t>(asset.type);
 	os << asset.key;
-	os << asset.name;
 	return os;
 }
 
 inline std::istream & operator>>(std::istream &is, ShaderProgramOutputAsset &asset) {
 	asset.type = static_cast<ProgramOutputType>(is.get());
 	is >> asset.key;
-	is >> asset.name;
 	return is;
 }
 
