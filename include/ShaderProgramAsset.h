@@ -39,7 +39,6 @@ enum class ProgramOutputType : uint8_t {
 /******************** ShaderProgramOutputAsset ********************
  * 1           type
  * TextAsset   key name
- * TextAsset   buffer name
  */
 struct ShaderProgramOutputAsset : Asset {
 	ProgramOutputType type;
