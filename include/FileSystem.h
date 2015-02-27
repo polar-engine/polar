@@ -76,19 +76,18 @@ public:
 		return s;
 	}
 
-	static void WriteFile(const std::string &name, std::string &data) {
+	static void WriteFile(const std::string &name, std::istream &is) {
 		CreateDir(GetDirOf(name));
 
 		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);
 		if(file.fail()) { ENGINE_THROW(name + ": open"); }
 
-		file << data;
+		file << is.rdbuf();
 		if(file.fail()) { ENGINE_THROW(name + ": <<"); }
 
 		file.close();
 		if(file.fail()) { ENGINE_THROW(name + ": close"); }
 	}
-	static void WriteFile(const std::string &name, std::string &&data) { WriteFile(name, data); }
 
 	static bool FileExists(const std::string &path) {
 		std::ifstream file(path);

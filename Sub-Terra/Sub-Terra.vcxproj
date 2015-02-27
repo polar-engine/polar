@@ -139,11 +139,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Asset.h" />
-    <ClInclude Include="..\include\assets.h" />
     <ClInclude Include="..\include\debug.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
-    <ClInclude Include="..\include\ShaderAsset.h" />
+    <ClInclude Include="..\include\ListAsset.h" />
+    <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
     <ClInclude Include="include\Allocator.h" />
     <ClInclude Include="include\Atomic.h" />
