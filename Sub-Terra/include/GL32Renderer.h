@@ -8,8 +8,8 @@
 struct PipelineNode {
 	GLuint program;
 	GLuint fbo = 0;
-	std::vector<GLuint> buffers;
-	std::vector<std::string> bufferNames;
+	std::unordered_map<std::string, GLuint> outs;
+	std::unordered_map<std::string, std::string> ins;
 	PipelineNode(GLuint program) : program(program) {}
 };
 
