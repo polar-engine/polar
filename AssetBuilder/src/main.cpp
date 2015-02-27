@@ -80,16 +80,18 @@ int main(int argc, char **argv) {
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input key"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
 
+						asset.ins.elements.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "out") { /* output buffer */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program output type"); }
+						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output key"); }
 
 						if(args[0] == "color") {
-							if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset.outs.elements.emplace_back(ProgramOutputType::Color, "", "");
-							outs.emplace_back("vec4", args[1]);
+							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
+							asset.outs.elements.emplace_back(ProgramOutputType::Color, args[1]);
+							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "depth") {
-							asset.outs.elements.emplace_back(ProgramOutputType::Depth, "", "");
+							asset.outs.elements.emplace_back(ProgramOutputType::Depth, args[1]);
 						} else { ENGINE_ERROR(iLine << ": unknown program output type"); }
 					} else { ENGINE_ERROR(iLine << ": unknown directive `" << directive << '`'); }
 				} else {
