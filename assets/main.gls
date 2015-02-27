@@ -4,8 +4,8 @@
 @attrib vec3 a_normal
 @varying smooth vec4 v_vertex
 @varying flat vec4 v_normal
-@out color o_color
-@out depth
+@out color color o_color
+@out depth depth
 
 @shader vertex
 

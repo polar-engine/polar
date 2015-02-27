@@ -118,13 +118,18 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		GL(glUseProgram(node.program));
 		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		for(unsigned int iBuffer = 0; iBuffer < node.buffers.size(); ++iBuffer) {
-			auto buffer = node.buffers[iBuffer];
-			GL(glActiveTexture(GL_TEXTURE0 + iBuffer));
-			GL(glBindTexture(GL_TEXTURE_2D, buffer));
-			GLint locBuffer;
-			GL(locBuffer = glGetUniformLocation(node.program, node.bufferNames[iBuffer].c_str()));
-			GL(glUniform1i(locBuffer, iBuffer));
+		if(i > 0) {
+			unsigned int b = 0;
+			for(auto &pair : node.ins) {
+				auto buffer = nodes[i - 1].outs[pair.first];
+				GL(glActiveTexture(GL_TEXTURE0 + b));
+				GL(glBindTexture(GL_TEXTURE_2D, buffer));
+
+				GLint locBuffer;
+				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
+				GL(glUniform1i(locBuffer, b));
+				++b;
+			}
 		}
 
 		switch(i) {
@@ -320,16 +325,18 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 		auto &asset = assets[i], &nextAsset = assets[i + 1];
 		auto &node = nodes[i], &nextNode = nodes[i + 1];
 
-		GL(glGenFramebuffers(1, &node.fbo));
-		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
-
 		std::vector<GLenum> drawBuffers;
 		int colorAttachment = 0;
 
+		GL(glGenFramebuffers(1, &node.fbo));
+		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
+
+		//for(unsigned int o = 0; o < asset.outs.elements.size(); ++o) {
 		for(auto &out : asset.outs.elements) {
 			GLuint buffer;
 			GL(glGenTextures(1, &buffer));
 			GL(glBindTexture(GL_TEXTURE_2D, buffer));
+
 			switch(out.type) {
 			case ProgramOutputType::Color:
 				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
@@ -348,8 +355,14 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				ENGINE_THROW("invalid program output type");
 				break;
 			}
-			nextNode.buffers.emplace_back(buffer);
-			nextNode.bufferNames.emplace_back("u_colorBuffer");
+
+			node.outs.emplace(out.key.text, buffer);
+		}
+
+		for(auto &in : nextAsset.ins.elements) {
+			auto it = node.outs.find(in.key.text);
+			if(it == node.outs.end()) { ENGINE_THROW("failed to connect nodes (invalid key)"); }
+			nextNode.ins.emplace(in.key.text, in.name.text);
 		}
 
 		GL(glDrawBuffers(drawBuffers.size(), drawBuffers.data()));
