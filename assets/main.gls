@@ -5,15 +5,15 @@
 @varying smooth vec4 v_vertex
 @varying flat vec4 v_normal
 @out color color o_color
+@gout color normal o_normal
 @gout depth depth
 
 @shader vertex
 
 void main() {
-	vec4 modelViewVertex = u_modelView * vec4(a_vertex, 1.0);
-	v_vertex = modelViewVertex;
+	v_vertex = u_modelView * vec4(a_vertex, 1.0);
 	v_normal = u_modelView * vec4(a_normal, 0.0);
-	gl_Position = u_projection * modelViewVertex;
+	gl_Position = u_projection * v_vertex;
 }
 
 @shader fragment
@@ -52,5 +52,7 @@ void main() {
 	vec3 hdr = 1.0 - exp2(-final * 1.52);
 	hdr *= max(1.0, length(final) / 2);
 	final = hdr;
+
 	o_color = vec4(final, 1.0);
+	o_normal = v_normal;
 }
