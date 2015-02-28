@@ -316,7 +316,7 @@ void GL32Renderer::Project(GLuint programID) {
 	GLint locProjection;
 	GL(locProjection = glGetUniformLocation(programID, "u_projection"));
 	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
-	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, 80.0f);
+	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, zFar);
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 }
 
@@ -345,7 +345,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 		GL(glGenFramebuffers(1, &node.fbo));
 		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 
-		auto fOut = [this, &drawBuffers, colorAttachment] (ShaderProgramOutputAsset &out) {
+		auto fOut = [this, &drawBuffers, &colorAttachment] (ShaderProgramOutputAsset &out) {
 			GLuint buffer;
 			GL(glGenTextures(1, &buffer));
 			GL(glBindTexture(GL_TEXTURE_2D, buffer));
@@ -359,6 +359,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, buffer, 0));
 				drawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + colorAttachment);
+				++colorAttachment;
 				break;
 			case ProgramOutputType::Depth:
 				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
