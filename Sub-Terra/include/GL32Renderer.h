@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Renderer.h"
 #include "sdl.h"
 #include "gl.h"
+#include "Renderer.h"
 #include "ShaderProgramAsset.h"
 
 struct PipelineNode {
