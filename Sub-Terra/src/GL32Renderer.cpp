@@ -40,7 +40,7 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { ENGINE_THROW("failed to init SDL"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { ENGINE_THROW("failed to set major version attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { ENGINE_THROW("failed to set minor version attribute"); }
-	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY))) { ENGINE_THROW("failed to set profile mask attribute"); }
+	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { ENGINE_THROW("failed to set profile mask attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { ENGINE_THROW("failed to set double buffer attribute"); }
 	//if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { ENGINE_THROW("failed to set multisample buffers attribute"); }
 	//if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { ENGINE_THROW("failed to set multisample samples attribute"); }
@@ -184,7 +184,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			break;
 		}
 		default:
-			/*GLuint vao;
+			GLuint vao;
 			GL(glGenVertexArrays(1, &vao));
 			GL(glBindVertexArray(vao));
 
@@ -204,15 +204,15 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 			GL(glEnableVertexAttribArray(0));
 			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-			glDeleteBuffers(1, &vbo);
-			glDeleteVertexArrays(1, &vao);*/
+			GL(glDeleteBuffers(1, &vbo));
+			GL(glDeleteVertexArrays(1, &vao));
 
-			glBegin(GL_QUADS);
+			/*glBegin(GL_QUADS);
 			glVertex2f(-1, -1);
 			glVertex2f( 1, -1);
 			glVertex2f( 1,  1);
 			glVertex2f(-1,  1);
-			glEnd();
+			glEnd();*/
 			break;
 		}
 	}
