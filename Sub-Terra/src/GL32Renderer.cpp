@@ -403,18 +403,6 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 	Project(nodes.front().program);
 }
 
-void GL32Renderer::Use(const std::string &name) {
-	INFOS("loading shader asset `" << name << '`');
-	auto asset = engine->systems.Get<AssetManager>()->Get<ShaderProgramAsset>(name);
-	auto programID = MakeProgram(asset);
-
-	if(!GL(glUseProgram(programID))) { ENGINE_THROW("failed to use program"); }
-	//activeProgram = programID;
-
-	/* set projection matrix in new program */
-	Project(programID);
-}
-
 GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
 	std::vector<GLuint> ids;
 	for(auto &shader : asset.shaders.elements) {
