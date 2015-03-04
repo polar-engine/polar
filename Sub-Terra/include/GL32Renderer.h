@@ -19,7 +19,6 @@ class GL32Renderer : public Renderer {
 private:
 	SDL_Window *window;
 	SDL_GLContext context;
-	GLuint activeProgram;
 	std::vector<std::string> pipelineNames;
 	std::vector<PipelineNode> nodes;
 
@@ -37,6 +36,5 @@ public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine) : Renderer(engine) {}
 	void SetClearColor(const Point4 &) override final;
-	void Use(const std::string &) override final;
 	void MakePipeline(const std::vector<std::string> &) override final;
 };
