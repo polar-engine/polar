@@ -63,6 +63,9 @@
     <ClCompile Include="src\HumanPlayerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpatialIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EventManager.h">
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="..\include\ListAsset.h">
       <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpatialIndex.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

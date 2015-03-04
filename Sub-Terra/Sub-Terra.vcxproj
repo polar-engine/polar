@@ -133,6 +133,7 @@
     <ClCompile Include="src\OpenSimplexNoise.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
     <ClCompile Include="src\Polar.cpp" />
+    <ClCompile Include="src\SpatialIndex.cpp" />
     <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
     <ClCompile Include="src\World.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="include\ScaleComponent.h" />
     <ClInclude Include="include\sdl.h" />
     <ClInclude Include="include\common.h" />
+    <ClInclude Include="include\SpatialIndex.h" />
     <ClInclude Include="include\SubTerra.h" />
     <ClInclude Include="include\System.h" />
     <ClInclude Include="include\Tag.h" />
