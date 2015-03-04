@@ -20,7 +20,7 @@ const float focus = 0.4;
 float Depth(in vec2 texCoord) {
 	float f = 64.0;
 	float n = 0.1;
-	float z = (2 * n) / (f + n - texture( u_depthBuffer, texCoord ).x * (f - n));
+	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
 	return z;
 }
 
@@ -40,7 +40,7 @@ void main() {
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur);
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.15,  0.37) * aspectCorrect) * blur);
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.37,  0.15) * aspectCorrect) * blur);	
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.37,  0.15) * aspectCorrect) * blur);
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur);
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.37, -0.15) * aspectCorrect) * blur);
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur);
