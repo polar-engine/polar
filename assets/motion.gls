@@ -1,0 +1,24 @@
+@attrib vec2 a_vertex
+@varying smooth vec2 v_vertex
+@in color u_colorBuffer
+@gin last u_last
+@out color color o_color
+@gout color last o_last
+
+@shader vertex
+
+void main() {
+	gl_Position = vec4(a_vertex, 0.0, 1.0);
+	v_vertex = (a_vertex + 1.0) / 2.0;
+}
+
+@shader fragment
+
+void main() {
+	vec2 texCoord = v_vertex;
+	vec4 color = texture(u_colorBuffer, texCoord);
+	vec4 last = texture(u_last, texCoord);
+	vec4 final = mix(last, color, 0.9);
+	o_last = color;
+	o_color = final;
+}
