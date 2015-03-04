@@ -25,7 +25,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.Init();
-	engine.systems.Get<GL32Renderer>()->MakePipeline({"main", "fxaa", "cel", "fog"});
+	engine.systems.Get<GL32Renderer>()->MakePipeline({"main", "fxaa", "cel", "fog", "dof"});
 	engine.Run();
 	engine.Destroy();
 }
