@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 
 		for(auto &shader : asset.shaders.elements) {
 			std::string prepend;
-			prepend += "#version 150\n";
+			prepend += "#version 330\n";
 			prepend += "precision highp float;\n";
 			for(auto &uniform : uniforms) {
 				prepend += "uniform " + std::get<0>(uniform) + ' ' + std::get<1>(uniform) + ";\n";
@@ -133,8 +133,10 @@ int main(int argc, char **argv) {
 				for(auto &varying : varyings) {
 					prepend += std::get<0>(varying) + " in " + std::get<1>(varying) + ' ' + std::get<2>(varying) + ";\n";
 				}
+				prepend += "#extension GL_ARB_explicit_attrib_location: enable\n";
+				int outLoc = 0;
 				for(auto &out : outs) {
-					prepend += "out " + std::get<0>(out) + ' ' + std::get<1>(out) + ";\n";
+					prepend += "layout(location=" + std::to_string(outLoc++) + ") out " + std::get<0>(out) + ' ' + std::get<1>(out) + ";\n";
 				}
 			}
 			shader.source.text = prepend + shader.source.text;

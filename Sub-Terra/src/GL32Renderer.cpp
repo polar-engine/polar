@@ -23,7 +23,7 @@ bool GL32Renderer::IsSupported() {
 		if(!GL(glGetIntegerv(GL_MAJOR_VERSION, &major))) { ENGINE_THROW("failed to get OpenGL major version"); }
 		if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) { ENGINE_THROW("failed to get OpenGL minor version"); }
 		/* if OpenGL version is 3.2 or greater */
-		if(!(major > 3 || (major == 3 && minor >= 2))) {
+ 		if(!(major > 3 || (major == 3 && minor >= 3))) {
 			std::stringstream msg;
 			msg << "actual OpenGL version is " << major << '.' << minor;
 			ENGINE_THROW(msg.str());
@@ -39,11 +39,9 @@ bool GL32Renderer::IsSupported() {
 void GL32Renderer::InitGL() {
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { ENGINE_THROW("failed to init SDL"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { ENGINE_THROW("failed to set major version attribute"); }
-	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { ENGINE_THROW("failed to set minor version attribute"); }
+	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3))) { ENGINE_THROW("failed to set minor version attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { ENGINE_THROW("failed to set profile mask attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { ENGINE_THROW("failed to set double buffer attribute"); }
-	//if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))) { ENGINE_THROW("failed to set multisample buffers attribute"); }
-	//if(!SDL(SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8))) { ENGINE_THROW("failed to set multisample samples attribute"); }
 	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE))) {
 		ENGINE_THROW("failed to create window");
@@ -65,7 +63,6 @@ void GL32Renderer::InitGL() {
 	GL(glEnable(GL_DEPTH_TEST));
 	GL(glEnable(GL_BLEND));
 	GL(glEnable(GL_CULL_FACE));
-	//GL(glEnable(GL_MULTISAMPLE));
 	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	GL(glCullFace(GL_BACK));
 }
@@ -115,36 +112,10 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	std::unordered_map<std::string, GLuint> globals;
 	for(unsigned int i = 0; i < nodes.size(); ++i) {
 		auto &node = nodes[i];
+
 		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 		GL(glUseProgram(node.program));
 		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-		if(i > 0) {
-			unsigned int b = 0;
-			for(auto &pair : nodes[i - 1].globalOuts) { /* for each previous global output */
-				globals.emplace(pair);
-			}
-			for(auto &pair : node.ins) { /* for each input */
-				auto buffer = nodes[i - 1].outs[pair.first];
-				GL(glActiveTexture(GL_TEXTURE0 + b));
-				GL(glBindTexture(GL_TEXTURE_2D, buffer));
-
-				GLint locBuffer;
-				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
-				GL(glUniform1i(locBuffer, b));
-				++b;
-			}
-			for(auto &pair : node.globalIns) { /* for each global input*/
-				auto buffer = globals[pair.first];
-				GL(glActiveTexture(GL_TEXTURE0 + b));
-				GL(glBindTexture(GL_TEXTURE_2D, buffer));
-
-				GLint locBuffer;
-				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
-				GL(glUniform1i(locBuffer, b));
-				++b;
-			}
-		}
 
 		switch(i) {
 		case 0: {
@@ -184,6 +155,31 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			break;
 		}
 		default:
+			for(auto &pair : nodes[i - 1].globalOuts) { /* for each previous global output */
+				globals.emplace(pair);
+			}
+			unsigned int b = 0;
+			for(auto &pair : node.ins) { /* for each input */
+				auto buffer = nodes[i - 1].outs[pair.first];
+				GL(glActiveTexture(GL_TEXTURE0 + b));
+				GL(glBindTexture(GL_TEXTURE_2D, buffer));
+
+				GLint locBuffer;
+				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
+				GL(glUniform1i(locBuffer, b));
+				++b;
+			}
+			for(auto &pair : node.globalIns) { /* for each global input*/
+				auto buffer = globals[pair.first];
+				GL(glActiveTexture(GL_TEXTURE0 + b));
+				GL(glBindTexture(GL_TEXTURE_2D, buffer));
+
+				GLint locBuffer;
+				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
+				GL(glUniform1i(locBuffer, b));
+				++b;
+			}
+
 			GLuint vao;
 			GL(glGenVertexArrays(1, &vao));
 			GL(glBindVertexArray(vao));
@@ -346,31 +342,35 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 
 		auto fOut = [this, &drawBuffers, &colorAttachment] (ShaderProgramOutputAsset &out) {
-			GLuint buffer;
-			GL(glGenTextures(1, &buffer));
-			GL(glBindTexture(GL_TEXTURE_2D, buffer));
+			GLuint texture;
+			GL(glGenTextures(1, &texture));
+			GL(glBindTexture(GL_TEXTURE_2D, texture));
 
 			switch(out.type) {
 			case ProgramOutputType::Color:
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, buffer, 0));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, texture, 0));
 				drawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + colorAttachment);
 				++colorAttachment;
 				break;
 			case ProgramOutputType::Depth:
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
-				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, buffer, 0));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL));
+				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture, 0));
 				break;
 			default:
 				ENGINE_THROW("invalid program output type");
 				break;
 			}
 
-			return buffer;
+			return texture;
 		};
 
 		for(auto &out : asset.outs.elements) { node.outs.emplace(out.key.text, fOut(out)); }
