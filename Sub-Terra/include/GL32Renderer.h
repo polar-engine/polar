@@ -20,6 +20,7 @@ private:
 	SDL_Window *window;
 	SDL_GLContext context;
 	GLuint activeProgram;
+	std::vector<std::string> pipelineNames;
 	std::vector<PipelineNode> nodes;
 
 	void InitGL();

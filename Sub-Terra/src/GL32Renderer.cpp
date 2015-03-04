@@ -287,7 +287,7 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			width = event.window.data1;
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
-			Project(nodes.front().program);
+			MakePipeline(pipelineNames);
 			break;
 		}
 		break;
@@ -321,6 +321,8 @@ void GL32Renderer::SetClearColor(const Point4 &color) {
 }
 
 void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
+	pipelineNames = names;
+
 	std::vector<ShaderProgramAsset> assets;
 	nodes.clear();
 
