@@ -287,7 +287,7 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			width = event.window.data1;
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
-			MakePipeline(pipelineNames);
+			MakePipeline(pipelineNames); /* TODO: XXX: really bad, not cleaning up OpenGL objects */
 			break;
 		}
 		break;
