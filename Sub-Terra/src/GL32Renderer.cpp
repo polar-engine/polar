@@ -119,6 +119,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 		switch(i) {
 		case 0: {
+			GLint locCamera;
+			GL(locCamera = glGetUniformLocation(node.program, "u_camera"));
+			GL(glUniformMatrix4fv(locCamera, 1, GL_FALSE, glm::value_ptr(cameraView)));
 			GLint locModelView;
 			GL(locModelView = glGetUniformLocation(node.program, "u_modelView"));
 
@@ -309,8 +312,12 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 }
 
 void GL32Renderer::Project(GLuint programID) {
+	GL(glUseProgram(programID));
+
 	GLint locProjection;
 	GL(locProjection = glGetUniformLocation(programID, "u_projection"));
+	if(locProjection == -1) { return; } /* -1 if uniform does not exist in program */
+
 	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
 	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, zFar);
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
@@ -396,11 +403,10 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 			msg << "framebuffer status incomplete (0x" << std::hex << status << ')';
 			ENGINE_THROW(msg.str());
 		}
-	}
 
-	/* upload projection matrix to first stage of pipeline */
-	GL(glUseProgram(nodes.front().program));
-	Project(nodes.front().program);
+		/* upload projection matrix to pipeline stage */
+		Project(node.program);
+	}
 }
 
 GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
