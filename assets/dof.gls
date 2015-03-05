@@ -13,8 +13,8 @@ void main() {
 
 @shader fragment
 
-const float maxBlur = 0.15;
-const float bias = 0.013;
+const float maxBlur = 0.5;
+const float bias = 0.01;
 const float focus = 0.4;
 
 float Depth(in vec2 texCoord) {
@@ -32,7 +32,7 @@ void main() {
 	vec2 aspectCorrect = vec2(1.0, aspect);
 
 	float factor = Depth(texCoord) - focus;
-	vec2 blur = vec2(clamp(factor * bias, -maxBlur, maxBlur));
+	vec2 blur = vec2(clamp(factor * bias, 0, maxBlur));
 
 	vec4 col = vec4(0.0);
 
