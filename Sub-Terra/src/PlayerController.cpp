@@ -21,21 +21,20 @@ void PlayerController::Init() {
 		std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5))
 	};
 
-	object = new Object();
-	object->Add<PositionComponent>();
-	object->Add<OrientationComponent>();
-	object->Add<ModelComponent>(triangles);
+	object = engine->AddObject();
+	engine->AddComponent<PositionComponent>(object);
+	engine->AddComponent<OrientationComponent>(object);
+	engine->AddComponent<ModelComponent>(object, triangles);
 	InitObject();
-	engine->AddObject(object);
 
 	/* gravity */
-	auto pos = object->Get<PositionComponent>();
+	//auto pos = object->Get<PositionComponent>();
 	//pos->position.Derivative(1) = Point(0, -9.8f, 0, 1);
 }
 
 void PlayerController::Update(DeltaTicks &dt) {
-	auto pos = object->Get<PositionComponent>();
-	auto orient = object->Get<OrientationComponent>();
+	auto pos = engine->GetComponent<PositionComponent>(object);
+	auto orient = engine->GetComponent<OrientationComponent>(object);
 
 	auto rel = glm::normalize(glm::fvec4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
 	auto abs = (glm::inverse(orient->orientation) * rel) * 2.0f * 16.0f * 0.25f;

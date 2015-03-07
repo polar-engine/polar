@@ -56,8 +56,7 @@ enum class GeometryType : uint8_t {
 	TriangleStrip
 };
 
+typedef std::uint_fast64_t IDType;
+
 #include "Atomic.h"
 #include "Polar.h"
-#include "JobManager.h"
-#include "EventManager.h"
-#include "AssetManager.h"

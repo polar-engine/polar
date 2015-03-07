@@ -8,7 +8,7 @@ protected:
 	bool moveBackward = false;
 	bool moveLeft = false;
 	bool moveRight = false;
-	Object *object;
+	IDType object;
 
 	virtual void InitObject() {};
 	virtual void Init() override;

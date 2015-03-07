@@ -1,21 +1,20 @@
 #pragma once
 
-#include <map>
-#include <boost/range/iterator_range.hpp>
 #include <boost/bimap.hpp>
+#include <boost/bimap/set_of.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
+#include "Component.h"
 #include "System.h"
 
 class Polar {
 public:
 	typedef boost::bimap<
-		//boost::bimaps::unordered_multiset_of<std::uint_fast64_t>,
-		boost::bimaps::multiset_of<Object *>,
+		boost::bimaps::multiset_of<IDType>,
 		boost::bimaps::unordered_multiset_of<const std::type_info *>,
-		boost::bimaps::with_info<Component *>
-	> ComponentsBimap;
-	ComponentsBimap components;
+		boost::bimaps::set_of_relation<>,
+		boost::bimaps::with_info<std::shared_ptr<Component>>
+	> Bimap;
 private:
 	bool _initDone = false;
 	bool _running = false;
@@ -23,11 +22,12 @@ private:
 	void Update(DeltaTicks &);
 public:
 	EntityBase<System> systems;
+	Bimap objects;
+	IDType nextID = 1;
 
 	Polar() {}
-	virtual ~Polar();
 
-	template<typename T> void AddSystem() {
+	template<typename T> inline void AddSystem() {
 		if(T::IsSupported()) {
 			systems.Add<T>(this);
 		} else {
@@ -36,7 +36,7 @@ public:
 		}
 	}
 
-	template<typename T, typename ...Ts> void AddSystem(Ts && ...args) {
+	template<typename T, typename ...Ts> inline void AddSystem(Ts && ...args) {
 		if(T::IsSupported()) {
 			systems.Add<T>(this, std::forward<Ts>(args)...);
 		} else {
@@ -45,13 +45,35 @@ public:
 		}
 	}
 
-	template<typename T> auto GetObjectsWithComponent() -> decltype(components.right.equal_range(&typeid(T))) {
-		static_assert(std::is_base_of<Component, T>::value, "Polar::GetObjectsWithComponent requires object of type Component");
-		return components.right.equal_range(&typeid(T));
+	inline IDType AddObject() { return nextID++; }
+
+	inline void RemoveObject(IDType id) {
+		auto pairLeft = objects.left.equal_range(id);
+		for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
+			for(auto &pairSystem : *systems.Get()) {
+				pairSystem.second->ComponentRemoved(id, it->get_right());
+			}
+		}
+		objects.left.erase(id);
 	}
 
-	void AddObject(Object *);
-	void RemoveObject(Object *, const bool doDelete = true);
+	template<typename T, typename ...Ts> inline void AddComponent(IDType id, Ts && ...args) {
+		InsertComponent(id, new T(std::forward<Ts>(args)...));
+	}
+
+	template<typename T> inline void InsertComponent(IDType id, T *component) {
+		std::shared_ptr<Component> ptr(component);
+		auto pair = objects.insert(Bimap::value_type(id, &typeid(T), ptr));
+		for(auto &pairSystem : *systems.Get()) {
+			pairSystem.second->ComponentAdded(id, &typeid(T), ptr);
+		}
+	}
+
+	template<typename T> inline T * GetComponent(IDType id) {
+		auto it = objects.find(Bimap::relation(id, &typeid(T)));
+		return static_cast<T *>(it->info.get());
+	}
+
 	void Init();
 	void Run();
 	void Destroy();

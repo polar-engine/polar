@@ -1,5 +1,7 @@
 #include "common.h"
 #include "GL32Renderer.h"
+#include "EventManager.h"
+#include "AssetManager.h"
 #include "Integrator.h"
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
@@ -22,7 +24,7 @@ bool GL32Renderer::IsSupported() {
 		GLint major, minor;
 		if(!GL(glGetIntegerv(GL_MAJOR_VERSION, &major))) { ENGINE_THROW("failed to get OpenGL major version"); }
 		if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) { ENGINE_THROW("failed to get OpenGL minor version"); }
-		/* if OpenGL version is 3.2 or greater */
+		/* if OpenGL version is 3.3 or greater */
  		if(!(major > 3 || (major == 3 && minor >= 3))) {
 			std::stringstream msg;
 			msg << "actual OpenGL version is " << major << '.' << minor;
@@ -88,22 +90,29 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	float alpha = integrator->Accumulator().Seconds();
 
 	glm::mat4 cameraView;
-	auto pair = engine->components.right.equal_range(&typeid(PlayerCameraComponent));
-	for(auto it = pair.first; it != pair.second; ++it) {
-		auto object = it->get_left();
-		auto camera = static_cast<PlayerCameraComponent *>(it->info);
+	auto pairRight = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
+	for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+		auto camera = static_cast<PlayerCameraComponent *>(itRight->info.get());
+
+		PositionComponent *pos = nullptr;
+		OrientationComponent *orient = nullptr;
+
+		auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
+		for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
+			auto type = itLeft->get_right();
+			if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); }
+			else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
+		}
 
 		cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
 		cameraView *= glm::toMat4(camera->orientation);
 
-		auto orient = object->Get<OrientationComponent>();
 		if(orient != nullptr) {
 			cameraView *= glm::toMat4(orient->orientation);
 		}
 
 		cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<glm::vec3>());
 
-		auto pos = object->Get<PositionComponent>();
 		if(pos != nullptr) {
 			cameraView = glm::translate(cameraView, -pos->position.Temporal(alpha).To<glm::vec3>());
 		}
@@ -125,19 +134,25 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			GLint locModelView;
 			GL(locModelView = glGetUniformLocation(node.program, "u_modelView"));
 
-			auto pair = engine->components.right.equal_range(&typeid(ModelComponent));
-			for(auto it = pair.first; it != pair.second; ++it) {
-				auto object = it->get_left();
-				auto model = static_cast<ModelComponent *>(it->info);
+			auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
+			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+				auto model = static_cast<ModelComponent *>(itRight->info.get());
+
+				PositionComponent *pos = nullptr;
+				OrientationComponent *orient = nullptr;
+
+				auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
+				for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
+					auto type = itLeft->get_right();
+					if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); }
+					else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
+				}
 
 				auto property = model->Get<GL32ModelProperty>();
 				if(property != nullptr) {
 					glm::mat4 modelView = cameraView;
 
-					auto pos = object->Get<PositionComponent>();
 					if(pos != nullptr) { modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>()); }
-
-					auto orient = object->Get<OrientationComponent>();
 					if(orient != nullptr) { modelView *= glm::toMat4(glm::inverse(orient->orientation)); }
 
 					GLenum drawMode = GL_TRIANGLES;
@@ -226,46 +241,48 @@ void GL32Renderer::Destroy() {
 	SDL(SDL_Quit());
 }
 
-void GL32Renderer::ObjectAdded(Object *object) {
-	auto model = object->Get<ModelComponent>();
-	if(model != nullptr) {
-		GLuint vao;
-		GL(glGenVertexArrays(1, &vao));
-		GL(glBindVertexArray(vao));
+void GL32Renderer::ComponentAdded(IDType id, const std::type_info *ti, std::weak_ptr<Component> ptr) {
+	if(ti != &typeid(ModelComponent)) { return; }
+	auto model = static_cast<ModelComponent *>(ptr.lock().get());
 
-		/* location   attribute
-		*
-		*        0   vertex
-		*        1   normal
-		*/
+	GLuint vao;
+	GL(glGenVertexArrays(1, &vao));
+	GL(glBindVertexArray(vao));
 
-		GLuint vbos[2];
-		GL(glGenBuffers(2, vbos));
+	/* location   attribute
+	*
+	*        0   vertex
+	*        1   normal
+	*/
 
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+	GLuint vbos[2];
+	GL(glGenBuffers(2, vbos));
 
-		auto normals = model->CalculateNormals();
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * normals.size(), normals.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
+	GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
+	GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
-		GL(glEnableVertexAttribArray(0));
-		GL(glEnableVertexAttribArray(1));
+	auto normals = model->CalculateNormals();
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
+	GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * normals.size(), normals.data(), GL_STATIC_DRAW));
+	GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
-		std::vector<GLuint> vbosVector;
-		for(unsigned int i = 0; i < sizeof(vbos) / sizeof(*vbos); ++i) {
-			vbosVector.emplace_back(vbos[i]);
-		}
+	GL(glEnableVertexAttribArray(0));
+	GL(glEnableVertexAttribArray(1));
 
-		model->Add<GL32ModelProperty>(model->points.size(), vao, vbosVector);
-		model->points = ModelComponent::PointsType();
+	std::vector<GLuint> vbosVector;
+	for(unsigned int i = 0; i < sizeof(vbos) / sizeof(*vbos); ++i) {
+		vbosVector.emplace_back(vbos[i]);
 	}
+
+	model->Add<GL32ModelProperty>(model->points.size(), vao, vbosVector);
+	model->points = ModelComponent::PointsType();
 }
 
-void GL32Renderer::ObjectRemoved(Object *object) {
-	auto model = object->Get<ModelComponent>();
+void GL32Renderer::ComponentRemoved(IDType id, const std::type_info *ti) {
+	if(ti != &typeid(ModelComponent)) { return; }
+	auto model = engine->GetComponent<ModelComponent>(id);
+
 	if(model != nullptr) {
 		auto property = model->Get<GL32ModelProperty>();
 		if(property != nullptr) {

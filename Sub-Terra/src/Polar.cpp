@@ -1,12 +1,6 @@
 #include "common.h"
 #include "Polar.h"
 
-Polar::~Polar() {
-	for(auto it = components.left.begin(); it != components.left.end(); it = components.left.upper_bound(it->first)) {
-		delete it->first;
-	}
-}
-
 void Polar::Init() {
 	if(_initDone) { ENGINE_THROW("Polar: already initialized"); }
 
@@ -14,12 +8,6 @@ void Polar::Init() {
 		system.second->Init();
 	}
 
-	/* iterate again in case any systems added objects during initialization */
-	for(auto &system : *systems.Get()) {
-		for(auto it = components.left.begin(); it != components.left.end(); ++it) {
-			system.second->ObjectAdded(it->first);
-		}
-	}
 	_initDone = true;
 }
 
@@ -34,30 +22,6 @@ void Polar::Destroy() {
 	for(auto system = ss->begin(); system != ss->end(); ++system) {
 		system->second->Destroy();
 	}
-}
-
-void Polar::AddObject(Object *object) {
-	if(object == nullptr) { return; }
-
-	for(auto &pair : *object->Get()) {
-		components.insert(ComponentsBimap::value_type(object, pair.first, pair.second.get()));
-	}
-
-	if(_initDone) {
-		for(auto &system : *systems.Get()) {
-			system.second->ObjectAdded(object);
-		}
-	}
-}
-
-void Polar::RemoveObject(Object *object, const bool doDelete) {
-	if(object == nullptr) { return; }
-
-	components.left.erase(object);
-	for(auto &system : *systems.Get()) {
-		system.second->ObjectRemoved(object);
-	}
-	if(doDelete) { delete object; }
 }
 
 void Polar::Run() {

@@ -1,12 +1,14 @@
 #include "common.h"
 #include "SubTerra.h"
 #include "Polar.h"
+#include "JobManager.h"
+#include "EventManager.h"
+#include "AssetManager.h"
 #include "InputManager.h"
 #include "Integrator.h"
 #include "GL32Renderer.h"
 #include "World.h"
 #include "HumanPlayerController.h"
-#include "components.h"
 
 void SubTerra::Run(const std::vector<std::string> &args) {
 	Polar engine;

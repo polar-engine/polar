@@ -122,7 +122,6 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\GL32Renderer.cpp" />
     <ClCompile Include="src\glew.c" />
     <ClCompile Include="src\HumanPlayerController.cpp" />
@@ -166,7 +165,6 @@
     <ClInclude Include="include\Key.h" />
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\NoRenderer.h" />
-    <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\OpenSimplexNoise.h" />
     <ClInclude Include="include\OrientationComponent.h" />
     <ClInclude Include="include\PlayerCameraComponent.h" />

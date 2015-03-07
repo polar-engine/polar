@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Object.h"
-
 class Polar;
 
 class System {
@@ -11,8 +9,8 @@ protected:
 	virtual void Init() {}
 	virtual void Update(DeltaTicks &) {}
 	virtual void Destroy() {}
-	virtual void ObjectAdded(Object *) {}
-	virtual void ObjectRemoved(Object *) {}
+	virtual void ComponentAdded(IDType, const std::type_info *, std::weak_ptr<Component>) {}
+	virtual void ComponentRemoved(IDType, const std::type_info *) {}
 public:
 	static bool IsSupported() { return false; }
 	System(Polar *engine) : engine(engine) {}
