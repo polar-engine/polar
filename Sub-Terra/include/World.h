@@ -28,7 +28,7 @@ enum class ChunkStatus {
 	Dead
 };
 
-typedef std::tuple<ChunkStatus, Chunk *> ChunkContainerType;
+typedef std::tuple<ChunkStatus, IDType> ChunkContainerType;
 typedef std::unordered_map<ChunkKeyType, ChunkContainerType, ChunkKeyHash, ChunkKeyEqual> ChunksType;
 
 class World : public System {

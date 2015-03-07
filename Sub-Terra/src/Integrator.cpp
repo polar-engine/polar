@@ -13,7 +13,7 @@ void Integrator::Update(DeltaTicks &dt) {
 }
 
 void Integrator::Tick(DeltaTicks::seconds_type seconds) {
-	for(auto it = engine->components.left.begin(); it != engine->components.left.end(); ++it) {
+	for(auto it = engine->objects.left.begin(); it != engine->objects.left.end(); ++it) {
 		auto property = it->info->Get<IntegrableProperty>();
 		if(property != nullptr) {
 			for(auto integrable : *property->GetIntegrables()) {

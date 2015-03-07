@@ -1,43 +1,12 @@
 #pragma once
 
-#include <deque>
-#include "Object.h"
-#include "PositionComponent.h"
 #include "ModelComponent.h"
 #include "OpenSimplexNoise.h"
 
-class Chunk : public Object {
+class Chunk : public ModelComponent {
 public:
-	typedef std::deque<Chunk *> pool_type;
-private:
-	static Atomic<pool_type> pool;
-
-	Chunk() {
-		Add<PositionComponent>();
-		Add<ModelComponent>();
-	}
-public:
-	template<typename ...Ts> static inline Chunk * New(Ts && ...args) {
-		auto obj = pool.With<Chunk *>([] (pool_type &pool) {
-			if(pool.empty()) {
-				return new Chunk();
-			} else {
-				auto obj = pool.front();
-				pool.pop_front();
-				return obj;
-			}
-		});
-		obj->Construct(std::forward<Ts>(args)...);
-		return obj;
-	}
-
-	inline void Pool() {
-		pool.With([this] (pool_type &pool) {
-			pool.push_back(this);
-		});
-	}
-
-	inline void Construct(unsigned char width, unsigned char height, unsigned char depth, const std::vector<bool> &blocks) {
+	Chunk(unsigned char width, unsigned char height, unsigned char depth, const std::vector<bool> &blocks) {
+		type = GeometryType::Triangles;
 		const std::vector<Triangle> blockFront = {
 			std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5)),
 			std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5,  0.5,  0.5), Point3(-0.5,  0.5,  0.5))
@@ -63,10 +32,6 @@ public:
 			std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5))
 		};
 
-		auto model = Get<ModelComponent>();
-		auto &points = model->points;
-
-		points.clear();
 		points.reserve(width * height * depth * 3);
 
 		for(unsigned char x = 0; x < width; ++x) {

@@ -29,8 +29,8 @@ protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 	void Destroy() override final;
-	void ObjectAdded(Object *) override final;
-	void ObjectRemoved(Object *) override final;
+	void ComponentAdded(IDType, const std::type_info *, std::weak_ptr<Component>) override final;
+	void ComponentRemoved(IDType, const std::type_info *) override final;
 	void Project(GLuint);
 public:
 	static bool IsSupported();

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "World.h"
+#include "JobManager.h"
 #include "PositionComponent.h"
 #include "PlayerCameraComponent.h"
 
@@ -8,12 +9,12 @@ void World::Init() {
 }
 
 void World::Update(DeltaTicks &) {
-	auto pair = engine->components.right.equal_range(&typeid(PlayerCameraComponent));
+	auto pair = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
 		auto object = it->get_left();
-		auto camera = static_cast<PlayerCameraComponent *>(it->info);
+		auto camera = static_cast<PlayerCameraComponent *>(it->info.get());
 
-		auto pos = object->Get<PositionComponent>();
+		auto pos = engine->GetComponent<PositionComponent>(object);
 		if(pos != nullptr) {
 			const unsigned char distance = 5;
 
@@ -37,10 +38,7 @@ void World::Update(DeltaTicks &) {
 							break;
 						case ChunkStatus::Alive:
 						case ChunkStatus::Dead:
-							if(obj != nullptr) {
-								engine->RemoveObject(obj, false);
-								obj->Pool();
-							}
+							engine->RemoveObject(obj);
 							chunks.erase(it++);
 							continue;
 						}
@@ -60,7 +58,7 @@ void World::Update(DeltaTicks &) {
 								return chunks.find(keyTuple) == chunks.end();
 							})) {
 								chunks.With([&keyTuple] (ChunksType &chunks) {
-									chunks.emplace(keyTuple, std::make_tuple(ChunkStatus::Generating, nullptr));
+									chunks.emplace(keyTuple, std::make_tuple(ChunkStatus::Generating, 0));
 								});
 								jobM->Do([this, jobM, key, keyTuple, chunkSizeF] () {
 									auto dead = chunks.With<bool>([&keyTuple] (ChunksType &chunks) {
@@ -73,15 +71,16 @@ void World::Update(DeltaTicks &) {
 									if(dead) { return; }
 
 									auto data = GenerateChunk(Point3(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple)));
-									auto chunkObj = Chunk::New(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
-									auto pos = chunkObj->Get<PositionComponent>();
+									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
 									auto chunkPos = glm::fvec3(key) * chunkSizeF;
-									pos->position = Point3(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z);
+									auto pos = Point3(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z);
 
-									jobM->Do([this, keyTuple, key, chunkSizeF, chunkObj] () {
-										engine->AddObject(chunkObj);
-										chunks.With([&keyTuple, chunkObj] (ChunksType &chunks) {
-											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, chunkObj);
+									jobM->Do([this, keyTuple, chunk, pos] () {
+										auto id = engine->AddObject();
+										engine->AddComponent<PositionComponent>(id, pos);
+										engine->InsertComponent<ModelComponent>(id, chunk);
+										chunks.With([&keyTuple, id] (ChunksType &chunks) {
+											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, id);
 										});
 									}, JobPriority::High, JobThread::Main);
 								}, JobPriority::Normal, JobThread::Worker);

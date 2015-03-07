@@ -1,5 +1,6 @@
 #include "common.h"
 #include "InputManager.h"
+#include "EventManager.h"
 
 void InputManager::Init() {
 	auto eventM = engine->systems.Get<EventManager>();

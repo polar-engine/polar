@@ -7,8 +7,7 @@
 
 void HumanPlayerController::InitObject() {
 	PlayerController::InitObject();
-	object->Add<PlayerCameraComponent>();
-	auto camera = object->Get<PlayerCameraComponent>();
+	engine->AddComponent<PlayerCameraComponent>(object);
 	//camera->distance = Point3(0, 0, 4);
 }
 
@@ -16,9 +15,8 @@ void HumanPlayerController::Init() {
 	PlayerController::Init();
 
 	auto inputM = engine->systems.Get<InputManager>();
-	auto pos = object->Get<PositionComponent>();
-	auto orient = object->Get<OrientationComponent>();
-	auto camera = object->Get<PlayerCameraComponent>();
+	auto pos = engine->GetComponent<PositionComponent>(object);
+	auto orient = engine->GetComponent<OrientationComponent>(object);
 
 	inputM->On(Key::W, [this] (Key) { moveForward = true; });
 	inputM->On(Key::S, [this] (Key) { moveBackward = true; });
@@ -41,8 +39,10 @@ void HumanPlayerController::Init() {
 
 void HumanPlayerController::Update(DeltaTicks &dt) {
 	PlayerController::Update(dt);
-	auto orient = object->Get<OrientationComponent>();
-	auto camera = object->Get<PlayerCameraComponent>();
+
+	auto orient = engine->GetComponent<OrientationComponent>(object);
+	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
+
 	orient->orientation = orient->orientation * glm::quat(glm::vec3(0, orientVel.y, 0));
 	orient->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * orient->orientation;
 	//camera->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * camera->orientation;
