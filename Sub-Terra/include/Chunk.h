@@ -39,7 +39,7 @@ public:
 				for(unsigned char z = 0; z < depth; ++z) {
 					auto current = z * width * height + x * height + y;
 					if(blocks.at(current)) {
-						Point3 offset(x, y, -z);
+						Point3 offset(x, y, z);
 						if(x == 0 || !blocks.at(current - height)) {
 							for(auto &triangle : blockLeft) {
 								points.emplace_back(std::get<0>(triangle) +offset);
@@ -69,14 +69,14 @@ public:
 							}
 						}
 						if(z == 0 || !blocks.at(current - width * height)) {
-							for(auto &triangle : blockFront) {
+							for(auto &triangle : blockBack) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
 							}
 						}
 						if(z == depth - 1 || !blocks.at(current + width * height)) {
-							for(auto &triangle : blockBack) {
+							for(auto &triangle : blockFront) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);

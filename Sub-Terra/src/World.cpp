@@ -70,14 +70,14 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
+									auto chunkPos = glm::fvec3(key) * chunkSizeF;
+									auto pos = new PositionComponent(Point3(chunkPos.x, chunkPos.y, chunkPos.z));
 									auto data = GenerateChunk(Point3(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple)));
 									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
-									auto chunkPos = glm::fvec3(key) * chunkSizeF;
-									auto pos = Point3(chunkPos.x, chunkPos.y, chunkPos.z + chunkSize.z);
 
 									jobM->Do([this, keyTuple, chunk, pos] () {
 										auto id = engine->AddObject();
-										engine->AddComponent<PositionComponent>(id, pos);
+										engine->InsertComponent<PositionComponent>(id, pos);
 										engine->InsertComponent<ModelComponent>(id, chunk);
 										chunks.With([&keyTuple, id] (ChunksType &chunks) {
 											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, id);
@@ -102,7 +102,7 @@ std::vector<bool> World::GenerateChunk(const Point3 &&p) const {
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
 
 	const Point3 blockSize(1, 1, 1);
-	Point3 actual = p * Point3(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, -blockSize.z * chunkSize.z);
+	Point3 actual = p * Point3(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, blockSize.z * chunkSize.z);
 
 	int i = 0;
 	for(float z = 0; z < blockSize.z * chunkSize.z; z += blockSize.z) {
