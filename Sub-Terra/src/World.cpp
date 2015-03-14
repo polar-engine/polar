@@ -71,13 +71,13 @@ void World::Update(DeltaTicks &) {
 									if(dead) { return; }
 
 									auto chunkPos = glm::fvec3(key) * chunkSizeF;
-									auto pos = new PositionComponent(Point3(chunkPos.x, chunkPos.y, chunkPos.z));
+									auto pos = Point3(chunkPos.x, chunkPos.y, chunkPos.z);
 									auto data = GenerateChunk(Point3(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple)));
 									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
 
 									jobM->Do([this, keyTuple, chunk, pos] () {
 										auto id = engine->AddObject();
-										engine->InsertComponent<PositionComponent>(id, pos);
+										engine->AddComponent<PositionComponent>(id, pos);
 										engine->InsertComponent<ModelComponent>(id, chunk);
 										chunks.With([&keyTuple, id] (ChunksType &chunks) {
 											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, id);
