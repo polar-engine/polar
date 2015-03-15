@@ -1,25 +1,8 @@
 #pragma once
 
+#include <boost/unordered_map.hpp>
 #include "System.h"
 #include "Chunk.h"
-
-typedef std::tuple<int64_t, int64_t, int64_t> ChunkKeyType;
-
-struct ChunkKeyHash : public std::unary_function<ChunkKeyType, std::size_t> {
-	std::size_t operator()(const ChunkKeyType &k) const {
-		return static_cast<size_t>((std::get<0>(k) << 8) + (std::get<1>(k) << 4) + std::get<2>(k));
-	}
-};
-
-struct ChunkKeyEqual : public std::binary_function<ChunkKeyType, ChunkKeyType, bool> {
-	bool operator()(const ChunkKeyType &v0, const ChunkKeyType &v1) const {
-		return (
-			std::get<0>(v0) == std::get<0>(v1) &&
-			std::get<1>(v0) == std::get<1>(v1) &&
-			std::get<2>(v0) == std::get<2>(v1)
-		);
-	}
-};
 
 enum class ChunkStatus {
 	Generating,
@@ -28,8 +11,9 @@ enum class ChunkStatus {
 	Dead
 };
 
+typedef std::tuple<int64_t, int64_t, int64_t> ChunkKeyType;
 typedef std::tuple<ChunkStatus, IDType> ChunkContainerType;
-typedef std::unordered_map<ChunkKeyType, ChunkContainerType, ChunkKeyHash, ChunkKeyEqual> ChunksType;
+typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 
 class World : public System {
 private:
