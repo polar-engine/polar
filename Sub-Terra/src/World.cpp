@@ -18,12 +18,12 @@ void World::Update(DeltaTicks &) {
 		if(pos != nullptr) {
 			const unsigned char distance = 5;
 
-			auto chunkSizeF = glm::fvec3(chunkSize);
-			auto keyBase = glm::ivec3(glm::floor(pos->position.To<glm::fvec3>()) / chunkSizeF);
+			auto chunkSizeF = Point3(chunkSize);
+			auto keyBase = glm::ivec3(glm::round(pos->position.Get()) / chunkSizeF);
 			auto jobM = engine->systems.Get<JobManager>();
 
 			/* clean up chunks outside distance */
-			chunks.With([this, distance, &keyBase] (ChunksType &chunks) {
+			chunks.With([this, jobM, distance, &keyBase] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
 					auto &keyTuple = it->first;
 					auto obj = std::get<1>(it->second);
@@ -38,7 +38,7 @@ void World::Update(DeltaTicks &) {
 							break;
 						case ChunkStatus::Alive:
 						case ChunkStatus::Dead:
-							engine->RemoveObject(obj);
+							jobM->Do([this, obj] () { engine->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
 							chunks.erase(it++);
 							continue;
 						}
@@ -70,14 +70,13 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
-									auto chunkPos = glm::fvec3(key) * chunkSizeF;
-									auto pos = Point3(chunkPos.x, chunkPos.y, chunkPos.z);
+									auto pos = new PositionComponent(Point3(key) * chunkSizeF);
 									auto data = GenerateChunk(Point3(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple)));
 									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
 
 									jobM->Do([this, keyTuple, chunk, pos] () {
 										auto id = engine->AddObject();
-										engine->AddComponent<PositionComponent>(id, pos);
+										engine->InsertComponent<PositionComponent>(id, pos);
 										engine->InsertComponent<ModelComponent>(id, chunk);
 										chunks.With([&keyTuple, id] (ChunksType &chunks) {
 											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, id);
