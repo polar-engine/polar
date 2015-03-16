@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ModelComponent.h"
-#include "OpenSimplexNoise.h"
 
 class Chunk : public ModelComponent {
 public:

@@ -2,7 +2,7 @@
 
 #include <boost/unordered_map.hpp>
 #include "System.h"
-#include "Chunk.h"
+#include "OpenSimplexNoise.h"
 
 enum class ChunkStatus {
 	Generating,
