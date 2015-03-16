@@ -51,6 +51,9 @@ void World::Update(DeltaTicks &) {
 				for(int x = -d; x <= d; ++x) {
 					for(int y = -d; y <= d; ++y) {
 						for(int z = -d; z <= d; ++z) {
+							/* only operate on outer ring so at least one of x y z must have absolute value of d */
+							if(glm::abs(x) != d && glm::abs(y) != d && glm::abs(z) != d) { continue; }
+
 							auto key = keyBase + glm::ivec3(x, y, z);
 							auto keyTuple = std::make_tuple(key.x, key.y, key.z);
 
