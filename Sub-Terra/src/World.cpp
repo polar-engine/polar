@@ -19,7 +19,7 @@ void World::Update(DeltaTicks &) {
 			const unsigned char distance = 5;
 
 			auto chunkSizeF = Point3(chunkSize);
-			auto keyBase = glm::ivec3(pos->position.Get() / chunkSizeF);
+			auto keyBase = glm::ivec3(glm::floor(pos->position.Get() / chunkSizeF));
 			auto jobM = engine->systems.Get<JobManager>();
 
 			/* clean up chunks outside distance */
