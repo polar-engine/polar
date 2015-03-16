@@ -39,7 +39,7 @@ public:
 				for(unsigned char z = 0; z < depth; ++z) {
 					auto current = z * width * height + x * height + y;
 					if(blocks.at(current)) {
-						Point3 offset(x, y, z);
+						Point3 offset(x + 0.5f, y + 0.5f, z + 0.5f);
 						if(x == 0 || !blocks.at(current - height)) {
 							for(auto &triangle : blockLeft) {
 								points.emplace_back(std::get<0>(triangle) +offset);
