@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Component.h"
+#include "IntegrableProperty.h"
+#include "Integrable.h"
 
 class PlayerCameraComponent : public Component {
 public:
