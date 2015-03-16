@@ -1,8 +1,9 @@
 #include "common.h"
 #include "World.h"
 #include "JobManager.h"
-#include "PositionComponent.h"
 #include "PlayerCameraComponent.h"
+#include "PositionComponent.h"
+#include "Chunk.h"
 
 void World::Init() {
 	
