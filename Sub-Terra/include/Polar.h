@@ -22,6 +22,7 @@ private:
 	void Update(DeltaTicks &);
 public:
 	EntityBase<System> systems;
+	std::vector<System *> orderedSystems;
 	Bimap objects;
 	IDType nextID = 1;
 
@@ -30,6 +31,7 @@ public:
 	template<typename T> inline void AddSystem() {
 		if(T::IsSupported()) {
 			systems.Add<T>(this);
+			orderedSystems.emplace_back(systems.Get<T>());
 		} else {
 			std::string msg = typeid(T).name() + std::string(": unsupported");
 			ENGINE_THROW(msg);
@@ -39,6 +41,7 @@ public:
 	template<typename T, typename ...Ts> inline void AddSystem(Ts && ...args) {
 		if(T::IsSupported()) {
 			systems.Add<T>(this, std::forward<Ts>(args)...);
+			orderedSystems.emplace_back(systems.Get<T>());
 		} else {
 			std::string msg = typeid(T).name() + std::string(": unsupported");
 			ENGINE_THROW(msg);

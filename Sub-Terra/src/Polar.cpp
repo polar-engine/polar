@@ -4,23 +4,22 @@
 void Polar::Init() {
 	if(_initDone) { ENGINE_THROW("Polar: already initialized"); }
 
-	for(auto &system : *systems.Get()) {
-		system.second->Init();
+	for(auto &system : orderedSystems) {
+		system->Init();
 	}
 
 	_initDone = true;
 }
 
 void Polar::Update(DeltaTicks &dt) {
-	for(auto &system : *systems.Get()) {
-		system.second->Update(dt);
+	for(auto system : orderedSystems) {
+		system->Update(dt);
 	}
 }
 
 void Polar::Destroy() {
-	auto ss = systems.Get();
-	for(auto system = ss->begin(); system != ss->end(); ++system) {
-		system->second->Destroy();
+	for(auto it = orderedSystems.rbegin(); it != orderedSystems.rend(); ++it) {
+		(*it)->Destroy();
 	}
 }
 
@@ -28,7 +27,6 @@ void Polar::Run() {
 	_running = true;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
-	//DeltaTicks iteration = DeltaTicks(ENGINE_TICKS_PER_SECOND / 200);
 
 	while(_running) {
 		then = now;
