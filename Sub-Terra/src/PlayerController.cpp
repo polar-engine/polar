@@ -1,5 +1,6 @@
 #include "common.h"
 #include "PlayerController.h"
+#include "EventManager.h"
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
 #include "BoundingComponent.h"
@@ -28,9 +29,35 @@ void PlayerController::Init() {
 	engine->AddComponent<ModelComponent>(object, triangles);
 	InitObject();
 
+	auto ownPos = engine->GetComponent<PositionComponent>(object);
+	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
+
 	/* gravity */
-	auto pos = engine->GetComponent<PositionComponent>(object);
-	pos->position.Derivative(1) = Point3(0, -9.8f, 0);
+	ownPos->position.Derivative(1) = Point3(0, -9.8f, 0);
+
+	/* collision detection and response */
+	engine->systems.Get<EventManager>()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg) {
+		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
+		for(auto it = pair.first; it != pair.second; ++it) {
+			auto id = it->get_left();
+			if(id == object) { continue; }
+
+			auto objPos = engine->GetComponent<PositionComponent>(id);
+			if(objPos != nullptr) {
+				auto objBounds = engine->GetComponent<BoundingComponent>(id);
+				if(objBounds != nullptr) {
+					if(ownBounds->box.CollidesWith(objBounds->box, *ownPos->position, *objPos->position)) {
+						ownPos->position.Derivative(1)->y = 0;
+						auto &y = ownPos->position.Derivative()->y;
+						y = (glm::max)(0.0f, y);
+						break;
+					} else {
+						ownPos->position.Derivative(1)->y = -9.8f;
+					}
+				}
+			}
+		}
+	});
 }
 
 void PlayerController::Update(DeltaTicks &dt) {
@@ -43,25 +70,4 @@ void PlayerController::Update(DeltaTicks &dt) {
 	ownPos->position.Derivative()->x = abs.x;
 	//pos->position.Derivative()->y = abs.y;
 	ownPos->position.Derivative()->z = abs.z;
-
-	auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
-	for(auto it = pair.first; it != pair.second; ++it) {
-		auto id = it->get_left();
-		if(id == object) { continue; }
-
-		auto objPos = engine->GetComponent<PositionComponent>(id);
-		if(objPos != nullptr) {
-			auto objBounds = engine->GetComponent<BoundingComponent>(id);
-			if(objBounds != nullptr) {
-				if(ownBounds->box.CollidesWith(objBounds->box, *ownPos->position, *objPos->position)) {
-					ownPos->position.Derivative(1)->y = 0;
-					auto &y = ownPos->position.Derivative()->y;
-					y = (glm::max)(0.0f, y);
-					break;
-				} else {
-					ownPos->position.Derivative(1)->y = -9.8f;
-				}
-			}
-		}
-	}
 }
