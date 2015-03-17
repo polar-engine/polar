@@ -3,6 +3,7 @@
 #include "JobManager.h"
 #include "PlayerCameraComponent.h"
 #include "PositionComponent.h"
+#include "BoundingComponent.h"
 #include "Chunk.h"
 
 void World::Init() {
@@ -74,14 +75,27 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
-									auto pos = new PositionComponent(Point3(key) * chunkSizeF);
 									auto data = GenerateChunk(Point3(std::get<0>(keyTuple), std::get<1>(keyTuple), std::get<2>(keyTuple)));
-									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, std::move(data));
+									auto pos = new PositionComponent(Point3(key) * chunkSizeF);
+									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, data);
+									auto bounds = new BoundingComponent(Point3(0.0f), blockSize * chunkSizeF);
 
-									jobM->Do([this, keyTuple, chunk, pos] () {
+									/* add all block bounding boxes in chunk as children */
+									for(unsigned char x = 0; x < chunkSize.x; ++x) {
+										for(unsigned char y = 0; y < chunkSize.y; ++y) {
+											for(unsigned char z = 0; z < chunkSize.z; ++z) {
+												if(data.at(z * chunkSize.x * chunkSize.y + x * chunkSize.y + y) == true) {
+													bounds->box.children.emplace_back(Point3(x * blockSize.x, y * blockSize.y, z * blockSize.z), blockSize);
+												}
+											}
+										}
+									}
+
+									jobM->Do([this, keyTuple, pos, chunk, bounds] () {
 										auto id = engine->AddObject();
 										engine->InsertComponent<PositionComponent>(id, pos);
 										engine->InsertComponent<ModelComponent>(id, chunk);
+										engine->InsertComponent<BoundingComponent>(id, bounds);
 										chunks.With([&keyTuple, id] (ChunksType &chunks) {
 											chunks.at(keyTuple) = std::make_tuple(ChunkStatus::Alive, id);
 										});

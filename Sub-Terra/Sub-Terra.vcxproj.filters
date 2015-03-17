@@ -200,5 +200,8 @@
     <ClInclude Include="include\SpatialIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\BoundingComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
