@@ -63,7 +63,6 @@ void PlayerController::Init() {
 void PlayerController::Update(DeltaTicks &dt) {
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto ownOrient = engine->GetComponent<OrientationComponent>(object);
-	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
 
 	auto rel = glm::normalize(Point4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
 	auto abs = (glm::inverse(ownOrient->orientation) * rel) * 8.0f;
