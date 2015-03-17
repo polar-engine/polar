@@ -1,6 +1,7 @@
 #include "common.h"
 #include "Integrator.h"
 #include "IntegrableProperty.h"
+#include "EventManager.h"
 
 void Integrator::Update(DeltaTicks &dt) {
 	accumulator += dt;
@@ -21,4 +22,5 @@ void Integrator::Tick(DeltaTicks::seconds_type seconds) {
 			}
 		}
 	}
+	engine->systems.Get<EventManager>()->FireIn("integrator", "ticked");
 }
