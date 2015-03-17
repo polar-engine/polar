@@ -27,7 +27,7 @@ void HumanPlayerController::Init() {
 	inputM->After(Key::A, [this] (Key) { moveLeft = false; });
 	inputM->After(Key::D, [this] (Key) { moveRight = false; });
 
-	inputM->After(Key::Space, [pos] (Key) {
+	inputM->On(Key::Space, [pos] (Key) {
 		pos->position.Derivative()->y = 9.8f / 2;
 	});
 
