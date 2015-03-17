@@ -54,9 +54,12 @@ void PlayerController::Update(DeltaTicks &dt) {
 			auto objBounds = engine->GetComponent<BoundingComponent>(id);
 			if(objBounds != nullptr) {
 				if(ownBounds->box.CollidesWith(objBounds->box, *ownPos->position, *objPos->position)) {
+					ownPos->position.Derivative(1)->y = 0;
 					auto &y = ownPos->position.Derivative()->y;
-					y = (glm::max)(0.4f, y);
+					y = (glm::max)(0.0f, y);
 					break;
+				} else {
+					ownPos->position.Derivative(1)->y = -9.8f;
 				}
 			}
 		}
