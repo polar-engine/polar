@@ -26,31 +26,35 @@ struct BoundingBox {
 			aBegin.z > bEnd.z);
 	}
 
-	bool AABBSwept(const BoundingBox &b, const std::pair<Point3, Point3> &ownPoses, const Point3 &bPos) const {
-		auto &ownPos = std::get<0>(ownPoses);
-		auto &ownPos2 = std::get<1>(ownPoses);
-		auto &ownVel = ownPos2 - ownPos;
+	std::pair<float, Point3> AABBSwept(const BoundingBox &b, const std::tuple<Point3, Point3, Point3> &own, const Point3 &bPos) const {
+		std::pair<float, Point3> result = std::make_pair(1.0f, Point3(0.0f));
+
+		auto &ownPos = std::get<0>(own);
+		auto &ownPos2 = std::get<1>(own);
+		auto &ownVel = std::get<2>(own);
 
 		BoundingBox broadphase(
 			Point3(
-				ownVel.x > 0 ? ownPos.x : ownPos2.x,
-				ownVel.y > 0 ? ownPos.y : ownPos2.y,
-				ownVel.z > 0 ? ownPos.z : ownPos2.z
+				ownVel.x > 0.0f ? ownPos.x : ownPos2.x,
+				ownVel.y > 0.0f ? ownPos.y : ownPos2.y,
+				ownVel.z > 0.0f ? ownPos.z : ownPos2.z
 			),
 			Point3(
-				ownVel.x > 0 ? size.x + ownVel.x : size.x - ownVel.x,
-				ownVel.y > 0 ? size.y + ownVel.y : size.y - ownVel.y,
-				ownVel.z > 0 ? size.z + ownVel.z : size.z - ownVel.z
+				ownVel.x > 0.0f ? size.x + ownVel.x : size.x - ownVel.x,
+				ownVel.y > 0.0f ? size.y + ownVel.y : size.y - ownVel.y,
+				ownVel.z > 0.0f ? size.z + ownVel.z : size.z - ownVel.z
 			)
 		);
 
-		if(!broadphase.AABBCheck(b, position, bPos)) { return false; }
+		if(!broadphase.AABBCheck(b, position, bPos)) { return result; }
 
 		/* if has children, OR results and return immediately */
+		/* return child with lowest entry time */
 		if(!b.children.empty()) {
-			auto result = false;
 			for(auto &child : b.children) {
-				result |= AABBSwept(child, ownPoses, bPos);
+				auto r = AABBSwept(child, own, bPos);
+				if(std::get<0>(r) < 1.0f) { return r; }
+				//if(std::get<0>(r) < std::get<0>(result)) { result = r; }
 			}
 			return result;
 		}
@@ -133,11 +137,22 @@ struct BoundingBox {
 		if(entryTime > exitTime ||
 		   (entry.x < 0.0f && entry.y < 0.0f && entry.z < 0.0f) ||
 		   entry.x > 1.0f || entry.y > 1.0f || entry.z > 1.0f) {
-			return false;
+			return result;
 		}
 
-		/* true once all conditions are met */
-		return true;
+		std::get<0>(result) = entryTime;
+
+		/* determine normal of collided surface */
+
+		if(entryTime == entry.x) {
+			std::get<1>(result) = Point3(inverseEntry.x < 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
+		} else if(entryTime == entry.y) {
+			std::get<1>(result) = Point3(0.0f, inverseEntry.y < 0.0f ? 1.0f : -1.0f, 0.0f);
+		} else {
+			std::get<1>(result) = Point3(0.0f, 0.0f, inverseEntry.z < 0.0f ? 1.0f : -1.0f);
+		}
+
+		return result;
 	}
 };
 
