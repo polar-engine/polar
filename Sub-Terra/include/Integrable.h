@@ -8,18 +8,22 @@ public:
 	virtual bool HasDerivative(unsigned char = 0) = 0;
 	virtual IntegrableBase & GetDerivative(unsigned char = 0) = 0;
 	virtual void Integrate(const DeltaTicks::seconds_type) = 0;
+	virtual void Revert() = 0;
 };
 
 template<typename T> class Integrable : public IntegrableBase {
 private:
 	typedef std::unique_ptr<Integrable<T>> derivative_type;
+	T previousValue;
 	T value;
 	derivative_type derivative;
 public:
-	template<typename ...Ts> Integrable(Ts && ...args) : value(std::forward<Ts>(args)...) {}
+	template<typename ...Ts> Integrable(Ts && ...args) : value(std::forward<Ts>(args)...), previousValue(value) {}
 
 	inline T & Get() { return value; }
+	inline T & GetPrevious() { return previousValue; }
 	template<typename _To> inline _To To() { return static_cast<_To>(value); }
+	template<typename _To> inline _To PreviousTo() { return static_cast<_To>(previousValue); }
 
 	inline bool HasDerivative(unsigned char n = 0) override final {
 		if(!derivative) {
@@ -60,8 +64,13 @@ public:
 	inline void Integrate(const DeltaTicks::seconds_type seconds) override final {
 		if(HasDerivative()) {
 			if(HasDerivative(1)) { Derivative().Integrate(seconds); }
+			previousValue = value;
 			value += Derivative().value * seconds;
 		}
+	}
+
+	inline void Revert() override final {
+		value = previousValue;
 	}
 
 	inline T & operator*() { return value; }
