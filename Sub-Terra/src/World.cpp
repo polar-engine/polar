@@ -104,7 +104,6 @@ std::vector<bool> World::GenerateChunk(const Point3 &&p) const {
 	std::vector<bool> blocks;
 	blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
 
-	const Point3 blockSize(1, 1, 1);
 	Point3 actual = p * Point3(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, blockSize.z * chunkSize.z);
 
 	int i = 0;
