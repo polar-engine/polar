@@ -46,7 +46,7 @@ void PlayerController::Init() {
 			if(objPos != nullptr) {
 				auto objBounds = engine->GetComponent<BoundingComponent>(id);
 				if(objBounds != nullptr) {
-					if(ownBounds->box.CollidesWith(objBounds->box, *ownPos->position, *objPos->position)) {
+					if(ownBounds->box.AABBSwept(objBounds->box, std::make_pair(ownPos->position.GetPrevious(), *ownPos->position), *objPos->position)) {
 						ownPos->position.Get().y = ownPos->position.GetPrevious().y;
 						auto &y = ownPos->position.Derivative()->y;
 						y = (glm::max)(0.0f, y);
