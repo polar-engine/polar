@@ -47,12 +47,10 @@ void PlayerController::Init() {
 				auto objBounds = engine->GetComponent<BoundingComponent>(id);
 				if(objBounds != nullptr) {
 					if(ownBounds->box.CollidesWith(objBounds->box, *ownPos->position, *objPos->position)) {
-						ownPos->position.Derivative(1)->y = 0;
+						ownPos->position.Get().y = ownPos->position.GetPrevious().y;
 						auto &y = ownPos->position.Derivative()->y;
 						y = (glm::max)(0.0f, y);
 						break;
-					} else {
-						ownPos->position.Derivative(1)->y = -9.8f;
 					}
 				}
 			}
