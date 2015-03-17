@@ -28,19 +28,19 @@ struct BoundingBox {
 		}
 
 		/* false if have children and none collide with b */
-		if(!children.empty()) {
+		/*if(!children.empty()) {
 			auto result = false;
 			for(auto &child : children) {
 				result |= child.CollidesWith(b, ownPos, bPos);
 			}
 			return result;
-		}
+		}*/
 
 		/* false if b has children and none collide with self */
 		if(!b.children.empty()) {
 			auto result = false;
 			for(auto &child : b.children) {
-				result |= child.CollidesWith(*this, bPos, ownPos);
+				result |= CollidesWith(child, ownPos, bPos);
 			}
 			return result;
 		}
