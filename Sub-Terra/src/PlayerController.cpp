@@ -46,11 +46,31 @@ void PlayerController::Init() {
 			if(objPos != nullptr) {
 				auto objBounds = engine->GetComponent<BoundingComponent>(id);
 				if(objBounds != nullptr) {
-					if(ownBounds->box.AABBSwept(objBounds->box, std::make_pair(ownPos->position.GetPrevious(), *ownPos->position), *objPos->position)) {
-						ownPos->position.Get().y = ownPos->position.GetPrevious().y;
-						auto &y = ownPos->position.Derivative()->y;
-						y = (glm::max)(0.0f, y);
-						break;
+					auto &prev = ownPos->position.GetPrevious();
+					auto &curr = *ownPos->position;
+					auto &vel = *ownPos->position.Derivative();
+
+					float entryTime = 0.0f;
+					while(entryTime != 1.0f) {
+						Point3 normal;
+						auto tickVel = curr - prev;
+						std::tie(entryTime, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, tickVel), *objPos->position);
+						if(entryTime < 1.0f) {
+							//float dotProduct = glm::dot(vel, normal) * entryTime;
+							vel *= entryTime;
+							if(glm::abs(normal.x) > 0) {
+								vel.x = -vel.x;
+								ownPos->position.Get().x = ownPos->position.GetPrevious().x;
+							}
+							if(glm::abs(normal.y) > 0) {
+								vel.y = -vel.y;
+								ownPos->position.Get().y = ownPos->position.GetPrevious().y;
+							}
+							if(glm::abs(normal.z) > 0) {
+								vel.z = -vel.z;
+								ownPos->position.Get().z = ownPos->position.GetPrevious().z;
+							}
+						}
 					}
 				}
 			}
