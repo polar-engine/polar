@@ -44,7 +44,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	orient->orientation = orient->orientation * glm::quat(glm::vec3(0, orientVel.y, 0));
-	orient->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * orient->orientation;
-	//camera->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * camera->orientation;
+	//orient->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * orient->orientation;
+	camera->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * camera->orientation;
 	orientVel *= 1 - 2 * dt.Seconds();
 }
