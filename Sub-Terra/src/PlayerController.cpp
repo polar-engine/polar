@@ -8,24 +8,24 @@
 
 void PlayerController::Init() {
 	const std::vector<Triangle> triangles = {
-		std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5)),
-		std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5,  0.5,  0.5), Point3(-0.5,  0.5,  0.5)),
-		std::make_tuple(Point3(-0.5,  0.5,  0.5), Point3( 0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
-		std::make_tuple(Point3( 0.5,  0.5,  0.5), Point3( 0.5,  0.5, -0.5), Point3(-0.5,  0.5, -0.5)),
-		std::make_tuple(Point3(-0.5,  0.5, -0.5), Point3( 0.5,  0.5, -0.5), Point3(-0.5, -0.5, -0.5)),
-		std::make_tuple(Point3( 0.5,  0.5, -0.5), Point3( 0.5, -0.5, -0.5), Point3(-0.5, -0.5, -0.5)),
-		std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3( 0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5)),
-		std::make_tuple(Point3( 0.5, -0.5, -0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5, -0.5,  0.5)),
-		std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5, -0.5, -0.5), Point3( 0.5,  0.5,  0.5)),
-		std::make_tuple(Point3( 0.5, -0.5, -0.5), Point3( 0.5,  0.5, -0.5), Point3( 0.5,  0.5,  0.5)),
-		std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
-		std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5))
+		std::make_tuple(Point3(-0.375, -0.85,  0.25), Point3( 0.375, -0.85,  0.25), Point3(-0.375,  0.85,  0.25)),
+		std::make_tuple(Point3( 0.375, -0.85,  0.25), Point3( 0.375,  0.85,  0.25), Point3(-0.375,  0.85,  0.25)),
+		std::make_tuple(Point3(-0.375,  0.85,  0.25), Point3( 0.375,  0.85,  0.25), Point3(-0.375,  0.85, -0.25)),
+		std::make_tuple(Point3( 0.375,  0.85,  0.25), Point3( 0.375,  0.85, -0.25), Point3(-0.375,  0.85, -0.25)),
+		std::make_tuple(Point3(-0.375,  0.85, -0.25), Point3( 0.375,  0.85, -0.25), Point3(-0.375, -0.85, -0.25)),
+		std::make_tuple(Point3( 0.375,  0.85, -0.25), Point3( 0.375, -0.85, -0.25), Point3(-0.375, -0.85, -0.25)),
+		std::make_tuple(Point3(-0.375, -0.85, -0.25), Point3( 0.375, -0.85, -0.25), Point3(-0.375, -0.85,  0.25)),
+		std::make_tuple(Point3( 0.375, -0.85, -0.25), Point3( 0.375, -0.85,  0.25), Point3(-0.375, -0.85,  0.25)),
+		std::make_tuple(Point3( 0.375, -0.85,  0.25), Point3( 0.375, -0.85, -0.25), Point3( 0.375,  0.85,  0.25)),
+		std::make_tuple(Point3( 0.375, -0.85, -0.25), Point3( 0.375,  0.85, -0.25), Point3( 0.375,  0.85,  0.25)),
+		std::make_tuple(Point3(-0.375, -0.85, -0.25), Point3(-0.375, -0.85,  0.25), Point3(-0.375,  0.85, -0.25)),
+		std::make_tuple(Point3(-0.375, -0.85,  0.25), Point3(-0.375,  0.85,  0.25), Point3(-0.375,  0.85, -0.25))
 	};
 
 	object = engine->AddObject();
 	engine->AddComponent<PositionComponent>(object);
 	engine->AddComponent<OrientationComponent>(object);
-	engine->AddComponent<BoundingComponent>(object, Point3(-0.5f), Point3(1.0f));
+	engine->AddComponent<BoundingComponent>(object, Point3(-0.375f, -0.85f, -0.25f), Point3(0.75f, 1.7f, 0.5f));
 	engine->AddComponent<ModelComponent>(object, triangles);
 	InitObject();
 
