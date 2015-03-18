@@ -5,6 +5,8 @@
 class HumanPlayerController : public PlayerController {
 protected:
 	Point2 orientVel;
+	Point2 orientRot;
+	bool rearView = false;
 
 	virtual void InitObject() override;
 	virtual void Init() override;

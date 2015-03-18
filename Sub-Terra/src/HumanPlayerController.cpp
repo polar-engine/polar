@@ -24,6 +24,7 @@ void HumanPlayerController::Init() {
 	auto inputM = engine->systems.Get<InputManager>();
 	auto pos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
+	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	inputM->On(Key::W, [this] (Key) { moveForward = true; });
 	inputM->On(Key::S, [this] (Key) { moveBackward = true; });
@@ -39,8 +40,20 @@ void HumanPlayerController::Init() {
 	});
 
 	inputM->OnMouseMove([this] (const Point2 &delta) {
-		orientVel.y += glm::radians(0.005f) * delta.x;
-		orientVel.x += glm::radians(0.005f) * delta.y;
+		orientVel.y += glm::radians(0.02f) * delta.x;
+		orientVel.x += glm::radians(0.02f) * delta.y;
+	});
+
+	/* reverse camera view */
+
+	inputM->On(Key::Z, [this, camera] (Key) {
+		rearView = true;
+		camera->distance = Point3(0.0f, 0.0f, 4.0f);
+	});
+
+	inputM->After(Key::Z, [this, camera] (Key) {
+		rearView = false;
+		camera->distance = Point3(0.0f, 0.0f, 0.0f);
 	});
 }
 
@@ -50,8 +63,22 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
-	orient->orientation = orient->orientation * glm::quat(glm::vec3(0, orientVel.y, 0));
-	//orient->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * orient->orientation;
-	camera->orientation = glm::quat(glm::vec3(orientVel.x, 0, 0)) * camera->orientation;
-	orientVel *= 1 - 2 * dt.Seconds();
+	orientRot += orientVel;
+	orientVel *= 1 - 12 * dt.Seconds();
+
+	/* scale to range of -360 to 360 degrees */
+	const auto r360 = glm::radians(360.0f);
+	if(orientRot.x >  r360) { orientRot.x -= r360; }
+	if(orientRot.x < -r360) { orientRot.x += r360; }
+	if(orientRot.y >  r360) { orientRot.y -= r360; }
+	if(orientRot.y < -r360) { orientRot.y += r360; }
+
+	/* clamp x to range of -70 to 70 degrees */
+	const auto r70 = glm::radians(70.0f);
+	if(orientRot.x >  r70) { orientRot.x =  r70; }
+	if(orientRot.x < -r70) { orientRot.x = -r70; }
+
+	const auto r180 = glm::radians(180.0f);
+	orient->orientation = glm::quat(Point3(0.0f, orientRot.y, 0.0f));
+	camera->orientation = glm::quat(Point3(orientRot.x, rearView ? r180 : 0.0f, 0.0f));
 }
