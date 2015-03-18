@@ -53,8 +53,7 @@ struct BoundingBox {
 		if(!b.children.empty()) {
 			for(auto &child : b.children) {
 				auto r = AABBSwept(child, own, bPos);
-				if(std::get<0>(r) < 1.0f) { return r; }
-				//if(std::get<0>(r) < std::get<0>(result)) { result = r; }
+				if(std::get<0>(r) < std::get<0>(result)) { result = r; }
 			}
 			return result;
 		}
