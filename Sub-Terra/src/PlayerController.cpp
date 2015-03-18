@@ -50,26 +50,38 @@ void PlayerController::Init() {
 					auto &curr = *ownPos->position;
 					auto &vel = *ownPos->position.Derivative();
 
-					float entryTime = 0.0f;
-					while(entryTime != 1.0f) {
+					/* loop until all collisions have been resolved */
+					Point3 entry(0.0f);
+					while(entry.x != 1.0f && entry.y != 1.0f && entry.z != 1.0f) {
 						Point3 normal;
 						auto tickVel = curr - prev;
-						std::tie(entryTime, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, tickVel), *objPos->position);
-						if(entryTime < 1.0f) {
-							//float dotProduct = glm::dot(vel, normal) * entryTime;
-							vel *= entryTime;
-							if(glm::abs(normal.x) > 0) {
-								vel.x = -vel.x;
-								ownPos->position.Get().x = ownPos->position.GetPrevious().x;
-							}
-							if(glm::abs(normal.y) > 0) {
-								vel.y = -vel.y;
-								ownPos->position.Get().y = ownPos->position.GetPrevious().y;
-							}
-							if(glm::abs(normal.z) > 0) {
-								vel.z = -vel.z;
-								ownPos->position.Get().z = ownPos->position.GetPrevious().z;
-							}
+
+						/* right now y-axis collision is done first to allow the player to walk without x/z -colliding
+						 * this is somewhat hacky and could potentially be solved by doing in order of soonest to latest entry
+						 */
+
+						/* y-axis collision */
+						std::tie(entry.y, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, Point3(0.0f, tickVel.y, 0.0f)), *objPos->position);
+						if(entry.y < 1.0f) {
+							float remainingTime = 1.0f - entry.y;
+							curr.y = prev.y;
+							vel.y *= -remainingTime * 0.5f;
+						}
+
+						/* x-axis collision */
+						std::tie(entry.x, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, Point3(tickVel.x, 0.0f, 0.0f)), *objPos->position);
+						if(entry.x < 1.0f) {
+							float remainingTime = 1.0f - entry.x;
+							curr.x = prev.x;
+							vel.x *= -remainingTime * 0.0f;
+						}
+
+						/* z-axis collision */
+						std::tie(entry.z, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, Point3(0.0f, 0.0f, tickVel.z)), *objPos->position);
+						if(entry.z < 1.0f) {
+							float remainingTime = 1.0f - entry.z;
+							curr.z = prev.z;
+							vel.z *= -remainingTime * 0.0f;
 						}
 					}
 				}
