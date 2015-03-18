@@ -8,7 +8,8 @@
 void HumanPlayerController::InitObject() {
 	PlayerController::InitObject();
 	engine->AddComponent<PlayerCameraComponent>(object);
-	//camera->distance = Point3(0, 0, 4);
+	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
+	camera->distance = Point3(0, 0, 4);
 }
 
 void HumanPlayerController::Init() {
