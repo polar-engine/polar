@@ -37,54 +37,43 @@ void PlayerController::Init() {
 
 	/* collision detection and response */
 	engine->systems.Get<EventManager>()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg) {
+		auto &prev = ownPos->position.GetPrevious();
+		auto &curr = *ownPos->position;
+		auto &vel = *ownPos->position.Derivative();
+
+		Point3 normal;
+		float entryTime = 0.0f;
+		float remainingTime = 1.0f;
+
 		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
-		for(auto it = pair.first; it != pair.second; ++it) {
-			auto id = it->get_left();
-			if(id == object) { continue; }
 
-			auto objPos = engine->GetComponent<PositionComponent>(id);
-			if(objPos != nullptr) {
-				auto objBounds = engine->GetComponent<BoundingComponent>(id);
-				if(objBounds != nullptr) {
-					auto &prev = ownPos->position.GetPrevious();
-					auto &curr = *ownPos->position;
-					auto &vel = *ownPos->position.Derivative();
+		/* loop until all collisions have been resolved */
+		while(entryTime != 1.0f && remainingTime > 0.0f) {
+			auto tickVel = curr - prev;
+			entryTime = 1.0f;
 
-					/* loop until all collisions have been resolved */
-					Point3 entry(0.0f);
-					while(entry.x != 1.0f && entry.y != 1.0f && entry.z != 1.0f) {
-						Point3 normal;
-						auto tickVel = curr - prev;
+			/* find collision with soonest entry time */
+			for(auto it = pair.first; it != pair.second; ++it) {
+				auto id = it->get_left();
 
-						/* right now y-axis collision is done first to allow the player to walk without x/z -colliding
-						 * this is somewhat hacky and could potentially be solved by doing in order of soonest to latest entry
-						 */
+				/* don't check for collisions with self */
+				if(id == object) { continue; }
 
-						/* y-axis collision */
-						std::tie(entry.y, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, Point3(0.0f, tickVel.y, 0.0f)), *objPos->position);
-						if(entry.y < 1.0f) {
-							float remainingTime = 1.0f - entry.y;
-							curr.y = prev.y;
-							vel.y *= -remainingTime * 0.5f;
-						}
-
-						/* x-axis collision */
-						std::tie(entry.x, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, Point3(tickVel.x, 0.0f, 0.0f)), *objPos->position);
-						if(entry.x < 1.0f) {
-							float remainingTime = 1.0f - entry.x;
-							curr.x = prev.x;
-							vel.x *= -remainingTime * 0.0f;
-						}
-
-						/* z-axis collision */
-						std::tie(entry.z, normal) = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, Point3(0.0f, 0.0f, tickVel.z)), *objPos->position);
-						if(entry.z < 1.0f) {
-							float remainingTime = 1.0f - entry.z;
-							curr.z = prev.z;
-							vel.z *= -remainingTime * 0.0f;
-						}
+				auto objPos = engine->GetComponent<PositionComponent>(id);
+				if(objPos != nullptr) {
+					auto objBounds = engine->GetComponent<BoundingComponent>(id);
+					if(objBounds != nullptr) {
+						auto r = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, tickVel), *objPos->position);
+						if(std::get<0>(r) < entryTime) { std::tie(entryTime, normal) = r; }
 					}
 				}
+			}
+
+			/* respond to collision */
+			if(entryTime < 1.0f) {
+				remainingTime -= entryTime;
+				vel -= normal * glm::dot(vel, normal);
+				curr -= normal * glm::dot(tickVel, normal);
 			}
 		}
 	});
