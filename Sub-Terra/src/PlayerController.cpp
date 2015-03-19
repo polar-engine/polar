@@ -36,20 +36,19 @@ void PlayerController::Init() {
 	ownPos->position.Derivative(1) = Point3(0, -9.8f, 0);
 
 	/* collision detection and response */
-	engine->systems.Get<EventManager>()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg) {
+	engine->systems.Get<EventManager>()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
 		auto &prev = ownPos->position.GetPrevious();
 		auto &curr = *ownPos->position;
 		auto &vel = *ownPos->position.Derivative();
 
 		Point3 normal;
 		float entryTime = 0.0f;
-		float remainingTime = 1.0f;
 
 		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
 
 		/* loop until all collisions have been resolved */
-		while(entryTime != 1.0f && remainingTime > 0.0f) {
-			auto tickVel = curr - prev;
+		while(entryTime != 1.0f) {
+			auto tickVel = vel * delta.float_;
 			entryTime = 1.0f;
 
 			/* find collision with soonest entry time */
@@ -71,9 +70,15 @@ void PlayerController::Init() {
 
 			/* respond to collision */
 			if(entryTime < 1.0f) {
-				remainingTime -= entryTime;
+				/* revert position to point of entry */
+				curr = prev + tickVel * (entryTime - 0.001f);
+
+				/* project velocity along surface (slide) */
 				vel -= normal * glm::dot(vel, normal);
-				curr -= normal * glm::dot(tickVel, normal);
+
+				/* project position by velocity over remaining time of delta */
+				prev = curr;
+				curr += vel * delta.float_ * (1.0f - entryTime);
 			}
 		}
 	});
