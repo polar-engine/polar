@@ -48,7 +48,6 @@ struct BoundingBox {
 
 		if(!broadphase.AABBCheck(b, position, bPos)) { return result; }
 
-		/* if has children, OR results and return immediately */
 		/* return child with lowest entry time */
 		if(!b.children.empty()) {
 			for(auto &child : b.children) {
