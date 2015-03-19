@@ -70,15 +70,16 @@ void PlayerController::Init() {
 
 			/* respond to collision */
 			if(entryTime < 1.0f) {
-				/* revert position to point of entry */
-				curr = prev + tickVel * (entryTime - 0.001f);
+				/* project previous position to point of entry of collision */
+				prev += tickVel * entryTime;
 
-				/* project velocity along surface (slide) */
-				vel -= normal * glm::dot(vel, normal);
+				/* project position onto surface by subtracting surface-to-end vector */
+				curr -= normal * glm::dot(tickVel, normal);
 
-				/* project position by velocity over remaining time of delta */
-				prev = curr;
-				curr += vel * delta.float_ * (1.0f - entryTime);
+				/* project velocity onto surface too
+				 * y is given a bounce factor of 0.125
+				 */
+				vel -= normal * glm::dot(Point3(vel.x, vel.y * 1.125f, vel.z), normal);
 			}
 		}
 	});
@@ -89,7 +90,10 @@ void PlayerController::Update(DeltaTicks &dt) {
 	auto ownOrient = engine->GetComponent<OrientationComponent>(object);
 
 	auto rel = glm::normalize(Point4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
-	auto abs = (glm::inverse(ownOrient->orientation) * rel) * 8.0f;
+	auto abs = (glm::inverse(ownOrient->orientation) * rel) * 4.0f; /* 4 meters per second */
+
+	/* TODO: footstep spread is between 0.5m and 1m */
+
 	ownPos->position.Derivative()->x = abs.x;
 	//pos->position.Derivative()->y = abs.y;
 	ownPos->position.Derivative()->z = abs.z;
