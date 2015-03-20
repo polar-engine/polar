@@ -5,8 +5,8 @@
 class IntegrableBase {
 public:
 	virtual ~IntegrableBase() {}
-	virtual bool HasDerivative(unsigned char = 0) = 0;
-	virtual IntegrableBase & GetDerivative(unsigned char = 0) = 0;
+	virtual bool HasDerivative(const unsigned char = 0) = 0;
+	virtual IntegrableBase & GetDerivative(const unsigned char = 0) = 0;
 	virtual void Integrate(const DeltaTicks::seconds_type) = 0;
 	virtual void Revert() = 0;
 };
@@ -25,7 +25,7 @@ public:
 	template<typename _To> inline _To To() { return static_cast<_To>(value); }
 	template<typename _To> inline _To PreviousTo() { return static_cast<_To>(previousValue); }
 
-	inline bool HasDerivative(unsigned char n = 0) override final {
+	inline bool HasDerivative(const unsigned char n = 0) override final {
 		if(!derivative) {
 			return false;
 		} else if(n == 0) {
@@ -35,7 +35,7 @@ public:
 		}
 	}
 
-	inline IntegrableBase & GetDerivative(unsigned char n = 0) override final {
+	inline IntegrableBase & GetDerivative(const unsigned char n = 0) override final {
 		if(n == 0) {
 			if(!derivative) { derivative = derivative_type(new Integrable<T>()); }
 			return *derivative;
@@ -44,7 +44,7 @@ public:
 		}
 	}
 
-	inline Integrable<T> & Derivative(unsigned char n = 0) {
+	inline Integrable<T> & Derivative(const unsigned char n = 0) {
 		if(n == 0) {
 			if(!derivative) { derivative = derivative_type(new Integrable<T>()); }
 			return *derivative;
@@ -56,16 +56,22 @@ public:
 	inline Integrable<T> Temporal(const DeltaTicks::seconds_type alpha) {
 		T newValue(value);
 		if(HasDerivative()) {
-			newValue += Derivative().Temporal(alpha).value;
+			newValue += Derivative().value;
 		}
 		return Integrable<T>(newValue * alpha + value * (1 - alpha));
 	}
 
 	inline void Integrate(const DeltaTicks::seconds_type seconds) override final {
 		if(HasDerivative()) {
-			if(HasDerivative(1)) { Derivative().Integrate(seconds); }
 			previousValue = value;
-			value += Derivative().value * seconds;
+
+			/* if second-order derivative exists, integrate polynomially */
+			if(HasDerivative(1)) {
+				value += Derivative().value * seconds + Derivative().Derivative().value * seconds * seconds / 2.0f;
+			} else {
+				value += Derivative().value * seconds;
+			}
+			Derivative().Integrate(seconds);
 		}
 	}
 
