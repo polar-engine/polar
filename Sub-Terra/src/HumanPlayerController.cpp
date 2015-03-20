@@ -108,7 +108,6 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	/* scale to range of 0 to 360 degrees */
 	if(bobCounter >= r360) { bobCounter -= r360; }
 
-	/* only increment if moving or not centered */
 	float bobDrop = glm::cos(bobCounter);
 	float bobRoll = glm::sin(bobCounter);
 
