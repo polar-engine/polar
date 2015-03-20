@@ -68,18 +68,20 @@ void PlayerController::Init() {
 				}
 			}
 
-			/* respond to collision */
 			if(entryTime < 1.0f) {
-				/* project previous position to point of entry of collision */
+				/* project velocity onto surface of collider (impulse)
+				* y is given a bounce factor of 0.125
+				*/
+				vel -= normal * glm::dot(Point3(vel.x, vel.y * 1.125f, vel.z), normal);
+
+				/* set current position to just before point of entry */
+				curr = prev + tickVel * (entryTime - 0.0001f);
+
+				/* set previous position to here too */
 				prev += tickVel * entryTime;
 
-				/* project position onto surface by subtracting surface-to-end vector */
-				curr -= normal * glm::dot(tickVel, normal);
-
-				/* project velocity onto surface too
-				 * y is given a bounce factor of 0.125
-				 */
-				vel -= normal * glm::dot(Point3(vel.x, vel.y * 1.125f, vel.z), normal);
+				/* slide current position along surface multiplied by remaining time */
+				curr += vel * delta.float_ * (1.0f - entryTime);
 			}
 		}
 	});
