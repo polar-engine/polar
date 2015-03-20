@@ -86,8 +86,8 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 
 	const float bobInterval = 0.4f;
 	const float bobHalfFreq = r180 / bobInterval;
-	const float bobDropAngle = glm::radians(1.0f);
-	const float bobRollAngle = glm::radians(0.5f);
+	const float bobDropAngle = glm::radians(0.9f);
+	const float bobRollAngle = glm::radians(0.2f);
 	static float bobCounter = 0.0f;
 
 	/* increment if moving */
