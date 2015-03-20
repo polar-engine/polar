@@ -90,9 +90,7 @@ void PlayerController::Update(DeltaTicks &dt) {
 	auto ownOrient = engine->GetComponent<OrientationComponent>(object);
 
 	auto rel = glm::normalize(Point4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
-	auto abs = (glm::inverse(ownOrient->orientation) * rel) * 4.0f; /* 4 meters per second */
-
-	/* TODO: footstep spread is between 0.5m and 1m */
+	auto abs = (glm::inverse(ownOrient->orientation) * rel) * 3.5f; /* 4 meters per second */
 
 	ownPos->position.Derivative()->x = abs.x;
 	//pos->position.Derivative()->y = abs.y;
