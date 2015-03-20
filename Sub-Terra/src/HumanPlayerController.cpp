@@ -67,18 +67,51 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	orientVel *= 1 - 12 * dt.Seconds();
 
 	/* scale to range of -360 to 360 degrees */
-	const auto r360 = glm::radians(360.0f);
+	const float r360 = glm::radians(360.0f);
 	if(orientRot.x >  r360) { orientRot.x -= r360; }
 	if(orientRot.x < -r360) { orientRot.x += r360; }
 	if(orientRot.y >  r360) { orientRot.y -= r360; }
 	if(orientRot.y < -r360) { orientRot.y += r360; }
 
 	/* clamp x to range of -70 to 70 degrees */
-	const auto r70 = glm::radians(70.0f);
+	const float r70 = glm::radians(70.0f);
 	if(orientRot.x >  r70) { orientRot.x =  r70; }
 	if(orientRot.x < -r70) { orientRot.x = -r70; }
 
-	const auto r180 = glm::radians(180.0f);
+	const float r180 = glm::radians(180.0f);
 	orient->orientation = glm::quat(Point3(0.0f, orientRot.y, 0.0f));
 	camera->orientation = glm::quat(Point3(orientRot.x, rearView ? r180 : 0.0f, 0.0f));
+
+	/* walking head bobbing */
+
+	const float bobInterval = 0.4f;
+	const float bobHalfFreq = r180 / bobInterval;
+	const float bobDropAngle = glm::radians(1.0f);
+	const float bobRollAngle = glm::radians(0.5f);
+	static float bobCounter = 0.0f;
+
+	/* increment if moving */
+	if(moveForward | moveBackward | moveLeft | moveRight) {
+		bobCounter += dt.Seconds() * bobHalfFreq;
+	}
+	/* increment until center if not centered */
+	else if(bobCounter != 0.0f) {
+		/* calculate new counter value and scale to range of 0 to 360 degrees */
+		auto newCounter = bobCounter + dt.Seconds() * bobHalfFreq;
+		if(newCounter >= r360) { newCounter -= r360; }
+
+		/* if scaled new counter is no longer greater than old counter */
+		if(newCounter <= bobCounter) { newCounter = 0.0f; }
+		bobCounter = newCounter;
+	}
+
+	/* scale to range of 0 to 360 degrees */
+	if(bobCounter >= r360) { bobCounter -= r360; }
+
+	/* only increment if moving or not centered */
+	float bobDrop = glm::cos(bobCounter);
+	float bobRoll = glm::sin(bobCounter);
+
+	camera->orientation = glm::quat(Point3(-glm::abs(bobDrop) * bobDropAngle, 0.0f, 0.0f)) * camera->orientation;
+	camera->orientation = glm::quat(Point3(0.0f, 0.0f, glm::clamp(bobRoll * bobRollAngle * 1.25f, -bobRollAngle, bobRollAngle))) * camera->orientation;
 }
