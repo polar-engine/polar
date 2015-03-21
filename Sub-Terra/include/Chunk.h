@@ -6,9 +6,17 @@ class Chunk : public ModelComponent {
 public:
 	Chunk(unsigned char width, unsigned char height, unsigned char depth, const std::vector<bool> &blocks) {
 		type = GeometryType::Triangles;
-		const std::vector<Triangle> blockFront = {
-			std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5)),
-			std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5,  0.5,  0.5), Point3(-0.5,  0.5,  0.5))
+		const std::vector<Triangle> blockLeft = {
+			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
+			std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5))
+		};
+		const std::vector<Triangle> blockRight = {
+			std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5, -0.5, -0.5), Point3( 0.5,  0.5,  0.5)),
+			std::make_tuple(Point3( 0.5, -0.5, -0.5), Point3( 0.5,  0.5, -0.5), Point3( 0.5,  0.5,  0.5))
+		};
+		const std::vector<Triangle> blockBottom = {
+			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3( 0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5)),
+			std::make_tuple(Point3( 0.5, -0.5, -0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5, -0.5,  0.5))
 		};
 		const std::vector<Triangle> blockTop = {
 			std::make_tuple(Point3(-0.5,  0.5,  0.5), Point3( 0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
@@ -18,17 +26,9 @@ public:
 			std::make_tuple(Point3(-0.5,  0.5, -0.5), Point3( 0.5,  0.5, -0.5), Point3(-0.5, -0.5, -0.5)),
 			std::make_tuple(Point3( 0.5,  0.5, -0.5), Point3( 0.5, -0.5, -0.5), Point3(-0.5, -0.5, -0.5))
 		};
-		const std::vector<Triangle> blockBottom = {
-			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3( 0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5)),
-			std::make_tuple(Point3( 0.5, -0.5, -0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5, -0.5,  0.5))
-		};
-		const std::vector<Triangle> blockRight = {
-			std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5, -0.5, -0.5), Point3( 0.5,  0.5,  0.5)),
-			std::make_tuple(Point3( 0.5, -0.5, -0.5), Point3( 0.5,  0.5, -0.5), Point3( 0.5,  0.5,  0.5))
-		};
-		const std::vector<Triangle> blockLeft = {
-			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
-			std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5), Point3(-0.5,  0.5, -0.5))
+		const std::vector<Triangle> blockFront = {
+			std::make_tuple(Point3(-0.5, -0.5,  0.5), Point3( 0.5, -0.5,  0.5), Point3(-0.5,  0.5,  0.5)),
+			std::make_tuple(Point3( 0.5, -0.5,  0.5), Point3( 0.5,  0.5,  0.5), Point3(-0.5,  0.5,  0.5))
 		};
 
 		points.reserve(width * height * depth * 3);
@@ -39,6 +39,160 @@ public:
 					auto current = z * width * height + x * height + y;
 					if(blocks.at(current)) {
 						Point3 offset(x + 0.5f, y + 0.5f, z + 0.5f);
+
+						bool left   = x > 0          && blocks.at(current - height);
+						bool right  = x < width - 1  && blocks.at(current + height);
+						bool bottom = y > 0          && blocks.at(current - 1);
+						bool top    = y < height - 1 && blocks.at(current + 1);
+						bool back   = z > 0          && blocks.at(current - width * height);
+						bool front  = z < depth - 1  && blocks.at(current + width * height);
+
+						if(!left && right) {
+							if(!bottom && top) {
+								if(!back && front) {
+									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								} else if(!front && back) {
+									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								} else {
+									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								}
+								continue;
+							} else if(!top && bottom) {
+								if(!back && front) {
+									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								} else if(!front && back) {
+									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								} else {
+									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								}
+								continue;
+							} else if(!back && front) {
+								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								continue;
+							} else if(!front && back) {
+								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								continue;
+							}
+						} else if(!right && left) {
+							if(!bottom && top) {
+								if(!back && front) {
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								} else if(!front && back) {
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								} else {
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								}
+								continue;
+							} else if(!top && bottom) {
+								if(!back && front) {
+									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								} else if(!front && back) {
+									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								} else {
+									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								}
+								continue;
+							} else if(!back && front) {
+								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								continue;
+							} else if(!front && back) {
+								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								continue;
+							}
+						} else if(!bottom && top) {
+							if(!back && front) {
+								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								continue;
+							} else if(!front && back) {
+								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								continue;
+							}
+						} else if(!top && bottom) {
+							if(!back && front) {
+								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								continue;
+							} else if(!front && back) {
+								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								continue;
+							}
+						}
+
 						if(x == 0 || !blocks.at(current - height)) {
 							for(auto &triangle : blockLeft) {
 								points.emplace_back(std::get<0>(triangle) +offset);
