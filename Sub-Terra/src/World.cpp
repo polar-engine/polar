@@ -137,11 +137,26 @@ bool World::GenerateBlock(const Point3 &&p) const {
 		return 1.0 - glm::abs(glm::sin(x));
 	};
 
-	const float scale = 17.0f;
-	auto result = noise.eval(p.x / scale, p.y * 1.6f / scale, p.z / scale);
-	return (
-		result > (fDensity(p.x / scale / 32.0f) - 1) * 1.5f + 0.1f ||
-		result > (fDensity(p.y / scale / 10.0f) - 1) * 1.5f + 0.1f ||
-		result > (fDensity(p.z / scale / 32.0f) - 1) * 1.5f + 0.1f
+	const float scale1 = 17.0f;
+	const float scale2 = scale1 / 17.0f * 8.0f;
+	auto eval1 = noise.eval(p.x / scale1, p.y * 1.6f / scale1, p.z / scale1);
+	auto eval2 = noise.eval(p.x / scale2, p.y / scale2 / 3.0f, p.z / scale2 / 5.0f);
+
+	/* cave systems */
+	auto result1 = (
+		eval1 > (fDensity(p.x / scale1 / 32.0f) - 1) * 1.5f + 0.1f ||
+		eval1 > (fDensity(p.y / scale1 / 10.0f) - 1) * 1.5f + 0.1f ||
+		eval1 > (fDensity(p.z / scale1 / 32.0f) - 1) * 1.5f + 0.1f
 		);
+	/* cave system crevices */
+	auto result2 = (
+		eval1 > (fDensity(p.x / scale1 / 32.0f) - 1) * 1.5f + 0.1f ||
+		eval1 > (fDensity(p.y / scale1 / 10.0f + noise.eval(p.x / scale1 / 60.0f, p.z / scale1 / 60.0f) * 100.0f) - 1) * 1.5f + 0.1f ||
+		eval1 > (fDensity(p.z / scale1 / 32.0f) - 1) * 1.5f + 0.1f
+		);
+	/* crevices */
+	auto result3 = eval2 > -0.75;
+
+	/* AND results so there is only a block if no results dictate no block */
+	return result1 && result2 && result3;
 }
