@@ -47,7 +47,7 @@ public:
 						bool back   = z > 0          && blocks.at(current - width * height);
 						bool front  = z < depth - 1  && blocks.at(current + width * height);
 
-						if(!left && right) {
+						/*if(!left && right) {
 							if(!bottom && top) {
 								if(!back && front) {
 									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
@@ -191,44 +191,44 @@ public:
 								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
 								continue;
 							}
-						}
+						}*/
 
-						if(x == 0 || !blocks.at(current - height)) {
+						if(!left) {
 							for(auto &triangle : blockLeft) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
 							}
 						}
-						if(x == width - 1 || !blocks.at(current + height)) {
+						if(!right) {
 							for(auto &triangle : blockRight) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
 							}
 						}
-						if(y == 0 || !blocks.at(current - 1)) {
+						if(!bottom) {
 							for(auto &triangle : blockBottom) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
 							}
 						}
-						if(y == height - 1 || !blocks.at(current + 1)) {
+						if(!top) {
 							for(auto &triangle : blockTop) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
 							}
 						}
-						if(z == 0 || !blocks.at(current - width * height)) {
+						if(!back) {
 							for(auto &triangle : blockBack) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
 								points.emplace_back(std::get<2>(triangle) +offset);
 							}
 						}
-						if(z == depth - 1 || !blocks.at(current + width * height)) {
+						if(!front) {
 							for(auto &triangle : blockFront) {
 								points.emplace_back(std::get<0>(triangle) +offset);
 								points.emplace_back(std::get<1>(triangle) +offset);
