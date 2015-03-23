@@ -3,21 +3,25 @@
 @uniform mat4 u_projection
 @attrib vec3 a_vertex
 @attrib vec3 a_normal
-@varying smooth vec4 v_pos
-@varying smooth vec4 v_vertex
-@varying flat vec4 v_normal
-@out rgba32 color o_color
-@gout rgba32 normal o_normal
-@gout rgba32 position o_position
+@varying smooth vec3 v_pos
+@varying smooth vec3 v_vertex
+@varying flat vec3 v_normal
+@out rgb8 color o_color
+@gout rgb8 normal o_normal
+@gout rgb32f position o_position
 @gout depth depth
 
 @shader vertex
 
 void main() {
-	v_pos = u_model * vec4(a_vertex, 1.0);
-	v_vertex = u_view * u_model * vec4(a_vertex, 1.0);
-	v_normal = u_view * u_model * vec4(a_normal, 0.0);
-	gl_Position = u_projection * v_vertex;
+	vec4 modelVertex = u_model * vec4(a_vertex, 1.0);
+	vec4 modelViewVertex = u_view * modelVertex;
+
+	v_pos = vec3(modelVertex);
+	v_vertex = vec3(modelViewVertex);
+	v_normal = vec3(u_view * u_model * vec4(a_normal, 0.0));
+
+	gl_Position = u_projection * modelViewVertex;
 }
 
 @shader fragment
@@ -26,7 +30,7 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 	vec3 ambient = vec3(0.01);
 
 	vec3 lightPos = vec3(/*u_view * */vec4(lightPosition, 1.0));
-	vec3 vAux = lightPos - vec3(v_vertex);
+	vec3 vAux = lightPos - v_vertex;
 	vec3 lightDir = normalize(vAux);
 	float distance = length(vAux);
 
@@ -35,13 +39,13 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 
 	//diffuseAttenuation = 1.0;// / (0.2 + 0.05 * distance * distance);
 
-	float nDotL = max(0.0, dot(vec3(v_normal), lightDir));
+	float nDotL = max(0.0, dot(v_normal, lightDir));
 	vec3 diffuse = color * nDotL * diffuseAttenuation;
 
 	vec3 specular = vec3(0.0, 0.0, 0.0);
 	if(nDotL > 0.0) {
-		vec3 halfway = normalize(lightDir + normalize(vec3(-v_vertex)));
-		float nDotH = max(0.0, dot(vec3(v_normal), halfway));
+		vec3 halfway = normalize(lightDir + normalize(-v_vertex));
+		float nDotH = max(0.0, dot(v_normal, halfway));
 		float specularAttenuation = diffuseAttenuation;
 		specular += sqrt(color) * pow(nDotH, shininess) * specularAttenuation;
 	}
@@ -56,7 +60,7 @@ void main() {
 	vec3 hdr = 1.0 - exp2(-lighting * 1.52);
 	hdr *= max(1.0, length(lighting) / 2);
 
-	o_color = vec4(hdr, 1.0);
+	o_color = hdr;
 	o_normal = v_normal;
 	o_position = v_pos;
 }
