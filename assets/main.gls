@@ -1,19 +1,22 @@
-@uniform mat4 u_camera
-@uniform mat4 u_modelView
+@uniform mat4 u_model
+@uniform mat4 u_view
 @uniform mat4 u_projection
 @attrib vec3 a_vertex
 @attrib vec3 a_normal
+@varying smooth vec4 v_pos
 @varying smooth vec4 v_vertex
 @varying flat vec4 v_normal
 @out color color o_color
 @gout color normal o_normal
+@gout color position o_position
 @gout depth depth
 
 @shader vertex
 
 void main() {
-	v_vertex = u_modelView * vec4(a_vertex, 1.0);
-	v_normal = u_modelView * vec4(a_normal, 0.0);
+	v_pos = u_model * vec4(a_vertex, 1.0);
+	v_vertex = u_view * u_model * vec4(a_vertex, 1.0);
+	v_normal = u_view * u_model * vec4(a_normal, 0.0);
 	gl_Position = u_projection * v_vertex;
 }
 
@@ -22,7 +25,7 @@ void main() {
 vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float radius) {
 	vec3 ambient = vec3(0.01);
 
-	vec3 lightPos = vec3(/*u_camera * */vec4(lightPosition, 1.0));
+	vec3 lightPos = vec3(/*u_view * */vec4(lightPosition, 1.0));
 	vec3 vAux = lightPos - vec3(v_vertex);
 	vec3 lightDir = normalize(vAux);
 	float distance = length(vAux);
@@ -47,15 +50,13 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 }
 
 void main() {
-	vec3 final = vec3(0.0);
-	final += light(vec3(0.0), vec3(1.0, 0.5, 0.0) * 1.0, 64.0, 60.0);
-	//final += light(vec3(0.0), vec3(0.74, 0.7, 1.0) * 1.0, 64.0, 60.0);
-	//final += light(vec4(10.0, 0.0, -5.0, 1.0), vec3(1.0, 0.7, 0.74), 256.0, 40.0);
+	vec3 lighting = vec3(0.0);
+	lighting += light(vec3(0.0), vec3(1.0, 0.5, 0.0) * 1.0, 64.0, 60.0);
 
-	vec3 hdr = 1.0 - exp2(-final * 1.52);
-	hdr *= max(1.0, length(final) / 2);
-	final = hdr;
+	vec3 hdr = 1.0 - exp2(-lighting * 1.52);
+	hdr *= max(1.0, length(lighting) / 2);
 
-	o_color = vec4(final, 1.0);
+	o_color = vec4(hdr, 1.0);
 	o_normal = v_normal;
+	o_position = v_pos;
 }
