@@ -1,9 +1,11 @@
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
-@gin last u_last
+@gin motion1 u_one
+@gin motion2 u_two
 @out color color o_color
-@gout color last o_last
+@gout color motion1 o_one
+@gout color motion2 o_two
 
 @shader vertex
 
@@ -14,11 +16,26 @@ void main() {
 
 @shader fragment
 
+int buf = 0;
+
 void main() {
 	vec2 texCoord = v_vertex;
 	vec4 color = texture(u_colorBuffer, texCoord);
-	vec4 last = texture(u_last, texCoord);
-	vec4 final = mix(last, color, 0.9);
-	o_last = color;
-	o_color = final;
+	vec4 prev;
+	if(buf == 0) {
+		buf = 1;
+		prev = color;
+		o_one = color;
+		o_two = color;
+	} else if(buf == 1) {
+		buf = 2;
+		prev = texture(u_two, texCoord);
+		o_one = color;
+	} else {
+		buf = 1;
+		prev = texture(u_one, texCoord);
+		o_two = color;
+	}
+	o_color = mix(prev, color, 0.00001);
+	o_color.r = float(buf / 2.0);
 }

@@ -16,13 +16,13 @@ void main() {
 @shader fragment
 
 const int kernelSize = 16;
-const float kernelScale = 1;
-const float noiseScale = 1;
+const float kernelScale = 0.1;
+const float noiseScale = 0.1;
 const float radius = 3.0;
 
 float Depth(in vec2 texCoord) {
 	float f = 64.0;
-	float n = 0.1;
+	float n = 0.01;
 	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
 	return z;
 }
