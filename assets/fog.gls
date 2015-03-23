@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin depth u_depthBuffer
-@out rgba32 color o_color
+@out rgb8 color o_color
 
 @shader vertex
 
@@ -21,7 +21,7 @@ float Depth(in vec2 texCoord) {
 
 void main() {
 	vec2 texCoord = v_vertex;
-	vec4 color = texture(u_colorBuffer, texCoord);
+	vec3 color = texture(u_colorBuffer, texCoord).rgb;
 	float depth = Depth(texCoord);
-	o_color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), max(0.0, pow(depth, 50.0)));
+	o_color = mix(color, vec3(0.0), max(0.0, pow(depth, 50.0)));
 }

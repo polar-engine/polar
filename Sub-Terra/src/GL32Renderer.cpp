@@ -373,29 +373,68 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 			GL(glGenTextures(1, &texture));
 			GL(glBindTexture(GL_TEXTURE_2D, texture));
 
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+
+			GLenum internalFormat, format, type, attachment;
+
 			switch(out.type) {
-			case ProgramOutputType::Color:
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL));
-				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, texture, 0));
-				drawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + colorAttachment);
-				++colorAttachment;
+			case ProgramOutputType::RGB8:
+				internalFormat = GL_RGB8;
+				format = GL_RGB;
+				type = GL_UNSIGNED_BYTE;
+				attachment = GL_COLOR_ATTACHMENT0;
+				break;
+			case ProgramOutputType::RGBA8:
+				internalFormat = GL_RGBA8;
+				format = GL_RGBA;
+				type = GL_UNSIGNED_BYTE;
+				attachment = GL_COLOR_ATTACHMENT0;
+				break;
+			case ProgramOutputType::RGB16F:
+				internalFormat = GL_RGB16F;
+				format = GL_RGB;
+				type = GL_HALF_FLOAT;
+				attachment = GL_COLOR_ATTACHMENT0;
+				break;
+			case ProgramOutputType::RGBA16F:
+				internalFormat = GL_RGBA16F;
+				format = GL_RGBA;
+				type = GL_HALF_FLOAT;
+				attachment = GL_COLOR_ATTACHMENT0;
+				break;
+			case ProgramOutputType::RGB32F:
+				internalFormat = GL_RGB32F;
+				format = GL_RGB;
+				type = GL_FLOAT;
+				attachment = GL_COLOR_ATTACHMENT0;
+				break;
+			case ProgramOutputType::RGBA32F:
+				internalFormat = GL_RGBA32F;
+				format = GL_RGBA;
+				type = GL_FLOAT;
+				attachment = GL_COLOR_ATTACHMENT0;
 				break;
 			case ProgramOutputType::Depth:
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL));
-				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture, 0));
+				internalFormat = GL_DEPTH_COMPONENT24;
+				format = GL_DEPTH_COMPONENT;
+				type = GL_UNSIGNED_BYTE;
+				attachment = GL_DEPTH_ATTACHMENT;
 				break;
 			default:
 				ENGINE_THROW("invalid program output type");
 				break;
 			}
+
+			if(attachment == GL_COLOR_ATTACHMENT0) {
+				attachment += colorAttachment++;
+				drawBuffers.emplace_back(attachment);
+			}
+
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL));
+			GL(glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0));
 
 			return texture;
 		};

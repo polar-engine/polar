@@ -32,8 +32,13 @@ inline std::istream & operator>>(std::istream &is, ShaderProgramInputAsset &asse
 
 enum class ProgramOutputType : uint8_t {
 	Invalid = 0,
-	Color   = 1,
-	Depth   = 2
+	Depth   = 1,
+	RGB8    = 2,
+	RGBA8   = 3,
+	RGB16F  = 4,
+	RGBA16F = 5,
+	RGB32F  = 6,
+	RGBA32F = 7
 };
 
 /******************** ShaderProgramOutputAsset ********************

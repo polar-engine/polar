@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin depth u_depthBuffer
-@out rgba32 color o_color
+@out rgb8 color o_color
 
 @shader vertex
 
@@ -13,8 +13,8 @@ void main() {
 
 @shader fragment
 
-vec4 Color(in vec2 texCoord) {
-	return texture(u_colorBuffer, texCoord);
+vec3 Color(in vec2 texCoord) {
+	return texture(u_colorBuffer, texCoord).rgb;
 }
 
 float Depth(in vec2 texCoord) {
@@ -25,7 +25,7 @@ float Depth(in vec2 texCoord) {
 
 void main() {
 	vec2 texCoord = v_vertex;
-	vec4 color = Color(texCoord);
+	vec3 color = Color(texCoord);
 
 	vec2 factor = vec2(1.0 / 1280.0, 1.0 / 720.0);
 
@@ -47,12 +47,12 @@ void main() {
 	float diff = (diffV + diffH) / 2.0;
 
 	if(diffV + diffH > 0.0001) {
-		vec4 colorNorth = mix(Color(texCoord + vec2( 0,  1) * factor.y), color, diffV);
-		vec4 colorSouth = mix(Color(texCoord + vec2( 0, -1) * factor.y), color, diffV);
-		vec4 colorEast  = mix(Color(texCoord + vec2( 1,  0) * factor.x), color, diffH);
-		vec4 colorWest  = mix(Color(texCoord + vec2(-1,  0) * factor.x), color, diffH);
+		vec3 colorNorth = mix(Color(texCoord + vec2( 0,  1) * factor.y), color, diffV);
+		vec3 colorSouth = mix(Color(texCoord + vec2( 0, -1) * factor.y), color, diffV);
+		vec3 colorEast  = mix(Color(texCoord + vec2( 1,  0) * factor.x), color, diffH);
+		vec3 colorWest  = mix(Color(texCoord + vec2(-1,  0) * factor.x), color, diffH);
 
-		vec4 newColor = color;
+		vec3 newColor = color;
 		newColor += (colorNorth + colorSouth + colorEast + colorWest) * (depthNS + depthEW) / 2.0;
 		newColor /= 5.0;
 

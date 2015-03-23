@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin position u_posBuffer
-@out rgba32 color o_color
+@out rgb8 color o_color
 
 @shader vertex
 
@@ -16,24 +16,33 @@ void main() {
 float cnoise(vec3 P);
 
 void main() {
-	vec4 pos = texture(u_posBuffer, v_vertex);
-	vec3 noiseCoord = vec3(pos) * 2.5;
-	float eval = cnoise(noiseCoord) * 0.5 + 0.5;
-
-	eval = eval * 0.1 + (1.0 - 0.1);
+	vec3 pos = texture(u_posBuffer, v_vertex).xyz;
+	float eval1 = cnoise(pos * 2.5) * 0.5 + 0.5;
+	float eval2 = cnoise(pos * 0.25) * 0.5 + 0.5;
 
 	/* toon shading */
-	     /*if(eval < 0.83) { eval = 0.83; }
-	else if(eval < 0.88) { eval = 0.88; }
-	else if(eval < 0.91) { eval = 0.91; }
-	else if(eval < 0.92) { eval = 0.92; }
-	else if(eval < 0.93) { eval = 0.93; }
-	else if(eval < 0.95) { eval = 0.95; }
-	else if(eval < 0.98) { eval = 0.98; }
-	else                 { eval = 1.0; }*/
+	     if(eval1 < 0.125) { eval1 = 0.125; }
+//	else if(eval1 < 0.25)  { eval1 = 0.25; }
+	else if(eval1 < 0.375) { eval1 = 0.375; }
+//	else if(eval1 < 0.5)   { eval1 = 0.5; }
+	else if(eval1 < 0.625) { eval1 = 0.625; }
+//	else if(eval1 < 0.75)  { eval1 = 0.75; }
+	else if(eval1 < 0.875) { eval1 = 0.875; }
+	else                   { eval1 = 1.0; }
 
-	o_color = texture(u_colorBuffer, v_vertex);
-	o_color *= eval;
+	     if(eval2 < 0.125) { eval2 = 0.125; }
+	else if(eval2 < 0.25)  { eval2 = 0.25; }
+	else if(eval2 < 0.375) { eval2 = 0.375; }
+	else if(eval2 < 0.5)   { eval2 = 0.5; }
+	else if(eval2 < 0.625) { eval2 = 0.625; }
+	else if(eval2 < 0.75)  { eval2 = 0.75; }
+	else if(eval2 < 0.875) { eval2 = 0.875; }
+	else                   { eval2 = 1.0; }
+
+	eval1 = eval1 * 0.05 + (1.0 - 0.05);
+	eval2 = eval2 * 0.15 + (1.0 - 0.15);
+
+	o_color = texture(u_colorBuffer, v_vertex).rgb * eval1 * eval2;
 }
 
 vec3 mod289(vec3 x) {

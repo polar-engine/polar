@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin depth u_depthBuffer
-@out rgba32 color o_color
+@out rgb8 color o_color
 
 @shader vertex
 
@@ -26,7 +26,7 @@ float Depth(in vec2 texCoord) {
 
 void main() {
 	vec2 texCoord = v_vertex;
-	vec4 color = texture(u_colorBuffer, texCoord);
+	vec3 color = texture(u_colorBuffer, texCoord).rgb;
 
 	float aspect = 1280.0 / 720.0;
 	vec2 aspectCorrect = vec2(1.0, aspect);
@@ -34,53 +34,52 @@ void main() {
 	float factor = Depth(texCoord) - focus;
 	vec2 blur = vec2(clamp(factor * bias, 0, maxBlur));
 
-	vec4 col = vec4(0.0);
+	vec3 col = vec3(0.0);
 
-	col += texture(u_colorBuffer, texCoord);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.15,  0.37) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.37,  0.15) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.37, -0.15) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.15, -0.37) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,  -0.4)  * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.15,  0.37) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.29,  0.29) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.37,  0.15) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.4,   0.0)  * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.37, -0.15) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.15, -0.37) * aspectCorrect) * blur);
+	col += texture(u_colorBuffer, texCoord).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.15,  0.37) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.37,  0.15) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.37, -0.15) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.15, -0.37) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,  -0.4)  * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.15,  0.37) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.29,  0.29) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.37,  0.15) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.4,   0.0)  * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.37, -0.15) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.15, -0.37) * aspectCorrect) * blur).rgb;
 
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.15,  0.37) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.37,  0.15) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.37, -0.15) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.15, -0.37) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.15,  0.37) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.37,  0.15) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.37, -0.15) * aspectCorrect) * blur * 0.9);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.15, -0.37) * aspectCorrect) * blur * 0.9);
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.15,  0.37) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.37,  0.15) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.37, -0.15) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.15, -0.37) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.15,  0.37) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.37,  0.15) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.37, -0.15) * aspectCorrect) * blur * 0.9).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.15, -0.37) * aspectCorrect) * blur * 0.9).rgb;
 
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,  -0.4)  * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.29,  0.29) * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.4,   0.0)  * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur * 0.7);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur * 0.7);
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,  -0.4)  * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.29,  0.29) * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.4,   0.0)  * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur * 0.7).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur * 0.7).rgb;
 
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,  -0.4)  * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.29,  0.29) * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.4,   0.0)  * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur * 0.4);
-	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur * 0.4);
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.29,  0.29) * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.4,   0.0)  * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.29, -0.29) * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,  -0.4)  * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.29,  0.29) * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.4,   0.0)  * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur * 0.4).rgb;
+	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur * 0.4).rgb;
 
 	o_color = col / 41.0;
-	o_color.a = 1.0;
 }
