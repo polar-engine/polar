@@ -128,15 +128,16 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 		switch(i) {
 		case 0: {
-			GLint locCamera;
-			GL(locCamera = glGetUniformLocation(node.program, "u_camera"));
-			GL(glUniformMatrix4fv(locCamera, 1, GL_FALSE, glm::value_ptr(cameraView)));
-			GLint locModelView;
-			GL(locModelView = glGetUniformLocation(node.program, "u_modelView"));
+			GLint locView;
+			GL(locView = glGetUniformLocation(node.program, "u_view"));
+			GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
+			GLint locModel;
+			GL(locModel = glGetUniformLocation(node.program, "u_model"));
 
 			auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
 			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 				auto model = static_cast<ModelComponent *>(itRight->info.get());
+				glm::mat4 modelMatrix;
 
 				PositionComponent *pos = nullptr;
 				OrientationComponent *orient = nullptr;
@@ -152,8 +153,8 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				if(property != nullptr) {
 					glm::mat4 modelView = cameraView;
 
-					if(pos != nullptr) { modelView = glm::translate(modelView, pos->position.Temporal(alpha).To<glm::vec3>()); }
-					if(orient != nullptr) { modelView *= glm::toMat4(glm::inverse(orient->orientation)); }
+					if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<glm::vec3>()); }
+					if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orientation)); }
 
 					GLenum drawMode = GL_TRIANGLES;
 					switch(model->type) {
@@ -165,7 +166,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 						break;
 					}
 
-					GL(glUniformMatrix4fv(locModelView, 1, GL_FALSE, glm::value_ptr(modelView)));
+					GL(glUniformMatrix4fv(locModel, 1, GL_FALSE, glm::value_ptr(modelMatrix)));
 					GL(glBindVertexArray(property->vao));
 					GL(glDrawArrays(drawMode, 0, property->numVertices));
 				}
@@ -378,7 +379,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL));
 				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, texture, 0));
 				drawBuffers.emplace_back(GL_COLOR_ATTACHMENT0 + colorAttachment);
 				++colorAttachment;
