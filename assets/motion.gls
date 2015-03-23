@@ -3,9 +3,9 @@
 @in color u_colorBuffer
 @gin motion1 u_one
 @gin motion2 u_two
-@out color color o_color
-@gout color motion1 o_one
-@gout color motion2 o_two
+@out rgba32 color o_color
+@gout rgba32 motion1 o_one
+@gout rgba32 motion2 o_two
 
 @shader vertex
 

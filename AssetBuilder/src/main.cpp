@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 					} else if(directive == "out") { /* output to next pipeline stage */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program output type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output key"); }
-						if(args[0] == "color") {
+						if(args[0] == "rgba32") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
 							asset.outs.elements.emplace_back(ProgramOutputType::Color, args[1]);
 							outs.emplace_back("vec4", args[2]);
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
 					} else if(directive == "gout") { /* global output */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program global output type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program global output key"); }
-						if(args[0] == "color") {
+						if(args[0] == "rgba32") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program global output name"); }
 							asset.globalOuts.elements.emplace_back(ProgramOutputType::Color, args[1]);
 							outs.emplace_back("vec4", args[2]);

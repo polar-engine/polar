@@ -6,9 +6,9 @@
 @varying smooth vec4 v_pos
 @varying smooth vec4 v_vertex
 @varying flat vec4 v_normal
-@out color color o_color
-@gout color normal o_normal
-@gout color position o_position
+@out rgba32 color o_color
+@gout rgba32 normal o_normal
+@gout rgba32 position o_position
 @gout depth depth
 
 @shader vertex

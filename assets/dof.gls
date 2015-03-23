@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin depth u_depthBuffer
-@out color color o_color
+@out rgba32 color o_color
 
 @shader vertex
 

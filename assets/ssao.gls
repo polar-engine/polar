@@ -4,7 +4,7 @@
 @in color u_colorBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
-@out color color o_color
+@out rgba32 color o_color
 
 @shader vertex
 
