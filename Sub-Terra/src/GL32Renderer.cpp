@@ -163,7 +163,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 						break;
 					case GeometryType::TriangleStrip:
 						drawMode = GL_TRIANGLE_STRIP;
-						break;
+							break;
+						case GeometryType::None:
+							break;
 					}
 
 					GL(glUniformMatrix4fv(locModel, 1, GL_FALSE, glm::value_ptr(modelMatrix)));
@@ -423,7 +425,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				type = GL_UNSIGNED_BYTE;
 				attachment = GL_DEPTH_ATTACHMENT;
 				break;
-			default:
+			case ProgramOutputType::Invalid:
 				ENGINE_THROW("invalid program output type");
 				break;
 			}
@@ -477,7 +479,7 @@ GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
 		case ShaderType::Fragment:
 			type = GL_FRAGMENT_SHADER;
 			break;
-		default:
+		case ShaderType::Invalid:
 			ENGINE_THROW("invalid shader type");
 		}
 
