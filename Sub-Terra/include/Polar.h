@@ -66,7 +66,7 @@ public:
 
 	template<typename T> inline void InsertComponent(IDType id, T *component) {
 		std::shared_ptr<Component> ptr(component);
-		auto pair = objects.insert(Bimap::value_type(id, &typeid(T), ptr));
+		/*auto pair = */objects.insert(Bimap::value_type(id, &typeid(T), ptr));
 		for(auto &pairSystem : *systems.Get()) {
 			pairSystem.second->ComponentAdded(id, &typeid(T), ptr);
 		}

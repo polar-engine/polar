@@ -278,7 +278,7 @@ void GL32Renderer::ComponentAdded(IDType id, const std::type_info *ti, std::weak
 		vbosVector.emplace_back(vbos[i]);
 	}
 
-	model->Add<GL32ModelProperty>(model->points.size(), vao, vbosVector);
+	model->Add<GL32ModelProperty>(static_cast<GLsizei>(model->points.size()), vao, vbosVector);
 	model->points = ModelComponent::PointsType();
 }
 
