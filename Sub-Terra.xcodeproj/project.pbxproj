@@ -21,6 +21,13 @@
 		7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407711A1AADD100B55B7A /* OpenGL.framework */; };
 		7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F54077F1A1AAF8300B55B7A /* Cocoa.framework */; };
+		7F64992C1AC175EC0001DCFF /* HumanPlayerController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */; };
+		7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499261AC175EC0001DCFF /* InputManager.cpp */; };
+		7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499271AC175EC0001DCFF /* Integrator.cpp */; };
+		7F64992F1AC175EC0001DCFF /* OpenSimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */; };
+		7F6499301AC175EC0001DCFF /* PlayerController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499291AC175EC0001DCFF /* PlayerController.cpp */; };
+		7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */; };
+		7F6499321AC175EC0001DCFF /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992B1AC175EC0001DCFF /* World.cpp */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 /* End PBXBuildFile section */
 
@@ -95,7 +102,6 @@
 		7F0CB6651A25DC8100623543 /* ShaderAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderAsset.h; path = include/ShaderAsset.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6661A25DC8100623543 /* TextAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextAsset.h; path = include/TextAsset.h; sourceTree = SOURCE_ROOT; };
 		7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OrientationComponent.h; path = include/OrientationComponent.h; sourceTree = "<group>"; };
-		7F3F886E1A2C92A30078F5F9 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = include/Object.h; sourceTree = "<group>"; };
 		7F3F886F1A2C92A30078F5F9 /* Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Property.h; path = include/Property.h; sourceTree = "<group>"; };
 		7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		7F54073E1A1AAC4100B55B7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = SOURCE_ROOT; };
@@ -103,6 +109,14 @@
 		7F5407781A1AAF0100B55B7A /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
 		7F54077F1A1AAF8300B55B7A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		7F558EB11A25CB6F006622FA /* AssetBuilder */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AssetBuilder; sourceTree = BUILT_PRODUCTS_DIR; };
+		7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HumanPlayerController.cpp; path = src/HumanPlayerController.cpp; sourceTree = "<group>"; };
+		7F6499261AC175EC0001DCFF /* InputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputManager.cpp; path = src/InputManager.cpp; sourceTree = "<group>"; };
+		7F6499271AC175EC0001DCFF /* Integrator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Integrator.cpp; path = src/Integrator.cpp; sourceTree = "<group>"; };
+		7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenSimplexNoise.cpp; path = src/OpenSimplexNoise.cpp; sourceTree = "<group>"; };
+		7F6499291AC175EC0001DCFF /* PlayerController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayerController.cpp; path = src/PlayerController.cpp; sourceTree = "<group>"; };
+		7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpatialIndex.cpp; path = src/SpatialIndex.cpp; sourceTree = "<group>"; };
+		7F64992B1AC175EC0001DCFF /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = src/World.cpp; sourceTree = "<group>"; };
+		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
 		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -158,6 +172,7 @@
 			children = (
 				7F0CB6601A25DC8100623543 /* Asset.h */,
 				7F0CB6611A25DC8100623543 /* assets.h */,
+				7F6865C61A9C857A00170F08 /* getline.h */,
 				7F0CB6621A25DC8100623543 /* debug.h */,
 				7F0CB6631A25DC8100623543 /* endian.h */,
 				7F0CB6641A25DC8100623543 /* FileSystem.h */,
@@ -189,11 +204,18 @@
 				7F0CB64B1A25D90B00623543 /* AppDelegate.mm */,
 				7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */,
 				7F0CB64D1A25D90B00623543 /* glew.c */,
+				7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */,
+				7F6499261AC175EC0001DCFF /* InputManager.cpp */,
+				7F6499271AC175EC0001DCFF /* Integrator.cpp */,
 				7F0CB64E1A25D90B00623543 /* JobManager.cpp */,
 				7F0CB64F1A25D90B00623543 /* main.m */,
+				7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */,
+				7F6499291AC175EC0001DCFF /* PlayerController.cpp */,
 				7F0CB6501A25D90B00623543 /* Polar.cpp */,
+				7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */,
 				7F0CB6511A25D90B00623543 /* SubTerra.cpp */,
 				7F0CB6521A25D90B00623543 /* Worker.cpp */,
+				7F64992B1AC175EC0001DCFF /* World.cpp */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
@@ -215,7 +237,6 @@
 				7F0CB6301A25D86E00623543 /* Job.h */,
 				7F0CB6311A25D86E00623543 /* JobManager.h */,
 				7F0CB6331A25D86E00623543 /* NoRenderer.h */,
-				7F3F886E1A2C92A30078F5F9 /* Object.h */,
 				7F0CB6341A25D86E00623543 /* Polar.h */,
 				7F3F886F1A2C92A30078F5F9 /* Property.h */,
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
@@ -406,13 +427,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */,
+				7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */,
 				7F0CB6581A25D90B00623543 /* Polar.cpp in Sources */,
 				7F0CB6571A25D90B00623543 /* main.m in Sources */,
 				7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */,
+				7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */,
 				7F0CB6561A25D90B00623543 /* JobManager.cpp in Sources */,
 				7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */,
+				7F64992C1AC175EC0001DCFF /* HumanPlayerController.cpp in Sources */,
 				7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */,
+				7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */,
+				7F6499321AC175EC0001DCFF /* World.cpp in Sources */,
+				7F6499301AC175EC0001DCFF /* PlayerController.cpp in Sources */,
 				7F0CB6551A25D90B00623543 /* glew.c in Sources */,
+				7F64992F1AC175EC0001DCFF /* OpenSimplexNoise.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,16 +473,28 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Applications/Xcode6-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+					"$(SRCROOT)/include",
+				);
 				METAL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include";
 			};
 			name = Debug;
 		};
 		7F558EB61A25CB6F006622FA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Applications/Xcode6-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+					"$(SRCROOT)/include",
+				);
 				METAL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include";
 			};
 			name = Release;
 		};
@@ -542,6 +582,11 @@
 				CLANG_ENABLE_MODULES = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Applications/Xcode6-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+					"$(SRCROOT)/include",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -556,6 +601,11 @@
 				CLANG_ENABLE_MODULES = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Applications/Xcode6-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+					"$(SRCROOT)/include",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";

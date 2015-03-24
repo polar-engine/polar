@@ -13,7 +13,7 @@ struct TextAsset : Asset {
 };
 
 inline std::ostream & operator<<(std::ostream &os, TextAsset asset) {
-	const uint32_t length = swapbe(asset.text.length());
+	const uint32_t length = swapbe(static_cast<uint32_t>(asset.text.length()));
 	os << std::string(reinterpret_cast<const char *>(&length), 4);
 	os << asset.text;
 	return os;
