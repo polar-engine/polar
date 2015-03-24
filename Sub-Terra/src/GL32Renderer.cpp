@@ -452,7 +452,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 
 		for(auto &in : nextAsset.globalIns.elements) { nextNode.globalIns.emplace(in.key.text, in.name.text); }
 
-		GL(glDrawBuffers(drawBuffers.size(), drawBuffers.data()));
+		GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data()));
 
 		GLenum status;
 		GL(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
