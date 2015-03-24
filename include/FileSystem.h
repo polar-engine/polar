@@ -33,13 +33,16 @@ public:
 		return std::string(sz);
 #endif
 #ifdef __APPLE__
-#error "FileSystem::GetApp: not implemented"
+//#error "FileSystem::GetApp: not implemented"
+		ENGINE_THROW("FileSystem::GetApp: not implemented");
+		return "";
 #endif
 	}
 
 	static std::string GetAppDir() {
+#ifdef _WIN32
 		return GetDirOf(GetApp());
-		/*
+#endif
 #ifdef __APPLE__
 		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
 		CFStringRef path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
@@ -49,7 +52,6 @@ public:
 		CFRelease(path);
 		return std::string(sz);
 #endif
-		*/
 	}
 	
 	static std::string ReadFile(const std::string &name) {
@@ -98,11 +100,11 @@ public:
 #ifdef _WIN32
 		struct _stat st;
 		if(_stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
+#else
+		struct stat st;
+		if(stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
+#endif
 		return st.st_mtime;
-#endif
-#ifdef __APPLE__
-#error "FileSystem::GetModifiedTime: not implemented"
-#endif
 	}
 
 	static void Rename(const std::string &oldPath, const std::string &newPath) {
