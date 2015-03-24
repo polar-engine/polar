@@ -14,7 +14,6 @@ void World::Update(DeltaTicks &) {
 	auto pair = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
 		auto object = it->get_left();
-		auto camera = static_cast<PlayerCameraComponent *>(it->info.get());
 
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		if(pos != nullptr) {

@@ -23,7 +23,6 @@ void HumanPlayerController::Init() {
 
 	auto inputM = engine->systems.Get<InputManager>();
 	auto pos = engine->GetComponent<PositionComponent>(object);
-	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	inputM->On(Key::W, [this] (Key) { moveForward = true; });

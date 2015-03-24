@@ -5,7 +5,6 @@
 
 void Integrator::Update(DeltaTicks &dt) {
 	accumulator += dt;
-	auto seconds = dt.Seconds();
 
 	while(accumulator >= timestep) {
 		Tick(timestep.Seconds());
