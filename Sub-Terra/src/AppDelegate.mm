@@ -11,7 +11,7 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	const std::vector<const std::string> args;
+	const std::vector<std::string> args;
 	SubTerra().Run(args);
 	[NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
 }
