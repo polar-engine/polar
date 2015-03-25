@@ -28,7 +28,8 @@ void main() {
 	vec2 texCoord = v_vertex;
 	vec3 color = texture(u_colorBuffer, texCoord).rgb;
 
-	float aspect = 1280.0 / 720.0;
+	ivec2 size = textureSize(u_colorBuffer, 0);
+	float aspect = float(size.x) / float(size.y);
 	vec2 aspectCorrect = vec2(1.0, aspect);
 
 	float factor = Depth(texCoord) - focus;
