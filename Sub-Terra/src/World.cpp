@@ -14,7 +14,6 @@ void World::Update(DeltaTicks &) {
 	auto pair = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
 		auto object = it->get_left();
-		auto camera = static_cast<PlayerCameraComponent *>(it->info.get());
 
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		if(pos != nullptr) {
@@ -30,9 +29,9 @@ void World::Update(DeltaTicks &) {
 					auto &keyTuple = it->first;
 					auto obj = std::get<1>(it->second);
 
-					if(abs(std::get<0>(keyTuple) -keyBase.x) > distance ||
-					   abs(std::get<1>(keyTuple) -keyBase.y) > distance ||
-					   abs(std::get<2>(keyTuple) -keyBase.z) > distance) {
+					if(abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.x) > distance ||
+					   abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.y) > distance ||
+					   abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.z) > distance) {
 						auto &status = std::get<0>(it->second);
 						switch(status) {
 						case ChunkStatus::Generating:
@@ -43,6 +42,8 @@ void World::Update(DeltaTicks &) {
 							jobM->Do([this, obj] () { engine->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
 							chunks.erase(it++);
 							continue;
+						case ChunkStatus::Dying:
+							break;
 						}
 					}
 					++it;

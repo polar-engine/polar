@@ -26,7 +26,7 @@ void JobManager::Update(DeltaTicks &) {
 		return;
 	}
 
-	auto numOnMain = (std::max)(128U, numJobs / 64);
+	auto numOnMain = (std::max)(static_cast<uint64_t>(128), static_cast<uint64_t>(numJobs / 64));
 
 	std::vector<Job> todo;
 

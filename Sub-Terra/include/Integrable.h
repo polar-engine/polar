@@ -18,7 +18,9 @@ private:
 	T value;
 	derivative_type derivative;
 public:
-	template<typename ...Ts> Integrable(Ts && ...args) : value(std::forward<Ts>(args)...), previousValue(value) {}
+	template<typename ...Ts> Integrable(Ts && ...args) : value(std::forward<Ts>(args)...) {
+		previousValue = value;
+	}
 
 	inline T & Get() { return value; }
 	inline T & GetPrevious() { return previousValue; }

@@ -163,7 +163,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 						break;
 					case GeometryType::TriangleStrip:
 						drawMode = GL_TRIANGLE_STRIP;
-						break;
+							break;
+						case GeometryType::None:
+							break;
 					}
 
 					GL(glUniformMatrix4fv(locModel, 1, GL_FALSE, glm::value_ptr(modelMatrix)));
@@ -276,7 +278,7 @@ void GL32Renderer::ComponentAdded(IDType id, const std::type_info *ti, std::weak
 		vbosVector.emplace_back(vbos[i]);
 	}
 
-	model->Add<GL32ModelProperty>(model->points.size(), vao, vbosVector);
+	model->Add<GL32ModelProperty>(static_cast<GLsizei>(model->points.size()), vao, vbosVector);
 	model->points = ModelComponent::PointsType();
 }
 
@@ -423,7 +425,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 				type = GL_UNSIGNED_BYTE;
 				attachment = GL_DEPTH_ATTACHMENT;
 				break;
-			default:
+			case ProgramOutputType::Invalid:
 				ENGINE_THROW("invalid program output type");
 				break;
 			}
@@ -450,7 +452,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 
 		for(auto &in : nextAsset.globalIns.elements) { nextNode.globalIns.emplace(in.key.text, in.name.text); }
 
-		GL(glDrawBuffers(drawBuffers.size(), drawBuffers.data()));
+		GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data()));
 
 		GLenum status;
 		GL(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
@@ -477,7 +479,7 @@ GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
 		case ShaderType::Fragment:
 			type = GL_FRAGMENT_SHADER;
 			break;
-		default:
+		case ShaderType::Invalid:
 			ENGINE_THROW("invalid shader type");
 		}
 
