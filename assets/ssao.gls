@@ -2,9 +2,11 @@
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
+@gin position u_posBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
-@out rgba32 color o_color
+@out rgb8 color o_color
+@gout rgb8 ao o_ao
 
 @shader vertex
 
@@ -15,72 +17,65 @@ void main() {
 
 @shader fragment
 
-const int kernelSize = 16;
-const float kernelScale = 0.1;
-const float noiseScale = 0.1;
-const float radius = 3.0;
-
-float Depth(in vec2 texCoord) {
-	float f = 64.0;
-	float n = 0.01;
-	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
-	return z;
-}
-
 float Random(float coord) {
 	return fract(sin(dot(coord, 12.9898)) * 43758.5453);
+}
+
+float Random2(vec2 coord) {
+	return fract(sin(dot(coord, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 float Random3(vec3 coord) {
 	return fract(sin(dot(coord, vec3(12.9898, 78.233, 323.525971))) * 43758.5453);
 }
 
-void main() {
-	vec2 texCoord = v_vertex;
+const float totalStrength = 0.38;
+const float strength = 0.07;
+const float falloff = 0.000002;
+const float rad = 0.006;
 
-	float aspect = 1280.0 / 720.0;
-	float thfov = tan(70.0 / 2.0);
-	vec2 ndc = texCoord * 2.0 - 1.0;
-	vec3 viewRay = vec3(ndc.x * thfov * aspect, ndc.y * thfov, 1.0);
-	vec3 origin = viewRay * Depth(texCoord);
+#define SAMPLES 8
+const float invSamples = 1.0 / SAMPLES;
 
-	vec3 normal = normalize(texture(u_normalBuffer, texCoord).xyz * 2.0 - 1.0);
-	vec3 rvec = vec3(Random3(vec3(normal.xy * noiseScale, 0.0)), Random3(vec3(normal.xz * noiseScale, 1.0)), Random3(vec3(normal.yz * noiseScale, 2.0)));
-	vec3 tangent = normalize(rvec - normal * dot(rvec, normal));
-	vec3 bitangent = cross(normal, tangent);
-	mat3 tbn = mat3(tangent, bitangent, normal);
+float Depth(in vec2 texCoord) {
+	float f = 48.0;
+	float n = 0.1;
+	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
+	return z;
+}
 
-	vec3 kernel[kernelSize];
-	for(int i = 0; i < kernelSize; ++i) {
-		kernel[i] = vec3(
-			Random(float(i * 50 + 0)),
-			Random(float(i * 50 + 1)),
-			Random(float(i * 50 + 2)) / 2.0 + 0.5
-		);
-		kernel[i] = normalize(kernel[i]);
-		kernel[i] *= Random(float(i * 50 + 3)) / 2.0 + 0.5;
+void main(void) {
+	const vec3 sphere[8] = vec3[](vec3(0.24710192, 0.6445882, 0.033550154),vec3(0.00991752, -0.21947019, 0.7196721),vec3(0.25109035, -0.1787317, -0.011580509),vec3(-0.08781511, 0.44514698, 0.56647956),vec3(-0.011737816, -0.0643377, 0.16030222),vec3(0.035941467, 0.04990871, -0.46533614),vec3(-0.058801126, 0.7347013, -0.25399926),vec3(-0.24799341, -0.022052078, -0.13399573));
 
-		float scale = float(i) / kernelSize;
-		scale = mix(0.1, 1.0, scale * scale);
-		kernel[i] *= scale;
+	vec3 pos = texture(u_posBuffer, v_vertex).xyz;
+	vec3 rNormal = normalize(vec3(Random3(pos), Random3(pos + 1.13), Random3(pos + 2.323)));
+
+	float depth = Depth(v_vertex);
+
+	// screen-space fragment coords
+	vec3 coord = vec3(v_vertex, depth);
+	vec3 normal = texture(u_normalBuffer, v_vertex).xyz;
+
+	float bl = 0.0;
+
+	for(int i = 0; i < SAMPLES; ++i) {
+		/* reflect random vector from sphere by random normal */
+		vec3 ray = rad / depth * reflect(sphere[i], rNormal);
+
+		/* if ray is outside hemisphere then change direction */
+		vec3 dir = coord + sign(dot(ray, normal)) * ray;
+
+		/* get depth of occluder fragment */
+		vec4 occluderFragment = texture(u_normalBuffer, dir.xy);
+
+		/* if depthDifference is negative = occluder is behind current fragment */
+		float depthDifference = depth - Depth(dir.xy);
+
+		/* falloff equation, starts at falloff and falls like 1/x^2 */
+		float normDiff = (1.0 - dot(occluderFragment.xyz, normal));
+		bl += step(falloff, depthDifference) * normDiff * (1.0 - smoothstep(falloff, strength, depthDifference));
 	}
-
-	float occlusion = 0.0;
-	for(int i = 0; i < kernelSize; ++i) {
-		vec3 sample = tbn * kernel[i];
-		sample = sample * radius + origin;
-
-		vec4 offset = vec4(sample, 1.0);
-		offset = u_projection * offset;
-		offset.xy /= offset.w;
-		offset.xy = offset.xy * 0.5 + 0.5;
-
-		float sampleDepth = Depth(-offset.xy);
-
-		float rangeCheck = abs(origin.z - sampleDepth) < radius ? 1.0 : 0.0;
-		occlusion += (sampleDepth <= sample.z ? 1.0 : 0.0);// * rangeCheck;
-	}
-	occlusion = 1.0 - occlusion / kernelSize;
-
-	o_color = texture(u_colorBuffer, texCoord) * occlusion;
+	float ao = 1.0 - totalStrength * bl * invSamples;
+	o_color = texture(u_colorBuffer, v_vertex).rgb * ao;
+	//o_ao.r = ao;
 }
