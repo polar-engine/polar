@@ -30,8 +30,8 @@ void World::Update(DeltaTicks &) {
 					auto obj = std::get<1>(it->second);
 
 					if(abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.x) > distance ||
-					   abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.y) > distance ||
-					   abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.z) > distance) {
+					   abs(static_cast<int>(std::get<1>(keyTuple)) - keyBase.y) > distance ||
+					   abs(static_cast<int>(std::get<2>(keyTuple)) - keyBase.z) > distance) {
 						auto &status = std::get<0>(it->second);
 						switch(status) {
 						case ChunkStatus::Generating:
