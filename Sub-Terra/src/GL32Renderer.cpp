@@ -69,6 +69,8 @@ void GL32Renderer::InitGL() {
 	GL(glCullFace(GL_BACK));
 }
 
+GLuint vao;
+
 void GL32Renderer::Init() {
 	width = 1280;
 	height = 720;
@@ -77,6 +79,25 @@ void GL32Renderer::Init() {
 	InitGL();
 	SetClearColor(Point4(0.02f, 0.05f, 0.1f, 1));
 	//ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
+
+	GL(glGenVertexArrays(1, &viewportVAO));
+	GL(glBindVertexArray(viewportVAO));
+
+	GLuint vbo;
+	GL(glGenBuffers(1, &vbo));
+
+	std::vector<Point2> points = {
+		Point2(-1, -1),
+		Point2( 1, -1),
+		Point2(-1,  1),
+		Point2( 1,  1)
+	};
+
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point2) * 4, points.data(), GL_STATIC_DRAW));
+	GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
+
+	GL(glEnableVertexAttribArray(0));
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
@@ -201,35 +222,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				++b;
 			}
 
-			GLuint vao;
-			GL(glGenVertexArrays(1, &vao));
-			GL(glBindVertexArray(vao));
-
-			GLuint vbo;
-			GL(glGenBuffers(1, &vbo));
-
-			std::vector<Point2> points = {
-				Point2(-1, -1),
-				Point2( 1, -1),
-				Point2(-1,  1),
-				Point2( 1,  1)
-			};
-
-			GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-			GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point2) * 4, points.data(), GL_STATIC_DRAW));
-			GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
-
-			GL(glEnableVertexAttribArray(0));
+			GL(glBindVertexArray(viewportVAO));
 			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-			GL(glDeleteBuffers(1, &vbo));
-			GL(glDeleteVertexArrays(1, &vao));
 
-			/*glBegin(GL_QUADS);
-			glVertex2f(-1, -1);
-			glVertex2f( 1, -1);
-			glVertex2f( 1,  1);
-			glVertex2f(-1,  1);
-			glEnd();*/
 			break;
 		}
 	}
