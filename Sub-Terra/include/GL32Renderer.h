@@ -21,6 +21,7 @@ private:
 	SDL_GLContext context;
 	std::vector<std::string> pipelineNames;
 	std::vector<PipelineNode> nodes;
+	GLuint viewportVAO;
 
 	void InitGL();
 	void HandleSDL(SDL_Event &);

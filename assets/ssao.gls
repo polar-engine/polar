@@ -6,7 +6,6 @@
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
 @out rgb8 color o_color
-@gout rgb8 ao o_ao
 
 @shader vertex
 
@@ -72,10 +71,9 @@ void main(void) {
 		float depthDifference = depth - Depth(dir.xy);
 
 		/* falloff equation, starts at falloff and falls like 1/x^2 */
-		float normDiff = (1.0 - dot(occluderFragment.xyz, normal));
+		float normDiff = 1.0 - dot(occluderFragment.xyz, normal);
 		bl += step(falloff, depthDifference) * normDiff * (1.0 - smoothstep(falloff, strength, depthDifference));
 	}
 	float ao = 1.0 - totalStrength * bl * invSamples;
 	o_color = texture(u_colorBuffer, v_vertex).rgb * ao;
-	//o_ao.r = ao;
 }
