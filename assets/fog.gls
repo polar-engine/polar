@@ -14,14 +14,15 @@ void main() {
 @shader fragment
 
 float Depth(in vec2 texCoord) {
-	float depthRange = 1.0 / 64.0;
-	float lowerDepth = 1.0 - depthRange;
-	return (texture(u_depthBuffer, texCoord).r - lowerDepth) / depthRange;
+	float f = 48.0;
+	float n = 0.1;
+	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
+	return z;
 }
 
 void main() {
 	vec2 texCoord = v_vertex;
 	vec3 color = texture(u_colorBuffer, texCoord).rgb;
 	float depth = Depth(texCoord);
-	o_color = mix(color, vec3(0.0), max(0.0, pow(depth, 50.0)));
+	o_color = mix(color, vec3(0.0), max(0.0, pow(depth, 8.0)));
 }
