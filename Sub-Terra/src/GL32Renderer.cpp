@@ -69,8 +69,6 @@ void GL32Renderer::InitGL() {
 	GL(glCullFace(GL_BACK));
 }
 
-GLuint vao;
-
 void GL32Renderer::Init() {
 	width = 1280;
 	height = 720;

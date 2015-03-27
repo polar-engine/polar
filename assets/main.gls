@@ -61,6 +61,6 @@ void main() {
 	hdr *= max(1.0, length(lighting) / 2);
 
 	o_color = hdr;
-	o_normal = v_normal;
+	o_normal = v_normal / 2.0 + 0.5;
 	o_position = v_pos;
 }
