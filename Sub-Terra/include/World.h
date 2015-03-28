@@ -17,6 +17,7 @@ typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 
 class World : public System {
 private:
+	const uint8_t viewDistance = 5;
 	const Point3 blockSize = Point3(1.0f);
 	const glm::ivec3 chunkSize;
 	OpenSimplexNoise noise = OpenSimplexNoise(std::random_device()());
