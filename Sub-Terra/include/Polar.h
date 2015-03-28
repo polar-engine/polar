@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/weak_ptr.hpp>
+#include <boost/container/vector.hpp>
 #include <boost/bimap.hpp>
 #include <boost/bimap/set_of.hpp>
 #include <boost/bimap/multiset_of.hpp>
@@ -22,11 +24,12 @@ private:
 	void Update(DeltaTicks &);
 public:
 	EntityBase<System> systems;
-	std::vector<System *> orderedSystems;
+	boost::container::vector<boost::shared_ptr<System>> orderedSystems;
 	Bimap objects;
 	IDType nextID = 1;
 
 	Polar() {}
+	~Polar();
 
 	template<typename T, typename ...Ts> inline void AddSystem(Ts && ...args) {
 		if(T::IsSupported()) {
@@ -39,10 +42,9 @@ public:
 	}
 
 	template<typename T> inline void RemoveSystem() {
-		auto sys = static_cast<System *>(systems.Get<T>());
-		if(sys != nullptr) {
+		auto sys = boost::static_pointer_cast<System>(systems.Get<T>().lock());
+		if(sys) {
 			orderedSystems.erase(std::remove(orderedSystems.begin(), orderedSystems.end(), sys));
-			sys->Destroy();
 			systems.Remove<T>();
 		}
 	}
@@ -78,7 +80,6 @@ public:
 
 	void Init();
 	void Run();
-	void Destroy();
 
 	void Quit();
 };

@@ -3,7 +3,7 @@
 #include "EventManager.h"
 
 void InputManager::Init() {
-	auto eventM = engine->systems.Get<EventManager>();
+	auto eventM = engine->systems.Get<EventManager>().lock();
 	eventM->ListenFor("keydown", [this] (Arg arg) {
 		auto key = *arg.Get<Key>();
 

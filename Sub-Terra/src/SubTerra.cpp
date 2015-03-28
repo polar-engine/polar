@@ -21,13 +21,13 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.AddSystem<World>(16, 16, 16);
 	engine.AddSystem<HumanPlayerController>();
 
-	auto inputM = engine.systems.Get<InputManager>();
+	auto inputM = engine.systems.Get<InputManager>().lock();
 	inputM->On(Key::Escape, [&engine] (Key) {
 		engine.Quit();
+		//engine.RemoveSystem<World>();
 	});
 
 	engine.Init();
-	engine.systems.Get<GL32Renderer>()->MakePipeline({"main", "perlintexture"/*, "lighting"*/, "ssao", "cel", "fog", "fxaa"/*, "dof"*/});
+	engine.systems.Get<GL32Renderer>().lock()->MakePipeline({"main", "perlintexture"/*, "lighting"*/, "ssao", "cel", "fog", "fxaa"/*, "dof"*/});
 	engine.Run();
-	engine.Destroy();
 }

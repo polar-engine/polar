@@ -12,15 +12,19 @@ void Polar::Init() {
 }
 
 void Polar::Update(DeltaTicks &dt) {
-	for(auto system : orderedSystems) {
+	/* copy ordered systems vector to avoid invalidation */
+	auto tmpSystems = orderedSystems;
+	for(auto &system : tmpSystems) {
 		system->Update(dt);
 	}
 }
 
-void Polar::Destroy() {
-	for(auto it = orderedSystems.rbegin(); it != orderedSystems.rend(); ++it) {
-		(*it)->Destroy();
-	}
+Polar::~Polar() {
+	/* explicitly release shared_ptrs in unordered_map
+	 * and then pop_back to destruct in reverse order
+	 */
+	systems.~EntityBase();
+	while(!orderedSystems.empty()) { orderedSystems.pop_back(); }
 }
 
 void Polar::Run() {

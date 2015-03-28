@@ -21,7 +21,7 @@ void World::Update(DeltaTicks &) {
 
 			auto chunkSizeF = Point3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(pos->position.Get() / chunkSizeF));
-			auto jobM = engine->systems.Get<JobManager>();
+			auto jobM = engine->systems.Get<JobManager>().lock();
 
 			/* clean up chunks outside distance */
 			chunks.With([this, jobM, distance, &keyBase] (ChunksType &chunks) {
@@ -111,7 +111,7 @@ void World::Update(DeltaTicks &) {
 	}
 }
 
-void World::Destroy() {
+World::~World() {
 	chunks.With([this] (ChunksType &chunks) {
 		for(auto it = chunks.begin(); it != chunks.end(); ++it) {
 			engine->RemoveObject(std::get<1>(it->second));
