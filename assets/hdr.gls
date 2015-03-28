@@ -1,0 +1,20 @@
+@attrib vec2 a_vertex
+@varying smooth vec2 v_vertex
+@in color u_colorBuffer
+@out rgb8 color o_color
+
+@shader vertex
+
+void main() {
+	gl_Position = vec4(a_vertex, 0.0, 1.0);
+	v_vertex = (a_vertex + 1.0) / 2.0;
+}
+
+@shader fragment
+
+void main() {
+	vec3 color = texture(u_colorBuffer, v_vertex).xyz;
+	vec3 hdr = 1.0 - exp2(-color * 2.5);
+	hdr *= max(1.0, length(color) / 2.0);
+	o_color = hdr;
+}
