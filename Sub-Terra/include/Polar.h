@@ -38,6 +38,15 @@ public:
 		}
 	}
 
+	template<typename T> inline void RemoveSystem() {
+		auto sys = static_cast<System *>(systems.Get<T>());
+		if(sys != nullptr) {
+			orderedSystems.erase(std::remove(orderedSystems.begin(), orderedSystems.end(), sys));
+			sys->Destroy();
+			systems.Remove<T>();
+		}
+	}
+
 	inline IDType AddObject() { return nextID++; }
 
 	inline void RemoveObject(IDType id) {
