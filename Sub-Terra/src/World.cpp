@@ -17,21 +17,19 @@ void World::Update(DeltaTicks &) {
 
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		if(pos != nullptr) {
-			const unsigned char distance = 5;
-
 			auto chunkSizeF = Point3(chunkSize);
 			auto keyBase = glm::ivec3(glm::floor(pos->position.Get() / chunkSizeF));
 			auto jobM = engine->systems.Get<JobManager>().lock();
 
 			/* clean up chunks outside distance */
-			chunks.With([this, jobM, distance, &keyBase] (ChunksType &chunks) {
+			chunks.With([this, jobM, &keyBase] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
 					auto &keyTuple = it->first;
 					auto obj = std::get<1>(it->second);
 
-					if(abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.x) > distance ||
-					   abs(static_cast<int>(std::get<1>(keyTuple)) - keyBase.y) > distance ||
-					   abs(static_cast<int>(std::get<2>(keyTuple)) - keyBase.z) > distance) {
+					if(abs(static_cast<int>(std::get<0>(keyTuple)) - keyBase.x) > viewDistance ||
+					   abs(static_cast<int>(std::get<1>(keyTuple)) - keyBase.y) > viewDistance ||
+					   abs(static_cast<int>(std::get<2>(keyTuple)) - keyBase.z) > viewDistance) {
 						auto &status = std::get<0>(it->second);
 						switch(status) {
 						case ChunkStatus::Generating:
@@ -50,7 +48,7 @@ void World::Update(DeltaTicks &) {
 				}
 			});
 
-			for(int d = 0; d <= distance; ++d) {
+			for(int d = 0; d <= viewDistance; ++d) {
 				for(int x = -d; x <= d; ++x) {
 					for(int y = -d; y <= d; ++y) {
 						for(int z = -d; z <= d; ++z) {
