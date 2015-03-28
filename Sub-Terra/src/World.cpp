@@ -112,7 +112,11 @@ void World::Update(DeltaTicks &) {
 }
 
 void World::Destroy() {
-
+	chunks.With([this] (ChunksType &chunks) {
+		for(auto it = chunks.begin(); it != chunks.end(); ++it) {
+			engine->RemoveObject(std::get<1>(it->second));
+		}
+	});
 }
 
 std::vector<bool> World::GenerateChunk(const Point3 &&p) const {
