@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Asset.h" />
     <ClInclude Include="..\include\debug.h" />
+    <ClInclude Include="..\include\Destructor.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\ListAsset.h" />
