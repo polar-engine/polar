@@ -24,11 +24,11 @@ private:
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
-	void Destroy() override final;
 public:
 	static bool IsSupported() { return true; }
 	World(Polar *engine, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
 		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
+	~World();
 	std::vector<bool> GenerateChunk(const Point3 &&) const;
 	bool GenerateBlock(const Point3 &&) const;
 };

@@ -8,7 +8,6 @@ protected:
 	Polar *engine;
 	virtual void Init() {}
 	virtual void Update(DeltaTicks &) {}
-	virtual void Destroy() {}
 	virtual void ComponentAdded(IDType, const std::type_info *, std::weak_ptr<Component>) {}
 	virtual void ComponentRemoved(IDType, const std::type_info *) {}
 public:

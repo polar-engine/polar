@@ -30,12 +30,10 @@ bool GL32Renderer::IsSupported() {
 			msg << "actual OpenGL version is " << major << '.' << minor;
 			ENGINE_THROW(msg.str());
 		}
-		renderer.Destroy();
+		return true;
 	} catch(std::exception &) {
-		renderer.Destroy();
 		return false;
 	}
-	return true;
 }
 
 void GL32Renderer::InitGL() {
@@ -105,7 +103,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	}
 	SDL_ClearError();
 
-	auto integrator = engine->systems.Get<Integrator>();
+	auto integrator = engine->systems.Get<Integrator>().lock();
 	float alpha = integrator->Accumulator().Seconds();
 
 	glm::mat4 cameraView;
@@ -168,8 +166,8 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 					else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
 				}
 
-				auto property = model->Get<GL32ModelProperty>();
-				if(property != nullptr) {
+				auto property = model->Get<GL32ModelProperty>().lock();
+				if(property) {
 					glm::mat4 modelView = cameraView;
 
 					if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<glm::vec3>()); }
@@ -230,7 +228,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	SDL(SDL_GL_SwapWindow(window));
 }
 
-void GL32Renderer::Destroy() {
+GL32Renderer::~GL32Renderer() {
 	SDL(SDL_GL_DeleteContext(context));
 	SDL(SDL_DestroyWindow(window));
 	SDL(SDL_GL_ResetAttributes());
@@ -280,8 +278,8 @@ void GL32Renderer::ComponentRemoved(IDType id, const std::type_info *ti) {
 	auto model = engine->GetComponent<ModelComponent>(id);
 
 	if(model != nullptr) {
-		auto property = model->Get<GL32ModelProperty>();
-		if(property != nullptr) {
+		auto property = model->Get<GL32ModelProperty>().lock();
+		if(property) {
 			for(auto vbo : property->vbos) {
 				GL(glDeleteBuffers(1, &vbo));
 			}
@@ -310,16 +308,16 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 	case SDL_KEYDOWN:
 		if(event.key.repeat == 0) {
 			key = mkKeyFromSDL(event.key.keysym.sym);
-			engine->systems.Get<EventManager>()->Fire("keydown", &key);
+			engine->systems.Get<EventManager>().lock()->Fire("keydown", &key);
 		}
 		break;
 	case SDL_KEYUP:
 		key = mkKeyFromSDL(event.key.keysym.sym);
-		engine->systems.Get<EventManager>()->Fire("keyup", &key);
+		engine->systems.Get<EventManager>().lock()->Fire("keyup", &key);
 		break;
 	case SDL_MOUSEMOTION:
 		Point2 delta(event.motion.xrel, event.motion.yrel);
-		engine->systems.Get<EventManager>()->Fire("mousemove", &delta);
+		engine->systems.Get<EventManager>().lock()->Fire("mousemove", &delta);
 		break;
 	}
 }
@@ -348,7 +346,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 
 	for(auto &name : names) {
 		INFOS("loading shader asset `" << name << '`');
-		auto asset = engine->systems.Get<AssetManager>()->Get<ShaderProgramAsset>(name);
+		auto asset = engine->systems.Get<AssetManager>().lock()->Get<ShaderProgramAsset>(name);
 		assets.emplace_back(asset);
 		nodes.emplace_back(MakeProgram(asset));
 	}

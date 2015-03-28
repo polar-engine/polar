@@ -1,7 +1,11 @@
 #pragma once
 
+#include <boost/unordered_map.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 template<typename C> class EntityBase {
-	typedef std::unordered_map<const std::type_info *, std::unique_ptr<C>> ComponentsType;
+	typedef boost::unordered_map<const std::type_info *, boost::shared_ptr<C>> ComponentsType;
 private:
 	ComponentsType components;
 public:
@@ -33,10 +37,14 @@ public:
 		return components.find(ti) != components.end();
 	}
 
-	template<typename T> inline T * Get() const {
-		static_assert(std::is_base_of<C, T>::value, "EntityBase::Get requires object of correct type");
+	template<typename T> inline boost::weak_ptr<T> Get() const {
+		static_assert(std::is_base_of<C, T>::value, "EntityBase::Get requires template argument of correct type");
 		auto it = components.find(&typeid(T));
-		if(it == components.end()) { return nullptr; } else { return static_cast<T *>(it->second.get()); }
+		if(it == components.end()) {
+			return boost::weak_ptr<T>();
+		} else {
+			return boost::weak_ptr<T>(boost::static_pointer_cast<T, C>(it->second));
+		}
 	}
 
 	inline const ComponentsType * const Get() const { return &components; }

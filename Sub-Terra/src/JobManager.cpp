@@ -9,6 +9,13 @@ JobManager::JobManager(Polar *engine) : System(engine) {
 
 JobManager::~JobManager() {
 	for(auto worker : _workers) {
+		worker->AddJob(Job(JobType::Stop));
+	}
+
+	/* copy vector to avoid invalidation */
+	auto tmpWorkers = _workers;
+	for(auto worker : tmpWorkers) {
+		worker->Join();
 		delete worker;
 	}
 }
@@ -59,13 +66,4 @@ void JobManager::Update(DeltaTicks &) {
 	jobs.With([&todo] (JobsType &jobs) {
 		for(auto &job : todo) { jobs.emplace(job); }
 	});
-}
-
-void JobManager::Destroy() {
-	for(auto worker : _workers) {
-		worker->AddJob(Job(JobType::Stop));
-	}
-	for(auto worker : _workers) {
-		worker->Join();
-	}
 }

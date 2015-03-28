@@ -36,7 +36,7 @@ void PlayerController::Init() {
 	ownPos->position.Derivative(1) = Point3(0, -9.8f, 0);
 
 	/* collision detection and response */
-	engine->systems.Get<EventManager>()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
+	engine->systems.Get<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
 		auto &prev = ownPos->position.GetPrevious();
 		auto &curr = *ownPos->position;
 		auto &vel = *ownPos->position.Derivative();

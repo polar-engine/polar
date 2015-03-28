@@ -29,13 +29,14 @@ private:
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
-	void Destroy() override final;
 	void ComponentAdded(IDType, const std::type_info *, std::weak_ptr<Component>) override final;
 	void ComponentRemoved(IDType, const std::type_info *) override final;
 	void Project(GLuint);
 public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine) : Renderer(engine) {}
+	~GL32Renderer();
+
 	void SetClearColor(const Point4 &) override final;
 	void MakePipeline(const std::vector<std::string> &) override final;
 };

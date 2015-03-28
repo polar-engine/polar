@@ -12,8 +12,8 @@ public:
 	PlayerCameraComponent(const Point3 &distance = Point3(0, 0, 0), const Point3 &position = Point3(0, 0, 0), const Point3 &euler = Point3(0, 0, 0))
 		: distance(distance), position(position), orientation(glm::vec3(euler)) {
 		Add<IntegrableProperty>();
-		auto component = Get<IntegrableProperty>();
-		if(component != nullptr) {
+		auto component = Get<IntegrableProperty>().lock();
+		if(component) {
 			component->AddIntegrable(&this->distance);
 			component->AddIntegrable(&this->position);
 		}

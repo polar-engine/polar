@@ -10,8 +10,8 @@ public:
 	PositionComponent() : PositionComponent(Point3(0, 0, 0)) {}
 	PositionComponent(const Point3 position) : position(position) {
 		Add<IntegrableProperty>();
-		auto component = Get<IntegrableProperty>();
-		if(component != nullptr) {
+		auto component = Get<IntegrableProperty>().lock();
+		if(component) {
 			component->AddIntegrable(&this->position);
 		}
 	}
