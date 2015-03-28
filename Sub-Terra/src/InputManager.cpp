@@ -7,9 +7,9 @@ void InputManager::Init() {
 	eventM->ListenFor("keydown", [this] (Arg arg) {
 		auto key = *arg.Get<Key>();
 
-		auto range = onKeyHandlers.equal_range(key);
+		auto range = onKeyHandlers.left.equal_range(key);
 		for(auto it = range.first; it != range.second; ++it) {
-			it->second(key);
+			it->info(key);
 		}
 
 		keys.emplace(key);
@@ -19,9 +19,9 @@ void InputManager::Init() {
 
 		keys.erase(key);
 
-		auto range = afterKeyHandlers.equal_range(key);
+		auto range = afterKeyHandlers.left.equal_range(key);
 		for(auto it = range.first; it != range.second; ++it) {
-			it->second(key);
+			it->info(key);
 		}
 	});
 	eventM->ListenFor("mousemove", [this] (Arg arg) {
@@ -34,9 +34,9 @@ void InputManager::Init() {
 
 void InputManager::Update(DeltaTicks &dt) {
 	for(auto key : keys) {
-		auto range = whenKeyHandlers.equal_range(key);
+		auto range = whenKeyHandlers.left.equal_range(key);
 		for(auto it = range.first; it != range.second; ++it) {
-			it->second(key, dt);
+			it->info(key, dt);
 		}
 	}
 }
