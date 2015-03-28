@@ -21,12 +21,16 @@ public:
 		boost::bimaps::set_of_relation<>,
 		boost::bimaps::with_info<_Handler>
 	>;
+	template<typename _Val> using IDMap = boost::bimap<
+		boost::bimaps::set_of<IDType>,
+		boost::bimaps::unconstrained_set_of<_Val>
+	>;
 private:
 	boost::container::set<Key> keys;
 	KeyHandlerBimap<OnKeyHandler> onKeyHandlers;
 	KeyHandlerBimap<AfterKeyHandler> afterKeyHandlers;
 	KeyHandlerBimap<WhenKeyHandler> whenKeyHandlers;
-	std::vector<MouseMoveHandler> mouseMoveHandlers;
+	IDMap<MouseMoveHandler> mouseMoveHandlers;
 	IDType nextID = 1;
 protected:
 	void Init() override final;
@@ -44,6 +48,6 @@ public:
 		whenKeyHandlers.insert(KeyHandlerBimap<WhenKeyHandler>::value_type(key, nextID++, handler));
 	}
 	void OnMouseMove(const MouseMoveHandler &handler) {
-		mouseMoveHandlers.emplace_back(handler);
+		mouseMoveHandlers.insert(IDMap<MouseMoveHandler>::value_type(nextID++, handler));
 	}
 };
