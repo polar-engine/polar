@@ -26,8 +26,8 @@ void InputManager::Init() {
 	});
 	eventM->ListenFor("mousemove", [this] (Arg arg) {
 		auto &delta = *arg.Get<Point2>();
-		for(auto handler : mouseMoveHandlers) {
-			handler(delta);
+		for(auto &handler : mouseMoveHandlers) {
+			handler.right(delta);
 		}
 	});
 }
