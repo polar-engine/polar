@@ -22,7 +22,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.AddSystem<HumanPlayerController>();
 
 	auto inputM = engine.systems.Get<InputManager>().lock();
-	inputM->On(Key::Escape, [&engine] (Key) {
+	auto dtorEscape = inputM->On(Key::Escape, [&engine] (Key) {
 		engine.Quit();
 		//engine.RemoveSystem<World>();
 	});
