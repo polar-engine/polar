@@ -1,7 +1,7 @@
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
-@out rgb8 color o_color
+@out rgba8 color o_color
 
 @shader vertex
 
@@ -75,4 +75,5 @@ void main() {
 	posPos.xy = texCoord;
 	posPos.zw = texCoord - rcpFrame * (0.5 + 0.0);
 	o_color.rgb = Fxaa(posPos, u_colorBuffer, rcpFrame);
+	o_color.a = 1.0;
 }

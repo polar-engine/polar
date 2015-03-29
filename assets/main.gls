@@ -6,8 +6,8 @@
 @varying smooth vec3 v_pos
 @varying smooth vec3 v_vertex
 @varying flat vec3 v_normal
-@out rgb8 color o_color
-@gout rgb8 normal o_normal
+@out rgba8 color o_color
+@gout rgba8 normal o_normal
 @gout rgb32f position o_position
 @gout depth depth
 
@@ -54,7 +54,9 @@ void main() {
 	vec3 lighting = vec3(0.0);
 	lighting += light(vec3(0.0), vec3(1.0, 0.6, 0.02) * 1.0, 256.0, 60.0);
 
-	o_color = lighting;
-	o_normal = v_normal / 2.0 + 0.5;
+	o_color.rgb = lighting;
+	o_color.a = 1.0;
+	o_normal.xyz = v_normal / 2.0 + 0.5;
+	o_normal.w = 1.0;
 	o_position = v_pos;
 }

@@ -1,7 +1,7 @@
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
-@out rgba32 color o_color
+@out rgba8 color o_color
 
 @shader vertex
 

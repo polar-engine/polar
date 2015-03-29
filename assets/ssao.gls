@@ -5,7 +5,7 @@
 @gin position u_posBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
-@out rgb8 color o_color
+@out rgba8 color o_color
 
 @shader vertex
 
@@ -75,5 +75,6 @@ void main(void) {
 		bl += step(falloff, depthDifference) * normDiff * (1.0 - smoothstep(falloff, strength, depthDifference));
 	}
 	float ao = 1.0 - totalStrength * bl * invSamples;
-	o_color = texture(u_colorBuffer, v_vertex).rgb * ao;
+	o_color.rgb = texture(u_colorBuffer, v_vertex).rgb * ao;
+	o_color.a = 1.0;
 }
