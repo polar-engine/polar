@@ -25,35 +25,35 @@ void HumanPlayerController::Init() {
 	auto pos = engine->GetComponent<PositionComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
-	inputM->On(Key::W, [this] (Key) { moveForward = true; });
-	inputM->On(Key::S, [this] (Key) { moveBackward = true; });
-	inputM->On(Key::A, [this] (Key) { moveLeft = true; });
-	inputM->On(Key::D, [this] (Key) { moveRight = true; });
-	inputM->After(Key::W, [this] (Key) { moveForward = false; });
-	inputM->After(Key::S, [this] (Key) { moveBackward = false; });
-	inputM->After(Key::A, [this] (Key) { moveLeft = false; });
-	inputM->After(Key::D, [this] (Key) { moveRight = false; });
+	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
+	dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
+	dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
+	dtors.emplace_back(inputM->On(Key::D, [this] (Key) { moveRight = true; }));
+	dtors.emplace_back(inputM->After(Key::W, [this] (Key) { moveForward = false; }));
+	dtors.emplace_back(inputM->After(Key::S, [this] (Key) { moveBackward = false; }));
+	dtors.emplace_back(inputM->After(Key::A, [this] (Key) { moveLeft = false; }));
+	dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
 
-	inputM->On(Key::Space, [pos] (Key) {
+	dtors.emplace_back(inputM->On(Key::Space, [pos] (Key) {
 		pos->position.Derivative()->y = 9.8f / 2;
-	});
+	}));
 
-	inputM->OnMouseMove([this] (const Point2 &delta) {
+	dtors.emplace_back(inputM->OnMouseMove([this] (const Point2 &delta) {
 		orientVel.y += glm::radians(0.02f) * delta.x;
 		orientVel.x += glm::radians(0.02f) * delta.y;
-	});
+	}));
 
 	/* reverse camera view */
 
-	inputM->On(Key::Z, [this, camera] (Key) {
+	dtors.emplace_back(inputM->On(Key::Z, [this, camera] (Key) {
 		rearView = true;
 		camera->distance = Point3(0.0f, 0.0f, 4.0f);
-	});
+	}));
 
-	inputM->After(Key::Z, [this, camera] (Key) {
+	dtors.emplace_back(inputM->After(Key::Z, [this, camera] (Key) {
 		rearView = false;
 		camera->distance = Point3(0.0f, 0.0f, 0.0f);
-	});
+	}));
 }
 
 void HumanPlayerController::Update(DeltaTicks &dt) {

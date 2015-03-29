@@ -1,9 +1,12 @@
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/container/set.hpp>
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
+#include "Destructor.h"
 #include "System.h"
 #include "Key.h"
 
@@ -38,16 +41,33 @@ protected:
 public:
 	static bool IsSupported() { return true; }
 	InputManager(Polar *engine) : System(engine) {}
-	void On(Key key, const OnKeyHandler &handler) {
-		onKeyHandlers.insert(KeyHandlerBimap<OnKeyHandler>::value_type(key, nextID++, handler));
+
+	boost::shared_ptr<Destructor> On(Key key, const OnKeyHandler &handler) {
+		auto id = nextID++;
+		onKeyHandlers.insert(KeyHandlerBimap<OnKeyHandler>::value_type(key, id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			onKeyHandlers.right.erase(id);
+		});
 	}
-	void After(Key key, const AfterKeyHandler &handler) {
-		afterKeyHandlers.insert(KeyHandlerBimap<AfterKeyHandler>::value_type(key, nextID++, handler));
+	boost::shared_ptr<Destructor> After(Key key, const AfterKeyHandler &handler) {
+		auto id = nextID++;
+		afterKeyHandlers.insert(KeyHandlerBimap<AfterKeyHandler>::value_type(key, id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			afterKeyHandlers.right.erase(id);
+		});
 	}
-	void When(Key key, const WhenKeyHandler &handler) {
-		whenKeyHandlers.insert(KeyHandlerBimap<WhenKeyHandler>::value_type(key, nextID++, handler));
+	boost::shared_ptr<Destructor> When(Key key, const WhenKeyHandler &handler) {
+		auto id = nextID++;
+		whenKeyHandlers.insert(KeyHandlerBimap<WhenKeyHandler>::value_type(key, id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			whenKeyHandlers.right.erase(id);
+		});
 	}
-	void OnMouseMove(const MouseMoveHandler &handler) {
-		mouseMoveHandlers.insert(IDMap<MouseMoveHandler>::value_type(nextID++, handler));
+	boost::shared_ptr<Destructor> OnMouseMove(const MouseMoveHandler &handler) {
+		auto id = nextID++;
+		mouseMoveHandlers.insert(IDMap<MouseMoveHandler>::value_type(id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			mouseMoveHandlers.left.erase(id);
+		});
 	}
 };
