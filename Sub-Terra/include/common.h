@@ -20,9 +20,16 @@
 #include <thread>
 #include <mutex>
 
-/* CF defines types Point and Component so it needs to be included early */
+/* CF defines types Point and Component so it needs to be included early
+ * also undef macro defined by Boost
+ */
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
+
+#ifdef check
+#undef check
+#endif
+
 #endif
 
 #define GLM_FORCE_RADIANS
