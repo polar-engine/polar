@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin depth u_depthBuffer
-@out rgb8 color o_color
+@out rgba8 color o_color
 
 @shader vertex
 
@@ -61,5 +61,6 @@ void main() {
 		color = mix(color, newColor, clamp((depth - NEAR) / (FAR - NEAR), 0.0, 1.0));
 	}
 
-	o_color = color;
+	o_color.rgb = color;
+	o_color.a = 1.0;
 }

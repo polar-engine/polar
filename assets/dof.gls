@@ -2,7 +2,7 @@
 @varying smooth vec2 v_vertex
 @in color u_colorBuffer
 @gin depth u_depthBuffer
-@out rgb8 color o_color
+@out rgba8 color o_color
 
 @shader vertex
 
@@ -82,5 +82,6 @@ void main() {
 	col += texture(u_colorBuffer, texCoord + (vec2(-0.29, -0.29) * aspectCorrect) * blur * 0.4).rgb;
 	col += texture(u_colorBuffer, texCoord + (vec2( 0.0,   0.4)  * aspectCorrect) * blur * 0.4).rgb;
 
-	o_color = col / 41.0;
+	o_color.rgb = col / 41.0;
+	o_color.a = 1.0;
 }
