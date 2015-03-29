@@ -79,8 +79,6 @@
 		7F0CB63D1A25D88C00623543 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
 		7F0CB6401A25D8A500623543 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = resources/Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		7F0CB6441A25D8DA00623543 /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Asset.h; path = include/Asset.h; sourceTree = SOURCE_ROOT; };
-		7F0CB6451A25D8DA00623543 /* assets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = assets.h; path = include/assets.h; sourceTree = SOURCE_ROOT; };
-		7F0CB6461A25D8DA00623543 /* ShaderAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderAsset.h; path = include/ShaderAsset.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6471A25D8DA00623543 /* TextAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextAsset.h; path = include/TextAsset.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6481A25D8E300623543 /* debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = debug.h; path = include/debug.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6491A25D8E300623543 /* endian.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = endian.h; path = include/endian.h; sourceTree = SOURCE_ROOT; };
@@ -117,6 +115,7 @@
 		7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpatialIndex.cpp; path = src/SpatialIndex.cpp; sourceTree = "<group>"; };
 		7F64992B1AC175EC0001DCFF /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = src/World.cpp; sourceTree = "<group>"; };
 		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
+		7F949DF61AC7B2CE004F875F /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = World.h; path = include/World.h; sourceTree = "<group>"; };
 		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -159,8 +158,6 @@
 			isa = PBXGroup;
 			children = (
 				7F0CB6441A25D8DA00623543 /* Asset.h */,
-				7F0CB6451A25D8DA00623543 /* assets.h */,
-				7F0CB6461A25D8DA00623543 /* ShaderAsset.h */,
 				7F0CB6471A25D8DA00623543 /* TextAsset.h */,
 				7F0CB6281A25D86E00623543 /* AssetManager.h */,
 			);
@@ -244,6 +241,7 @@
 				7F0CB6391A25D86E00623543 /* SubTerra.h */,
 				7F0CB63A1A25D86E00623543 /* System.h */,
 				7F0CB63B1A25D86E00623543 /* Tag.h */,
+				7F949DF61AC7B2CE004F875F /* World.h */,
 				7F0CB63C1A25D86E00623543 /* Worker.h */,
 			);
 			name = "Header Files";
