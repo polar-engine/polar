@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef _WIN32
+/*#ifdef _WIN32
 #include <Windows.h>
 
 template<typename T> class Atomic {
@@ -30,7 +30,7 @@ public:
 	}
 };
 
-#else
+#else*/
 
 #include <mutex>
 #include <condition_variable>
