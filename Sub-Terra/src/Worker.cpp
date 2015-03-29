@@ -36,4 +36,5 @@ void Worker::AddJob(Job job) {
 	jobs.With([&job] (JobsType &jobs) {
 		jobs.emplace(job);
 	});
+	jobs.Notify();
 }
