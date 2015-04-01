@@ -175,6 +175,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 					GLenum drawMode = GL_TRIANGLES;
 					switch(model->type) {
+					case GeometryType::Lines:
+						drawMode = GL_LINES;
+						break;
 					case GeometryType::Triangles:
 						drawMode = GL_TRIANGLES;
 						break;
