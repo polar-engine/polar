@@ -11,6 +11,29 @@ struct BoundingBox {
 	BoundingBox() {}
 	BoundingBox(const Point3 &position, const Point3 &size) : position(position), size(size) {}
 
+	inline Point3 Center() const { return position + size / 2.0f; }
+
+	inline std::pair<bool, float> TestRay(const Point3 origin, const Point3 direction, float tMax, const Point3 &ownPos) const {
+		auto tMin = 0.0f;
+		auto p = ownPos + Center() - origin;
+		auto h = size / 2.0f;
+
+		for(glm::length_t i = 0; i < 3; ++i) {
+			if(glm::abs(direction[i]) > 0.00000000000000000001f) {
+				float invDir = 1.0f / direction[i];
+				float tEntry = (p[i] - h[i]) * invDir;
+				float tExit = (p[i] + h[i]) * invDir;
+				if(tEntry > tExit) { std::swap(tEntry, tExit); }
+				if(tEntry > tMin) { tMin = tEntry; }
+				if(tExit < tMax) { tMax = tExit; }
+				if(tMin > tMax) { return std::make_pair(false, 0.0f); }
+				if(tMax < 0.0f) { return std::make_pair(false, 0.0f); }
+			} else if(-p[i] - h[i] > 0.0f || -p[i] + h[i] < 0.0f) { return std::make_pair(false, 0.0f); }
+		}
+
+		return std::make_pair(true, tMin > 0.0f ? tMin : tMax);
+	}
+
 	inline bool AABBCheck(const BoundingBox &b, const Point3 &ownPos, const Point3 &bPos) const {
 		Point3 aBegin = position + ownPos;
 		Point3 bBegin = b.position + bPos;
