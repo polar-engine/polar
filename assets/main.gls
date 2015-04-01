@@ -51,8 +51,54 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 }
 
 void main() {
+	vec3 lightColor = vec3(0.0);
+	vec3 pos = -u_view[3].xyz * mat3(u_view);
+	ivec3 m = ivec3(mod(ivec3(pos), 4.0));
+	switch(m.x) {
+	case 0:
+		lightColor.r = 0.3;
+		break;
+	case 1:
+		lightColor.r = 0.5;
+		break;
+	case 2:
+		lightColor.r = 0.8;
+		break;
+	case 3:
+		lightColor.r = 1.0;
+		break;
+	}
+	switch(m.y) {
+	case 0:
+		lightColor.g = 0.3;
+		break;
+	case 1:
+		lightColor.g = 0.5;
+		break;
+	case 2:
+		lightColor.g = 0.8;
+		break;
+	case 3:
+		lightColor.g = 1.0;
+		break;
+	}
+	switch(m.z) {
+	case 0:
+		lightColor.b = 0.3;
+		break;
+	case 1:
+		lightColor.b = 0.5;
+		break;
+	case 2:
+		lightColor.b = 0.8;
+		break;
+	case 3:
+		lightColor.b = 1.0;
+		break;
+	}
+
 	vec3 lighting = vec3(0.0);
-	lighting += light(vec3(0.0), vec3(1.0, 0.6, 0.02) * 1.0, 256.0, 60.0);
+	lighting += light(vec3(0.0), lightColor, 256.0, 60.0);
 
 	o_color.rgb = lighting;
 	o_color.a = 1.0;
