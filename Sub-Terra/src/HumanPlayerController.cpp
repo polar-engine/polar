@@ -1,9 +1,11 @@
 #include "common.h"
 #include "HumanPlayerController.h"
+#include "EventManager.h"
 #include "InputManager.h"
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
 #include "PlayerCameraComponent.h"
+#include "BoundingComponent.h"
 
 void HumanPlayerController::InitObject() {
 	PlayerController::InitObject();
@@ -21,8 +23,10 @@ void HumanPlayerController::InitObject() {
 void HumanPlayerController::Init() {
 	PlayerController::Init();
 
+	auto eventM = engine->systems.Get<EventManager>().lock();
 	auto inputM = engine->systems.Get<InputManager>().lock();
 	auto pos = engine->GetComponent<PositionComponent>(object);
+	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
@@ -53,6 +57,37 @@ void HumanPlayerController::Init() {
 	dtors.emplace_back(inputM->After(Key::Z, [this, camera] (Key) {
 		rearView = false;
 		camera->distance = Point3(0.0f, 0.0f, 0.0f);
+	}));
+
+	dtors.emplace_back(inputM->On(Key::E, [this, eventM, pos, orient, camera] (Key) {
+		auto origin = pos->position.Get() + camera->position.Get();
+		auto direction = Point3(glm::toMat3(orient->orientation * camera->orientation) * Point3(0.0f, 0.0f, 1.0f));
+		direction.z = -direction.z;
+
+		float entryTime = std::numeric_limits<float>::infinity();
+		IDType soonestId = 0;
+
+		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
+		for(auto it = pair.first; it != pair.second; ++it) {
+			auto id = it->get_left();
+
+			/* don't check against self */
+			if(id == object) { continue; }
+
+			auto objPos = engine->GetComponent<PositionComponent>(id);
+			if(objPos != nullptr) {
+				auto objBounds = engine->GetComponent<BoundingComponent>(id);
+				if(objBounds != nullptr) {
+					auto r = objBounds->box.TestRay(origin, direction, 8.0f, objPos->position.Get());
+					if(std::get<0>(r) && std::get<1>(r) < entryTime) {
+						std::tie(std::ignore, entryTime) = r;
+						soonestId = id;
+					}
+				}
+			}
+		}
+
+		engine->RemoveObject(soonestId);
 	}));
 }
 
