@@ -52,6 +52,7 @@ typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 
 enum class GeometryType : uint8_t {
 	None,
+	Lines,
 	Triangles,
 	TriangleStrip
 };
