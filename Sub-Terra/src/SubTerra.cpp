@@ -24,8 +24,29 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	auto inputM = engine.systems.Get<InputManager>().lock();
 	auto dtorEscape = inputM->On(Key::Escape, [&engine] (Key) {
 		engine.Quit();
-		//engine.RemoveSystem<World>();
 	});
+
+	/*engine.AddState("root", [] (EngineState &st) {
+		st.AddSystem<JobManager>();
+		st.AddSystem<EventManager>();
+		st.AddSystem<InputManager>();
+		st.AddSystem<AssetManager>();
+		st.AddSystem<Integrator>();
+		st.AddSystem<GL32Renderer>();
+
+		auto inputM = st.GetSystem<InputManager>().lock();
+		st.dtors.emplace_back(inputM->On(Key::Space), [] (Key) { st.RunState("world"); });
+	});
+
+	engine.AddState("world", [] (EngineState &st) {
+		st.AddSystem<World>(16, 16, 16);
+		st.AddSystem<HumanPlayerController>();
+
+		auto inputM = st.GetSystem<InputManager>().lock();
+		st.dtors.emplace_back(inputM->On(Key::Escape), [] (Key) { st.QuitAll(); });
+	});
+
+	engine.RunState("root");*/
 
 	engine.Init();
 	engine.systems.Get<GL32Renderer>().lock()->MakePipeline({"main", "perlintexture"/*, "lighting"*/, "ssao", "cel", "fog", "fxaa"/*, "dof"*/});
