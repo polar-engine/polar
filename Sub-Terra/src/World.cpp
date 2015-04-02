@@ -87,8 +87,8 @@ void World::Update(DeltaTicks &) {
 									auto chunkSizeF = Point3(chunkSize);
 									auto data = GenerateChunk(coord);
 									auto pos = new PositionComponent(PosForChunkCoord(coord));
-									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, data);
-									auto bounds = new BoundingComponent(Point3(0.0f), blockSize * chunkSizeF);
+									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, data);
+									auto bounds = new BoundingComponent(Point3(0.0f), chunkSizeF, true);
 
 									/* add all block bounding boxes in chunk as children */
 									for(unsigned char x = 0; x < chunkSize.x; ++x) {

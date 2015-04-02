@@ -5,7 +5,7 @@
 
 class Chunk : public ModelComponent {
 public:
-	Chunk(unsigned char width, unsigned char height, unsigned char depth, const boost::container::vector<bool> &blocks) {
+	Chunk(const unsigned char &width, const unsigned char &height, const unsigned char &depth, const Point3 &blockSize, const boost::container::vector<bool> &blocks) {
 		type = GeometryType::Triangles;
 		const std::vector<Triangle> blockLeft = {
 			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
@@ -196,44 +196,44 @@ public:
 
 						if(!left) {
 							for(auto &triangle : blockLeft) {
-								points.emplace_back(std::get<0>(triangle) +offset);
-								points.emplace_back(std::get<1>(triangle) +offset);
-								points.emplace_back(std::get<2>(triangle) +offset);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
 							}
 						}
 						if(!right) {
 							for(auto &triangle : blockRight) {
-								points.emplace_back(std::get<0>(triangle) +offset);
-								points.emplace_back(std::get<1>(triangle) +offset);
-								points.emplace_back(std::get<2>(triangle) +offset);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
 							}
 						}
 						if(!bottom) {
 							for(auto &triangle : blockBottom) {
-								points.emplace_back(std::get<0>(triangle) +offset);
-								points.emplace_back(std::get<1>(triangle) +offset);
-								points.emplace_back(std::get<2>(triangle) +offset);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
 							}
 						}
 						if(!top) {
 							for(auto &triangle : blockTop) {
-								points.emplace_back(std::get<0>(triangle) +offset);
-								points.emplace_back(std::get<1>(triangle) +offset);
-								points.emplace_back(std::get<2>(triangle) +offset);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
 							}
 						}
 						if(!back) {
 							for(auto &triangle : blockBack) {
-								points.emplace_back(std::get<0>(triangle) +offset);
-								points.emplace_back(std::get<1>(triangle) +offset);
-								points.emplace_back(std::get<2>(triangle) +offset);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
 							}
 						}
 						if(!front) {
 							for(auto &triangle : blockFront) {
-								points.emplace_back(std::get<0>(triangle) +offset);
-								points.emplace_back(std::get<1>(triangle) +offset);
-								points.emplace_back(std::get<2>(triangle) +offset);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
 							}
 						}
 					}
