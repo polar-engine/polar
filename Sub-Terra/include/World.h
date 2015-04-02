@@ -32,12 +32,22 @@ public:
 		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
 	~World();
 
-	inline Point3 BlockCoordForPos(Point3 &pos) const {
+	inline Point3 BlockCoordForPos(const Point3 &pos) const {
 		return glm::floor(pos / blockSize);
 	}
-	inline Point3 ChunkCoordForPos(Point3 &pos) const {
+
+	inline Point3 ChunkCoordForPos(const Point3 &pos) const {
 		return glm::floor(pos / (blockSize * Point3(chunkSize)));
 	}
+
+	inline Point3 PosForBlockCoord(const Point3 &coord) const {
+		return coord * blockSize;
+	}
+
+	inline Point3 PosForChunkCoord(const Point3 &coord) const {
+		return PosForBlockCoord(coord * Point3(chunkSize));
+	}
+
 	inline boost::container::vector<bool> GenerateChunk(const Point3 &p) const {
 		boost::container::vector<bool> blocks;
 		blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
