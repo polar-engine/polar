@@ -62,7 +62,7 @@ void PlayerController::Init() {
 				if(objPos != nullptr) {
 					auto objBounds = engine->GetComponent<BoundingComponent>(id);
 					if(objBounds != nullptr) {
-						auto r = ownBounds->box.AABBSwept(objBounds->box, std::make_tuple(prev, curr, tickVel), *objPos->position);
+						auto r = objBounds->box.AABBSwept(ownBounds->box, objPos->position.Get(), std::make_tuple(prev, curr, tickVel));
 						if(std::get<0>(r) < entryTime) { std::tie(entryTime, normal) = r; }
 					}
 				}

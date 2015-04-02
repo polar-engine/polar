@@ -6,10 +6,11 @@
 struct BoundingBox {
 	Point3 position;
 	Point3 size;
+	bool skipRoot = false;
 	std::vector<BoundingBox> children;
 
 	BoundingBox() {}
-	BoundingBox(const Point3 &position, const Point3 &size) : position(position), size(size) {}
+	BoundingBox(const Point3 &position, const Point3 &size, const bool &skipRoot = false) : position(position), size(size), skipRoot(skipRoot) {}
 
 	inline Point3 Center() const { return position + size / 2.0f; }
 
@@ -32,7 +33,7 @@ struct BoundingBox {
 		}
 
 		/* return child with soonest entry time */
-		if(!children.empty()) {
+		if(skipRoot) {
 			auto result = std::make_pair(false, std::numeric_limits<float>::infinity());
 			for(auto &child : children) {
 				auto r = child.TestRay(origin, direction, tMax, ownPos);
@@ -59,41 +60,41 @@ struct BoundingBox {
 			aBegin.z > bEnd.z);
 	}
 
-	std::pair<float, Point3> AABBSwept(const BoundingBox &b, const std::tuple<Point3, Point3, Point3> &own, const Point3 &bPos) const {
+	std::pair<float, Point3> AABBSwept(const BoundingBox &b, const Point3 &ownPos, const std::tuple<Point3, Point3, Point3> &bTuple) const {
 		std::pair<float, Point3> result = std::make_pair(1.0f, Point3(0.0f));
 
-		auto &ownPos = std::get<0>(own);
-		auto &ownPos2 = std::get<1>(own);
-		auto &ownVel = std::get<2>(own);
+		auto &bPos1 = std::get<0>(bTuple);
+		auto &bPos2 = std::get<1>(bTuple);
+		auto &bVel = std::get<2>(bTuple);
 
 		BoundingBox broadphase(
 			Point3(
-				ownVel.x > 0.0f ? ownPos.x : ownPos2.x,
-				ownVel.y > 0.0f ? ownPos.y : ownPos2.y,
-				ownVel.z > 0.0f ? ownPos.z : ownPos2.z
+				bVel.x > 0.0f ? bPos1.x : bPos2.x,
+				bVel.y > 0.0f ? bPos1.y : bPos2.y,
+				bVel.z > 0.0f ? bPos1.z : bPos2.z
 			),
 			Point3(
-				ownVel.x > 0.0f ? size.x + ownVel.x : size.x - ownVel.x,
-				ownVel.y > 0.0f ? size.y + ownVel.y : size.y - ownVel.y,
-				ownVel.z > 0.0f ? size.z + ownVel.z : size.z - ownVel.z
+				bVel.x > 0.0f ? b.size.x + bVel.x : b.size.x - bVel.x,
+				bVel.y > 0.0f ? b.size.y + bVel.y : b.size.y - bVel.y,
+				bVel.z > 0.0f ? b.size.z + bVel.z : b.size.z - bVel.z
 			)
 		);
 
-		if(!broadphase.AABBCheck(b, position, bPos)) { return result; }
+		if(!AABBCheck(broadphase, ownPos, b.position)) { return result; }
 
 		/* return child with soonest entry time */
-		if(!b.children.empty()) {
-			for(auto &child : b.children) {
-				auto r = AABBSwept(child, own, bPos);
+		if(skipRoot) {
+			for(auto &child : children) {
+				auto r = child.AABBSwept(b, ownPos, bTuple);
 				if(std::get<0>(r) < std::get<0>(result)) { result = r; }
 			}
 			return result;
 		}
 
-		auto aBegin = position + ownPos;
-		auto aEnd = aBegin + size;
-		auto bBegin = bPos + b.position;
-		auto bEnd = bBegin + b.size;
+		auto aBegin = bPos1 + b.position;
+		auto aEnd = aBegin + b.size;
+		auto bBegin = position + ownPos;
+		auto bEnd = bBegin + size;
 
 		Point3 inverseEntry;
 		Point3 inverseExit;
@@ -102,7 +103,7 @@ struct BoundingBox {
 
 		for(glm::length_t i = 0; i < 3; ++i) {
 			/* find distance between self and b on near and far sides of all three axes */
-			if(ownVel[i] > 0.00000000000000000001f) {
+			if(bVel[i] > 0.00000000000000000001f) {
 				inverseEntry[i] = bBegin[i] - aEnd[i];
 				inverseExit[i] = bEnd[i] - aBegin[i];
 			} else {
@@ -113,12 +114,12 @@ struct BoundingBox {
 			/* find time of collision and time of exit for all three axes
 			* prevent division by zero by setting entry time to minumum infinity and exit time to maximum infinity
 			*/
-			if(ownVel[i] == 0.0f) {
+			if(bVel[i] == 0.0f) {
 				entry[i] = -std::numeric_limits<float>::infinity();
 				exit[i] = std::numeric_limits<float>::infinity();
 			} else {
-				entry[i] = inverseEntry[i] / ownVel[i];
-				exit[i] = inverseExit[i] / ownVel[i];
+				entry[i] = inverseEntry[i] / bVel[i];
+				exit[i] = inverseExit[i] / bVel[i];
 			}
 		}
 
@@ -158,5 +159,5 @@ class BoundingComponent : public Component {
 public:
 	BoundingBox box;
 	BoundingComponent() {}
-	BoundingComponent(const Point3 &position, const Point3 &size) : box(position, size) {}
+	BoundingComponent(const Point3 &position, const Point3 &size, const bool &skipRoot = false) : box(position, size, skipRoot) {}
 };
