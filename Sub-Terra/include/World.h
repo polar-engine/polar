@@ -45,7 +45,20 @@ public:
 	}
 
 	inline Point3 PosForChunkCoord(const Point3 &coord) const {
-		return PosForBlockCoord(coord * Point3(chunkSize));
+		return coord * blockSize * Point3(chunkSize);
+	}
+
+	inline Point3 BlockCoordForChunkCoord(const Point3 &coord) const {
+		return coord * Point3(chunkSize);
+	}
+
+	inline Point3 ChunkCoordForBlockCoord(const Point3 &coord) const {
+		return glm::floor(coord / Point3(chunkSize));
+	}
+
+	inline std::pair<Point3, Point3> CoordsForBlockCoord(const Point3 &coord) const {
+		auto chunkCoord = ChunkCoordForBlockCoord(coord);
+		return std::make_pair(chunkCoord, coord - BlockCoordForChunkCoord(chunkCoord));
 	}
 
 	inline boost::container::vector<bool> GenerateChunk(const Point3 &p) const {
