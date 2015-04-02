@@ -13,7 +13,7 @@ struct BoundingBox {
 
 	inline Point3 Center() const { return position + size / 2.0f; }
 
-	inline std::pair<bool, float> TestRay(const Point3 origin, const Point3 direction, float tMax, const Point3 &ownPos) const {
+	inline std::pair<bool, float> TestRay(const Point3 &origin, const Point3 &direction, float tMax, const Point3 &ownPos) const {
 		auto tMin = 0.0f;
 		auto p = ownPos + Center() - origin;
 		auto h = size / 2.0f;
@@ -95,64 +95,31 @@ struct BoundingBox {
 		auto bBegin = bPos + b.position;
 		auto bEnd = bBegin + b.size;
 
-		/* find distance between self and b on near and far sides of all three axes */
-
 		Point3 inverseEntry;
 		Point3 inverseExit;
-
-		if(ownVel.x > 0.0f) {
-			inverseEntry.x = bBegin.x - aEnd.x;
-			inverseExit.x = bEnd.x - aBegin.x;
-		} else {
-			inverseEntry.x = bEnd.x - aBegin.x;
-			inverseExit.x = bBegin.x - aEnd.x;
-		}
-
-		if(ownVel.y > 0.0f) {
-			inverseEntry.y = bBegin.y - aEnd.y;
-			inverseExit.y = bEnd.y - aBegin.y;
-		} else {
-			inverseEntry.y = bEnd.y - aBegin.y;
-			inverseExit.y = bBegin.y - aEnd.y;
-		}
-
-		if(ownVel.z > 0.0f) {
-			inverseEntry.z = bBegin.z - aEnd.z;
-			inverseExit.z = bEnd.z - aBegin.z;
-		} else {
-			inverseEntry.z = bEnd.z - aBegin.z;
-			inverseExit.z = bBegin.z - aEnd.z;
-		}
-
-		/* find time of collision and time of exit for all three axes
-		 * prevent division by zero by setting entry time to minumum infinity and exit time to maximum infinity
-		 */
-
 		Point3 entry;
 		Point3 exit;
 
-		if(ownVel.x == 0.0f) {
-			entry.x = -std::numeric_limits<float>::infinity();
-			exit.x = std::numeric_limits<float>::infinity();
-		} else {
-			entry.x = inverseEntry.x / ownVel.x;
-			exit.x = inverseExit.x / ownVel.x;
-		}
+		for(glm::length_t i = 0; i < 3; ++i) {
+			/* find distance between self and b on near and far sides of all three axes */
+			if(ownVel[i] > 0.00000000000000000001f) {
+				inverseEntry[i] = bBegin[i] - aEnd[i];
+				inverseExit[i] = bEnd[i] - aBegin[i];
+			} else {
+				inverseEntry[i] = bEnd[i] - aBegin[i];
+				inverseExit[i] = bBegin[i] - aEnd[i];
+			}
 
-		if(ownVel.y == 0.0f) {
-			entry.y = -std::numeric_limits<float>::infinity();
-			exit.y = std::numeric_limits<float>::infinity();
-		} else {
-			entry.y = inverseEntry.y / ownVel.y;
-			exit.y = inverseExit.y / ownVel.y;
-		}
-
-		if(ownVel.z == 0.0f) {
-			entry.z = -std::numeric_limits<float>::infinity();
-			exit.z = std::numeric_limits<float>::infinity();
-		} else {
-			entry.z = inverseEntry.z / ownVel.z;
-			exit.z = inverseExit.z / ownVel.z;
+			/* find time of collision and time of exit for all three axes
+			* prevent division by zero by setting entry time to minumum infinity and exit time to maximum infinity
+			*/
+			if(ownVel[i] == 0.0f) {
+				entry[i] = -std::numeric_limits<float>::infinity();
+				exit[i] = std::numeric_limits<float>::infinity();
+			} else {
+				entry[i] = inverseEntry[i] / ownVel[i];
+				exit[i] = inverseExit[i] / ownVel[i];
+			}
 		}
 
 		/* find time at which all axes have entered b */
