@@ -37,7 +37,7 @@ public:
 
 template<typename T> class Atomic {
 public:
-	typedef std::mutex mutex_type;
+	typedef std::recursive_mutex mutex_type;
 private:
 	T value;
 	mutex_type mutex;
@@ -50,11 +50,12 @@ public:
 	}
 
 	inline void Wait(const std::function<bool(T &)> &pred, const std::function<void(T &)> &fn) {
-		std::unique_lock<std::mutex> lock(mutex);
+		ENGINE_THROW("Atomic::Wait: not implemented");
+		/*std::unique_lock<std::mutex> lock(mutex);
 		while(!pred(value)) {
 			cv.wait(lock);
 		}
-		fn(value);
+		fn(value);*/
 	}
 
 	inline void With(const std::function<void(T &)> &fn) {
