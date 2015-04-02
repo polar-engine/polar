@@ -1,10 +1,11 @@
 #pragma once
 
+#include <boost/container/vector.hpp>
 #include "ModelComponent.h"
 
 class Chunk : public ModelComponent {
 public:
-	Chunk(unsigned char width, unsigned char height, unsigned char depth, const std::vector<bool> &blocks) {
+	Chunk(unsigned char width, unsigned char height, unsigned char depth, const boost::container::vector<bool> &blocks) {
 		type = GeometryType::Triangles;
 		const std::vector<Triangle> blockLeft = {
 			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
