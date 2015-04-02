@@ -31,6 +31,16 @@ struct BoundingBox {
 			} else if(-p[i] - h[i] > 0.0f || -p[i] + h[i] < 0.0f) { return std::make_pair(false, 0.0f); }
 		}
 
+		/* return child with soonest entry time */
+		if(!children.empty()) {
+			auto result = std::make_pair(false, std::numeric_limits<float>::infinity());
+			for(auto &child : children) {
+				auto r = child.TestRay(origin, direction, tMax, ownPos);
+				if(std::get<0>(r) && std::get<1>(r) < std::get<1>(result)) { result = r; }
+			}
+			return result;
+		}
+
 		return std::make_pair(true, tMin > 0.0f ? tMin : tMax);
 	}
 
@@ -71,7 +81,7 @@ struct BoundingBox {
 
 		if(!broadphase.AABBCheck(b, position, bPos)) { return result; }
 
-		/* return child with lowest entry time */
+		/* return child with soonest entry time */
 		if(!b.children.empty()) {
 			for(auto &child : b.children) {
 				auto r = AABBSwept(child, own, bPos);
