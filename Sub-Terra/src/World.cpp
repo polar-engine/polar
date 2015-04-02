@@ -13,7 +13,7 @@ void World::Init() {
 void World::Update(DeltaTicks &) {
 	auto pair = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
-		auto object = it->get_left();
+		auto &object = it->get_left();
 
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		if(pos != nullptr) {
@@ -21,14 +21,16 @@ void World::Update(DeltaTicks &) {
 			auto jobM = engine->systems.Get<JobManager>().lock();
 
 			/* clean up chunks outside distance */
-			chunks.With([this, jobM, &chunkCoord] (ChunksType &chunks) {
+			auto &eng = engine;
+			auto &viewDist = viewDistance;
+			chunks.With([&eng, &viewDist, &jobM, &chunkCoord] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
 					auto &keyTuple = it->first;
-					auto obj = std::get<1>(it->second);
+					auto &obj = std::get<1>(it->second);
 
-					if(abs(static_cast<int>(std::get<0>(keyTuple)) - chunkCoord.x) > viewDistance ||
-					   abs(static_cast<int>(std::get<1>(keyTuple)) - chunkCoord.y) > viewDistance ||
-					   abs(static_cast<int>(std::get<2>(keyTuple)) - chunkCoord.z) > viewDistance) {
+					if(abs(static_cast<int>(std::get<0>(keyTuple)) - chunkCoord.x) > viewDist ||
+					   abs(static_cast<int>(std::get<1>(keyTuple)) - chunkCoord.y) > viewDist ||
+					   abs(static_cast<int>(std::get<2>(keyTuple)) - chunkCoord.z) > viewDist) {
 						auto &status = std::get<0>(it->second);
 						switch(status) {
 						case ChunkStatus::Generating:
@@ -36,7 +38,7 @@ void World::Update(DeltaTicks &) {
 							break;
 						case ChunkStatus::Alive:
 						case ChunkStatus::Dead:
-							jobM->Do([this, obj] () { engine->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
+							jobM->Do([&eng, obj] () { eng->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
 							chunks.erase(it++);
 							continue;
 						case ChunkStatus::Dying:
