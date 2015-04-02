@@ -7,7 +7,7 @@
 #include "ModelComponent.h"
 
 void PlayerController::Init() {
-	const std::vector<Triangle> triangles = {
+	const ModelComponent::TrianglesType triangles = {
 		std::make_tuple(Point3(-0.375, -0.85,  0.25), Point3( 0.375, -0.85,  0.25), Point3(-0.375,  0.85,  0.25)),
 		std::make_tuple(Point3( 0.375, -0.85,  0.25), Point3( 0.375,  0.85,  0.25), Point3(-0.375,  0.85,  0.25)),
 		std::make_tuple(Point3(-0.375,  0.85,  0.25), Point3( 0.375,  0.85,  0.25), Point3(-0.375,  0.85, -0.25)),

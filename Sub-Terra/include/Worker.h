@@ -16,5 +16,10 @@ private:
 public:
 	void Start();
 	bool Join();
-	void AddJob(Job);
+	inline void AddJob(Job &&job) {
+		jobs.With([&job] (JobsType &jobs) {
+			jobs.emplace(std::move(job));
+		});
+		jobs.Notify();
+	}
 };

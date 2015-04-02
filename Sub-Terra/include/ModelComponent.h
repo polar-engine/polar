@@ -1,11 +1,12 @@
 #pragma once
 
+#include <boost/container/vector.hpp>
 #include "Component.h"
 
 class ModelComponent : public Component {
 public:
-	typedef std::vector<Point3> PointsType;
-	typedef std::vector<Triangle> TrianglesType;
+	typedef boost::container::vector<Point3> PointsType;
+	typedef boost::container::vector<Triangle> TrianglesType;
 
 	GeometryType type;
 	PointsType points;
