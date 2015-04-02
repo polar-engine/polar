@@ -25,12 +25,12 @@ void World::Update(DeltaTicks &) {
 			auto &viewDist = viewDistance;
 			chunks.With([&eng, &viewDist, &jobM, &chunkCoord] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
-					auto &keyTuple = it->first;
+					auto &coordTuple = it->first;
 					auto &obj = std::get<1>(it->second);
 
-					if(abs(static_cast<int>(std::get<0>(keyTuple)) - chunkCoord.x) > viewDist ||
-					   abs(static_cast<int>(std::get<1>(keyTuple)) - chunkCoord.y) > viewDist ||
-					   abs(static_cast<int>(std::get<2>(keyTuple)) - chunkCoord.z) > viewDist) {
+					if(abs(static_cast<int>(std::get<0>(coordTuple)) - chunkCoord.x) > viewDist ||
+					   abs(static_cast<int>(std::get<1>(coordTuple)) - chunkCoord.y) > viewDist ||
+					   abs(static_cast<int>(std::get<2>(coordTuple)) - chunkCoord.z) > viewDist) {
 						auto &status = std::get<0>(it->second);
 						switch(status) {
 						case ChunkStatus::Generating:
@@ -84,11 +84,10 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
-									auto chunkSizeF = Point3(chunkSize);
 									auto data = GenerateChunk(coord);
 									auto pos = new PositionComponent(PosForChunkCoord(coord));
 									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, data);
-									auto bounds = new BoundingComponent(Point3(0.0f), chunkSizeF, true);
+									auto bounds = new BoundingComponent(Point3(0.0f), Point3(chunkSize), true);
 
 									/* add all block bounding boxes in chunk as children */
 									for(unsigned char x = 0; x < chunkSize.x; ++x) {
