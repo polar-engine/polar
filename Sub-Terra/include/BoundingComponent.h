@@ -12,9 +12,12 @@ struct BoundingBox {
 	BoundingBox() {}
 	BoundingBox(const Point3 &position, const Point3 &size, const bool &skipRoot = false) : position(position), size(size), skipRoot(skipRoot) {}
 
-	inline Point3 Center() const { return position + size / 2.0f; }
+	inline Point3 Center() const {
+		return position + size / 2.0f;
+	}
 
-	inline std::pair<bool, float> TestRay(const Point3 &origin, const Point3 &direction, float tMax, const Point3 &ownPos) const {
+	inline std::tuple<bool, float, Point3> TestRay(const Point3 &origin, const Point3 &direction, float tMax, const Point3 &ownPos) const {
+		auto failure = std::make_tuple(false, std::numeric_limits<float>::infinity(), Point3());
 		auto tMin = 0.0f;
 		auto p = ownPos + Center() - origin;
 		auto h = size / 2.0f;
@@ -27,14 +30,14 @@ struct BoundingBox {
 				if(tEntry > tExit) { std::swap(tEntry, tExit); }
 				if(tEntry > tMin) { tMin = tEntry; }
 				if(tExit < tMax) { tMax = tExit; }
-				if(tMin > tMax) { return std::make_pair(false, 0.0f); }
-				if(tMax < 0.0f) { return std::make_pair(false, 0.0f); }
-			} else if(-p[i] - h[i] > 0.0f || -p[i] + h[i] < 0.0f) { return std::make_pair(false, 0.0f); }
+				if(tMin > tMax) { return failure; }
+				if(tMax < 0.0f) { return failure; }
+			} else if(-p[i] - h[i] > 0.0f || -p[i] + h[i] < 0.0f) { return failure; }
 		}
 
 		/* return child with soonest entry time */
 		if(skipRoot) {
-			auto result = std::make_pair(false, std::numeric_limits<float>::infinity());
+			auto result = failure;
 			for(auto &child : children) {
 				auto r = child.TestRay(origin, direction, tMax, ownPos);
 				if(std::get<0>(r) && std::get<1>(r) < std::get<1>(result)) { result = r; }
@@ -42,7 +45,7 @@ struct BoundingBox {
 			return result;
 		}
 
-		return std::make_pair(true, tMin > 0.0f ? tMin : tMax);
+		return std::make_tuple(true, tMin > 0.0f ? tMin : tMax, ownPos + position);
 	}
 
 	inline bool AABBCheck(const BoundingBox &b, const Point3 &ownPos, const Point3 &bPos) const {
