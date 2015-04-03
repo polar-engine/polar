@@ -1,6 +1,5 @@
 #include "common.h"
 #include "World.h"
-#include "JobManager.h"
 #include "PlayerCameraComponent.h"
 #include "PositionComponent.h"
 #include "BoundingComponent.h"

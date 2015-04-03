@@ -3,6 +3,7 @@
 #include <boost/container/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include "System.h"
+#include "JobManager.h"
 #include "OpenSimplexNoise.h"
 
 enum class ChunkStatus {
@@ -59,6 +60,35 @@ public:
 	inline std::pair<Point3, Point3> CoordsForBlockCoord(const Point3 &coord) const {
 		auto chunkCoord = ChunkCoordForBlockCoord(coord);
 		return std::make_pair(chunkCoord, coord - BlockCoordForChunkCoord(chunkCoord));
+	}
+
+	inline ChunkKeyType ChunkKeyForChunkCoord(const Point3 &coord) const {
+		return std::make_tuple(static_cast<uint64_t>(coord.x),
+		                       static_cast<uint64_t>(coord.y),
+		                       static_cast<uint64_t>(coord.z));
+	}
+
+	inline void SetBlock(const Point3 &coord, const bool &value) {
+		Point3 chunkCoord, blockCoord;
+		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
+		INFO("** World::SetBlock **");
+		INFOS("chunkCoord = (" << chunkCoord.x << ',' << chunkCoord.y << ',' << chunkCoord.z << ')');
+		INFOS("blockCoord = (" << blockCoord.x << ',' << blockCoord.y << ',' << blockCoord.z << ')');
+	}
+
+	inline void DestroyChunk(const Point3 &coord) {
+		auto chunkKey = ChunkKeyForChunkCoord(coord);
+		ChunkContainerType container;
+		chunks.With([&chunkKey, &container] (ChunksType &chunks) {
+			container = chunks.at(chunkKey);
+			chunks.erase(chunkKey);
+		});
+		auto jobM = engine->systems.Get<JobManager>().lock();
+		jobM->Do([this, &container] () { engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
+	}
+
+	inline void SetBlockAtPos(const Point3 &pos, const bool &value) {
+		SetBlock(BlockCoordForPos(pos), value);
 	}
 
 	inline boost::container::vector<bool> GenerateChunk(const Point3 &p) const {
