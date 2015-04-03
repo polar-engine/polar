@@ -75,12 +75,9 @@ public:
 	inline void SetBlock(const Point3 &coord, const bool &value) {
 		Point3 chunkCoord, blockCoord;
 		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
-		INFO("** World::SetBlock **");
-		INFOS("chunkCoord = (" << chunkCoord.x << ',' << chunkCoord.y << ',' << chunkCoord.z << ')');
-		INFOS("blockCoord = (" << blockCoord.x << ',' << blockCoord.y << ',' << blockCoord.z << ')');
 		auto data = GetChunk(chunkCoord)->data;
-		data[blockCoord.z * chunkSize.x * chunkSize.y + blockCoord.x * chunkSize.y + blockCoord.y] = false;
-		//auto data = GenerateChunk(chunkCoord);
+		glm::ivec3 iBlockCoord = glm::ivec3(blockCoord);
+		data[iBlockCoord.z * chunkSize.x * chunkSize.y + iBlockCoord.x * chunkSize.y + iBlockCoord.y] = false;
 		DestroyChunk(chunkCoord);
 		CreateChunk(chunkCoord, data);
 	}
