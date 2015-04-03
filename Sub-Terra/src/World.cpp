@@ -1,9 +1,5 @@
 #include "common.h"
 #include "World.h"
-#include "PlayerCameraComponent.h"
-#include "PositionComponent.h"
-#include "BoundingComponent.h"
-#include "Chunk.h"
 
 void World::Init() {
 	
@@ -84,30 +80,7 @@ void World::Update(DeltaTicks &) {
 									if(dead) { return; }
 
 									auto data = GenerateChunk(coord);
-									auto pos = new PositionComponent(PosForChunkCoord(coord));
-									auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, data);
-									auto bounds = new BoundingComponent(Point3(0.0f), Point3(chunkSize), true);
-
-									/* add all block bounding boxes in chunk as children */
-									for(unsigned char x = 0; x < chunkSize.x; ++x) {
-										for(unsigned char y = 0; y < chunkSize.y; ++y) {
-											for(unsigned char z = 0; z < chunkSize.z; ++z) {
-												if(data.at(z * chunkSize.x * chunkSize.y + x * chunkSize.y + y) == true) {
-													bounds->box.children.emplace_back(PosForBlockCoord(Point3(x, y, z)), blockSize);
-												}
-											}
-										}
-									}
-
-									jobM->Do([this, coordTuple, pos, chunk, bounds] () {
-										auto id = engine->AddObject();
-										engine->InsertComponent<PositionComponent>(id, pos);
-										engine->InsertComponent<ModelComponent>(id, chunk);
-										engine->InsertComponent<BoundingComponent>(id, bounds);
-										chunks.With([&coordTuple, id] (ChunksType &chunks) {
-											chunks.at(coordTuple) = std::make_tuple(ChunkStatus::Alive, id);
-										});
-									}, JobPriority::High, JobThread::Main);
+									CreateChunk(coord, data, true);
 								}, JobPriority::Normal, JobThread::Worker);
 							}
 						}
