@@ -74,17 +74,22 @@ public:
 		INFO("** World::SetBlock **");
 		INFOS("chunkCoord = (" << chunkCoord.x << ',' << chunkCoord.y << ',' << chunkCoord.z << ')');
 		INFOS("blockCoord = (" << blockCoord.x << ',' << blockCoord.y << ',' << blockCoord.z << ')');
+		DestroyChunk(chunkCoord);
 	}
 
-	inline void DestroyChunk(const Point3 &coord) {
+	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) {
 		auto chunkKey = ChunkKeyForChunkCoord(coord);
 		ChunkContainerType container;
 		chunks.With([&chunkKey, &container] (ChunksType &chunks) {
 			container = chunks.at(chunkKey);
 			chunks.erase(chunkKey);
 		});
-		auto jobM = engine->systems.Get<JobManager>().lock();
-		jobM->Do([this, &container] () { engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
+		if(deferredToMain) {
+			auto jobM = engine->systems.Get<JobManager>().lock();
+			jobM->Do([this, &container] () { engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
+		} else {
+			engine->RemoveObject(std::get<1>(container));
+		}
 	}
 
 	inline void SetBlockAtPos(const Point3 &pos, const bool &value) {
