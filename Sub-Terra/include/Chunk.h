@@ -52,189 +52,189 @@ public:
 						/*if(!left && right) {
 							if(!bottom && top) {
 								if(!back && front) {
-									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+									points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
 								} else if(!front && back) {
-									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+									points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
 								} else {
-									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+									points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
 								}
 								continue;
 							} else if(!top && bottom) {
 								if(!back && front) {
-									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+									points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
 								} else if(!front && back) {
-									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
 								} else {
-									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+									points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
 								}
 								continue;
 							} else if(!back && front) {
-								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
+								points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
 								continue;
 							} else if(!front && back) {
-								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+								points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
 								continue;
 							}
 						} else if(!right && left) {
 							if(!bottom && top) {
 								if(!back && front) {
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
 								} else if(!front && back) {
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
 								} else {
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
 								}
 								continue;
 							} else if(!top && bottom) {
 								if(!back && front) {
-									points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
+									points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
 								} else if(!front && back) {
-									points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+									points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
 								} else {
-									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-									points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-									points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+									points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+									points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+									points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
 								}
 								continue;
 							} else if(!back && front) {
-								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
+								points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
 								continue;
 							} else if(!front && back) {
-								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
+								points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
 								continue;
 							}
 						} else if(!bottom && top) {
 							if(!back && front) {
-								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
+								points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
 								continue;
 							} else if(!front && back) {
-								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
+								points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
 								continue;
 							}
 						} else if(!top && bottom) {
 							if(!back && front) {
-								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5,  0.5) + offset);
+								points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5,  0.5) + offset) * blockSize);
 								continue;
 							} else if(!front && back) {
-								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5,  0.5, -0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3(-0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5, -0.5,  0.5) + offset);
-								points.emplace_back(Point3( 0.5,  0.5, -0.5) + offset);
+								points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5,  0.5, -0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3(-0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5, -0.5,  0.5) + offset) * blockSize);
+								points.emplace_back((Point3( 0.5,  0.5, -0.5) + offset) * blockSize);
 								continue;
 							}
 						}*/
 
 						if(!left) {
 							for(auto &triangle : blockLeft) {
-								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
-								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
-								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize);
 							}
 						}
 						if(!right) {
 							for(auto &triangle : blockRight) {
-								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
-								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
-								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize);
 							}
 						}
 						if(!bottom) {
 							for(auto &triangle : blockBottom) {
-								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
-								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
-								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize);
 							}
 						}
 						if(!top) {
 							for(auto &triangle : blockTop) {
-								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
-								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
-								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize);
 							}
 						}
 						if(!back) {
 							for(auto &triangle : blockBack) {
-								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
-								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
-								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize);
 							}
 						}
 						if(!front) {
 							for(auto &triangle : blockFront) {
-								points.emplace_back((std::get<0>(triangle) +offset) * blockSize.x);
-								points.emplace_back((std::get<1>(triangle) +offset) * blockSize.y);
-								points.emplace_back((std::get<2>(triangle) +offset) * blockSize.z);
+								points.emplace_back((std::get<0>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<1>(triangle) +offset) * blockSize);
+								points.emplace_back((std::get<2>(triangle) +offset) * blockSize);
 							}
 						}
 					}
