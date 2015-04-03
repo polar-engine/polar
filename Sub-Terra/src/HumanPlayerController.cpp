@@ -89,7 +89,6 @@ void HumanPlayerController::Init() {
 		}
 
 		if(soonestId != 0) {
-			engine->RemoveObject(soonestId);
 			auto world = engine->systems.Get<World>().lock();
 			world->SetBlock(soonestPos, false);
 		}
