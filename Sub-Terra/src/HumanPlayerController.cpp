@@ -90,7 +90,7 @@ void HumanPlayerController::Init() {
 
 		if(soonestId != 0) {
 			auto world = engine->systems.Get<World>().lock();
-			world->SetBlock(soonestPos, false);
+			world->SetBlock(world->BlockCoordForPos(soonestPos), false);
 		}
 	}));
 }
@@ -111,10 +111,10 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	if(orientRot.y >  r360) { orientRot.y -= r360; }
 	if(orientRot.y < -r360) { orientRot.y += r360; }
 
-	/* clamp x to range of -70 to 70 degrees */
-	const float r70 = glm::radians(70.0f);
-	if(orientRot.x >  r70) { orientRot.x =  r70; }
-	if(orientRot.x < -r70) { orientRot.x = -r70; }
+	/* clamp x to range of -viewingAngle to viewingAngle */
+	const float viewingAngle = glm::radians(90.0f);
+	if(orientRot.x >  viewingAngle) { orientRot.x = viewingAngle; }
+	if(orientRot.x < -viewingAngle) { orientRot.x = -viewingAngle; }
 
 	const float r180 = glm::radians(180.0f);
 	orient->orientation = glm::quat(Point3(0.0f, orientRot.y, 0.0f));
