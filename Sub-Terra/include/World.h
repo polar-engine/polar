@@ -4,6 +4,10 @@
 #include <boost/unordered_map.hpp>
 #include "System.h"
 #include "JobManager.h"
+#include "PlayerCameraComponent.h"
+#include "PositionComponent.h"
+#include "BoundingComponent.h"
+#include "Chunk.h"
 #include "OpenSimplexNoise.h"
 
 enum class ChunkStatus {
@@ -74,15 +78,70 @@ public:
 		INFO("** World::SetBlock **");
 		INFOS("chunkCoord = (" << chunkCoord.x << ',' << chunkCoord.y << ',' << chunkCoord.z << ')');
 		INFOS("blockCoord = (" << blockCoord.x << ',' << blockCoord.y << ',' << blockCoord.z << ')');
+		auto data = GetChunk(chunkCoord)->data;
+		data[blockCoord.z * chunkSize.x * chunkSize.y + blockCoord.x * chunkSize.y + blockCoord.y] = false;
+		//auto data = GenerateChunk(chunkCoord);
 		DestroyChunk(chunkCoord);
+		CreateChunk(chunkCoord, data);
+	}
+
+	inline const ChunkContainerType GetChunkContainer(const Point3 &coord) {
+		auto chunkTuple = ChunkKeyForChunkCoord(coord);
+		return chunks.With<ChunkContainerType>([&chunkTuple] (ChunksType &chunks) {
+			return chunks.at(chunkTuple);
+		});
+	}
+
+	inline const Chunk * GetChunk(const Point3 &coord) {
+		auto container = GetChunkContainer(coord);
+		return static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
+	}
+
+	inline void CreateChunk(const Point3 &coord, const boost::container::vector<bool> &data, const bool &deferredToMain = false) {
+		auto pos = new PositionComponent(PosForChunkCoord(coord));
+		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, data);
+		auto bounds = new BoundingComponent(Point3(0.0f), Point3(chunkSize), true);
+
+		/* add all block bounding boxes in chunk as children */
+		for(unsigned char x = 0; x < chunkSize.x; ++x) {
+			for(unsigned char y = 0; y < chunkSize.y; ++y) {
+				for(unsigned char z = 0; z < chunkSize.z; ++z) {
+					if(data.at(z * chunkSize.x * chunkSize.y + x * chunkSize.y + y) == true) {
+						bounds->box.children.emplace_back(PosForBlockCoord(Point3(x, y, z)), blockSize);
+					}
+				}
+			}
+		}
+
+		auto chunkTuple = ChunkKeyForChunkCoord(coord);
+		if(deferredToMain) {
+			auto jobM = engine->systems.Get<JobManager>().lock();
+			jobM->Do([this, chunkTuple, pos, chunk, bounds] () {
+				auto id = engine->AddObject();
+				engine->InsertComponent<PositionComponent>(id, pos);
+				engine->InsertComponent<ModelComponent>(id, chunk);
+				engine->InsertComponent<BoundingComponent>(id, bounds);
+				chunks.With([&chunkTuple, id] (ChunksType &chunks) {
+					chunks.at(chunkTuple) = std::make_tuple(ChunkStatus::Alive, id);
+				});
+			}, JobPriority::High, JobThread::Main);
+		} else {
+			auto id = engine->AddObject();
+			engine->InsertComponent<PositionComponent>(id, pos);
+			engine->InsertComponent<ModelComponent>(id, chunk);
+			engine->InsertComponent<BoundingComponent>(id, bounds);
+			chunks.With([&chunkTuple, id] (ChunksType &chunks) {
+				chunks[chunkTuple] = std::make_tuple(ChunkStatus::Alive, id);
+			});
+		}
 	}
 
 	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) {
-		auto chunkKey = ChunkKeyForChunkCoord(coord);
-		ChunkContainerType container;
-		chunks.With([&chunkKey, &container] (ChunksType &chunks) {
-			container = chunks.at(chunkKey);
-			chunks.erase(chunkKey);
+		auto chunkTuple = ChunkKeyForChunkCoord(coord);
+		ChunkContainerType container = chunks.With<ChunkContainerType>([&chunkTuple] (ChunksType &chunks) {
+			auto container = chunks.at(chunkTuple);
+			chunks.erase(chunkTuple);
+			return container;
 		});
 		if(deferredToMain) {
 			auto jobM = engine->systems.Get<JobManager>().lock();
