@@ -8,7 +8,7 @@
 @varying flat vec3 v_normal
 @out rgba8 color o_color
 @gout rgba8 normal o_normal
-@gout rgb32f position o_position
+@gout rgba32f position o_position
 @gout depth depth
 
 @shader vertex
@@ -58,5 +58,5 @@ void main() {
 	o_color.a = 1.0;
 	o_normal.xyz = v_normal / 2.0 + 0.5;
 	o_normal.w = 1.0;
-	o_position = v_pos;
+	o_position = vec4(v_pos, 1.0);
 }
