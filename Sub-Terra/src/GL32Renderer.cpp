@@ -452,8 +452,13 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 		GLenum status;
 		GL(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
-		if(status != GL_FRAMEBUFFER_COMPLETE) {
-			std::stringstream msg;
+		std::stringstream msg;
+		switch(status) {
+		case GL_FRAMEBUFFER_COMPLETE:
+			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:
+			ENGINE_THROW("framebuffer unsupported");
+		default:
 			msg << "framebuffer status incomplete (0x" << std::hex << status << ')';
 			ENGINE_THROW(msg.str());
 		}
