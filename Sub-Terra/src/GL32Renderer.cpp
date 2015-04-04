@@ -377,6 +377,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 
 			GLenum internalFormat, format, type, attachment;
 
+			/* WARNING: 3-component sized internal formats are not required to be renderable */
 			switch(out.type) {
 			case ProgramOutputType::RGB8:
 				internalFormat = GL_RGB8;
