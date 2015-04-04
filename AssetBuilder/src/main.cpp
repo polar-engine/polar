@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 
 		for(auto &shader : asset.shaders.elements) {
 			std::string prepend;
-			prepend += "#version 330\n";
+			prepend += "#version 150\n";
 			prepend += "precision highp float;\n";
 			for(auto &uniform : uniforms) {
 				prepend += "uniform " + std::get<0>(uniform) + ' ' + std::get<1>(uniform) + ";\n";

@@ -24,8 +24,8 @@ bool GL32Renderer::IsSupported() {
 		GLint major, minor;
 		if(!GL(glGetIntegerv(GL_MAJOR_VERSION, &major))) { ENGINE_THROW("failed to get OpenGL major version"); }
 		if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) { ENGINE_THROW("failed to get OpenGL minor version"); }
-		/* if OpenGL version is 3.3 or greater */
- 		if(!(major > 3 || (major == 3 && minor >= 3))) {
+		/* if OpenGL version is 3.2 or greater */
+ 		if(!(major > 3 || (major == 3 && minor >= 2))) {
 			std::stringstream msg;
 			msg << "actual OpenGL version is " << major << '.' << minor;
 			ENGINE_THROW(msg.str());
@@ -39,7 +39,7 @@ bool GL32Renderer::IsSupported() {
 void GL32Renderer::InitGL() {
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { ENGINE_THROW("failed to init SDL"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { ENGINE_THROW("failed to set major version attribute"); }
-	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3))) { ENGINE_THROW("failed to set minor version attribute"); }
+	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { ENGINE_THROW("failed to set minor version attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { ENGINE_THROW("failed to set profile mask attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { ENGINE_THROW("failed to set double buffer attribute"); }
 	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
