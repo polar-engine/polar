@@ -63,8 +63,10 @@ void UpdateLauncher() {
 		const std::string old = appPath + ".old";
 		if(FileSystem::FileExists(old)) { FileSystem::RemoveFile(old); }
 		FileSystem::Rename(appPath, appPath + ".old");
-		FileSystem::WriteFile(appPath, launcher);
-		FileSystem::WriteFile(versionPath, remoteVersion);
+		auto ssLauncher = std::stringstream(launcher);
+		auto ssRemoteVersion = std::stringstream(launcher);
+		FileSystem::WriteFile(appPath, ssLauncher);
+		FileSystem::WriteFile(versionPath, ssRemoteVersion);
 
 		INFO("restarting launcher");
 
@@ -97,8 +99,10 @@ void UpdateSubTerra() {
 		auto archiveData = GetRemote("http://shockk.me/sub-terra/files/sub-terra-" + remoteVersion + ".zip");
 
 		INFO("writing archive to disk");
-		FileSystem::WriteFile(archivePath, archiveData);
-		FileSystem::WriteFile(versionPath, remoteVersion);
+		auto ssArchiveData = std::stringstream(archiveData);
+		auto ssRemoteVersion = std::stringstream(remoteVersion);
+		FileSystem::WriteFile(archivePath, ssArchiveData);
+		FileSystem::WriteFile(versionPath, ssRemoteVersion);
 
 		FileSystem::CreateDir(subTerraDir);
 
@@ -126,7 +130,8 @@ void UpdateSubTerra() {
 				zip_int64_t len = zip_fread(fh, buf, st.size);
 				if(len == -1) { FATAL("failed to read `" + name + "` in `" + archiveName + '`'); }
 
-				FileSystem::WriteFile(subTerraDir + '/' + name, std::string(buf, len));
+				auto ssFile = std::stringstream(std::string(buf, len));
+				FileSystem::WriteFile(subTerraDir + '/' + name, ssFile);
 
 				delete[] buf;
 
