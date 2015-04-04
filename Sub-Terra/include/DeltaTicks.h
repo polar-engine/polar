@@ -18,6 +18,10 @@ public:
 		return value.count() / static_cast<seconds_type>(ENGINE_TICKS_PER_SECOND);
 	}
 
+	inline void SetSeconds(const seconds_type &seconds) {
+		value = DeltaTicksBase(static_cast<DeltaTicksBase::rep>(seconds * ENGINE_TICKS_PER_SECOND));
+	}
+
 	inline bool operator<(const DeltaTicksBase &rhs) { return value < rhs; }
 	inline bool operator<(const DeltaTicks &rhs) { return *this < rhs.value; }
 	inline bool operator>(const DeltaTicksBase &rhs) { return value < rhs; }

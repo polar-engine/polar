@@ -5,6 +5,7 @@
 
 void Integrator::Update(DeltaTicks &dt) {
 	accumulator += dt;
+	if(accumulator.Seconds() > 1.0f) { accumulator.SetSeconds(1.0f); }
 
 	while(accumulator >= timestep) {
 		Tick(timestep.Seconds());
