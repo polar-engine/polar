@@ -64,7 +64,7 @@ void UpdateLauncher() {
 		if(FileSystem::FileExists(old)) { FileSystem::RemoveFile(old); }
 		FileSystem::Rename(appPath, appPath + ".old");
 		auto ssLauncher = std::stringstream(launcher);
-		auto ssRemoteVersion = std::stringstream(launcher);
+		auto ssRemoteVersion = std::stringstream(remoteVersion);
 		FileSystem::WriteFile(appPath, ssLauncher);
 		FileSystem::WriteFile(versionPath, ssRemoteVersion);
 
