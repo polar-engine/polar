@@ -10,7 +10,6 @@ protected:
 	bool moveRight = false;
 	IDType object;
 
-	virtual void InitObject() {};
 	virtual void Init() override;
 	virtual void Update(DeltaTicks &) override;
 public:

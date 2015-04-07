@@ -8,7 +8,6 @@ protected:
 	Point2 orientRot;
 	bool rearView = false;
 
-	virtual void InitObject() override;
 	virtual void Init() override;
 	virtual void Update(DeltaTicks &) override;
 public:

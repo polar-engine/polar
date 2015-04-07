@@ -8,26 +8,22 @@
 #include "PlayerCameraComponent.h"
 #include "BoundingComponent.h"
 
-void HumanPlayerController::InitObject() {
-	PlayerController::InitObject();
-	engine->AddComponent<PlayerCameraComponent>(object);
-	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
-	/* player model is 1.7f in height ranging from -0.85f to 0.85f
-	 * and 0.75f in width, ranging from -0.375f to 0.375f
-	 * so to position the camera in the middle of the model's face
-	 * we offset the camera on the y-axis by (0.85f - 0.375f)
-	 */
-	camera->position = Point3(0.0f, 0.85f - 0.375f, 0.0f);
-	//camera->distance = Point3(0.0f, 0.0f, 4.0f);
-}
-
 void HumanPlayerController::Init() {
 	PlayerController::Init();
+
+	engine->AddComponent<PlayerCameraComponent>(object);
 
 	auto inputM = engine->systems.Get<InputManager>().lock();
 	auto pos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
+
+	/* player model is 1.7f in height ranging from -0.85f to 0.85f
+	* and 0.75f in width, ranging from -0.375f to 0.375f
+	* so to position the camera in the middle of the model's face
+	* we offset the camera on the y-axis by (0.85f - 0.375f)
+	*/
+	camera->position = Point3(0.0f, 0.85f - 0.375f, 0.0f);
 
 	/* movement */
 	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
