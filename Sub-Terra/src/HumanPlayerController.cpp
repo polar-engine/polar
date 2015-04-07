@@ -29,6 +29,7 @@ void HumanPlayerController::Init() {
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
+	/* movement */
 	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
 	dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
 	dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
@@ -38,27 +39,28 @@ void HumanPlayerController::Init() {
 	dtors.emplace_back(inputM->After(Key::A, [this] (Key) { moveLeft = false; }));
 	dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
 
+	/* jump */
 	dtors.emplace_back(inputM->On(Key::Space, [pos] (Key) {
 		pos->position.Derivative()->y = 9.8f / 2;
 	}));
 
+	/* mouse look */
 	dtors.emplace_back(inputM->OnMouseMove([this] (const Point2 &delta) {
 		orientVel.y += glm::radians(0.02f) * delta.x;
 		orientVel.x += glm::radians(0.02f) * delta.y;
 	}));
 
 	/* reverse camera view */
-
 	dtors.emplace_back(inputM->On(Key::Z, [this, camera] (Key) {
 		rearView = true;
 		camera->distance = Point3(0.0f, 0.0f, 4.0f);
 	}));
-
 	dtors.emplace_back(inputM->After(Key::Z, [this, camera] (Key) {
 		rearView = false;
 		camera->distance = Point3(0.0f, 0.0f, 0.0f);
 	}));
 
+	/* destroy block */
 	dtors.emplace_back(inputM->On(Key::E, [this, pos, orient, camera] (Key) {
 		auto origin = pos->position.Get() + camera->position.Get();
 		auto direction = Point3(glm::toMat3(orient->orientation * camera->orientation) * Point3(0.0f, 0.0f, 1.0f));
