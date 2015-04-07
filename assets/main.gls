@@ -52,7 +52,7 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 
 void main() {
 	vec3 lighting = vec3(0.0);
-	lighting += light(vec3(0.0), vec3(1.0, 0.6, 0.02), 256.0, 60.0);
+	lighting += light(vec3(0.0), vec3(1.0), 256.0, 60.0);
 
 	o_color.rgb = lighting;
 	o_color.a = 1.0;
