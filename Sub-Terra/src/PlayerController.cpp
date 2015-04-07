@@ -27,7 +27,6 @@ void PlayerController::Init() {
 	engine->AddComponent<OrientationComponent>(object);
 	engine->AddComponent<BoundingComponent>(object, Point3(-0.375f, -0.85f, -0.25f), Point3(0.75f, 1.7f, 0.5f));
 	engine->AddComponent<ModelComponent>(object, triangles);
-	InitObject();
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
