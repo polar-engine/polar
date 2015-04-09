@@ -7,6 +7,7 @@
 #include "OrientationComponent.h"
 #include "PlayerCameraComponent.h"
 #include "BoundingComponent.h"
+#include "PhysicalComponent.h"
 
 void HumanPlayerController::Init() {
 	PlayerController::Init();
@@ -58,6 +59,10 @@ void HumanPlayerController::Init() {
 
 	/* destroy block */
 	dtors.emplace_back(inputM->On(Key::E, [this, pos, orient, camera] (Key) {
+		auto phys = engine->GetComponent<PhysicalComponent>(item);
+		if(!phys || phys->durability <= 0.0f) { return; }
+		if(phys->durability != std::numeric_limits<float>::infinity()) { --phys->durability; }
+
 		auto origin = pos->position.Get() + camera->position.Get();
 		auto direction = Point3(glm::toMat3(orient->orientation * camera->orientation) * Point3(0.0f, 0.0f, 1.0f));
 		direction.z = -direction.z;
