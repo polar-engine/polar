@@ -146,12 +146,10 @@
     <ClInclude Include="..\include\ListAsset.h" />
     <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
-    <ClInclude Include="include\Allocator.h" />
     <ClInclude Include="include\Atomic.h" />
     <ClInclude Include="include\BoundingComponent.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
-    <ClInclude Include="include\components.h" />
     <ClInclude Include="include\DeltaTicks.h" />
     <ClInclude Include="include\EntityBase.h" />
     <ClInclude Include="include\EventManager.h" />
@@ -166,9 +164,9 @@
     <ClInclude Include="include\JobManager.h" />
     <ClInclude Include="include\Key.h" />
     <ClInclude Include="include\ModelComponent.h" />
-    <ClInclude Include="include\NoRenderer.h" />
     <ClInclude Include="include\OpenSimplexNoise.h" />
     <ClInclude Include="include\OrientationComponent.h" />
+    <ClInclude Include="include\PhysicalComponent.h" />
     <ClInclude Include="include\PlayerCameraComponent.h" />
     <ClInclude Include="include\PlayerController.h" />
     <ClInclude Include="include\Polar.h" />
@@ -182,7 +180,6 @@
     <ClInclude Include="include\SpatialIndex.h" />
     <ClInclude Include="include\SubTerra.h" />
     <ClInclude Include="include\System.h" />
-    <ClInclude Include="include\Tag.h" />
     <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\World.h" />
   </ItemGroup>

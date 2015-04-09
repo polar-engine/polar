@@ -9,6 +9,7 @@ protected:
 	bool moveLeft = false;
 	bool moveRight = false;
 	IDType object;
+	IDType item;
 
 	virtual void Init() override;
 	virtual void Update(DeltaTicks &) override;

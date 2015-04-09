@@ -5,6 +5,7 @@
 #include "OrientationComponent.h"
 #include "BoundingComponent.h"
 #include "ModelComponent.h"
+#include "PhysicalComponent.h"
 
 void PlayerController::Init() {
 	const ModelComponent::TrianglesType triangles = {
@@ -27,6 +28,10 @@ void PlayerController::Init() {
 	engine->AddComponent<OrientationComponent>(object);
 	engine->AddComponent<BoundingComponent>(object, Point3(-0.375f, -0.85f, -0.25f), Point3(0.75f, 1.7f, 0.5f));
 	engine->AddComponent<ModelComponent>(object, triangles);
+
+	/* pickaxe */
+	item = engine->AddObject();
+	engine->AddComponent<PhysicalComponent>(item, 4.0f, 25.0f, 0.88f, 200.0f);
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
