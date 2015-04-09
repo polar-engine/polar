@@ -18,9 +18,11 @@ float cnoise(vec3 P);
 void main() {
 	vec3 pos = texture(u_posBuffer, v_vertex).xyz;
 
-	float eval1 = cnoise(pos * 3.5) * 0.5 + 0.5;
-	float eval2 = cnoise(pos * 0.25) * 0.5 + 0.5;
-	float eval3 = cnoise(pos * vec3(0.03)) * 0.5 + 0.5;
+	float eval1 = cnoise(pos * 3.51) * 0.5 + 0.5;
+	float eval2 = cnoise(pos * 0.251) * 0.5 + 0.5;
+	float eval3 = cnoise(pos * 0.031) * 0.5 + 0.5;
+	float eval4 = cnoise(pos * 32.01) * 0.5 + 0.5;
+	float eval5 = cnoise(pos * vec3(0.023, 0.007, 0.023)) * 0.5 + 0.5;
 
 	/* toon shading */
 	     if(eval1 < 0.125) { eval1 = 0.125; }
@@ -33,7 +35,7 @@ void main() {
 	if(eval2 > 0.5 - E2 && eval2 < 0.5 + E2) { eval2 = smoothstep(0.5 - E2, 0.5 + E2, eval2); }
 	else                                     { eval2 = step(0.5, eval2); };
 
-	const float E3 = 0.25;
+	const float E3 = 0.35;
 	if(eval3 > 0.5 - E3 && eval3 < 0.5 + E3) { eval3 = smoothstep(0.5 - E3, 0.5 + E3, eval3); }
 	else                                     { eval3 = step(0.5, eval3); }
 
@@ -43,11 +45,16 @@ void main() {
 	const float range2 = 0.1;
 	eval2 = eval2 * range2 + (1.0 - range2);
 
+	if(eval4 > 0.9) { eval4 = 0.5; }
+	else { eval4 = 1.0; }
+
+	eval5 = smoothstep(0.12, 0.34, eval5);
+
 	vec3 colorSlate = vec3(0.58, 0.57, 0.48);
 	vec3 colorSlateGranite = vec3(0.685, 0.58, 0.46);
 	vec3 colorGranite = vec3(0.79, 0.59, 0.44);
 	vec3 colorOrange = vec3(1.0, 0.6, 0.02);
-	o_color.rgb = texture(u_colorBuffer, v_vertex).rgb * mix(colorSlateGranite, colorOrange, eval3) * eval1 * eval2;
+	o_color.rgb = texture(u_colorBuffer, v_vertex).rgb * mix(colorSlate, mix(colorGranite, colorOrange, eval3), eval5) * eval1 * eval2 * eval4;
 	o_color.a = 1.0;
 }
 
