@@ -61,7 +61,6 @@ void HumanPlayerController::Init() {
 	dtors.emplace_back(inputM->On(Key::E, [this, pos, orient, camera] (Key) {
 		auto phys = engine->GetComponent<PhysicalComponent>(item);
 		if(!phys || phys->durability <= 0.0f) { return; }
-		if(phys->durability != std::numeric_limits<float>::infinity()) { --phys->durability; }
 
 		auto origin = pos->position.Get() + camera->position.Get();
 		auto direction = Point3(glm::toMat3(orient->orientation * camera->orientation) * Point3(0.0f, 0.0f, 1.0f));
@@ -92,6 +91,7 @@ void HumanPlayerController::Init() {
 		}
 
 		if(soonestId != 0) {
+			if(phys->durability != std::numeric_limits<float>::infinity()) { --phys->durability; }
 			auto world = engine->systems.Get<World>().lock();
 			world->SetBlock(world->BlockCoordForPos(soonestPos), false);
 		}
