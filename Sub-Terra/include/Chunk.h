@@ -3,10 +3,16 @@
 #include <boost/container/vector.hpp>
 #include "ModelComponent.h"
 
+struct Block {
+	bool state = false;
+	float health = 1.0f;
+};
+
 class Chunk : public ModelComponent {
 public:
-	const boost::container::vector<bool> data;
-	Chunk(const unsigned char &width, const unsigned char &height, const unsigned char &depth, const Point3 &blockSize, const boost::container::vector<bool> &data) : data(data) {
+	boost::container::vector<Block> blocks;
+
+	Chunk(const unsigned char &width, const unsigned char &height, const unsigned char &depth, const Point3 &blockSize, const boost::container::vector<Block> &blocks) : blocks(blocks) {
 		type = GeometryType::Triangles;
 		const std::vector<Triangle> blockLeft = {
 			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
@@ -39,15 +45,15 @@ public:
 			for(unsigned char y = 0; y < height; ++y) {
 				for(unsigned char z = 0; z < depth; ++z) {
 					auto current = z * width * height + x * height + y;
-					if(data.at(current)) {
+					if(blocks.at(current).state) {
 						Point3 offset(x + 0.5f, y + 0.5f, z + 0.5f);
 
-						bool left   = x > 0          && data.at(current - height);
-						bool right  = x < width - 1  && data.at(current + height);
-						bool bottom = y > 0          && data.at(current - 1);
-						bool top    = y < height - 1 && data.at(current + 1);
-						bool back   = z > 0          && data.at(current - width * height);
-						bool front  = z < depth - 1  && data.at(current + width * height);
+						bool left   = x > 0          && blocks.at(current - height).state;
+						bool right  = x < width - 1  && blocks.at(current + height).state;
+						bool bottom = y > 0          && blocks.at(current - 1).state;
+						bool top    = y < height - 1 && blocks.at(current + 1).state;
+						bool back   = z > 0          && blocks.at(current - width * height).state;
+						bool front  = z < depth - 1  && blocks.at(current + width * height).state;
 
 						/*if(!left && right) {
 							if(!bottom && top) {

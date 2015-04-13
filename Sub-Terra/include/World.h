@@ -37,6 +37,14 @@ public:
 		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
 	~World();
 
+	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const glm::ivec3 &p) {
+		return BlockIndexForCoord(p.x, p.y, p.z);
+	}
+
+	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const unsigned char &x, const unsigned char &y, const unsigned char &z) {
+		return z * chunkSize.x * chunkSize.y + x * chunkSize.y + y;
+	}
+
 	inline Point3 BlockCoordForPos(const Point3 &pos) const {
 		return glm::floor(pos / blockSize);
 	}
@@ -72,14 +80,30 @@ public:
 		                       static_cast<uint64_t>(coord.z));
 	}
 
+	inline bool DamageBlock(const Point3 &coord, const float &damage) {
+		auto destroy = chunks.With<bool>([this, &coord, &damage] (ChunksType &chunks) {
+			Point3 chunkCoord, blockCoord;
+			std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
+			auto chunkTuple = ChunkKeyForChunkCoord(chunkCoord);
+			auto &container = chunks.at(chunkTuple);
+			auto chunk = static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
+
+			auto index = BlockIndexForCoord(glm::ivec3(blockCoord));
+			return (chunk->blocks.at(index).health -= damage) < 0.0f;
+		});
+
+		if(destroy) { SetBlock(coord, false); }
+		return destroy;
+	}
+
 	inline void SetBlock(const Point3 &coord, const bool &value) {
 		Point3 chunkCoord, blockCoord;
 		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
-		auto data = GetChunk(chunkCoord)->data;
+		auto blocks = GetChunk(chunkCoord)->blocks;
 		glm::ivec3 iBlockCoord = glm::ivec3(blockCoord);
-		data[iBlockCoord.z * chunkSize.x * chunkSize.y + iBlockCoord.x * chunkSize.y + iBlockCoord.y] = false;
+		blocks[iBlockCoord.z * chunkSize.x * chunkSize.y + iBlockCoord.x * chunkSize.y + iBlockCoord.y].state = false;
 		DestroyChunk(chunkCoord);
-		CreateChunk(chunkCoord, data);
+		CreateChunk(chunkCoord, blocks);
 	}
 
 	inline const ChunkContainerType GetChunkContainer(const Point3 &coord) {
@@ -94,16 +118,16 @@ public:
 		return static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
 	}
 
-	inline void CreateChunk(const Point3 &coord, const boost::container::vector<bool> &data, const bool &deferredToMain = false) {
+	inline void CreateChunk(const Point3 &coord, const boost::container::vector<Block> &blocks, const bool &deferredToMain = false) {
 		auto pos = new PositionComponent(PosForChunkCoord(coord));
-		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, data);
+		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, blocks);
 		auto bounds = new BoundingComponent(Point3(0.0f), Point3(chunkSize), true);
 
 		/* add all block bounding boxes in chunk as children */
 		for(unsigned char x = 0; x < chunkSize.x; ++x) {
 			for(unsigned char y = 0; y < chunkSize.y; ++y) {
 				for(unsigned char z = 0; z < chunkSize.z; ++z) {
-					if(data.at(z * chunkSize.x * chunkSize.y + x * chunkSize.y + y) == true) {
+					if(blocks.at(z * chunkSize.x * chunkSize.y + x * chunkSize.y + y).state == true) {
 						bounds->box.children.emplace_back(PosForBlockCoord(Point3(x, y, z)), blockSize);
 					}
 				}
@@ -152,8 +176,8 @@ public:
 		SetBlock(BlockCoordForPos(pos), value);
 	}
 
-	inline boost::container::vector<bool> GenerateChunk(const Point3 &p) const {
-		boost::container::vector<bool> blocks;
+	inline boost::container::vector<Block> GenerateChunk(const Point3 &p) const {
+		boost::container::vector<Block> blocks;
 		blocks.resize(chunkSize.x * chunkSize.y * chunkSize.z);
 
 		Point3 actual = p * Point3(blockSize.x * chunkSize.x, blockSize.y * chunkSize.y, blockSize.z * chunkSize.z);
@@ -162,7 +186,7 @@ public:
 		for(float z = 0; z < blockSize.z * chunkSize.z; z += blockSize.z) {
 			for(float x = 0; x < blockSize.x * chunkSize.x; x += blockSize.x) {
 				for(float y = 0; y < blockSize.y * chunkSize.y; y += blockSize.y) {
-					blocks.at(i++) = GenerateBlock(actual + Point3(x, y, z));
+					blocks.at(i++).state = GenerateBlock(actual + Point3(x, y, z));
 				}
 			}
 		}
