@@ -79,8 +79,8 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
-									auto data = GenerateChunk(coord);
-									CreateChunk(coord, data, true);
+									auto blocks = GenerateChunk(coord);
+									CreateChunk(coord, blocks, true);
 								}, JobPriority::Normal, JobThread::Worker);
 							}
 						}

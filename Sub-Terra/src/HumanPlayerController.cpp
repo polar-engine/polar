@@ -58,7 +58,7 @@ void HumanPlayerController::Init() {
 	}));
 
 	/* destroy block */
-	dtors.emplace_back(inputM->On(Key::E, [this, pos, orient, camera] (Key) {
+	dtors.emplace_back(inputM->When(Key::E, [this, pos, orient, camera] (Key, const DeltaTicks &dt) {
 		auto phys = engine->GetComponent<PhysicalComponent>(item);
 		if(!phys || phys->durability <= 0.0f) { return; }
 
@@ -91,9 +91,11 @@ void HumanPlayerController::Init() {
 		}
 
 		if(soonestId != 0) {
-			if(phys->durability != std::numeric_limits<float>::infinity()) { --phys->durability; }
 			auto world = engine->systems.Get<World>().lock();
-			world->SetBlock(world->BlockCoordForPos(soonestPos), false);
+			auto destroyed = world->DamageBlock(world->BlockCoordForPos(soonestPos), dt.Seconds());
+			if(destroyed) {
+				if(phys->durability != std::numeric_limits<float>::infinity()) { --phys->durability; }
+			}
 		}
 	}));
 }
