@@ -31,7 +31,7 @@ void PlayerController::Init() {
 
 	/* pickaxe */
 	item = engine->AddObject();
-	engine->AddComponent<PhysicalComponent>(item, 4.0f, 25.0f, 0.88f, 200.0f);
+	engine->AddComponent<PhysicalComponent>(item, 5.0f, 25.0f, 0.28f, 200.0f);
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
