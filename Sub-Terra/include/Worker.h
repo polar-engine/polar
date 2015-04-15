@@ -1,6 +1,5 @@
 #pragma once
 
-/* Windows.h and stuff */
 #ifdef AddJob
 #undef AddJob
 #endif
