@@ -20,6 +20,11 @@
 #include <thread>
 #include <mutex>
 
+/* prevent Windows.h from defining min/max macros */
+#ifdef _WIN32
+#define NOMINMAX
+#endif
+
 /* CF defines types Point and Component so it needs to be included early
  * also undef macro defined by Boost
  */
