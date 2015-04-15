@@ -5,6 +5,7 @@
 
 struct Block {
 	bool state = false;
+	float hardness = 1.0f;
 	float health = 1.0f;
 };
 
