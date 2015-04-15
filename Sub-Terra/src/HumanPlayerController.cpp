@@ -92,10 +92,41 @@ void HumanPlayerController::Init() {
 
 		if(soonestId != 0) {
 			auto world = engine->systems.Get<World>().lock();
-			auto destroyed = world->DamageBlock(world->BlockCoordForPos(soonestPos), dt.Seconds());
-			if(destroyed) {
-				if(phys->durability != std::numeric_limits<float>::infinity()) { --phys->durability; }
+			auto coord = world->BlockCoordForPos(soonestPos);
+
+			auto hardnessDiff = phys->hardness - world->GetBlock(coord).hardness;
+
+			/* assumes swing duration of 1 second for 1 Kg mass */
+			auto swingFactor = dt.Seconds() / (std::max)(0.00000001f, phys->mass);
+
+			/* difference in material hardness has less effect as it increases */
+			auto hardnessFactor = glm::log(std::max(1.0f, hardnessDiff + 1.0f)) + 1.0f;
+
+			/* scale sharpness to range of 0.5 => 1 */
+			auto sharpnessFactor = phys->sharpness / 2.0f + 0.5f;
+
+			auto bluntness = 1.0f - phys->sharpness;
+			auto factor = swingFactor * hardnessFactor * sharpnessFactor;
+
+			const float maxDistance = 2;
+			for(unsigned char d = 0; d <= maxDistance; ++d) {
+				for(char x = -d; x <= d; ++x) {
+					for(char y = -d; y <= d; ++y) {
+						for(char z = -d; z <= d; ++z) {
+							/* skip blocks inside current outer ring */
+							if(glm::abs(x) != d && glm::abs(y) != d && glm::abs(z) != d) { continue; }
+
+							/* square bluntness for each unit of distance to get an exponential scale from 0 to 1 */
+							auto bluntnessFactor = glm::pow(bluntness, 2.0f * d);
+
+							world->DamageBlock(coord + Point3(x, y, z), factor * bluntnessFactor);
+						}
+					}
+				}
 			}
+
+			/* decrease item durability at rate of swing */
+			phys->durability -= swingFactor;
 		}
 	}));
 }
