@@ -80,6 +80,23 @@ public:
 		                       static_cast<uint64_t>(coord.z));
 	}
 
+	inline Block GetBlock(const Point3 &coord) {
+		Point3 chunkCoord, blockCoord;
+		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
+		auto blocks = GetChunk(chunkCoord)->blocks;
+		return blocks[BlockIndexForCoord(glm::ivec3(blockCoord))];
+	}
+
+	inline void SetBlock(const Point3 &coord, const bool &value) {
+		Point3 chunkCoord, blockCoord;
+		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
+		auto blocks = GetChunk(chunkCoord)->blocks;
+
+		blocks[BlockIndexForCoord(glm::ivec3(blockCoord))].state = false;
+		DestroyChunk(chunkCoord);
+		CreateChunk(chunkCoord, blocks);
+	}
+
 	inline bool DamageBlock(const Point3 &coord, const float &damage) {
 		auto destroy = chunks.With<bool>([this, &coord, &damage] (ChunksType &chunks) {
 			Point3 chunkCoord, blockCoord;
@@ -94,16 +111,6 @@ public:
 
 		if(destroy) { SetBlock(coord, false); }
 		return destroy;
-	}
-
-	inline void SetBlock(const Point3 &coord, const bool &value) {
-		Point3 chunkCoord, blockCoord;
-		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
-		auto blocks = GetChunk(chunkCoord)->blocks;
-		glm::ivec3 iBlockCoord = glm::ivec3(blockCoord);
-		blocks[iBlockCoord.z * chunkSize.x * chunkSize.y + iBlockCoord.x * chunkSize.y + iBlockCoord.y].state = false;
-		DestroyChunk(chunkCoord);
-		CreateChunk(chunkCoord, blocks);
 	}
 
 	inline const ChunkContainerType GetChunkContainer(const Point3 &coord) {
