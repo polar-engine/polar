@@ -97,7 +97,7 @@ void HumanPlayerController::Init() {
 			auto hardnessDiff = phys->hardness - world->GetBlock(coord).hardness;
 
 			/* assumes swing duration of 1 second for 1 Kg mass */
-			auto swingFactor = dt.Seconds() / (std::max)(0.00000001f, phys->mass);
+			auto swingFactor = dt.Seconds() / std::max(0.00000001f, phys->mass);
 
 			/* difference in material hardness has less effect as it increases */
 			auto hardnessFactor = glm::log(std::max(1.0f, hardnessDiff + 1.0f)) + 1.0f;

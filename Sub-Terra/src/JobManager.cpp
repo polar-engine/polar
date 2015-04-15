@@ -29,7 +29,7 @@ void JobManager::Init() {
 void JobManager::Update(DeltaTicks &) {
 	jobs.With([this] (JobsType &jobs) {
 		auto numJobs = jobs.size();
-		auto numOnMain = (std::max)(static_cast<uint64_t>(128), static_cast<uint64_t>(numJobs / 64));
+		auto numOnMain = std::max(static_cast<uint64_t>(128), static_cast<uint64_t>(numJobs / 64));
 
 		for(; numJobs > 0; --numJobs) {
 			auto job = jobs.top();

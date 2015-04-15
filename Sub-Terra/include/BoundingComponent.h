@@ -127,10 +127,10 @@ struct BoundingBox {
 		}
 
 		/* find time at which all axes have entered b */
-		float entryTime = (std::max)({entry.x, entry.y, entry.z});
+		float entryTime = std::max({entry.x, entry.y, entry.z});
 
 		/* find time at which any axis has exited b */
-		float exitTime = (std::min)({exit.x, exit.y, exit.z});
+		float exitTime = std::min({exit.x, exit.y, exit.z});
 
 		/* false if entry time is after exit time
 		 * OR if all entry times are less than 0
