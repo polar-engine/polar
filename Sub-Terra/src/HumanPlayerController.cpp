@@ -26,6 +26,17 @@ void HumanPlayerController::Init() {
 	*/
 	camera->position = Point3(0.0f, 0.85f - 0.375f, 0.0f);
 
+	/* hotbar */
+	dtors.emplace_back(inputM->On(Key::Num1, [this] (Key) { activeHotbar = 0; }));
+	dtors.emplace_back(inputM->On(Key::Num2, [this] (Key) { activeHotbar = 1; }));
+	dtors.emplace_back(inputM->On(Key::Num3, [this] (Key) { activeHotbar = 2; }));
+	dtors.emplace_back(inputM->On(Key::Num4, [this] (Key) { activeHotbar = 3; }));
+	dtors.emplace_back(inputM->On(Key::Num5, [this] (Key) { activeHotbar = 4; }));
+	dtors.emplace_back(inputM->On(Key::Num6, [this] (Key) { activeHotbar = 5; }));
+	dtors.emplace_back(inputM->On(Key::Num7, [this] (Key) { activeHotbar = 6; }));
+	dtors.emplace_back(inputM->On(Key::Num8, [this] (Key) { activeHotbar = 7; }));
+	dtors.emplace_back(inputM->On(Key::Num9, [this] (Key) { activeHotbar = 8; }));
+
 	/* movement */
 	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
 	dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
@@ -59,7 +70,7 @@ void HumanPlayerController::Init() {
 
 	/* destroy block */
 	dtors.emplace_back(inputM->When(Key::E, [this, pos, orient, camera] (Key, const DeltaTicks &dt) {
-		auto phys = engine->GetComponent<PhysicalComponent>(item);
+		auto phys = engine->GetComponent<PhysicalComponent>(hotbar[activeHotbar]);
 		if(!phys || phys->durability <= 0.0f) { return; }
 
 		auto origin = pos->position.Get() + camera->position.Get();
@@ -100,7 +111,7 @@ void HumanPlayerController::Init() {
 			auto swingFactor = dt.Seconds() / std::max(0.00000001f, phys->mass);
 
 			/* difference in material hardness has less effect as it increases */
-			auto hardnessFactor = glm::log(std::max(1.0f, hardnessDiff + 1.0f)) + 1.0f;
+			auto hardnessFactor = glm::log2(std::max(1.0f, hardnessDiff + 1.0f)) + 1.0f;
 
 			/* scale sharpness to range of 0.5 => 1 */
 			auto sharpnessFactor = phys->sharpness / 2.0f + 0.5f;
