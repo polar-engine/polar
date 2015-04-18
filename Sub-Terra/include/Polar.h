@@ -75,7 +75,9 @@ public:
 
 	template<typename T> inline T * GetComponent(IDType id) {
 		auto it = objects.find(Bimap::relation(id, &typeid(T)));
-		return static_cast<T *>(it->info.get());
+		if(it != objects.end()) {
+			return static_cast<T *>(it->info.get());
+		} else { return nullptr; }
 	}
 
 	void Init();
