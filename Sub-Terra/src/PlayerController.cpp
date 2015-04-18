@@ -30,8 +30,13 @@ void PlayerController::Init() {
 	engine->AddComponent<ModelComponent>(object, triangles);
 
 	/* pickaxe */
-	item = engine->AddObject();
-	engine->AddComponent<PhysicalComponent>(item, 5.0f, 25.0f, 0.28f, 200.0f);
+	for(auto &item : hotbar) {
+		item = engine->AddObject();
+	}
+	engine->AddComponent<PhysicalComponent>(hotbar[0], 5.0f, 25.0f, 0.88f, 200.0f);
+	engine->AddComponent<PhysicalComponent>(hotbar[1], 5.0f, 80.0f, 0.88f, 200.0f);
+	engine->AddComponent<PhysicalComponent>(hotbar[2], 5.0f, 400.0f, 0.95f, 200.0f);
+	engine->AddComponent<PhysicalComponent>(hotbar[5], 5.0f, 25.0f, 0.28f, 200.0f);
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
