@@ -81,6 +81,26 @@ inline Key mkKeyFromSDL(SDL_Keycode k) {
 		return Key::Y;
 	case SDLK_z:
 		return Key::Z;
+	case SDLK_1:
+		return Key::Num1;
+	case SDLK_2:
+		return Key::Num2;
+	case SDLK_3:
+		return Key::Num3;
+	case SDLK_4:
+		return Key::Num4;
+	case SDLK_5:
+		return Key::Num5;
+	case SDLK_6:
+		return Key::Num6;
+	case SDLK_7:
+		return Key::Num7;
+	case SDLK_8:
+		return Key::Num8;
+	case SDLK_9:
+		return Key::Num9;
+	case SDLK_0:
+		return Key::Num0;
 	case SDLK_ESCAPE:
 		return Key::Escape;
 	case SDLK_SPACE:
