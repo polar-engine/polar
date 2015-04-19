@@ -29,7 +29,7 @@ void PlayerController::Init() {
 	engine->AddComponent<BoundingComponent>(object, Point3(-0.375f, -0.85f, -0.25f), Point3(0.75f, 1.7f, 0.5f));
 	engine->AddComponent<ModelComponent>(object, triangles);
 
-	/* pickaxe */
+	/* pickaxes */
 	for(auto &item : hotbar) {
 		item = engine->AddObject();
 	}
