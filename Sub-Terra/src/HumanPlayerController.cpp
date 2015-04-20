@@ -130,7 +130,10 @@ void HumanPlayerController::Init() {
 							/* square bluntness for each unit of distance to get an exponential scale from 0 to 1 */
 							auto bluntnessFactor = glm::pow(bluntness, 2.0f * d);
 
-							world->DamageBlock(coord + Point3(x, y, z), factor * bluntnessFactor);
+							auto destroyed = world->DamageBlock(coord + Point3(x, y, z), factor * bluntnessFactor);
+							if(destroyed) {
+
+							}
 						}
 					}
 				}
