@@ -7,6 +7,8 @@ struct Block {
 	bool state = false;
 	float hardness = 1.0f;
 	float health = 1.0f;
+
+	Block(const bool state = false) : state(state) {}
 };
 
 class Chunk : public ModelComponent {
