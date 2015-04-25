@@ -68,6 +68,44 @@ void HumanPlayerController::Init() {
 		camera->distance = Point3(0.0f, 0.0f, 0.0f);
 	}));
 
+	/* place block */
+	dtors.emplace_back(inputM->On(Key::F, [this, pos, orient, camera] (Key) {
+		auto origin = pos->position.Get() + camera->position.Get();
+		auto direction = Point3(glm::toMat3(orient->orientation * camera->orientation) * Point3(0.0f, 0.0f, 1.0f));
+		direction.z = -direction.z;
+
+		float entryTime = std::numeric_limits<float>::infinity();
+		IDType soonestId = 0;
+		Point3 soonestPos = Point3(0.0f);
+		Point3 normal = Point3(0.0f);
+
+		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
+		for(auto it = pair.first; it != pair.second; ++it) {
+			auto id = it->get_left();
+
+			/* don't check against self */
+			if(id == object) { continue; }
+
+			auto objPos = engine->GetComponent<PositionComponent>(id);
+			if(objPos != nullptr) {
+				auto objBounds = engine->GetComponent<BoundingComponent>(id);
+				if(objBounds != nullptr) {
+					auto r = objBounds->box.TestRay(origin, direction, 8.0f, objPos->position.Get());
+					if(std::get<0>(r) && std::get<1>(r) < entryTime) {
+						std::tie(std::ignore, entryTime, soonestPos, normal) = r;
+						soonestId = id;
+					}
+				}
+			}
+		}
+
+		if(soonestId != 0) {
+			auto world = engine->systems.Get<World>().lock();
+			auto coord = world->BlockCoordForPos(soonestPos) + normal;
+			world->SetBlock(coord, Block(true));
+		}
+	}));
+
 	/* destroy block */
 	dtors.emplace_back(inputM->When(Key::E, [this, pos, orient, camera] (Key, const DeltaTicks &dt) {
 		auto phys = engine->GetComponent<PhysicalComponent>(hotbar[activeHotbar]);
@@ -94,7 +132,7 @@ void HumanPlayerController::Init() {
 				if(objBounds != nullptr) {
 					auto r = objBounds->box.TestRay(origin, direction, 8.0f, objPos->position.Get());
 					if(std::get<0>(r) && std::get<1>(r) < entryTime) {
-						std::tie(std::ignore, entryTime, soonestPos) = r;
+						std::tie(std::ignore, entryTime, soonestPos, std::ignore) = r;
 						soonestId = id;
 					}
 				}

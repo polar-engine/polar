@@ -16,20 +16,24 @@ struct BoundingBox {
 		return position + size / 2.0f;
 	}
 
-	inline std::tuple<bool, float, Point3> TestRay(const Point3 &origin, const Point3 &direction, float tMax, const Point3 &ownPos) const {
-		auto failure = std::make_tuple(false, std::numeric_limits<float>::infinity(), Point3());
+	inline std::tuple<bool, float, Point3, Point3> TestRay(const Point3 &origin, const Point3 &direction, float tMax, const Point3 &ownPos) const {
+		auto failure = std::make_tuple(false, std::numeric_limits<float>::infinity(), Point3(0.0f), Point3(0.0f));
 		auto tMin = 0.0f;
 		auto p = ownPos + Center() - origin;
 		auto h = size / 2.0f;
+		glm::length_t axis;
+		Point3 tEntry;
+		Point3 tExit;
+		Point3 normal;
 
 		for(glm::length_t i = 0; i < 3; ++i) {
 			if(glm::abs(direction[i]) > 0.00000000000000000001f) {
 				float invDir = 1.0f / direction[i];
-				float tEntry = (p[i] - h[i]) * invDir;
-				float tExit = (p[i] + h[i]) * invDir;
-				if(tEntry > tExit) { std::swap(tEntry, tExit); }
-				if(tEntry > tMin) { tMin = tEntry; }
-				if(tExit < tMax) { tMax = tExit; }
+				tEntry[i] = (p[i] - h[i]) * invDir;
+				tExit[i] = (p[i] + h[i]) * invDir;
+				if(tEntry[i] > tExit[i]) { std::swap(tEntry[i], tExit[i]); }
+				if(tEntry[i] > tMin) { tMin = tEntry[i]; axis = i; }
+				if(tExit[i] < tMax) { tMax = tExit[i]; }
 				if(tMin > tMax) { return failure; }
 				if(tMax < 0.0f) { return failure; }
 			} else if(-p[i] - h[i] > 0.0f || -p[i] + h[i] < 0.0f) { return failure; }
@@ -45,7 +49,16 @@ struct BoundingBox {
 			return result;
 		}
 
-		return std::make_tuple(true, tMin > 0.0f ? tMin : tMax, ownPos + position);
+		/* determine normal of collided surface */
+		if(axis == 0) {
+			normal = glm::normalize(Point3(-direction.x, 0.0f, 0.0f));
+		} else if(axis == 1) {
+			normal = glm::normalize(Point3(0.0f, -direction.y, 0.0f));
+		} else {
+			normal = glm::normalize(Point3(0.0f, 0.0f, -direction.z));
+		}
+
+		return std::make_tuple(true, tMin > 0.0f ? tMin : tMax, ownPos + position, normal);
 	}
 
 	inline bool AABBCheck(const BoundingBox &b, const Point3 &ownPos, const Point3 &bPos) const {
@@ -145,7 +158,6 @@ struct BoundingBox {
 		std::get<0>(result) = entryTime;
 
 		/* determine normal of collided surface */
-
 		if(entryTime == entry.x) {
 			std::get<1>(result) = Point3(inverseEntry.x < 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
 		} else if(entryTime == entry.y) {

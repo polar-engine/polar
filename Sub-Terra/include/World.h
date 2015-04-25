@@ -87,12 +87,12 @@ public:
 		return blocks[BlockIndexForCoord(glm::ivec3(blockCoord))];
 	}
 
-	inline void SetBlock(const Point3 &coord, const bool &value) {
+	inline void SetBlock(const Point3 &coord, const Block &block) {
 		Point3 chunkCoord, blockCoord;
 		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
 		auto blocks = GetChunk(chunkCoord)->blocks;
 
-		blocks[BlockIndexForCoord(glm::ivec3(blockCoord))].state = false;
+		blocks[BlockIndexForCoord(glm::ivec3(blockCoord))] = block;
 		DestroyChunk(chunkCoord);
 		CreateChunk(chunkCoord, blocks);
 	}
@@ -109,7 +109,7 @@ public:
 			return (chunk->blocks.at(index).health -= damage) < 0.0f;
 		});
 
-		if(destroy) { SetBlock(coord, false); }
+		if(destroy) { SetBlock(coord, Block()); }
 		return destroy;
 	}
 
