@@ -70,6 +70,8 @@ void HumanPlayerController::Init() {
 
 	/* place block */
 	dtors.emplace_back(inputM->On(Key::F, [this, pos, orient, camera] (Key) {
+		if(heldBlocks <= 0) { return; }
+
 		auto origin = pos->position.Get() + camera->position.Get();
 		auto direction = Point3(glm::toMat3(orient->orientation * camera->orientation) * Point3(0.0f, 0.0f, 1.0f));
 		direction.z = -direction.z;
@@ -103,6 +105,7 @@ void HumanPlayerController::Init() {
 			auto world = engine->systems.Get<World>().lock();
 			auto coord = world->BlockCoordForPos(soonestPos) + normal;
 			world->SetBlock(coord, Block(true));
+			--heldBlocks;
 		}
 	}));
 
@@ -169,9 +172,7 @@ void HumanPlayerController::Init() {
 							auto bluntnessFactor = glm::pow(bluntness, 2.0f * d);
 
 							auto destroyed = world->DamageBlock(coord + Point3(x, y, z), factor * bluntnessFactor);
-							if(destroyed) {
-
-							}
+							if(destroyed) { ++heldBlocks; }
 						}
 					}
 				}
