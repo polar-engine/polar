@@ -1,0 +1,40 @@
+@attrib vec2 a_vertex
+@varying smooth vec2 v_vertex
+@in color u_colorBuffer
+@out rgba8 color o_color
+
+@shader vertex
+
+void main() {
+	gl_Position = vec4(a_vertex, 0.0, 1.0);
+	v_vertex = a_vertex / 2.0 + 0.5;
+}
+
+@shader fragment
+
+const float XWIDTH = 4.0;
+const float YWIDTH = 4.0;
+const float XREACH = 14.0;
+const float YREACH = 8.0;
+
+void main() {
+	vec2 texCoord = v_vertex;
+	vec2 invSize = 1.0 / vec2(textureSize(u_colorBuffer, 0));
+	float xw = floor(XWIDTH * invSize.x * 10.0) / 10.0;
+	float yw = floor(YWIDTH * invSize.y * 10.0) / 10.0;
+	o_color = texture(u_colorBuffer, texCoord);
+	if(length(texCoord - vec2(0.5)) < 0.003) {
+		o_color.rgb = mix(o_color.rgb, vec3(1.0), 0.3);
+	}
+	return;
+	if((texCoord.x >= 0.5 - xw &&
+	    texCoord.x <= 0.5 + xw &&
+	    texCoord.y >= 0.5 - YREACH * invSize.y &&
+	    texCoord.y <= 0.5 + YREACH * invSize.y) ||
+	   (texCoord.y >= 0.5 - yw &&
+	    texCoord.y <= 0.5 + yw &&
+	    texCoord.x >= 0.5 - XREACH * invSize.x &&
+	    texCoord.x <= 0.5 + XREACH * invSize.x)) {
+		o_color.rgb = mix(o_color.rgb, vec3(1.0), 0.5);
+	}
+}
