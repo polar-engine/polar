@@ -11,6 +11,8 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <ShlObj.h>
+#include <Shlwapi.h>
 #endif
 #ifdef __APPLE__
 #include <dirent.h>
@@ -51,6 +53,20 @@ public:
 		CFRelease(url);
 		CFRelease(path);
 		return std::string(sz);
+#endif
+	}
+
+	static std::string GetSavedGamesDir() {
+#ifdef _WIN32
+		char szPath[MAX_PATH];
+		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, szPath);
+		if(FAILED(result)) { ENGINE_THROW("CSIDL_PERSONAL: failed to retrieve path"); }
+		PathAppendA(szPath, "My Games");
+		PathAppendA(szPath, "Sub-Terra");
+		return std::string(szPath);
+#endif
+#ifdef __APPLE__
+		ENGINE_THROW("FileSystem::GetSavedGamesDir:: not implemented");
 #endif
 	}
 	
