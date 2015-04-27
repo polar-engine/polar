@@ -68,10 +68,6 @@ void GL32Renderer::InitGL() {
 }
 
 void GL32Renderer::Init() {
-	width = 1280;
-	height = 720;
-	fovy = 70;
-	zNear = 0.05f;
 	InitGL();
 	SetClearColor(Point4(0.02f, 0.05f, 0.1f, 1));
 	//ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
@@ -334,7 +330,7 @@ void GL32Renderer::Project(GLuint programID) {
 	if(locProjection == -1) { return; } /* -1 if uniform does not exist in program */
 
 	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
-	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear, zFar);
+	glm::mat4 projection = glm::perspective(glm::radians(fovy), static_cast<float>(width) / static_cast<float>(height), zNear, zFar);
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 }
 
