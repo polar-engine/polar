@@ -26,7 +26,7 @@ private:
 	const uint8_t viewDistance = 3;
 	const Point3 blockSize = Point3(1.0f);
 	const glm::ivec3 chunkSize;
-	OpenSimplexNoise noise = OpenSimplexNoise(std::random_device()());
+	OpenSimplexNoise noise;
 	Atomic<ChunksType> chunks;
 protected:
 	void Init() override final;
