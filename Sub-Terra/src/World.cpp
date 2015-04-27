@@ -1,8 +1,25 @@
 #include "common.h"
 #include "World.h"
+#include "FileSystem.h"
+#include "endian.h"
 
 void World::Init() {
-	
+	uint32_t seed;
+	auto savesPath = FileSystem::GetSavedGamesDir();
+	auto seedPath = savesPath + "/seed";
+
+	if(FileSystem::FileExists(seedPath)) {
+		auto seedString = FileSystem::ReadFile(seedPath);
+		seed = swapbe(*reinterpret_cast<const uint32_t *>(seedString.data()));
+	} else {
+		seed = std::random_device()();
+		auto beSeed = swapbe(seed);
+		auto ss = std::stringstream();
+		ss << std::string(reinterpret_cast<const char *>(&beSeed), 4);
+		FileSystem::WriteFile(seedPath, ss);
+	}
+
+	noise = OpenSimplexNoise(seed);
 }
 
 void World::Update(DeltaTicks &) {
