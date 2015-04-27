@@ -2,16 +2,16 @@
 
 class OpenSimplexNoise {
 private:
-	const double STRETCH_CONSTANT_2D = -0.211324865405187;   // (1/Math.sqrt(2+1)-1)/2;
-	const double SQUISH_CONSTANT_2D  = 0.366025403784439;    //   (Math.sqrt(2+1)-1)/2;
-	const double STRETCH_CONSTANT_3D = -1.0 / 6;             // (1/Math.sqrt(3+1)-1)/3;
-	const double SQUISH_CONSTANT_3D  = 1.0 / 3;              //   (Math.sqrt(3+1)-1)/3;
-	const double STRETCH_CONSTANT_4D = -0.138196601125011;   // (1/Math.sqrt(4+1)-1)/4;
-	const double SQUISH_CONSTANT_4D = 0.309016994374947;     //   (Math.sqrt(4+1)-1)/4;
+	double STRETCH_CONSTANT_2D = -0.211324865405187;   // (1/Math.sqrt(2+1)-1)/2;
+	double SQUISH_CONSTANT_2D  =  0.366025403784439;   //   (Math.sqrt(2+1)-1)/2;
+	double STRETCH_CONSTANT_3D = -1.0 / 6;             // (1/Math.sqrt(3+1)-1)/3;
+	double SQUISH_CONSTANT_3D  =  1.0 / 3;             //   (Math.sqrt(3+1)-1)/3;
+	double STRETCH_CONSTANT_4D = -0.138196601125011;   // (1/Math.sqrt(4+1)-1)/4;
+	double SQUISH_CONSTANT_4D  =  0.309016994374947;   //   (Math.sqrt(4+1)-1)/4;
 
-	const double NORM_CONSTANT_2D = 47;
-	const double NORM_CONSTANT_3D = 103;
-	const double NORM_CONSTANT_4D = 30;
+	double NORM_CONSTANT_2D = 47;
+	double NORM_CONSTANT_3D = 103;
+	double NORM_CONSTANT_4D = 30;
 
 	static const int64_t DEFAULT_SEED = 0;
 
