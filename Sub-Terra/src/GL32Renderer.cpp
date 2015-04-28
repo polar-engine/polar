@@ -329,8 +329,10 @@ void GL32Renderer::Project(GLuint programID) {
 	GL(locProjection = glGetUniformLocation(programID, "u_projection"));
 	if(locProjection == -1) { return; } /* -1 if uniform does not exist in program */
 
-	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / static_cast<float>(height), zNear);
-	glm::mat4 projection = glm::perspective(glm::radians(fovy), static_cast<float>(width) / static_cast<float>(height), zNear, zFar);
+	auto heightF = static_cast<float>(height);
+	auto fovy = 2.0f * glm::atan(heightF, 2.0f * pixelDistanceFromScreen) + fovPlus;
+	glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / heightF, zNear, zFar);
+	//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / h, zNear);
 	GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 }
 
