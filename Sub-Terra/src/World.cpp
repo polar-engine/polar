@@ -10,12 +10,12 @@ void World::Init() {
 
 	if(FileSystem::FileExists(seedPath)) {
 		auto seedString = FileSystem::ReadFile(seedPath);
-		seed = swapbe(*reinterpret_cast<const uint32_t *>(seedString.data()));
+		auto ss = std::stringstream(seedString);
+		Deserializer(ss) >> seed;
 	} else {
 		seed = std::random_device()();
-		auto beSeed = swapbe(seed);
 		auto ss = std::stringstream();
-		ss << std::string(reinterpret_cast<const char *>(&beSeed), 4);
+		Serializer(ss) << seed;
 		FileSystem::WriteFile(seedPath, ss);
 	}
 
@@ -96,8 +96,24 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
-									auto blocks = GenerateChunk(coord);
-									CreateChunk(coord, blocks, true);
+									auto savesPath = FileSystem::GetSavedGamesDir();
+									auto icoord = glm::ivec3(glm::floor(coord));
+									auto chunkPath = savesPath + "/chunks/" + std::to_string(icoord.x) + "_" + std::to_string(icoord.y) + "_" + std::to_string(icoord.z) + ".chunk";
+
+									if(FileSystem::FileExists(chunkPath)) {
+										auto str = FileSystem::ReadFile(chunkPath);
+										auto ss = std::stringstream(str);
+										auto chunk = Chunk(chunkSize.x, chunkSize.y, chunkSize.z);
+										Deserializer(ss) >> chunk;
+										CreateChunk(coord, chunk.blocks, true);
+									} else {
+										auto blocks = GenerateChunk(coord);
+										auto chunk = CreateChunk(coord, blocks, true);
+										auto ss = std::stringstream();
+										Serializer(ss) << *chunk;
+										FileSystem::WriteFile(chunkPath, ss);
+									}
+
 								}, JobPriority::Normal, JobThread::Worker);
 							}
 						}

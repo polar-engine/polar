@@ -2,6 +2,7 @@
 
 #include <boost/container/vector.hpp>
 #include <boost/unordered_map.hpp>
+#include "FileSystem.h"
 #include "System.h"
 #include "JobManager.h"
 #include "PlayerCameraComponent.h"
@@ -90,11 +91,18 @@ public:
 	inline void SetBlock(const Point3 &coord, const Block &block) {
 		Point3 chunkCoord, blockCoord;
 		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
-		auto blocks = GetChunk(chunkCoord)->blocks;
+		auto chunk = *GetChunk(chunkCoord);
 
-		blocks[BlockIndexForCoord(glm::ivec3(blockCoord))] = block;
+		chunk.blocks[BlockIndexForCoord(glm::ivec3(blockCoord))] = block;
 		DestroyChunk(chunkCoord);
-		CreateChunk(chunkCoord, blocks);
+		CreateChunk(chunkCoord, chunk.blocks);
+
+		auto icoord = glm::ivec3(glm::floor(chunkCoord));
+		auto savesPath = FileSystem::GetSavedGamesDir();
+		auto chunkPath = savesPath + "/chunks/" + std::to_string(icoord.x) + "_" + std::to_string(icoord.y) + "_" + std::to_string(icoord.z) + ".chunk";
+		auto ss = std::stringstream();
+		Serializer(ss) << chunk;
+		FileSystem::WriteFile(chunkPath, ss);
 	}
 
 	inline bool DamageBlock(const Point3 &coord, const float &damage) {
@@ -125,9 +133,11 @@ public:
 		return static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
 	}
 
-	inline void CreateChunk(const Point3 &coord, const boost::container::vector<Block> &blocks, const bool &deferredToMain = false) {
+	inline Chunk * CreateChunk(const Point3 &coord, const boost::container::vector<Block> &blocks, const bool &deferredToMain = false) {
 		auto pos = new PositionComponent(PosForChunkCoord(coord));
-		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z, blockSize, blocks);
+		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z);
+		chunk->blocks = blocks;
+		chunk->Generate(blockSize);
 		auto bounds = new BoundingComponent(Point3(0.0f), Point3(chunkSize), true);
 
 		/* add all block bounding boxes in chunk as children */
@@ -162,6 +172,8 @@ public:
 				chunks[chunkTuple] = std::make_tuple(ChunkStatus::Alive, id);
 			});
 		}
+
+		return chunk;
 	}
 
 	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) {

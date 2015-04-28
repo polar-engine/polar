@@ -2,6 +2,7 @@
 
 #include <boost/container/vector.hpp>
 #include "ModelComponent.h"
+#include "Serializer.h"
 
 struct Block {
 	bool state = false;
@@ -11,11 +12,24 @@ struct Block {
 	Block(const bool state = false) : state(state) {}
 };
 
+inline Serializer & operator<<(Serializer &s, const Block &block) {
+	return s << block.state << block.hardness << block.health;
+}
+
+inline Deserializer & operator>>(Deserializer &s, Block &block) {
+	return s >> block.state >> block.hardness >> block.health;
+}
+
 class Chunk : public ModelComponent {
 public:
+	unsigned char width;
+	unsigned char height;
+	unsigned char depth;
 	boost::container::vector<Block> blocks;
 
-	Chunk(const unsigned char &width, const unsigned char &height, const unsigned char &depth, const Point3 &blockSize, const boost::container::vector<Block> &blocks) : blocks(blocks) {
+	Chunk(const unsigned char &width, const unsigned char &height, const unsigned char &depth) : width(width), height(height), depth(depth) {}
+
+	void Generate(const Point3 &blockSize) {
 		type = GeometryType::Triangles;
 		const std::vector<Triangle> blockLeft = {
 			std::make_tuple(Point3(-0.5, -0.5, -0.5), Point3(-0.5, -0.5,  0.5), Point3(-0.5,  0.5, -0.5)),
@@ -252,3 +266,21 @@ public:
 		}
 	}
 };
+
+inline Serializer & operator<<(Serializer &s, const Chunk &chunk) {
+	s << chunk.width << chunk.height << chunk.depth;
+	for(auto &block : chunk.blocks) {
+		s << block;
+	}
+	return s;
+}
+
+inline Deserializer & operator>>(Deserializer &s, Chunk &chunk) {
+	s >> chunk.width >> chunk.height >> chunk.depth;
+	chunk.blocks.resize(chunk.width * chunk.height * chunk.depth);
+
+	for(int i = 0; i < chunk.width * chunk.height * chunk.depth; ++i) {
+		s >> chunk.blocks[i];
+	}
+	return s;
+}
