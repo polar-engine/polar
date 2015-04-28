@@ -49,6 +49,6 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.RunState("root");*/
 
 	engine.Init();
-	engine.systems.Get<GL32Renderer>().lock()->MakePipeline({"main", "perlintexture"/*, "lighting"*/, "ssao", "cel", "fog", "fxaa"/*, "dof"*/, "crosshairs"});
+	engine.systems.Get<GL32Renderer>().lock()->MakePipeline({"main", "perlintexture"/*, "lighting"*/, "ssao", "cel", "fog", "fxaa"/*, "dof"*/, "crosshairs"/*, "vignette"*/});
 	engine.Run();
 }
