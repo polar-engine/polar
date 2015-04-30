@@ -435,16 +435,16 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 			return texture;
 		};
 
-		for(auto &out : asset.outs.elements) { node.outs.emplace(out.key.text, fOut(out)); }
-		for(auto &out : asset.globalOuts.elements) { node.globalOuts.emplace(out.key.text, fOut(out)); }
+		for(auto &out : asset.outs) { node.outs.emplace(out.key, fOut(out)); }
+		for(auto &out : asset.globalOuts) { node.globalOuts.emplace(out.key, fOut(out)); }
 
-		for(auto &in : nextAsset.ins.elements) {
-			auto it = node.outs.find(in.key.text);
-			if(it == node.outs.end()) { ENGINE_THROW("failed to connect nodes (invalid key `" + in.key.text + "`)"); }
-			nextNode.ins.emplace(in.key.text, in.name.text);
+		for(auto &in : nextAsset.ins) {
+			auto it = node.outs.find(in.key);
+			if(it == node.outs.end()) { ENGINE_THROW("failed to connect nodes (invalid key `" + in.key + "`)"); }
+			nextNode.ins.emplace(in.key, in.name);
 		}
 
-		for(auto &in : nextAsset.globalIns.elements) { nextNode.globalIns.emplace(in.key.text, in.name.text); }
+		for(auto &in : nextAsset.globalIns) { nextNode.globalIns.emplace(in.key, in.name); }
 
 		GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data()));
 
@@ -469,7 +469,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 
 GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
 	std::vector<GLuint> ids;
-	for(auto &shader : asset.shaders.elements) {
+	for(auto &shader : asset.shaders) {
 		GLenum type = 0;
 		switch(shader.type) {
 		case ShaderType::Vertex:
@@ -485,8 +485,8 @@ GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
 		GLuint id;
 		if(!GL(id = glCreateShader(type))) { ENGINE_THROW("failed to create shader"); }
 
-		const GLchar *src = shader.source.text.c_str();
-		const GLint len = static_cast<GLint>(shader.source.text.length());
+		const GLchar *src = shader.source.c_str();
+		const GLint len = static_cast<GLint>(shader.source.length());
 		if(!GL(glShaderSource(id, 1, &src, &len))) { ENGINE_THROW("failed to upload shader source"); }
 		if(!GL(glCompileShader(id))) { ENGINE_THROW("shader compilation is unsupported on this platform"); }
 

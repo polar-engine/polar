@@ -34,7 +34,7 @@ public:
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
 		T asset;
 		std::istringstream ss(FileSystem::ReadFile(GetPath<T>(name)));
-		ss >> asset;
+		Deserializer(ss) >> asset;
 		return asset;
 	}
 };

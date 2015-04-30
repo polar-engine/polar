@@ -35,8 +35,17 @@ inline Serializer & operator<<(Serializer &s, const std::float_t f) {
 	return s << *reinterpret_cast<const std::uint32_t *>(&f);
 }
 
-inline Serializer & operator<<(Serializer &s, const std::string str) {
+inline Serializer & operator<<(Serializer &s, const std::string &str) {
+	s << static_cast<const std::uint32_t>(str.length());
 	return s.write(str.data(), str.length());
+}
+
+template<typename T> inline Serializer & operator<<(Serializer &s, const std::vector<T> &vec) {
+	s << static_cast<const std::uint32_t>(vec.size());
+	for(auto &elem : vec) {
+		s << elem;
+	}
+	return s;
 }
 
 class Deserializer {
@@ -68,4 +77,22 @@ inline Deserializer & operator>>(Deserializer &s, std::uint32_t &i) {
 
 inline Deserializer & operator>>(Deserializer &s, std::float_t &f) {
 	return s >> *reinterpret_cast<std::uint32_t *>(&f);
+}
+
+inline Deserializer & operator>>(Deserializer &s, std::string &str) {
+	std::uint32_t len;
+	s >> len;
+	str.clear();
+	str.resize(len);
+	return s.read(&str.at(0), len);
+}
+
+template<typename T> inline Deserializer & operator>>(Deserializer &s, std::vector<T> &vec) {
+	std::uint32_t len;
+	s >> len;
+	vec.resize(len);
+	for(auto &elem : vec) {
+		s >> elem;
+	}
+	return s;
 }

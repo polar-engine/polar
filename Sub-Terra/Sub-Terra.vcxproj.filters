@@ -182,9 +182,6 @@
     <ClInclude Include="..\include\ShaderProgramAsset.h">
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ListAsset.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
     <ClInclude Include="include\SpatialIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
