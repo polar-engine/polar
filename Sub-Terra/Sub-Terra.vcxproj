@@ -145,7 +145,6 @@
     <ClInclude Include="..\include\Destructor.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
-    <ClInclude Include="..\include\ListAsset.h" />
     <ClInclude Include="..\include\Serializer.h" />
     <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />

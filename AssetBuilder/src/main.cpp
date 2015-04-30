@@ -19,14 +19,12 @@ int main(int argc, char **argv) {
 	std::string buildPath = argc >= 3 ? argv[2] : path + "/build";
 	auto files = FileSystem::ListDir(path);
 
-	std::unordered_map < std::string, std::function<std::string(const std::string &, std::ostream &)>> converters;
-	converters["txt"] = [] (const std::string &data, std::ostream &os) {
-		TextAsset asset;
-		asset.text = data;
-		os << asset;
-		return AssetName<TextAsset>();
+	std::unordered_map < std::string, std::function<std::string(const std::string &, Serializer &)>> converters;
+	converters["txt"] = [] (const std::string &data, Serializer &s) {
+		s << data;
+		return AssetName<std::string>();
 	};
-	converters["gls"] = [] (const std::string &data, std::ostream &os) {
+	converters["gls"] = [] (const std::string &data, Serializer &s) {
 		ShaderProgramAsset asset;
 
 		std::ostringstream header;
@@ -59,9 +57,9 @@ int main(int argc, char **argv) {
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing shader type"); }
 
 						if(args[0] == "vertex") {
-							asset.shaders.elements.emplace_back(ShaderType::Vertex, header.str());
+							asset.shaders.emplace_back(ShaderType::Vertex, header.str());
 						} else if(args[0] == "fragment") {
-							asset.shaders.elements.emplace_back(ShaderType::Fragment, header.str());
+							asset.shaders.emplace_back(ShaderType::Fragment, header.str());
 						} else { ENGINE_ERROR(iLine << ": unknown shader type `" << args[0] << '`'); }
 					} else if(directive == "uniform") { /* uniform variable */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing uniform type"); }
@@ -79,73 +77,73 @@ int main(int argc, char **argv) {
 					} else if(directive == "in") { /* input from previous pipeline stage */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input key"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
-						asset.ins.elements.emplace_back(args[0], args[1]);
+						asset.ins.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "gin") { /* global input */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program input key"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program input name"); }
-						asset.globalIns.elements.emplace_back(args[0], args[1]);
+						asset.globalIns.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "out") { /* output to next pipeline stage */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program output type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program output key"); }
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset.outs.elements.emplace_back(ProgramOutputType::RGBA8, args[1]);
+							asset.outs.emplace_back(ProgramOutputType::RGBA8, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb16f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset.outs.elements.emplace_back(ProgramOutputType::RGB16F, args[1]);
+							asset.outs.emplace_back(ProgramOutputType::RGB16F, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba16f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset.outs.elements.emplace_back(ProgramOutputType::RGBA16F, args[1]);
+							asset.outs.emplace_back(ProgramOutputType::RGBA16F, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb32f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset.outs.elements.emplace_back(ProgramOutputType::RGB32F, args[1]);
+							asset.outs.emplace_back(ProgramOutputType::RGB32F, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba32f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program output name"); }
-							asset.outs.elements.emplace_back(ProgramOutputType::RGBA32F, args[1]);
+							asset.outs.emplace_back(ProgramOutputType::RGBA32F, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "depth") {
-							asset.outs.elements.emplace_back(ProgramOutputType::Depth, args[1]);
+							asset.outs.emplace_back(ProgramOutputType::Depth, args[1]);
 						} else { ENGINE_ERROR(iLine << ": unknown program output type `" << args[0] << '`'); }
 					} else if(directive == "gout") { /* global output */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing program global output type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing program global output key"); }
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program global output name"); }
-							asset.globalOuts.elements.emplace_back(ProgramOutputType::RGBA8, args[1]);
+							asset.globalOuts.emplace_back(ProgramOutputType::RGBA8, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb16f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program global output name"); }
-							asset.globalOuts.elements.emplace_back(ProgramOutputType::RGB16F, args[1]);
+							asset.globalOuts.emplace_back(ProgramOutputType::RGB16F, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba16f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program global output name"); }
-							asset.globalOuts.elements.emplace_back(ProgramOutputType::RGBA16F, args[1]);
+							asset.globalOuts.emplace_back(ProgramOutputType::RGBA16F, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb32f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program global output name"); }
-							asset.globalOuts.elements.emplace_back(ProgramOutputType::RGB32F, args[1]);
+							asset.globalOuts.emplace_back(ProgramOutputType::RGB32F, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba32f") {
 							if(args.size() < 3) { ENGINE_ERROR(iLine << ": missing program global output name"); }
-							asset.globalOuts.elements.emplace_back(ProgramOutputType::RGBA32F, args[1]);
+							asset.globalOuts.emplace_back(ProgramOutputType::RGBA32F, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "depth") {
-							asset.globalOuts.elements.emplace_back(ProgramOutputType::Depth, args[1]);
+							asset.globalOuts.emplace_back(ProgramOutputType::Depth, args[1]);
 						} else { ENGINE_ERROR(iLine << ": unknown program global output type `" << args[0] << '`'); }
 					} else { ENGINE_ERROR(iLine << ": unknown directive `" << directive << '`'); }
 				} else {
-					if(asset.shaders.elements.empty()) { header << line << '\n'; } else { asset.shaders.elements.back().source.text += line + '\n'; }
+					if(asset.shaders.empty()) { header << line << '\n'; } else { asset.shaders.back().source += line + '\n'; }
 				}
 			}
 		}
 
-		for(auto &shader : asset.shaders.elements) {
+		for(auto &shader : asset.shaders) {
 			std::string prepend;
 			prepend += "#version 150\n";
 			prepend += "#extension GL_ARB_explicit_attrib_location: enable\n";
@@ -170,10 +168,10 @@ int main(int argc, char **argv) {
 					prepend += "layout(location=" + std::to_string(outLoc++) + ") out " + std::get<0>(out) + ' ' + std::get<1>(out) + ";\n";
 				}
 			}
-			shader.source.text = prepend + shader.source.text;
+			shader.source = prepend + shader.source;
 		}
 
-		os << asset;
+		s << asset;
 		return AssetName<ShaderProgramAsset>();
 	};
 
@@ -188,7 +186,7 @@ int main(int argc, char **argv) {
 
 				std::string data = FileSystem::ReadFile(path + '/' + file);
 				std::stringstream ss;
-				std::string type = converter->second(data, ss);
+				std::string type = converter->second(data, Serializer(ss));
 
 				std::string name = file.substr(0, pos);
 				FileSystem::CreateDir(buildPath + '/' + type);
