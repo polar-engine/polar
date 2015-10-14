@@ -53,7 +53,10 @@ void main() {
 	vec3 colorSlateGranite = vec3(0.685, 0.58, 0.46);
 	vec3 colorGranite = vec3(0.79, 0.59, 0.44);
 	vec3 colorOrange = vec3(1.0, 0.6, 0.02);
-	o_color.rgb = texelFetch(u_colorBuffer, coord, 0).rgb * mix(colorSlate, mix(colorGranite, colorOrange, eval3), eval5) * eval1 * eval2 * eval4;
+
+	vec4 col = texelFetch(u_colorBuffer, coord, 0);
+	o_color.rgb = col.rgb * mix(colorSlate, mix(colorGranite, colorOrange, eval3), eval5) * eval1 * eval2;
+	o_color.rgb *= col.a;
 	o_color.a = 1.0;
 }
 

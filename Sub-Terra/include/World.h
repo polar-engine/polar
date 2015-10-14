@@ -24,8 +24,8 @@ typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 
 class World : public System {
 private:
-	const uint8_t viewDistance = 3;
-	const Point3 blockSize = Point3(1.0f);
+	const uint8_t viewDistance = 4;
+	const Point3 blockSize = Point3(0.5f);
 	const glm::ivec3 chunkSize;
 	OpenSimplexNoise noise;
 	Atomic<ChunksType> chunks;
@@ -220,7 +220,7 @@ public:
 
 		const float scale1 = 17.0f;
 		const float scale2 = scale1 / 17.0f * 8.0f;
-		auto eval1 = noise.eval(p.x / scale1, p.y * 1.6f / scale1, p.z / scale1);
+		auto eval1 = noise.eval(p.x / scale1, p.y / scale1, p.z / scale1);
 		auto eval2 = noise.eval(p.x / scale2, p.y / scale2 / 3.0f, p.z / scale2 / 5.0f);
 
 		/* cave systems */
@@ -239,6 +239,6 @@ public:
 		auto result3 = eval2 > -0.75;
 
 		/* AND results so there is only a block if no results dictate no block */
-		return result1 && result2 && result3;
+		return eval1 > 0.25;
 	}
 };

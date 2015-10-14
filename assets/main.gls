@@ -27,17 +27,17 @@ void main() {
 @shader fragment
 
 vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float radius) {
-	vec3 ambient = vec3(0.01);
+	vec3 ambient = vec3(0.0);
 
 	vec3 vAux = lightPosition - v_vertex;
 	vec3 lightDir = normalize(vAux);
 	float distance = length(vAux);
 
 	float diffuseAttenuation = clamp(1.0 - distance * distance / (radius * radius), 0.0, 1.0);
-	diffuseAttenuation = pow(diffuseAttenuation, 0.5);
+	//diffuseAttenuation = pow(diffuseAttenuation, 0.5);
 
 	float nDotL = max(0.0, dot(v_normal, lightDir));
-	vec3 diffuse = color * nDotL * diffuseAttenuation;
+	vec3 diffuse = color * /*nDotL * */diffuseAttenuation;
 
 	vec3 specular = vec3(0.0, 0.0, 0.0);
 	if(nDotL > 0.0) {
@@ -46,7 +46,7 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 		float specularAttenuation = diffuseAttenuation;
 		specular += sqrt(color) * pow(nDotH, shininess) * specularAttenuation;
 	}
-	vec3 final = ambient + diffuse + specular;
+	vec3 final = ambient + diffuse;
 	return final;
 }
 
@@ -54,9 +54,7 @@ void main() {
 	vec3 lighting = vec3(0.0);
 	lighting += light(vec3(0.0), vec3(1.0), 256.0, 28.0);
 
-	o_color.rgb = lighting;
-	o_color.a = 1.0;
-	o_normal.xyz = v_normal / 2.0 + 0.5;
-	o_normal.w = 1.0;
+	o_color = vec4(lighting, 1.0);
+	o_normal = vec4(v_normal / 2.0 + 0.5, 1.0);
 	o_position = vec4(v_pos, 1.0);
 }

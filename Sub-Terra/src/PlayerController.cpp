@@ -8,25 +8,26 @@
 #include "PhysicalComponent.h"
 
 void PlayerController::Init() {
+	const float size = 0.1f;
 	const ModelComponent::TrianglesType triangles = {
-		std::make_tuple(Point3(-0.375, -0.85,  0.25), Point3( 0.375, -0.85,  0.25), Point3(-0.375,  0.85,  0.25)),
-		std::make_tuple(Point3( 0.375, -0.85,  0.25), Point3( 0.375,  0.85,  0.25), Point3(-0.375,  0.85,  0.25)),
-		std::make_tuple(Point3(-0.375,  0.85,  0.25), Point3( 0.375,  0.85,  0.25), Point3(-0.375,  0.85, -0.25)),
-		std::make_tuple(Point3( 0.375,  0.85,  0.25), Point3( 0.375,  0.85, -0.25), Point3(-0.375,  0.85, -0.25)),
-		std::make_tuple(Point3(-0.375,  0.85, -0.25), Point3( 0.375,  0.85, -0.25), Point3(-0.375, -0.85, -0.25)),
-		std::make_tuple(Point3( 0.375,  0.85, -0.25), Point3( 0.375, -0.85, -0.25), Point3(-0.375, -0.85, -0.25)),
-		std::make_tuple(Point3(-0.375, -0.85, -0.25), Point3( 0.375, -0.85, -0.25), Point3(-0.375, -0.85,  0.25)),
-		std::make_tuple(Point3( 0.375, -0.85, -0.25), Point3( 0.375, -0.85,  0.25), Point3(-0.375, -0.85,  0.25)),
-		std::make_tuple(Point3( 0.375, -0.85,  0.25), Point3( 0.375, -0.85, -0.25), Point3( 0.375,  0.85,  0.25)),
-		std::make_tuple(Point3( 0.375, -0.85, -0.25), Point3( 0.375,  0.85, -0.25), Point3( 0.375,  0.85,  0.25)),
-		std::make_tuple(Point3(-0.375, -0.85, -0.25), Point3(-0.375, -0.85,  0.25), Point3(-0.375,  0.85, -0.25)),
-		std::make_tuple(Point3(-0.375, -0.85,  0.25), Point3(-0.375,  0.85,  0.25), Point3(-0.375,  0.85, -0.25))
+		std::make_tuple(Point3(-size, -size,  size), Point3( size, -size,  size), Point3(-size,  size,  size)),
+		std::make_tuple(Point3( size, -size,  size), Point3( size,  size,  size), Point3(-size,  size,  size)),
+		std::make_tuple(Point3(-size,  size,  size), Point3( size,  size,  size), Point3(-size,  size, -size)),
+		std::make_tuple(Point3( size,  size,  size), Point3( size,  size, -size), Point3(-size,  size, -size)),
+		std::make_tuple(Point3(-size,  size, -size), Point3( size,  size, -size), Point3(-size, -size, -size)),
+		std::make_tuple(Point3( size,  size, -size), Point3( size, -size, -size), Point3(-size, -size, -size)),
+		std::make_tuple(Point3(-size, -size, -size), Point3( size, -size, -size), Point3(-size, -size,  size)),
+		std::make_tuple(Point3( size, -size, -size), Point3( size, -size,  size), Point3(-size, -size,  size)),
+		std::make_tuple(Point3( size, -size,  size), Point3( size, -size, -size), Point3( size,  size,  size)),
+		std::make_tuple(Point3( size, -size, -size), Point3( size,  size, -size), Point3( size,  size,  size)),
+		std::make_tuple(Point3(-size, -size, -size), Point3(-size, -size,  size), Point3(-size,  size, -size)),
+		std::make_tuple(Point3(-size, -size,  size), Point3(-size,  size,  size), Point3(-size,  size, -size))
 	};
 
 	object = engine->AddObject();
 	engine->AddComponent<PositionComponent>(object);
 	engine->AddComponent<OrientationComponent>(object);
-	engine->AddComponent<BoundingComponent>(object, Point3(-0.375f, -0.85f, -0.25f), Point3(0.75f, 1.7f, 0.5f));
+	engine->AddComponent<BoundingComponent>(object, Point3(-size, -size, -size), Point3(size, size, size));
 	engine->AddComponent<ModelComponent>(object, triangles);
 
 	/* pickaxes */
@@ -43,7 +44,7 @@ void PlayerController::Init() {
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
 
 	/* gravity */
-	ownPos->position.Derivative(1) = Point3(0, -9.8f, 0);
+	//ownPos->position.Derivative(1) = Point3(0, -9.8f, 0);
 
 	/* collision detection and response */
 	engine->systems.Get<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
@@ -79,6 +80,7 @@ void PlayerController::Init() {
 			}
 
 			if(entryTime < 1.0f) {
+				engine->Quit();
 				/* project velocity onto surface of collider (impulse)
 				* y is given a bounce factor of 0.125
 				*/
@@ -98,13 +100,5 @@ void PlayerController::Init() {
 }
 
 void PlayerController::Update(DeltaTicks &dt) {
-	auto ownPos = engine->GetComponent<PositionComponent>(object);
-	auto ownOrient = engine->GetComponent<OrientationComponent>(object);
 
-	auto rel = glm::normalize(Point4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
-	auto abs = (glm::inverse(ownOrient->orientation) * rel) * 3.5f;
-
-	ownPos->position.Derivative()->x = abs.x;
-	//pos->position.Derivative()->y = abs.y;
-	ownPos->position.Derivative()->z = abs.z;
 }

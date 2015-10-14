@@ -3,13 +3,13 @@
 @in color u_colorBuffer
 @gin position u_posBuffer
 @gin normal u_normalBuffer
-@out rgb8 color o_color
+@out rgba8 color o_color
 
 @shader vertex
 
 void main() {
 	gl_Position = vec4(a_vertex, 0.0, 1.0);
-	v_vertex = (a_vertex + 1.0) / 2.0;
+	v_vertex = a_vertex / 2.0 + 0.5;
 }
 
 @shader fragment
@@ -30,5 +30,6 @@ void main() {
 
 	float nDotL = max(0.0, dot(normal, lightDir));
 
-	o_color = texture(u_colorBuffer, v_vertex).xyz * vec3(1.0, 0.5, 0.0) * nDotL * diffuseAttenuation;
+	o_color.rgb = texture(u_colorBuffer, v_vertex).xyz * vec3(1.0) * nDotL * diffuseAttenuation;
+	o_color.a = 1.0;
 }

@@ -111,7 +111,7 @@ void World::Update(DeltaTicks &) {
 										auto chunk = CreateChunk(coord, blocks, true);
 										auto ss = std::stringstream();
 										Serializer(ss) << *chunk;
-										FileSystem::WriteFile(chunkPath, ss);
+										//FileSystem::WriteFile(chunkPath, ss);
 									}
 
 								}, JobPriority::Normal, JobThread::Worker);
