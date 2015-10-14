@@ -69,7 +69,8 @@ void GL32Renderer::InitGL() {
 
 void GL32Renderer::Init() {
 	InitGL();
-	SetClearColor(Point4(0.02f, 0.05f, 0.1f, 1));
+	//SetClearColor(Point4(0.02f, 0.05f, 0.1f, 1));
+	SetClearColor(Point4(0.0f));
 	//ENGINE_OUTPUT(engine->systems.Get<AssetManager>()->Get<TextAsset>("hello").text << '\n');
 
 	GL(glGenVertexArrays(1, &viewportVAO));

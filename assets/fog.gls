@@ -14,8 +14,8 @@ void main() {
 @shader fragment
 
 float Depth(in vec2 texCoord) {
-	float f = 48.0;
-	float n = 0.1;
+	float f = 24.0;
+	float n = 0.05;
 	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
 	return z;
 }
