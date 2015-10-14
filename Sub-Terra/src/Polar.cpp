@@ -19,12 +19,14 @@ void Polar::Update(DeltaTicks &dt) {
 	}
 }
 
-Polar::~Polar() {
+Polar::~Polar() noexcept {
 	/* explicitly release shared_ptrs in unordered_map
 	 * and then pop_back to destruct in reverse order
 	 */
 	systems.~EntityBase();
-	while(!orderedSystems.empty()) { orderedSystems.pop_back(); }
+	while(!orderedSystems.empty()) {
+		orderedSystems.pop_back();
+	}
 }
 
 void Polar::Run() {

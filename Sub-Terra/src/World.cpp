@@ -3,6 +3,8 @@
 #include "FileSystem.h"
 #include "endian.h"
 
+Atomic<bool> World::exists;
+
 void World::Init() {
 	uint32_t seed;
 	auto savesPath = FileSystem::GetSavedGamesDir();
@@ -80,6 +82,9 @@ void World::Update(DeltaTicks &) {
 									chunks.emplace(coordTuple, std::make_tuple(ChunkStatus::Generating, 0));
 								});
 								jobM->Do([this, jobM, coord] () {
+									auto e = exists.With<bool>([] (bool &exists) { return exists; });
+									if(e == false) { return; }
+
 									/* create tuple again inside of copying by binding to lambda
 									 * tuples are packed at compile-time anyway or something
 									 */
@@ -100,20 +105,8 @@ void World::Update(DeltaTicks &) {
 									auto icoord = glm::ivec3(glm::floor(coord));
 									auto chunkPath = savesPath + "/chunks/" + std::to_string(icoord.x) + "_" + std::to_string(icoord.y) + "_" + std::to_string(icoord.z) + ".chunk";
 
-									if(FileSystem::FileExists(chunkPath)) {
-										auto str = FileSystem::ReadFile(chunkPath);
-										auto ss = std::stringstream(str);
-										auto chunk = Chunk(chunkSize.x, chunkSize.y, chunkSize.z);
-										Deserializer(ss) >> chunk;
-										CreateChunk(coord, chunk.blocks, true);
-									} else {
-										auto blocks = GenerateChunk(coord);
-										auto chunk = CreateChunk(coord, blocks, true);
-										auto ss = std::stringstream();
-										Serializer(ss) << *chunk;
-										//FileSystem::WriteFile(chunkPath, ss);
-									}
-
+									auto blocks = GenerateChunk(coord);
+									CreateChunk(coord, blocks, true);
 								}, JobPriority::Normal, JobThread::Worker);
 							}
 						}
@@ -125,9 +118,12 @@ void World::Update(DeltaTicks &) {
 }
 
 World::~World() {
-	chunks.With([this] (ChunksType &chunks) {
-		for(auto it = chunks.begin(); it != chunks.end(); ++it) {
-			engine->RemoveObject(std::get<1>(it->second));
-		}
+	exists.With([this] (bool &exists) {
+		exists = false;
+		chunks.With([this] (ChunksType &chunks) {
+			for(auto it = chunks.begin(); it != chunks.end(); ++it) {
+				engine->RemoveObject(std::get<1>(it->second));
+			}
+		});
 	});
 }

@@ -8,14 +8,14 @@
 
 void main() {
 	gl_Position = vec4(a_vertex, 0.0, 1.0);
-	v_vertex = (a_vertex + 1.0) / 2.0;
+	v_vertex = a_vertex / 2.0 + 0.5;
 }
 
 @shader fragment
 
-const float maxBlur = 0.5;
-const float bias = 0.01;
-const float focus = 0.4;
+const float maxBlur = 0.9;
+const float bias = 0.035;
+const float focus = 0.7;
 
 float Depth(in vec2 texCoord) {
 	float f = 48.0;
@@ -33,7 +33,7 @@ void main() {
 	vec2 aspectCorrect = vec2(1.0, aspect);
 
 	float factor = Depth(texCoord) - focus;
-	vec2 blur = vec2(clamp(factor * bias, 0, maxBlur));
+	vec2 blur = vec2(clamp(factor * bias, -maxBlur, 0));
 
 	vec3 col = vec3(0.0);
 
