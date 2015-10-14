@@ -8,7 +8,7 @@
 #include "PhysicalComponent.h"
 
 void PlayerController::Init() {
-	const float size = 0.1f;
+	const float size = 0.05f; /* zNear */
 	const ModelComponent::TrianglesType triangles = {
 		std::make_tuple(Point3(-size, -size,  size), Point3( size, -size,  size), Point3(-size,  size,  size)),
 		std::make_tuple(Point3( size, -size,  size), Point3( size,  size,  size), Point3(-size,  size,  size)),
@@ -29,16 +29,6 @@ void PlayerController::Init() {
 	engine->AddComponent<OrientationComponent>(object);
 	engine->AddComponent<BoundingComponent>(object, Point3(-size, -size, -size), Point3(size, size, size));
 	engine->AddComponent<ModelComponent>(object, triangles);
-
-	/* pickaxes */
-	for(auto &item : hotbar) {
-		item = engine->AddObject();
-	}
-	engine->AddComponent<PhysicalComponent>(hotbar[0], 5.0f, 25.0f, 0.88f, 200.0f);
-	engine->AddComponent<PhysicalComponent>(hotbar[1], 5.0f, 80.0f, 0.88f, 200.0f);
-	engine->AddComponent<PhysicalComponent>(hotbar[2], 5.0f, 400.0f, 0.95f, 200.0f);
-	engine->AddComponent<PhysicalComponent>(hotbar[4], 5.0f, 25.0f, 0.28f, 200.0f);
-	engine->AddComponent<PhysicalComponent>(hotbar[8], 5.0f, 1.0f, 1.0f, 200.0f);
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);

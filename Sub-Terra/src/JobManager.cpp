@@ -1,23 +1,31 @@
 #include "common.h"
 #include "JobManager.h"
 
+Atomic<bool> JobManager::exists;
+
 JobManager::JobManager(Polar *engine) : System(engine) {
 	for(int i = 0; i < numWorkers; ++i) {
 		_workers.push_back(new Worker());
 	}
+	exists.With([] (bool &exists) { exists = true; });
 }
 
 JobManager::~JobManager() {
-	for(auto worker : _workers) {
-		worker->AddJob(Job(JobType::Stop));
-	}
+	exists.With([this] (bool &exists) {
+		exists = false;
+		for(auto worker : _workers) {
+			worker->AddJob(Job(JobType::Stop));
+		}
 
-	/* copy vector to avoid invalidation */
-	auto tmpWorkers = _workers;
-	for(auto worker : tmpWorkers) {
-		worker->Join();
-		delete worker;
-	}
+		/* copy vector to avoid invalidation */
+		auto tmpWorkers = _workers;
+		for(auto worker : tmpWorkers) {
+			worker->Join();
+			delete worker;
+		}
+
+		INFO("all workers joined and destructed");
+	});
 }
 
 void JobManager::Init() {

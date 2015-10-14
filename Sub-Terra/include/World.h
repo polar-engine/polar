@@ -24,6 +24,7 @@ typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 
 class World : public System {
 private:
+	static Atomic<bool> exists;
 	const uint8_t viewDistance = 4;
 	const Point3 blockSize = Point3(0.5f);
 	const glm::ivec3 chunkSize;
@@ -35,7 +36,9 @@ protected:
 public:
 	static bool IsSupported() { return true; }
 	World(Polar *engine, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
-		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
+		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {
+		exists.With([] (bool &exists) { exists = true; });
+	}
 	~World();
 
 	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const glm::ivec3 &p) {
@@ -153,8 +156,14 @@ public:
 
 		auto chunkTuple = ChunkKeyForChunkCoord(coord);
 		if(deferredToMain) {
+			auto e = exists.With<bool>([] (bool &exists) { return exists; });
+			if(e == false) { return chunk; }
+
 			auto jobM = engine->systems.Get<JobManager>().lock();
 			jobM->Do([this, chunkTuple, pos, chunk, bounds] () {
+				auto e = exists.With<bool>([] (bool &exists) { return exists; });
+				if(e == false) { return; }
+
 				auto id = engine->AddObject();
 				engine->InsertComponent<PositionComponent>(id, pos);
 				engine->InsertComponent<ModelComponent>(id, chunk);

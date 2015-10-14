@@ -33,9 +33,10 @@ void HumanPlayerController::Init() {
 	//dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
 
 	/* mouse look */
-	dtors.emplace_back(inputM->OnMouseMove([this] (const Point2 &delta) {
-		orientVel.y += glm::radians(0.02f) * delta.x;
-		orientVel.x += glm::radians(0.02f) * delta.y;
+	const float mouseSpeed = 0.01f;
+	dtors.emplace_back(inputM->OnMouseMove([this, mouseSpeed] (const Point2 &delta) {
+		orientVel.y += glm::radians(mouseSpeed) * delta.x;
+		orientVel.x += glm::radians(mouseSpeed) * delta.y;
 	}));
 }
 
@@ -47,7 +48,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	orientRot += orientVel;
-	orientVel *= 1 - 12 * dt.Seconds();
+	orientVel *= 1 - 5 * dt.Seconds();
 
 	/* scale to range of -360 to 360 degrees */
 	const float r360 = glm::radians(360.0f);
@@ -58,18 +59,19 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 
 	/* clamp x to range of -viewingAngle to viewingAngle */
 	const float viewingAngle = glm::radians(90.0f);
-	if(orientRot.x >  viewingAngle) { orientRot.x = viewingAngle; }
-	if(orientRot.x < -viewingAngle) { orientRot.x = -viewingAngle; }
+	//if(orientRot.x >  viewingAngle) { orientRot.x = viewingAngle; }
+	//if(orientRot.x < -viewingAngle) { orientRot.x = -viewingAngle; }
 
 	const float r180 = glm::radians(180.0f);
-	orient->orientation = glm::quat(Point3(0.0f, orientRot.y, 0.0f));
-	camera->orientation = glm::quat(Point3(orientRot.x, 0.0f, 0.0f));
+	orient->orientation = glm::quat(Point3(orientVel.x, 0.0f, 0.0f)) * glm::quat(Point3(0.0f, orientVel.y, 0.0f)) * orient->orientation;
 
+	static long double accum = 0.0;
 	static float velocity = 10.0f;
 	const float a = 1.32499f;
 	const float r = 1.01146f;
 	const float k = 1.66377f;
-	velocity += 40.0f * a * (1.0f - glm::pow(r, k * -dt.Seconds()));
+	accum += dt.Seconds();
+	velocity = 10.0f + 40.0f * a * (1.0f - glm::pow(r, k * -static_cast<float>(accum)));
 
 	auto rel = glm::normalize(Point4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
 	auto abs = (glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * rel) * velocity;

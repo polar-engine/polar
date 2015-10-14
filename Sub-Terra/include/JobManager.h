@@ -9,6 +9,7 @@ typedef std::priority_queue<Job> JobsType;
 
 class JobManager : public System {
 private:
+	static Atomic<bool> exists;
 	Atomic<JobsType> jobs;
 	boost::container::vector<Worker *> _workers;
 	boost::container::vector<Worker *>::size_type nextWorker = 0;
@@ -21,6 +22,9 @@ public:
 	JobManager(Polar *);
 	~JobManager() override;
 	inline void Do(const JobFunction &&fn, const JobPriority &&priority = JobPriority::Normal, const JobThread &&thread = JobThread::Any) {
+		auto e = exists.With<bool>([] (bool &exists) { return exists; });
+		if(e == false) { return; }
+
 		jobs.With([&fn, priority, thread] (JobsType &jobs) {
 			jobs.emplace(std::move(fn), std::move(priority), std::move(thread));
 		});
