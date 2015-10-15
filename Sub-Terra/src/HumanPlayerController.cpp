@@ -33,7 +33,7 @@ void HumanPlayerController::Init() {
 	//dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
 
 	/* mouse look */
-	const float mouseSpeed = 0.01f;
+	const float mouseSpeed = 0.015f;
 	dtors.emplace_back(inputM->OnMouseMove([this, mouseSpeed] (const Point2 &delta) {
 		orientVel.y += glm::radians(mouseSpeed) * delta.x;
 		orientVel.x += glm::radians(mouseSpeed) * delta.y;
@@ -48,7 +48,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	orientRot += orientVel;
-	orientVel *= 1 - 5 * dt.Seconds();
+	orientVel *= 1 - 8 * dt.Seconds();
 
 	/* scale to range of -360 to 360 degrees */
 	const float r360 = glm::radians(360.0f);
