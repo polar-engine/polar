@@ -6,21 +6,7 @@
 Atomic<bool> World::exists;
 
 void World::Init() {
-	uint32_t seed;
-	auto savesPath = FileSystem::GetSavedGamesDir();
-	auto seedPath = savesPath + "/seed";
-
-	if(FileSystem::FileExists(seedPath)) {
-		auto seedString = FileSystem::ReadFile(seedPath);
-		auto ss = std::stringstream(seedString);
-		Deserializer(ss) >> seed;
-	} else {
-		seed = std::random_device()();
-		auto ss = std::stringstream();
-		Serializer(ss) << seed;
-		FileSystem::WriteFile(seedPath, ss);
-	}
-
+	uint32_t seed = std::random_device()();
 	noise = OpenSimplexNoise(seed);
 }
 
