@@ -159,7 +159,7 @@ public:
 			auto e = exists.With<bool>([] (bool &exists) { return exists; });
 			if(e == false) { return chunk; }
 
-			auto jobM = engine->systems.Get<JobManager>().lock();
+			auto jobM = engine->GetSystem<JobManager>().lock();
 			jobM->Do([this, chunkTuple, pos, chunk, bounds] () {
 				auto e = exists.With<bool>([] (bool &exists) { return exists; });
 				if(e == false) { return; }
@@ -193,7 +193,7 @@ public:
 			return container;
 		});
 		if(deferredToMain) {
-			auto jobM = engine->systems.Get<JobManager>().lock();
+			auto jobM = engine->GetSystem<JobManager>().lock();
 			jobM->Do([this, &container] () { engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
 		} else {
 			engine->RemoveObject(std::get<1>(container));

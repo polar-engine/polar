@@ -18,7 +18,7 @@ void World::Update(DeltaTicks &) {
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		if(pos != nullptr) {
 			auto chunkCoord = ChunkCoordForPos(pos->position.Get());
-			auto jobM = engine->systems.Get<JobManager>().lock();
+			auto jobM = engine->GetSystem<JobManager>().lock();
 
 			/* clean up chunks outside distance */
 			auto &eng = engine;
@@ -86,10 +86,6 @@ void World::Update(DeltaTicks &) {
 										} else { return false; }
 									});
 									if(dead) { return; }
-
-									auto savesPath = FileSystem::GetSavedGamesDir();
-									auto icoord = glm::ivec3(glm::floor(coord));
-									auto chunkPath = savesPath + "/chunks/" + std::to_string(icoord.x) + "_" + std::to_string(icoord.y) + "_" + std::to_string(icoord.z) + ".chunk";
 
 									auto blocks = GenerateChunk(coord);
 									CreateChunk(coord, blocks, true);
