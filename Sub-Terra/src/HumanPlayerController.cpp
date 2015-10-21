@@ -14,7 +14,7 @@ void HumanPlayerController::Init() {
 
 	engine->AddComponent<PlayerCameraComponent>(object);
 
-	auto inputM = engine->systems.Get<InputManager>().lock();
+	auto inputM = engine->GetSystem<InputManager>().lock();
 	auto pos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);

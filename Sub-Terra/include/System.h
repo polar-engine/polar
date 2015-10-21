@@ -7,7 +7,7 @@
 class Polar;
 
 class System {
-	friend class Polar;
+	friend class EngineState;
 protected:
 	boost::container::vector<boost::shared_ptr<Destructor>> dtors;
 	Polar *engine;

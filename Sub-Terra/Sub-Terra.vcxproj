@@ -135,7 +135,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\OpenSimplexNoise.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
-    <ClCompile Include="src\Polar.cpp" />
     <ClCompile Include="src\SpatialIndex.cpp" />
     <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
@@ -155,6 +154,7 @@
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\DeltaTicks.h" />
+    <ClInclude Include="include\EngineState.h" />
     <ClInclude Include="include\EntityBase.h" />
     <ClInclude Include="include\EventManager.h" />
     <ClInclude Include="include\gl.h" />

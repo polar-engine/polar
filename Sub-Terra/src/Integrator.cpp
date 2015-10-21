@@ -22,5 +22,5 @@ void Integrator::Tick(DeltaTicks::seconds_type seconds) {
 			}
 		}
 	}
-	engine->systems.Get<EventManager>().lock()->FireIn("integrator", "ticked", seconds);
+	engine->GetSystem<EventManager>().lock()->FireIn("integrator", "ticked", seconds);
 }

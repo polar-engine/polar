@@ -34,7 +34,7 @@ protected:
 	void Project(GLuint);
 public:
 	static bool IsSupported();
-	GL32Renderer(Polar *engine) : Renderer(engine) {}
+	GL32Renderer(Polar *engine, const std::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();
 
 	void SetClearColor(const Point4 &) override final;

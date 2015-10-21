@@ -18,7 +18,7 @@ public:
 };
 
 bool GL32Renderer::IsSupported() {
-	GL32Renderer renderer(nullptr);
+	GL32Renderer renderer(nullptr, {});
 	try {
 		renderer.InitGL();
 		GLint major, minor;
@@ -91,6 +91,8 @@ void GL32Renderer::Init() {
 	GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
 
 	GL(glEnableVertexAttribArray(0));
+
+	MakePipeline(pipelineNames);
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
@@ -100,7 +102,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	}
 	SDL_ClearError();
 
-	auto integrator = engine->systems.Get<Integrator>().lock();
+	auto integrator = engine->GetSystem<Integrator>().lock();
 	float alpha = integrator->Accumulator().Seconds();
 
 	glm::mat4 cameraView;
@@ -309,16 +311,16 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 	case SDL_KEYDOWN:
 		if(event.key.repeat == 0) {
 			key = mkKeyFromSDL(event.key.keysym.sym);
-			engine->systems.Get<EventManager>().lock()->Fire("keydown", &key);
+			engine->GetSystem<EventManager>().lock()->Fire("keydown", &key);
 		}
 		break;
 	case SDL_KEYUP:
 		key = mkKeyFromSDL(event.key.keysym.sym);
-		engine->systems.Get<EventManager>().lock()->Fire("keyup", &key);
+		engine->GetSystem<EventManager>().lock()->Fire("keyup", &key);
 		break;
 	case SDL_MOUSEMOTION:
 		Point2 delta(event.motion.xrel, event.motion.yrel);
-		engine->systems.Get<EventManager>().lock()->Fire("mousemove", &delta);
+		engine->GetSystem<EventManager>().lock()->Fire("mousemove", &delta);
 		break;
 	}
 }
@@ -342,14 +344,12 @@ void GL32Renderer::SetClearColor(const Point4 &color) {
 }
 
 void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
-	pipelineNames = names;
-
 	std::vector<ShaderProgramAsset> assets;
 	nodes.clear();
 
 	for(auto &name : names) {
 		INFOS("loading shader asset `" << name << '`');
-		auto asset = engine->systems.Get<AssetManager>().lock()->Get<ShaderProgramAsset>(name);
+		auto asset = engine->GetSystem<AssetManager>().lock()->Get<ShaderProgramAsset>(name);
 		assets.emplace_back(asset);
 		nodes.emplace_back(MakeProgram(asset));
 	}

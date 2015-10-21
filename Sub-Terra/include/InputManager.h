@@ -42,28 +42,31 @@ public:
 	static bool IsSupported() { return true; }
 	InputManager(Polar *engine) : System(engine) {}
 
-	boost::shared_ptr<Destructor> On(Key key, const OnKeyHandler &handler) {
+	inline boost::shared_ptr<Destructor> On(Key key, const OnKeyHandler &handler) {
 		auto id = nextID++;
 		onKeyHandlers.insert(KeyHandlerBimap<OnKeyHandler>::value_type(key, id, handler));
 		return boost::make_shared<Destructor>([this, id] () {
 			onKeyHandlers.right.erase(id);
 		});
 	}
-	boost::shared_ptr<Destructor> After(Key key, const AfterKeyHandler &handler) {
+
+	inline boost::shared_ptr<Destructor> After(Key key, const AfterKeyHandler &handler) {
 		auto id = nextID++;
 		afterKeyHandlers.insert(KeyHandlerBimap<AfterKeyHandler>::value_type(key, id, handler));
 		return boost::make_shared<Destructor>([this, id] () {
 			afterKeyHandlers.right.erase(id);
 		});
 	}
-	boost::shared_ptr<Destructor> When(Key key, const WhenKeyHandler &handler) {
+
+	inline boost::shared_ptr<Destructor> When(Key key, const WhenKeyHandler &handler) {
 		auto id = nextID++;
 		whenKeyHandlers.insert(KeyHandlerBimap<WhenKeyHandler>::value_type(key, id, handler));
 		return boost::make_shared<Destructor>([this, id] () {
 			whenKeyHandlers.right.erase(id);
 		});
 	}
-	boost::shared_ptr<Destructor> OnMouseMove(const MouseMoveHandler &handler) {
+
+	inline boost::shared_ptr<Destructor> OnMouseMove(const MouseMoveHandler &handler) {
 		auto id = nextID++;
 		mouseMoveHandlers.insert(IDMap<MouseMoveHandler>::value_type(id, handler));
 		return boost::make_shared<Destructor>([this, id] () {
