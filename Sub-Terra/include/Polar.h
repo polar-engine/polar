@@ -34,7 +34,7 @@ public:
 private:
 	bool initDone = false;
 	bool running = false;
-	boost::unordered_map<std::string, StateInitializer> states;
+	boost::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
 	boost::container::vector<EngineState> stack;
 	boost::container::deque<StackAction> actions;
 public:
@@ -48,8 +48,10 @@ public:
 		}
 	}
 
-	inline void AddState(const std::string &name, const StateInitializer &fn) {
-		states.emplace(name, fn);
+	inline void AddState(const std::string &name,
+						 const StateInitializer &init,
+						 const StateInitializer &destroy = [] (Polar *, EngineState &) {}) {
+		states.emplace(name, std::make_pair(init, destroy));
 	}
 
 	inline void PushState(const std::string &name) {
@@ -77,13 +79,13 @@ public:
 				actions.pop_front();
 				switch(action.type) {
 				case StackActionType::Push:
-					INFOS("pushing " << action.name);
-					stack.emplace_back(this);
-					states[action.name](this, stack.back());
+					stack.emplace_back(action.name, this);
+					states[action.name].first(this, stack.back());
 					stack.back().Init();
 					break;
 				case StackActionType::Pop:
-					INFO("popping");
+					auto &state = stack.back();
+					states[state.name].second(this, state);
 					stack.pop_back();
 					break;
 				}
