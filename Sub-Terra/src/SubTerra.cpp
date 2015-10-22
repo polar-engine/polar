@@ -6,6 +6,7 @@
 #include "AssetManager.h"
 #include "InputManager.h"
 #include "Integrator.h"
+#include "AudioManager.h"
 #include "GL32Renderer.h"
 #include "World.h"
 #include "HumanPlayerController.h"
@@ -19,6 +20,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
+		st.AddSystem<AudioManager>();
 		st.AddSystem<GL32Renderer, const std::vector<std::string> &>({"main", "perlintexture", "ssao", "cel", "fxaa", "dof"});
 
 		engine->PushState("title");
