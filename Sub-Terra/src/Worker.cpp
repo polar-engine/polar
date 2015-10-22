@@ -2,10 +2,11 @@
 #include "Worker.h"
 
 void Worker::Start() {
+	using namespace std::chrono_literals;
 	auto fn = [this] () {
 		while(true) {
 			if(jobs.With<bool>([] (JobsType &jobs) { return jobs.empty(); })) {
-				std::this_thread::yield();
+				std::this_thread::sleep_for(5ms);
 			} else {
 				auto job = jobs.With<Job>([] (JobsType &jobs) {
 					auto job = jobs.top();
