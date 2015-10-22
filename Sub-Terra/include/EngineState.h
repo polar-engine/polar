@@ -10,9 +10,10 @@ private:
 	EntityBase<System> systems;
 	boost::container::vector<boost::shared_ptr<System>> orderedSystems;
 public:
+	const std::string name;
 	boost::container::vector<boost::shared_ptr<Destructor>> dtors;
 
-	EngineState(Polar *engine) : engine(engine) {}
+	EngineState(const std::string &name, Polar *engine) : name(name), engine(engine) {}
 
 	~EngineState() noexcept {
 		/* release destructors before systems in case of dependencies */
