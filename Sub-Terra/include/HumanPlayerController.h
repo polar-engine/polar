@@ -6,8 +6,8 @@ class HumanPlayerController : public PlayerController {
 protected:
 	Point2 orientVel;
 	Point2 orientRot;
-	bool rearView = false;
-	std::uint_fast64_t heldBlocks = 0;
+	long double accum = 0.0;
+	float velocity = 10.0f;
 
 	virtual void Init() override;
 	virtual void Update(DeltaTicks &) override;

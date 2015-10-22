@@ -65,8 +65,6 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	const float r180 = glm::radians(180.0f);
 	orient->orientation = glm::quat(Point3(orientVel.x, 0.0f, 0.0f)) * glm::quat(Point3(0.0f, orientVel.y, 0.0f)) * orient->orientation;
 
-	static long double accum = 0.0;
-	static float velocity = 10.0f;
 	const float a = 1.32499f;
 	const float r = 1.01146f;
 	const float k = 1.66377f;
