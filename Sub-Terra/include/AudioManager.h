@@ -31,4 +31,14 @@ public:
 		Pa_CloseStream(stream);
 		Pa_Terminate();
 	}
+
+	int Tick(uint16_t *buffer, unsigned long frameCount) {
+		for(unsigned long frame = 0; frame < frameCount; ++frame) {
+			auto sample = osc.Tick(sampleRate);
+			buffer[frame * 2 + 0] = sample;
+			buffer[frame * 2 + 1] = sample;
+		}
+
+		return paContinue;
+	}
 };
