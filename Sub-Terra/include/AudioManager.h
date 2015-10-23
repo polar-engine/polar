@@ -2,6 +2,7 @@
 
 #include <portaudio.h>
 #include "System.h"
+#include "FileSystem.h"
 #include "Oscillator.h"
 
 int StreamCallback(const void *, void *, unsigned long, const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags, void *);
@@ -19,7 +20,7 @@ protected:
 	}
 public:
 	Oscillator osc;
-	const double sampleRate = 44100.0f;
+	const double sampleRate = 44100.0;
 	const unsigned long framesPerBuffer = 256;
 
 	static bool IsSupported() { return true; }
@@ -27,13 +28,15 @@ public:
 	AudioManager(Polar *engine) : System(engine) {
 		WaveShape waveShape;
 		waveShape.preferredFrequency = 261.625565;
-		for(double i = 0.0; i < 64.0; ++i) {
-			waveShape.buffer.emplace_back(sin((double)i * 2.0 * 3.14159265358979 / 256.0));
+		unsigned int numPoints = 2047;
+		for(double i = 0.0; i < numPoints; ++i) {
+			double sample = sin(i * 2.0 * 3.14159265358979 / numPoints);
+			waveShape.buffer.emplace_back(static_cast<uint16_t>((sample + 1) * 32767.0));
 		}
 		osc = Oscillator(waveShape);
 
 		Pa_Initialize();
-		Pa_OpenDefaultStream(&stream, 0, 2, paFloat32, sampleRate, framesPerBuffer, StreamCallback, this);
+		Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate, framesPerBuffer, StreamCallback, this);
 	}
 
 	~AudioManager() {
