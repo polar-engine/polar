@@ -13,10 +13,6 @@ protected:
 	virtual void Init() override {
 		Pa_StartStream(stream);
 	}
-
-	virtual void Update(DeltaTicks &) override {
-
-	}
 public:
 	Oscillator osc;
 	const double sampleRate = 44100.0;
@@ -25,14 +21,7 @@ public:
 	static bool IsSupported() { return true; }
 
 	AudioManager(Polar *engine) : System(engine) {
-		WaveShape waveShape;
-		waveShape.preferredFrequency = 261.625565;
-		const unsigned int numPoints = 1024;
-		for(unsigned int i = 0.0; i < numPoints; ++i) {
-			double sample = sin(i * 2.0 * 3.14159265358979 / numPoints);
-			waveShape.buffer.emplace_back(static_cast<uint16_t>((sample + 1) * 32767.0 - 32768.0));
-		}
-		osc = Oscillator(waveShape);
+		osc = Oscillator(MkSineWaveShape());
 
 		Pa_Initialize();
 		Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate, framesPerBuffer, StreamCallback, this);
