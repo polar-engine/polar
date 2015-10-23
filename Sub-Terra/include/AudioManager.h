@@ -2,7 +2,6 @@
 
 #include <portaudio.h>
 #include "System.h"
-#include "FileSystem.h"
 #include "Oscillator.h"
 
 int StreamCallback(const void *, void *, unsigned long, const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags, void *);
