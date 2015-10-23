@@ -14,15 +14,17 @@ public:
 	Oscillator() = default;
 	Oscillator(const WaveShape &waveShape) : waveShape(waveShape), frequency(waveShape.preferredFrequency) {}
 
-	inline double Tick(const double sampleRate) {
+	inline uint16_t Tick(const double sampleRate) {
+		double size = static_cast<double>(waveShape.buffer.size());
 		double x = floor(position);
-		double y = waveShape.buffer[static_cast<size_t>(x)];
+		uint16_t y = waveShape.buffer[static_cast<size_t>(x)];
 
-		double increment = frequency * speed * waveShape.buffer.size() / sampleRate;
+		double increment = frequency * speed * size / sampleRate;
 		position += increment;
-		for(; position >= waveShape.buffer.size(); position -= waveShape.buffer.size()) {}
-		for(; position < 0; position += waveShape.buffer.size()) {}
 
-		return y * amplitude;
+		for(; position >= size; position -= size) {}
+		for(; position < 0; position += size) {}
+
+		return static_cast<uint16_t>(static_cast<double>(y) * amplitude);
 	}
 };

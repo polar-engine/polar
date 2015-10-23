@@ -4,5 +4,5 @@
 
 struct WaveShape {
 	double preferredFrequency;
-	boost::container::vector<double> buffer;
+	boost::container::vector<uint16_t> buffer;
 };
