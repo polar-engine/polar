@@ -1,6 +1,5 @@
 #pragma once
 
-#include <math.h>
 #include "WaveShape.h"
 
 class Oscillator {
@@ -26,8 +25,8 @@ public:
 
 	inline uint16_t Tick(const double sampleRate) {
 		double frequencyOut = frequency * speed;
-		uint32_t frequencyControlWord = frequencyOut * static_cast<double>(1ull << 32) / sampleRate;
+		uint32_t frequencyControlWord = static_cast<uint32_t>(frequencyOut * static_cast<double>(1ull << 32) / sampleRate);
 		phaseAccumulator += frequencyControlWord;
-		return amplitude * waveShape.table[(phaseAccumulator & UpperMask(WaveShape::granularity)) >> 22];
+		return static_cast<uint32_t>(amplitude * waveShape.table[(phaseAccumulator & UpperMask(WaveShape::granularity)) >> 22]);
 	}
 };
