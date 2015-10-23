@@ -27,7 +27,7 @@ public:
 	AudioManager(Polar *engine) : System(engine) {
 		WaveShape waveShape;
 		waveShape.preferredFrequency = 261.625565;
-		unsigned int numPoints = 2047;
+		unsigned int numPoints = 1024;
 		for(double i = 0.0; i < numPoints; ++i) {
 			double sample = sin(i * 2.0 * 3.14159265358979 / numPoints);
 			waveShape.buffer.emplace_back(static_cast<uint16_t>((sample + 1) * 32767.0));
