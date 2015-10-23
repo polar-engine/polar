@@ -20,13 +20,14 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
-		st.AddSystem<AudioManager>();
 		st.AddSystem<GL32Renderer, const std::vector<std::string> &>({"main", "perlintexture", "ssao", "cel", "fxaa", "dof"});
 
 		engine->PushState("title");
 	});
 
 	engine.AddState("title", [] (Polar *engine, EngineState &st) {
+		st.AddSystem<AudioManager>();
+
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
 			engine->Quit();
