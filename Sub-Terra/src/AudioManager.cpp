@@ -8,6 +8,6 @@ int StreamCallback(const void *input,
 				   PaStreamCallbackFlags statusFlags,
 				   void *userData) {
 	auto audioM = static_cast<AudioManager *>(userData);
-	auto buffer = static_cast<uint16_t *>(output);
+	auto buffer = static_cast<int16_t *>(output);
 	return audioM->Tick(buffer, frameCount);
 }
