@@ -26,8 +26,6 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("title", [] (Polar *engine, EngineState &st) {
-		st.AddSystem<AudioManager>();
-
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
 			engine->Quit();
@@ -39,6 +37,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("world", [] (Polar *engine, EngineState &st) {
+		st.AddSystem<AudioManager>();
 		st.AddSystem<World>(16, 16, 16);
 		st.AddSystem<HumanPlayerController>();
 

@@ -26,22 +26,22 @@
     <ClInclude Include="..\include\TextAsset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\assets.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ShaderAsset.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\FileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\getline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AudioAsset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ShaderProgramAsset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

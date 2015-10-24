@@ -101,7 +101,7 @@ public:
 		if(file.fail()) { ENGINE_THROW(name + ": open"); }
 
 		file << is.rdbuf();
-		if(file.fail()) { ENGINE_THROW(name + ": <<"); }
+		if(file.fail()) { ENGINE_THROW(name + ": write"); }
 
 		file.close();
 		if(file.fail()) { ENGINE_THROW(name + ": close"); }
