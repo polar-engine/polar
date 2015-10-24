@@ -26,7 +26,7 @@ class World : public System {
 private:
 	static Atomic<bool> exists;
 	const uint8_t viewDistance = 4;
-	const Point3 blockSize = Point3(0.5f);
+	const Point3 blockSize = Point3(1.0f, 1.0f, 1.0f);
 	const glm::ivec3 chunkSize;
 	OpenSimplexNoise noise;
 	Atomic<ChunksType> chunks;
@@ -219,6 +219,17 @@ public:
 			}
 		}
 		return blocks;
+	}
+
+	/* logo generation matching */
+	inline bool Match(const Point3 &p) const {
+		if(p.z == -25) {
+			return true;
+		} else if(p.z == -6) {
+			if((p.y == -4 && p.x >=  1 && p.x <= 6) ||
+			   (p.y == -5 && p.x ==  2) ||
+			   (p.y == -3 && p.x ==  5)) { return true; } else { return false; }
+		} else { return false; }
 	}
 
 	inline bool GenerateBlock(const Point3 &&p) const {
