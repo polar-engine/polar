@@ -10,8 +10,10 @@
 
 #include "debug.h"
 #include "getline.h"
+#include "endian.h"
 #include "FileSystem.h"
 #include "TextAsset.h"
+#include "AudioAsset.h"
 #include "ShaderProgramAsset.h"
 
 int main(int argc, char **argv) {
@@ -24,9 +26,121 @@ int main(int argc, char **argv) {
 		s << data;
 		return AssetName<std::string>();
 	};
+	converters["wav"] = [] (const std::string &data, Serializer &s) {
+		AudioAsset asset;
+		std::istringstream iss(data);
+
+		std::string riffHeader(4, ' ');
+		iss.read(&riffHeader[0], 4);
+		if(riffHeader != "RIFF") { ENGINE_THROW("missing riff header"); }
+
+		uint32_t riffSize;
+		iss.read(reinterpret_cast<char *>(&riffSize), sizeof(riffSize));
+		riffSize = swaple(riffSize);
+
+		uint32_t riffSizeAccum = 0;
+
+		if(riffSize - riffSizeAccum < 4) { ENGINE_THROW("wave header does not fit into riff size"); }
+		std::string waveHeader(4, ' ');
+		iss.read(&waveHeader[0], 4);
+		if(waveHeader != "WAVE") { ENGINE_THROW("missing wave header"); }
+		riffSizeAccum += 4;
+
+		while(riffSize - riffSizeAccum > 0) {
+			if(riffSize - riffSizeAccum < 8) { ENGINE_THROW("chunk header and size do not fit into riff size"); }
+
+			std::string chunkHeader(4, ' ');
+			iss.read(&chunkHeader[0], 4);
+			riffSizeAccum += 4;
+
+			uint32_t chunkSize;
+			iss.read(reinterpret_cast<char *>(&chunkSize), sizeof(chunkSize));
+			chunkSize = swaple(chunkSize);
+			riffSizeAccum += sizeof(chunkSize);
+
+			if(riffSize - riffSizeAccum < chunkSize) { ENGINE_THROW("data chunk size does not fit into riff size"); }
+
+			if(chunkHeader == "fmt ") {
+				if(chunkSize != 16) { ENGINE_THROW("format chunk size must be 16 (PCM)"); }
+
+				uint16_t formatTag;
+				iss.read(reinterpret_cast<char *>(&formatTag), sizeof(formatTag));
+				formatTag = swaple(formatTag);
+				if(formatTag != 1) { ENGINE_THROW("format tag must be PCM"); }
+				riffSizeAccum += sizeof(formatTag);
+
+				uint16_t channels;
+				iss.read(reinterpret_cast<char *>(&channels), sizeof(channels));
+				channels = swaple(channels);
+				if(channels != 1 && channels != 2) { ENGINE_THROW("number of channels must be 1 or 2"); }
+				riffSizeAccum += sizeof(channels);
+				asset.stereo = channels == 2;
+
+				uint32_t sampleRate;
+				iss.read(reinterpret_cast<char *>(&sampleRate), sizeof(sampleRate));
+				sampleRate = swaple(sampleRate);
+				riffSizeAccum += sizeof(sampleRate);
+				asset.sampleRate = sampleRate;
+
+				uint32_t avgByteRate;
+				iss.read(reinterpret_cast<char *>(&avgByteRate), sizeof(avgByteRate));
+				avgByteRate = swaple(avgByteRate);
+				riffSizeAccum += sizeof(avgByteRate);
+
+				uint16_t blockAlign;
+				iss.read(reinterpret_cast<char *>(&blockAlign), sizeof(blockAlign));
+				blockAlign = swaple(blockAlign);
+				riffSizeAccum += sizeof(blockAlign);
+
+				uint16_t bitsPerSample;
+				iss.read(reinterpret_cast<char *>(&bitsPerSample), sizeof(bitsPerSample));
+				bitsPerSample = swaple(bitsPerSample);
+				if(bitsPerSample != 16) { ENGINE_THROW("bits per sample must be 16"); }
+				riffSizeAccum += sizeof(bitsPerSample);
+
+				uint8_t bytesPerSample = bitsPerSample >> 3;
+
+				if(blockAlign != channels * bytesPerSample) { ENGINE_THROW("block align is incorrect"); }
+				if(avgByteRate != sampleRate * blockAlign) { ENGINE_ERROR("average byte rate is incorrect"); }
+			} else if(chunkHeader == "data") {
+				std::string data(chunkSize, ' ');
+				iss.read(&data[0], chunkSize);
+				riffSizeAccum += chunkSize;
+
+				for(uint32_t i = 0; i < chunkSize; i+=2) {
+					auto sample = *reinterpret_cast<int16_t *>(&data[i]);
+					sample = swaple(sample);
+					asset.samples.emplace_back(sample);
+				}
+
+				if(chunkSize % 2 == 1) {
+					if(riffSize - riffSizeAccum < 1) { ENGINE_THROW("data padding byte does not fit into riff size"); }
+					iss.ignore(1);
+					++riffSizeAccum;
+				}
+			} else if(chunkHeader == "fact") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "id3 ") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "INFO") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "LIST") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
+			} else {
+				ENGINE_THROW("unrecognized chunk header `" + chunkHeader + "`");
+			}
+		}
+
+		s << asset;
+
+		return AssetName<AudioAsset>();
+	};
 	converters["gls"] = [] (const std::string &data, Serializer &s) {
 		ShaderProgramAsset asset;
-
 		std::ostringstream header;
 
 		std::vector<std::tuple<std::string, std::string>> uniforms;

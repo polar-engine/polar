@@ -26,6 +26,16 @@ inline Serializer & operator<<(Serializer &s, const bool b) {
 	return s.write(reinterpret_cast<const char *>(&b), 1);
 }
 
+inline Serializer & operator<<(Serializer &s, const std::uint16_t i) {
+	std::uint16_t be = swapbe(i);
+	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint16_t));
+}
+
+inline Serializer & operator<<(Serializer &s, const std::int16_t i) {
+	std::int16_t be = swapbe(i);
+	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::int16_t));
+}
+
 inline Serializer & operator<<(Serializer &s, const std::uint32_t i) {
 	std::uint32_t be = swapbe(i);
 	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint32_t));
@@ -66,6 +76,20 @@ inline Deserializer & operator>>(Deserializer &s, std::uint8_t &i) {
 
 inline Deserializer & operator>>(Deserializer &s, bool &b) {
 	return s.read(reinterpret_cast<char *>(&b), 1);
+}
+
+inline Deserializer & operator>>(Deserializer &s, std::uint16_t &i) {
+	std::uint16_t be;
+	s.read(reinterpret_cast<char *>(&be), sizeof(std::uint16_t));
+	i = swapbe(be);
+	return s;
+}
+
+inline Deserializer & operator>>(Deserializer &s, std::int16_t &i) {
+	std::int16_t be;
+	s.read(reinterpret_cast<char *>(&be), sizeof(std::int16_t));
+	i = swapbe(be);
+	return s;
 }
 
 inline Deserializer & operator>>(Deserializer &s, std::uint32_t &i) {
