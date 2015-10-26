@@ -24,7 +24,7 @@ void PlayerController::Init() {
 		std::make_tuple(Point3(-size, -size,  size), Point3(-size,  size,  size), Point3(-size,  size, -size))
 	};
 
-	object = engine->AddObject();
+	dtors.emplace_back(engine->AddObject(&object));
 	engine->AddComponent<PositionComponent>(object);
 	engine->AddComponent<OrientationComponent>(object);
 	engine->AddComponent<BoundingComponent>(object, Point3(-size, -size, -size), Point3(size, size, size));

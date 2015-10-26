@@ -20,6 +20,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
+		st.AddSystem<AudioManager>();
 		st.AddSystem<GL32Renderer, const std::vector<std::string> &>({"main", "perlintexture", "ssao", "cel", "fxaa", "dof"});
 
 		engine->PushState("title");
@@ -37,7 +38,6 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("world", [] (Polar *engine, EngineState &st) {
-		st.AddSystem<AudioManager>();
 		st.AddSystem<World>(16, 16, 16);
 		st.AddSystem<HumanPlayerController>();
 

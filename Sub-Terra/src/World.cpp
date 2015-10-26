@@ -102,10 +102,5 @@ void World::Update(DeltaTicks &) {
 World::~World() {
 	exists.With([this] (bool &exists) {
 		exists = false;
-		chunks.With([this] (ChunksType &chunks) {
-			for(auto it = chunks.begin(); it != chunks.end(); ++it) {
-				engine->RemoveObject(std::get<1>(it->second));
-			}
-		});
 	});
 }
