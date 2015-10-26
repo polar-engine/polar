@@ -121,6 +121,12 @@ int main(int argc, char **argv) {
 			} else if(chunkHeader == "fact") {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "smpl") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "acid") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
 			} else if(chunkHeader == "id3 ") {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
@@ -131,7 +137,9 @@ int main(int argc, char **argv) {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
 			} else {
-				ENGINE_THROW("unrecognized chunk header `" + chunkHeader + "`");
+				std::stringstream ss;
+				ss << "unrecognized chunk header `" << chunkHeader << "` at 0x" << std::hex << riffSizeAccum;
+				ENGINE_THROW(ss.str());
 			}
 		}
 
