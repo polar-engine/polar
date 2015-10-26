@@ -26,7 +26,7 @@ class World : public System {
 private:
 	static Atomic<bool> exists;
 	const uint8_t viewDistance = 4;
-	const Point3 blockSize = Point3(1.0f, 1.0f, 1.0f);
+	const Point3 blockSize = Point3(0.5f);
 	const glm::ivec3 chunkSize;
 	OpenSimplexNoise noise;
 	Atomic<ChunksType> chunks;
@@ -164,7 +164,8 @@ public:
 				auto e = exists.With<bool>([] (bool &exists) { return exists; });
 				if(e == false) { return; }
 
-				auto id = engine->AddObject();
+				IDType id;
+				dtors.emplace_back(engine->AddObject(&id));
 				engine->InsertComponent<PositionComponent>(id, pos);
 				engine->InsertComponent<ModelComponent>(id, chunk);
 				engine->InsertComponent<BoundingComponent>(id, bounds);
@@ -173,7 +174,8 @@ public:
 				});
 			}, JobPriority::High, JobThread::Main);
 		} else {
-			auto id = engine->AddObject();
+			IDType id;
+			dtors.emplace_back(engine->AddObject(&id));
 			engine->InsertComponent<PositionComponent>(id, pos);
 			engine->InsertComponent<ModelComponent>(id, chunk);
 			engine->InsertComponent<BoundingComponent>(id, bounds);

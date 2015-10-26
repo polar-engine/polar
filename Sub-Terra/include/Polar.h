@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/weak_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/container/vector.hpp>
 #include <boost/container/deque.hpp>
 #include <boost/unordered_map.hpp>
@@ -106,7 +108,13 @@ public:
 		return boost::weak_ptr<T>();
 	}
 
-	inline IDType AddObject() { return nextID++; }
+	inline boost::shared_ptr<Destructor> AddObject(IDType *inputID) {
+		auto id = nextID++;
+		*inputID = id;
+		return boost::make_shared<Destructor>([this, id] () {
+			RemoveObject(id);
+		});
+	}
 
 	inline void RemoveObject(IDType id) {
 		auto pairLeft = objects.left.equal_range(id);

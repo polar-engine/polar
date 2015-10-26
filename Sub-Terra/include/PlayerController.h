@@ -20,7 +20,4 @@ protected:
 public:
 	static bool IsSupported() { return true; }
 	PlayerController(Polar *engine) : System(engine) {}
-	~PlayerController() noexcept {
-		engine->RemoveObject(object);
-	}
 };
