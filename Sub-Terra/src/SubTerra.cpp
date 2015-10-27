@@ -14,6 +14,9 @@
 void SubTerra::Run(const std::vector<std::string> &args) {
 	Polar engine;
 
+	auto beep = engine.GetSystem<AssetManager>().lock()->Get<AudioAsset>("beep1");
+	auto music = engine.GetSystem<AssetManager>().lock()->Get<AudioAsset>("nexus");
+
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
 		st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
@@ -37,9 +40,18 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		}));
 	});
 
-	engine.AddState("world", [] (Polar *engine, EngineState &st) {
+
+	engine.AddState("world", [&beep, &music] (Polar *engine, EngineState &st) {
 		st.AddSystem<World>(16, 16, 16);
 		st.AddSystem<HumanPlayerController>();
+
+		IDType beepID;
+		st.dtors.emplace_back(engine->AddObject(&beepID));
+		engine->AddComponent<AudioSource>(beepID, beep);
+
+		IDType musicID;
+		st.dtors.emplace_back(engine->AddObject(&musicID));
+		engine->AddComponent<AudioSource>(musicID, music, LoopIn{3565397});
 
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
