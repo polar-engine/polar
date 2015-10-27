@@ -69,12 +69,12 @@ int main(int argc, char **argv) {
 				if(formatTag != 1) { ENGINE_THROW("format tag must be PCM"); }
 				riffSizeAccum += sizeof(formatTag);
 
-				uint16_t channels;
-				iss.read(reinterpret_cast<char *>(&channels), sizeof(channels));
-				channels = swaple(channels);
-				if(channels != 1 && channels != 2) { ENGINE_THROW("number of channels must be 1 or 2"); }
-				riffSizeAccum += sizeof(channels);
-				asset.stereo = channels == 2;
+				uint16_t numChannels;
+				iss.read(reinterpret_cast<char *>(&numChannels), sizeof(numChannels));
+				numChannels = swaple(numChannels);
+				if(numChannels != 1 && numChannels != 2) { ENGINE_THROW("number of channels must be 1 or 2"); }
+				riffSizeAccum += sizeof(numChannels);
+				asset.stereo = numChannels == 2;
 
 				uint32_t sampleRate;
 				iss.read(reinterpret_cast<char *>(&sampleRate), sizeof(sampleRate));
@@ -100,14 +100,14 @@ int main(int argc, char **argv) {
 
 				uint8_t bytesPerSample = bitsPerSample >> 3;
 
-				if(blockAlign != channels * bytesPerSample) { ENGINE_THROW("block align is incorrect"); }
+				if(blockAlign != numChannels * bytesPerSample) { ENGINE_THROW("block align is incorrect"); }
 				if(avgByteRate != sampleRate * blockAlign) { ENGINE_ERROR("average byte rate is incorrect"); }
 			} else if(chunkHeader == "data") {
 				std::string data(chunkSize, ' ');
 				iss.read(&data[0], chunkSize);
 				riffSizeAccum += chunkSize;
 
-				for(uint32_t i = 0; i < chunkSize; i+=2) {
+				for(uint32_t i = 0; i < chunkSize; i += 2) {
 					auto sample = *reinterpret_cast<int16_t *>(&data[i]);
 					sample = swaple(sample);
 					asset.samples.emplace_back(sample);
