@@ -27,7 +27,6 @@ protected:
 	size_t loopOut;
 	size_t currentSample = 0;
 public:
-
 	AudioSource(const AudioAsset &as, const bool looping = false)            : asset(as), looping(looping), loopIn(0),        loopOut(as.samples.size()) {}
 	AudioSource(const AudioAsset &as, const LoopIn  &in)                     : asset(as), looping(true),    loopIn(in.value), loopOut(as.samples.size()) {}
 	AudioSource(const AudioAsset &as, const LoopOut &out)                    : asset(as), looping(true),    loopIn(0),        loopOut(out.value) {}
