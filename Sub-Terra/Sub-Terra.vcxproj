@@ -152,6 +152,7 @@
     <ClInclude Include="..\include\TextAsset.h" />
     <ClInclude Include="include\Atomic.h" />
     <ClInclude Include="include\AudioManager.h" />
+    <ClInclude Include="include\AudioSource.h" />
     <ClInclude Include="include\BoundingComponent.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
