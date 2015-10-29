@@ -188,6 +188,7 @@
     <ClInclude Include="include\SpatialIndex.h" />
     <ClInclude Include="include\SubTerra.h" />
     <ClInclude Include="include\System.h" />
+    <ClInclude Include="include\TitlePlayerController.h" />
     <ClInclude Include="include\WaveShape.h" />
     <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\World.h" />

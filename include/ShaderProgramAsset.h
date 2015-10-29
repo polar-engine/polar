@@ -91,6 +91,7 @@ inline Deserializer & operator>>(Deserializer &s, ShaderAsset &asset) {
  * List<ShaderAsset>                shaders of the program
  */
 struct ShaderProgramAsset : Asset {
+	std::vector<std::string> uniforms;
 	std::vector<ShaderProgramInputAsset> ins;
 	std::vector<ShaderProgramOutputAsset> outs;
 	std::vector<ShaderProgramInputAsset> globalIns;
@@ -99,11 +100,11 @@ struct ShaderProgramAsset : Asset {
 };
 
 inline Serializer & operator<<(Serializer &s, ShaderProgramAsset asset) {
-	return s << asset.ins << asset.outs << asset.globalIns << asset.globalOuts << asset.shaders;
+	return s << asset.uniforms << asset.ins << asset.outs << asset.globalIns << asset.globalOuts << asset.shaders;
 }
 
 inline Deserializer & operator>>(Deserializer &s, ShaderProgramAsset &asset) {
-	return s >> asset.ins >> asset.outs >> asset.globalIns >> asset.globalOuts >> asset.shaders;
+	return s >> asset.uniforms >> asset.ins >> asset.outs >> asset.globalIns >> asset.globalOuts >> asset.shaders;
 }
 
 template<> inline std::string AssetName<ShaderProgramAsset>() { return "ShaderProgram"; }

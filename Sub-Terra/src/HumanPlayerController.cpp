@@ -15,8 +15,9 @@ void HumanPlayerController::Init() {
 	engine->AddComponent<PlayerCameraComponent>(object);
 
 	auto inputM = engine->GetSystem<InputManager>().lock();
-	auto pos = engine->GetComponent<PositionComponent>(object);
+	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
+	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	camera->position = Point3(0.0f);
@@ -24,19 +25,64 @@ void HumanPlayerController::Init() {
 
 	/* movement */
 	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
-	//dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
-	//dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
-	//dtors.emplace_back(inputM->On(Key::D, [this] (Key) { moveRight = true; }));
-	//dtors.emplace_back(inputM->After(Key::W, [this] (Key) { moveForward = false; }));
-	//dtors.emplace_back(inputM->After(Key::S, [this] (Key) { moveBackward = false; }));
-	//dtors.emplace_back(inputM->After(Key::A, [this] (Key) { moveLeft = false; }));
-	//dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
 
 	/* mouse look */
 	const float mouseSpeed = 0.015f;
 	dtors.emplace_back(inputM->OnMouseMove([this, mouseSpeed] (const Point2 &delta) {
 		orientVel.y += glm::radians(mouseSpeed) * delta.x;
 		orientVel.x += glm::radians(mouseSpeed) * delta.y;
+	}));
+
+	/* collision detection and response */
+	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
+		auto &prev = ownPos->position.GetPrevious();
+		auto &curr = *ownPos->position;
+		auto &vel = *ownPos->position.Derivative();
+
+		Point3 normal;
+
+		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
+
+		auto tickVel = vel * delta.float_;
+		float entryTime = 1.0f;
+
+		/* find collision with soonest entry time */
+		for(auto it = pair.first; it != pair.second; ++it) {
+			auto id = it->get_left();
+
+			/* don't check for collisions with self */
+			if(id == object) { continue; }
+
+			auto objPos = engine->GetComponent<PositionComponent>(id);
+			if(objPos != nullptr) {
+				auto objBounds = engine->GetComponent<BoundingComponent>(id);
+				if(objBounds != nullptr) {
+					auto r = objBounds->box.AABBSwept(ownBounds->box, objPos->position.Get(), std::make_tuple(prev, curr, tickVel));
+					if(std::get<0>(r) < entryTime) { std::tie(entryTime, normal) = r; }
+				}
+			}
+		}
+
+		if(entryTime < 1.0f) {
+			/* project velocity onto surface of collider (impulse)
+			* y is given a bounce factor of 0.125
+			*/
+			vel -= normal * glm::dot(Point3(vel.x, vel.y * 1.125f, vel.z), normal);
+
+			/* set current position to just before point of entry */
+			curr = prev + tickVel * (entryTime - 0.0001f);
+
+			/* set previous position to here too */
+			prev += tickVel * entryTime;
+
+			/* slide current position along surface multiplied by remaining time */
+			curr += vel * delta.float_ * (1.0f - entryTime);
+
+			engine->PopState();
+			engine->PushState("title");
+			engine->PopState();
+			engine->PushState("title");
+		}
 	}));
 }
 
@@ -49,18 +95,6 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 
 	orientRot += orientVel;
 	orientVel *= 1 - 8 * dt.Seconds();
-
-	/* scale to range of -360 to 360 degrees */
-	const float r360 = glm::radians(360.0f);
-	if(orientRot.x >  r360) { orientRot.x -= r360; }
-	if(orientRot.x < -r360) { orientRot.x += r360; }
-	if(orientRot.y >  r360) { orientRot.y -= r360; }
-	if(orientRot.y < -r360) { orientRot.y += r360; }
-
-	/* clamp x to range of -viewingAngle to viewingAngle */
-	const float viewingAngle = glm::radians(90.0f);
-	//if(orientRot.x >  viewingAngle) { orientRot.x = viewingAngle; }
-	//if(orientRot.x < -viewingAngle) { orientRot.x = -viewingAngle; }
 
 	const float r180 = glm::radians(180.0f);
 	orient->orientation = glm::quat(Point3(orientVel.x, 0.0f, 0.0f)) * glm::quat(Point3(0.0f, orientVel.y, 0.0f)) * orient->orientation;

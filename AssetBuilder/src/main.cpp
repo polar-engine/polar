@@ -13,6 +13,7 @@
 #include "endian.h"
 #include "FileSystem.h"
 #include "TextAsset.h"
+#include "ImageAsset.h"
 #include "AudioAsset.h"
 #include "ShaderProgramAsset.h"
 
@@ -25,6 +26,90 @@ int main(int argc, char **argv) {
 	converters["txt"] = [] (const std::string &data, Serializer &s) {
 		s << data;
 		return AssetName<std::string>();
+	};
+	converters["png"] = [] (const std::string &data, Serializer &s) {
+		ImageAsset asset;
+		std::istringstream iss(data);
+
+		std::string header(8, ' ');
+		iss.read(&header[0], 8);
+		if(header != "\x89" "PNG" "\x0D\x0A" "\x1A" "\xA") { ENGINE_THROW("invalid PNG signature"); }
+
+		size_t numChunks;
+		bool atEnd = false;
+
+		for(numChunks = 0; !atEnd; ++numChunks) {
+			uint32_t dataSize;
+			iss.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
+			dataSize = swapbe(dataSize);
+			if(dataSize > (1u << 31)) { ENGINE_THROW("chunk data size exceeds 2^31 bytes"); }
+
+			std::string chunkType(4, ' ');
+			iss.read(&chunkType[0], 4);
+
+			if(numChunks == 0) {
+				if(chunkType == "IHDR") {
+					iss.read(reinterpret_cast<char *>(&asset.width), sizeof(asset.width));
+					asset.width = swapbe(asset.width);
+					if(asset.width == 0) { ENGINE_THROW("image width cannot be 0"); }
+					if(asset.width > (1u << 31)) { ENGINE_THROW("image width exceeds 2^31 bytes"); }
+
+					iss.read(reinterpret_cast<char *>(&asset.height), sizeof(asset.height));
+					asset.height = swapbe(asset.height);
+					if(asset.height == 0) { ENGINE_THROW("image height cannot be 0"); }
+					if(asset.height > (1u << 31)) { ENGINE_THROW("image height exceeds 2^31 bytes"); }
+
+					uint8_t bitDepth;
+					iss.read(reinterpret_cast<char *>(&bitDepth), sizeof(bitDepth));
+
+					uint8_t colorType;
+					iss.read(reinterpret_cast<char *>(&colorType), sizeof(colorType));
+					if(!(colorType & 0b110)) { ENGINE_THROW("color type must be color & alpha"); }
+
+					uint8_t compressionMethod;
+					iss.read(reinterpret_cast<char *>(&compressionMethod), sizeof(compressionMethod));
+					if(compressionMethod != 0) { ENGINE_THROW("compression method must be 0"); }
+
+					uint8_t filterMethod;
+					iss.read(reinterpret_cast<char *>(&filterMethod), sizeof(filterMethod));
+					if(filterMethod != 0) { ENGINE_THROW("filter method must be 0"); }
+
+					uint8_t interlaceMethod;
+					iss.read(reinterpret_cast<char *>(&interlaceMethod), sizeof(interlaceMethod));
+					if(interlaceMethod != 0 && interlaceMethod != 1) { ENGINE_THROW("interlace method must be 0 or 1"); }
+
+					iss.ignore(4);
+				} else { ENGINE_THROW("first chunk must be IHDR"); }
+			} else {
+				if(chunkType == "IDAT") {
+					INFO("found image data chunk");
+					iss.ignore(dataSize);
+					iss.ignore(4);
+				} else if(chunkType == "IEND") {
+					INFO("found image end chunk");
+					atEnd = true;
+				} else if(chunkType == "bKGD") {
+					iss.ignore(dataSize);
+					iss.ignore(4);
+				} else if(chunkType == "pHYs") {
+					iss.ignore(dataSize);
+					iss.ignore(4);
+				} else if(chunkType == "tIME") {
+					iss.ignore(dataSize);
+					iss.ignore(4);
+				} else if(chunkType == "iTXt") {
+					iss.ignore(dataSize);
+					iss.ignore(4);
+				} else {
+					std::stringstream ss;
+					ss << "unrecognized chunk type `" << chunkType << '`';
+					ENGINE_THROW(ss.str());
+				}
+			}
+		}
+
+		s << asset;
+		return AssetName<ImageAsset>();
 	};
 	converters["wav"] = [] (const std::string &data, Serializer &s) {
 		AudioAsset asset;
@@ -107,10 +192,11 @@ int main(int argc, char **argv) {
 				iss.read(&data[0], chunkSize);
 				riffSizeAccum += chunkSize;
 
+				asset.samples.resize(chunkSize / 2);
 				for(uint32_t i = 0; i < chunkSize; i += 2) {
 					auto sample = *reinterpret_cast<int16_t *>(&data[i]);
 					sample = swaple(sample);
-					asset.samples.emplace_back(sample);
+					asset.samples[i / 2] = sample;
 				}
 
 				if(chunkSize % 2 == 1) {
@@ -144,7 +230,6 @@ int main(int argc, char **argv) {
 		}
 
 		s << asset;
-
 		return AssetName<AudioAsset>();
 	};
 	converters["gls"] = [] (const std::string &data, Serializer &s) {
@@ -186,6 +271,7 @@ int main(int argc, char **argv) {
 					} else if(directive == "uniform") { /* uniform variable */
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing uniform type"); }
 						if(args.size() < 2) { ENGINE_ERROR(iLine << ": missing uniform name"); }
+						asset.uniforms.emplace_back(args[1]);
 						uniforms.emplace_back(args[0], args[1]);
 					} else if(directive == "attrib") { /* vertex attribute*/
 						if(args.size() < 1) { ENGINE_ERROR(iLine << ": missing attribute type"); }

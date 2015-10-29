@@ -79,10 +79,12 @@ void World::Update(DeltaTicks &) {
 																			  static_cast<uint64_t>(coord.z));
 
 									auto dead = chunks.With<bool>([&coordTuple] (ChunksType &chunks) {
-										auto &status = std::get<0>(chunks.at(coordTuple));
-										if(status == ChunkStatus::Dying) {
-											status = ChunkStatus::Dead;
-											return true;
+										if(chunks.find(coordTuple) != chunks.end()) {
+											auto &status = std::get<0>(chunks.at(coordTuple));
+											if(status == ChunkStatus::Dying) {
+												status = ChunkStatus::Dead;
+												return true;
+											} else { return false; }
 										} else { return false; }
 									});
 									if(dead) { return; }
