@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include "sdl.h"
 #include "gl.h"
 #include "Renderer.h"
@@ -8,10 +10,11 @@
 struct PipelineNode {
 	GLuint program;
 	GLuint fbo = 0;
-	std::unordered_map<std::string, GLuint> outs;
-	std::unordered_map<std::string, std::string> ins;
-	std::unordered_map<std::string, GLuint> globalOuts;
-	std::unordered_map<std::string, std::string> globalIns;
+	boost::unordered_set<std::string> uniforms;
+	boost::unordered_map<std::string, GLuint> outs;
+	boost::unordered_map<std::string, std::string> ins;
+	boost::unordered_map<std::string, GLuint> globalOuts;
+	boost::unordered_map<std::string, std::string> globalIns;
 	PipelineNode(GLuint program) : program(program) {}
 };
 
@@ -39,4 +42,15 @@ public:
 
 	void SetClearColor(const Point4 &) override final;
 	void MakePipeline(const std::vector<std::string> &) override final;
+
+	void SetUniform(const std::string &name, float x) {
+		for(auto &node : nodes) {
+			if(node.uniforms.find(name) != node.uniforms.end()) {
+				GL(glUseProgram(node.program));
+				GLint loc;
+				GL(loc = glGetUniformLocation(node.program, name.c_str()));
+				GL(glUniform1f(loc, x));
+			}
+		}
+	}
 };

@@ -20,6 +20,7 @@
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\getline.h" />
+    <ClInclude Include="..\include\ImageAsset.h" />
     <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
   </ItemGroup>

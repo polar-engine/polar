@@ -25,20 +25,23 @@ typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 class World : public System {
 private:
 	static Atomic<bool> exists;
-	const uint8_t viewDistance = 4;
-	const Point3 blockSize = Point3(0.5f);
-	const glm::ivec3 chunkSize;
 	OpenSimplexNoise noise;
 	Atomic<ChunksType> chunks;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 public:
+	const uint8_t viewDistance = 4;
+	const Point3 blockSize;
+	const glm::ivec3 chunkSize;
+
 	static bool IsSupported() { return true; }
-	World(Polar *engine, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
-		: System(engine), chunkSize(chunkWidth, chunkHeight, chunkDepth) {
+
+	World(Polar *engine, const Point3 &blockSize, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
+		: System(engine), blockSize(blockSize), chunkSize(chunkWidth, chunkHeight, chunkDepth) {
 		exists.With([] (bool &exists) { exists = true; });
 	}
+
 	~World();
 
 	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const glm::ivec3 &p) {
@@ -170,7 +173,9 @@ public:
 				engine->InsertComponent<ModelComponent>(id, chunk);
 				engine->InsertComponent<BoundingComponent>(id, bounds);
 				chunks.With([&chunkTuple, id] (ChunksType &chunks) {
-					chunks.at(chunkTuple) = std::make_tuple(ChunkStatus::Alive, id);
+					if(chunks.find(chunkTuple) != chunks.end()) {
+						chunks.at(chunkTuple) = std::make_tuple(ChunkStatus::Alive, id);
+					}
 				});
 			}, JobPriority::High, JobThread::Main);
 		} else {

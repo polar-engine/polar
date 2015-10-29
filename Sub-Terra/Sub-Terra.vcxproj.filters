@@ -212,5 +212,8 @@
     <ClInclude Include="include\AudioSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\TitlePlayerController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
