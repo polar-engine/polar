@@ -1,9 +1,12 @@
 #pragma once
 
+#include <boost/unordered_map.hpp>
 #include "Asset.h"
 #include "FileSystem.h"
 
 class AssetManager : public System {
+private:
+	boost::unordered_map<std::string, std::shared_ptr<Asset>> cache;
 public:
 	static std::string GetAssetsDir() {
 #ifdef _WIN32
@@ -22,19 +25,15 @@ public:
 		return GetAssetsDir() + '/' + AssetName<T>() + '/' + name + ".asset";
 	}
 
-	template<typename T, typename ...Ts> T Get(const std::string name, Ts && ...args) const {
+	template<typename T, typename ...Ts> T Get(const std::string name, Ts && ...args) {
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
-		T asset(std::forward<Ts>(args)...);
-		std::istringstream ss(FileSystem::ReadFile(GetPath<T>(name)));
-		ss >> asset;
-		return asset;
-	}
-
-	template<typename T> T Get(const std::string name) const {
-		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
-		T asset;
-		std::istringstream ss(FileSystem::ReadFile(GetPath<T>(name)));
-		Deserializer(ss) >> asset;
-		return asset;
+		auto path = GetPath<T>(name);
+		if(cache.find(path) == cache.end()) {
+			auto asset = std::make_shared<T>(std::forward<Ts>(args)...);
+			std::istringstream ss(FileSystem::ReadFile(path));
+			Deserializer(ss) >> *asset;
+			cache.emplace(path, std::static_pointer_cast<Asset>(asset));
+		}
+		return T(*std::static_pointer_cast<T>(cache.at(path)));
 	}
 };
