@@ -344,14 +344,16 @@ void GL32Renderer::SetClearColor(const Point4 &color) {
 }
 
 void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
+	auto assetM = engine->GetSystem<AssetManager>().lock();
 	std::vector<ShaderProgramAsset> assets;
 	nodes.clear();
 
 	for(auto &name : names) {
 		INFOS("loading shader asset `" << name << '`');
-		auto asset = engine->GetSystem<AssetManager>().lock()->Get<ShaderProgramAsset>(name);
+		auto asset = assetM->Get<ShaderProgramAsset>(name);
 		assets.emplace_back(asset);
 		nodes.emplace_back(MakeProgram(asset));
+		for(auto &uniform : asset.uniforms) { nodes.back().uniforms.emplace(uniform); }
 	}
 
 	for(unsigned int i = 0; i < nodes.size() - 1; ++i) {
