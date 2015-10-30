@@ -51,16 +51,13 @@
     <ClCompile Include="src\Integrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PlayerController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HumanPlayerController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SpatialIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\AudioManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HumanPlayerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -172,9 +169,6 @@
     </ClInclude>
     <ClInclude Include="include\IntegrableProperty.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PlayerController.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\HumanPlayerController.h">
       <Filter>Header Files</Filter>

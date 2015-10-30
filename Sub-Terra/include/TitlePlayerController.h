@@ -6,13 +6,15 @@
 #include "PlayerCameraComponent.h"
 #include "World.h"
 
-class TitlePlayerController : public PlayerController {
+class TitlePlayerController : public System {
 private:
-	const int fieldOfView = 5;
-	const float viewDistance = 30.0f;
-	const float velocity = 1000.0f;
+	IDType object;
 	Point2 orientVel;
 protected:
+	virtual void Init() override {
+		engine->AddComponent<PlayerCameraComponent>(object);
+	}
+
 	virtual void Update(DeltaTicks &dt) override {
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		auto orient = engine->GetComponent<OrientationComponent>(object);
@@ -54,12 +56,11 @@ protected:
 		pos->position.Derivative()->y = abs.y;
 		pos->position.Derivative()->z = abs.z;
 	}
-
-	virtual void Init() override {
-		PlayerController::Init();
-		engine->AddComponent<PlayerCameraComponent>(object);
-	}
 public:
+	const int fieldOfView = 5;
+	const float viewDistance = 30.0f;
+	const float velocity = 1000.0f;
+
 	static bool IsSupported() { return true; }
-	TitlePlayerController(Polar *engine) : PlayerController(engine) {}
+	TitlePlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}
 };

@@ -10,8 +10,6 @@
 #include "PhysicalComponent.h"
 
 void HumanPlayerController::Init() {
-	PlayerController::Init();
-
 	engine->AddComponent<PlayerCameraComponent>(object);
 
 	auto inputM = engine->GetSystem<InputManager>().lock();
@@ -21,10 +19,6 @@ void HumanPlayerController::Init() {
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	camera->position = Point3(0.0f);
-	//moveForward = true;
-
-	/* movement */
-	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
 
 	/* mouse look */
 	const float mouseSpeed = 0.015f;
@@ -79,24 +73,18 @@ void HumanPlayerController::Init() {
 			curr += vel * delta.float_ * (1.0f - entryTime);
 
 			engine->PopState();
-			engine->PushState("title");
 			engine->PopState();
-			engine->PushState("title");
+			engine->PushState("world");
 		}
 	}));
 }
 
 void HumanPlayerController::Update(DeltaTicks &dt) {
-	PlayerController::Update(dt);
-
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
-	orientRot += orientVel;
 	orientVel *= 1 - 8 * dt.Seconds();
-
-	const float r180 = glm::radians(180.0f);
 	orient->orientation = glm::quat(Point3(orientVel.x, 0.0f, 0.0f)) * glm::quat(Point3(0.0f, orientVel.y, 0.0f)) * orient->orientation;
 
 	const float a = 1.32499f;
@@ -105,10 +93,8 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	accum += dt.Seconds();
 	velocity = 10.0f + 40.0f * a * (1.0f - glm::pow(r, k * -static_cast<float>(accum)));
 
-	auto rel = glm::normalize(Point4((moveLeft ? -1 : 0) + (moveRight ? 1 : 0), 0, (moveForward ? -1 : 0) + (moveBackward ? 1 : 0), 1));
-	auto abs = (glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * rel) * velocity;
+	auto forward = glm::normalize(Point4(0, 0, -1, 1));
+	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * velocity;
 
-	ownPos->position.Derivative()->x = abs.x;
-	ownPos->position.Derivative()->y = abs.y;
-	ownPos->position.Derivative()->z = abs.z;
+	*ownPos->position.Derivative() = Point3(abs);
 }
