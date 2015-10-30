@@ -304,7 +304,10 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			width = event.window.data1;
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
-			MakePipeline(pipelineNames); /* TODO: XXX: really bad, not cleaning up OpenGL objects */
+			MakePipeline(pipelineNames);
+			for(auto uniform : uniforms) {
+				SetUniform(uniform.first, uniform.second);
+			}
 			break;
 		}
 		break;
@@ -346,6 +349,12 @@ void GL32Renderer::SetClearColor(const Point4 &color) {
 void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	std::vector<ShaderProgramAsset> assets;
+	for(auto &node : nodes) {
+		for(auto &out : node.globalOuts) { GL(glDeleteTextures(1, &out.second)); }
+		for(auto &out : node.outs) { GL(glDeleteTextures(1, &out.second)); }
+		GL(glDeleteFramebuffers(1, &node.fbo));
+		GL(glDeleteProgram(node.program));
+	}
 	nodes.clear();
 
 	for(auto &name : names) {
