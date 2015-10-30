@@ -8,6 +8,21 @@ struct ImagePixel : Asset {
 	uint8_t green;
 	uint8_t blue;
 	uint8_t alpha;
+
+	inline uint8_t & operator[](const size_t index) {
+		switch(index) {
+		case 0:
+			return red;
+		case 1:
+			return green;
+		case 2:
+			return blue;
+		case 3:
+			return alpha;
+		default:
+			throw std::out_of_range("index must be no greater than 3");
+		}
+	}
 };
 
 inline Serializer & operator<<(Serializer &s, ImagePixel pixel) {
