@@ -14,7 +14,7 @@
 
 void SubTerra::Run(const std::vector<std::string> &args) {
 	Polar engine;
-
+	IDType playerID;
 
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
 		st.AddSystem<JobManager>();
@@ -25,12 +25,27 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.AddSystem<AudioManager>();
 		st.AddSystem<GL32Renderer, const std::vector<std::string> &>({"main", "perlintexture", "ssao", "cel", "fxaa", "gaussian"});
 
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		assetM->Get<AudioAsset>("beep1");
+		assetM->Get<AudioAsset>("nexus");
+
+		engine->PushState("world");
+	});
+
+	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
+		st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
+
+		const float size = 0.05f; /* zNear */
+		st.dtors.emplace_back(engine->AddObject(&playerID));
+		engine->AddComponent<PositionComponent>(playerID);
+		engine->AddComponent<OrientationComponent>(playerID);
+		engine->AddComponent<BoundingComponent>(playerID, Point3(-size), Point3(size));
+
 		engine->PushState("title");
 	});
 
-	engine.AddState("title", [] (Polar *engine, EngineState &st) {
-		st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
-		st.AddSystem<TitlePlayerController>();
+	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
+		st.AddSystem<TitlePlayerController>(playerID);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
@@ -42,7 +57,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(inputM->On(Key::Space, [engine] (Key) {
 			engine->PopState();
-			engine->PushState("world");
+			engine->PushState("player");
 		}));
 
 		IDType beepID;
@@ -52,10 +67,9 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		renderer->SetUniform("u_blur", 0.05f);
 	});
 
-
-	engine.AddState("world", [] (Polar *engine, EngineState &st) {
-		st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
-		st.AddSystem<HumanPlayerController>();
+	engine.AddState("player", [&playerID] (Polar *engine, EngineState &st) {
+		//st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
+		st.AddSystem<HumanPlayerController>(playerID);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
@@ -63,7 +77,8 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
 			engine->PopState();
-			engine->PushState("title");
+			engine->PopState();
+			engine->PushState("world");
 		}));
 
 		IDType beepID;
