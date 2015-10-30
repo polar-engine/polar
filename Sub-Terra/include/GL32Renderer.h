@@ -24,6 +24,7 @@ private:
 	SDL_GLContext context;
 	std::vector<std::string> pipelineNames;
 	std::vector<PipelineNode> nodes;
+	boost::unordered_map<std::string, float> uniforms;
 	GLuint viewportVAO;
 
 	void InitGL();
@@ -44,6 +45,7 @@ public:
 	void MakePipeline(const std::vector<std::string> &) override final;
 
 	void SetUniform(const std::string &name, float x) {
+		uniforms[name] = x;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
 				GL(glUseProgram(node.program));
