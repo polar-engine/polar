@@ -2,12 +2,14 @@
 #include <sstream>
 #include <unordered_map>
 #include <functional>
+#include <iomanip>
 
 /* CF defines types Point and Component so it needs to be included early */
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include <zlib.h>
 #include "debug.h"
 #include "getline.h"
 #include "endian.h"
@@ -18,8 +20,8 @@
 #include "ShaderProgramAsset.h"
 
 int main(int argc, char **argv) {
-	std::string path = argc >= 2 ? argv[1] : FileSystem::GetAppDir() + "/assets";
-	std::string buildPath = argc >= 3 ? argv[2] : path + "/build";
+	std::string path = (argc >= 2) ? argv[1] : FileSystem::GetAppDir() + "/assets";
+	std::string buildPath = (argc >= 3) ? argv[2] : path + "/build";
 	auto files = FileSystem::ListDir(path);
 
 	std::unordered_map < std::string, std::function<std::string(const std::string &, Serializer &)>> converters;
@@ -35,10 +37,16 @@ int main(int argc, char **argv) {
 		iss.read(&header[0], 8);
 		if(header != "\x89" "PNG" "\x0D\x0A" "\x1A" "\xA") { ENGINE_THROW("invalid PNG signature"); }
 
-		size_t numChunks;
+		int zResult = Z_OK;
+		z_stream inflateStream;
+		inflateStream.zalloc = Z_NULL;
+		inflateStream.zfree = Z_NULL;
+		inflateStream.opaque = Z_NULL;
+
+		std::vector<uint8_t> filteredBytes;
 		bool atEnd = false;
 
-		for(numChunks = 0; !atEnd; ++numChunks) {
+		for(size_t numChunks = 0; !atEnd; ++numChunks) {
 			uint32_t dataSize;
 			iss.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
 			dataSize = swapbe(dataSize);
@@ -61,6 +69,7 @@ int main(int argc, char **argv) {
 
 					uint8_t bitDepth;
 					iss.read(reinterpret_cast<char *>(&bitDepth), sizeof(bitDepth));
+					if(bitDepth != 8) { ENGINE_THROW("bit depth must be 8"); }
 
 					uint8_t colorType;
 					iss.read(reinterpret_cast<char *>(&colorType), sizeof(colorType));
@@ -76,17 +85,127 @@ int main(int argc, char **argv) {
 
 					uint8_t interlaceMethod;
 					iss.read(reinterpret_cast<char *>(&interlaceMethod), sizeof(interlaceMethod));
-					if(interlaceMethod != 0 && interlaceMethod != 1) { ENGINE_THROW("interlace method must be 0 or 1"); }
+					if(interlaceMethod != 0) { ENGINE_THROW("interlace method must be 0"); }
 
 					iss.ignore(4);
+
+					asset.pixels.resize(asset.width * asset.height);
+
+					/* number of pixels in scanline = image width + 1
+					 * number of scanlines in image = image height
+					 */
+					uint32_t filteredSize = sizeof(ImagePixel) * (asset.width + 1) * asset.height;
+					filteredBytes.resize(filteredSize);
+					inflateStream.avail_out = filteredSize;
+					inflateStream.next_out = &filteredBytes[0];
+
+					zResult = inflateInit(&inflateStream);
+					if(zResult != Z_OK) { ENGINE_THROW("inflateInit failed"); }
 				} else { ENGINE_THROW("first chunk must be IHDR"); }
 			} else {
 				if(chunkType == "IDAT") {
-					INFO("found image data chunk");
-					iss.ignore(dataSize);
+					std::vector<uint8_t> compressedBytes(dataSize, ' ');
+					iss.read(reinterpret_cast<char *>(&compressedBytes[0]), dataSize);
+
+					inflateStream.avail_in = dataSize;
+					inflateStream.next_in = &compressedBytes[0];
+
+					zResult = inflate(&inflateStream, Z_NO_FLUSH);
+					if(zResult != Z_OK && zResult != Z_STREAM_END) { INFO(zResult); ENGINE_THROW("inflate failed"); }
+
 					iss.ignore(4);
 				} else if(chunkType == "IEND") {
-					INFO("found image end chunk");
+					zResult = inflateEnd(&inflateStream);
+					if(zResult != Z_OK) { ENGINE_THROW("inflate failed"); }
+
+					size_t pos = 0;
+					for(uint32_t scanline = 0; scanline < asset.height; ++scanline) {
+						uint8_t filterType = filteredBytes[pos++];
+						INFO(int(filterType));
+
+						for(uint32_t column = 0; column < asset.width; ++column) {
+							ImagePixel &pixel = asset.pixels[scanline * asset.width + column];
+							for(size_t component = 0; component < 4; ++component) {
+								const auto paethPredictor = [] (const uint8_t a, const uint8_t b, const uint8_t c) {
+									uint8_t p = a + b - c; /* initial estimate */
+									uint8_t pa = abs(p - a); /* distance to a */
+									uint8_t pb = abs(p - b); /* distance to b */
+									uint8_t pc = abs(p - c); /* distance to c */
+
+									/* return nearest of {a, b, c} */
+									if(pa <= pb && pa <= pc) {
+										return a;
+									} else if(pb <= pc) {
+										return b;
+									} else { return c; }
+								};
+
+								uint8_t left, up, upperLeft;
+								switch(filterType) {
+								case 0:
+									pixel[component] = filteredBytes[pos++];
+									break;
+								case 1:
+									if(component > 0) {
+										left = asset.pixels[scanline * asset.width + column][component - 1];
+									} else if(column > 0) {
+										left = asset.pixels[scanline * asset.width + column - 1][3];
+									} else {
+										left = 0;
+									}
+									pixel[component] = filteredBytes[pos++] + left;
+									break;
+								case 2:
+									if(scanline > 0) {
+										up = asset.pixels[(scanline - 1) * asset.width + column][component];
+									} else {
+										up = 0;
+									}
+									pixel[component] = filteredBytes[pos++] + up;
+									break;
+								case 3:
+									if(component > 0) {
+										left = asset.pixels[scanline * asset.width + column][component - 1];
+									} else if(column > 0) {
+										left = asset.pixels[scanline * asset.width + column - 1][3];
+									} else {
+										left = 0;
+									}
+									if(scanline > 0) {
+										up = asset.pixels[(scanline - 1) * asset.width + column][component];
+									} else {
+										up = 0;
+									}
+									pixel[component] = filteredBytes[pos++] + ((left + up) >> 1);
+									break;
+								case 4:
+									if(component > 0) {
+										left = asset.pixels[scanline * asset.width + column][component - 1];
+									} else if(column > 0) {
+										left = asset.pixels[scanline * asset.width + column - 1][3];
+									} else {
+										left = 0;
+									}
+									if(scanline > 0) {
+										up = asset.pixels[(scanline - 1) * asset.width + column][component];
+										if(component > 0) {
+											upperLeft = asset.pixels[(scanline - 1) * asset.width + column][component - 1];
+										} else if(column > 0) {
+											upperLeft = asset.pixels[(scanline - 1) * asset.width + column - 1][3];
+										} else {
+											upperLeft = 0;
+										}
+									} else {
+										up = 0;
+										upperLeft = 0;
+									}
+									pixel[component] = filteredBytes[pos++] + paethPredictor(left, up, upperLeft);
+									break;
+								}
+							}
+						}
+					}
+
 					atEnd = true;
 				} else if(chunkType == "bKGD") {
 					iss.ignore(dataSize);
