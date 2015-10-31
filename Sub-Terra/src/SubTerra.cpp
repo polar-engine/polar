@@ -6,6 +6,7 @@
 #include "AssetManager.h"
 #include "InputManager.h"
 #include "Integrator.h"
+#include "Tweener.h"
 #include "AudioManager.h"
 #include "GL32Renderer.h"
 #include "World.h"
@@ -22,8 +23,9 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
+		st.AddSystem<Tweener<float>>();
 		st.AddSystem<AudioManager>();
-		st.AddSystem<GL32Renderer, const std::vector<std::string> &>({"main", "perlintexture", "ssao", "cel", "fxaa", "gaussian"});
+		st.AddSystem<GL32Renderer, const std::vector<std::string> &>({"main", "ssao", "cel", "fxaa", "gaussian"});
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("beep1");
@@ -49,7 +51,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
-		auto renderer = engine->GetSystem<GL32Renderer>().lock();
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
 			engine->Quit();
@@ -57,23 +59,26 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(inputM->On(Key::Space, [engine] (Key) {
 			engine->PopState();
-			engine->PushState("player");
+			engine->PushState("playing");
 		}));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
 		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("beep1"));
 
-		renderer->SetUniform("u_blur", 0.05f);
+		tweener->Tween(To(0.05f), In(1.0f), [] (Polar *engine, const float &x) {
+			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			renderer->SetUniform("u_blur", x);
+		});
 	});
 
-	engine.AddState("player", [&playerID] (Polar *engine, EngineState &st) {
+	engine.AddState("playing", [&playerID] (Polar *engine, EngineState &st) {
 		//st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
 		st.AddSystem<HumanPlayerController>(playerID);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
-		auto renderer = engine->GetSystem<GL32Renderer>().lock();
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
 			engine->PopState();
@@ -89,7 +94,10 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
 
-		renderer->SetUniform("u_blur", 0.0f);
+		tweener->Tween(From(0.05f), To(0.0f), In(1.0f), [] (Polar *engine, const float &x) {
+			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			renderer->SetUniform("u_blur", x);
+		});
 	});
 
 	engine.PushState("root");

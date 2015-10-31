@@ -209,5 +209,8 @@
     <ClInclude Include="include\TitlePlayerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Tweener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
