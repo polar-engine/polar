@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/container/vector.hpp>
 #include "Destructor.h"
+#include "EngineStack.h"
 
 class EngineState {
 private:
@@ -12,6 +13,7 @@ private:
 public:
 	const std::string name;
 	boost::container::vector<boost::shared_ptr<Destructor>> dtors;
+	boost::unordered_map<std::string, Transition> transitions;
 
 	EngineState(const std::string &name, Polar *engine) : name(name), engine(engine) {}
 

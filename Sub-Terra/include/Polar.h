@@ -12,17 +12,8 @@
 #include <boost/bimap/unordered_multiset_of.hpp>
 #include "Component.h"
 #include "System.h"
+#include "EngineStack.h"
 #include "EngineState.h"
-
-enum class StackActionType {
-	Push,
-	Pop
-};
-
-struct StackAction {
-	StackActionType type;
-	std::string name;
-};
 
 class Polar {
 public:
@@ -38,10 +29,10 @@ private:
 	bool running = false;
 	boost::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
 	boost::container::vector<EngineState> stack;
-	boost::container::deque<StackAction> actions;
 public:
 	Bimap objects;
 	IDType nextID = 1;
+	std::string transition;
 
 	~Polar() {
 		/* release stack in reverse order */
@@ -56,16 +47,13 @@ public:
 		states.emplace(name, std::make_pair(init, destroy));
 	}
 
-	inline void PushState(const std::string &name) {
-		actions.emplace_back(StackAction{StackActionType::Push, name});
-	}
-
-	inline void PopState() {
-		actions.emplace_back(StackAction{StackActionType::Pop});
-	}
-
-	inline void Run() {
+	inline void Run(const std::string &initialState) {
 		running = true;
+
+		stack.emplace_back(initialState, this);
+		states[initialState].first(this, stack.back());
+		stack.back().Init();
+
 		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
 		while(running) {
 			then = now;
@@ -75,21 +63,23 @@ public:
 				state.Update(dt);
 			}
 
-			/* perform stack actions at end of iteration to avoid invalidation */
-			while(!actions.empty()) {
-				auto action = actions.front();
-				actions.pop_front();
-				switch(action.type) {
-				case StackActionType::Push:
-					stack.emplace_back(action.name, this);
-					states[action.name].first(this, stack.back());
-					stack.back().Init();
-					break;
-				case StackActionType::Pop:
-					auto &state = stack.back();
-					states[state.name].second(this, state);
-					stack.pop_back();
-					break;
+			/* perform transition at end of iteration to avoid invalidation */
+			if(transition != "") {
+				auto actions = stack.back().transitions[transition];
+				transition = "";
+				for(auto &action : actions) {
+					switch(action.type) {
+					case StackActionType::Push:
+						stack.emplace_back(action.name, this);
+						states[action.name].first(this, stack.back());
+						stack.back().Init();
+						break;
+					case StackActionType::Pop:
+						auto &state = stack.back();
+						states[state.name].second(this, state);
+						stack.pop_back();
+						break;
+					}
 				}
 			}
 		}
