@@ -16,12 +16,12 @@ enum class ChannelMessageType {
 };
 
 struct ChannelMessage {
-	static ChannelMessage Add(IDType id, AudioSource *source) { return ChannelMessage{ChannelMessageType::Add, id, source}; }
+	static ChannelMessage Add(IDType id, std::shared_ptr<AudioSource> source) { return ChannelMessage{ChannelMessageType::Add, id, source}; }
 	static ChannelMessage Remove(IDType id) { return ChannelMessage{ChannelMessageType::Remove, id}; }
 
 	ChannelMessageType type;
 	IDType id;
-	AudioSource *source;
+	std::shared_ptr<AudioSource> source;
 };
 
 class AudioManager : public System {
@@ -32,7 +32,7 @@ private:
 	int channelIndexMain = 0;
 	int channelIndexStream = 0;
 
-	boost::container::flat_map<IDType, AudioSource> sources;
+	boost::container::flat_map<IDType, std::shared_ptr<AudioSource>> sources;
 
 	PaStream *stream;
 protected:
@@ -42,9 +42,8 @@ protected:
 
 	void ComponentAdded(IDType id, const std::type_info *ti, std::weak_ptr<Component> ptr) override final {
 		if(ti != &typeid(AudioSource)) { return; }
-		auto source = static_cast<AudioSource *>(ptr.lock().get());
 
-		channel[channelIndexMain] = ChannelMessage::Add(id, source);
+		channel[channelIndexMain] = ChannelMessage::Add(id, std::static_pointer_cast<AudioSource>(ptr.lock()));
 		++channelWaiting;
 		++channelIndexMain;
 		if(channelIndexMain == channelSize) { channelIndexMain = 0; }
@@ -79,7 +78,7 @@ public:
 			auto msg = channel[channelIndexStream];
 			switch(msg.type) {
 			case ChannelMessageType::Add:
-				sources.emplace(msg.id, *msg.source);
+				sources.emplace(msg.id, msg.source);
 				break;
 			case ChannelMessageType::Remove:
 				sources.erase(msg.id);
@@ -96,7 +95,7 @@ public:
 			left = 0;
 			right = 0;
 			for(auto &source : sources) {
-				source.second.Tick(left, right);
+				source.second->Tick(left, right);
 			}
 		}
 		return paContinue;
