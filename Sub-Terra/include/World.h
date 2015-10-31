@@ -162,7 +162,10 @@ public:
 			auto e = exists.With<bool>([] (bool &exists) { return exists; });
 			if(e == false) { return chunk; }
 
-			auto jobM = engine->GetSystem<JobManager>().lock();
+			auto weak = engine->GetSystem<JobManager>();
+			if(weak.expired()) { return chunk; }
+
+			auto jobM = weak.lock();
 			jobM->Do([this, chunkTuple, pos, chunk, bounds] () {
 				auto e = exists.With<bool>([] (bool &exists) { return exists; });
 				if(e == false) { return; }
