@@ -3,8 +3,6 @@
 #include "FileSystem.h"
 #include "endian.h"
 
-Atomic<bool> World::exists;
-
 void World::Init() {
 	uint32_t seed = std::random_device()();
 	noise = OpenSimplexNoise(seed);
@@ -68,8 +66,7 @@ void World::Update(DeltaTicks &) {
 									chunks.emplace(coordTuple, std::make_tuple(ChunkStatus::Generating, 0));
 								});
 								jobM->Do([this, jobM, coord] () {
-									auto e = exists.With<bool>([] (bool &exists) { return exists; });
-									if(e == false) { return; }
+									if(!exists) { return; }
 
 									/* create tuple again inside of copying by binding to lambda
 									 * tuples are packed at compile-time anyway or something
@@ -99,10 +96,4 @@ void World::Update(DeltaTicks &) {
 			}
 		}
 	}
-}
-
-World::~World() {
-	exists.With([this] (bool &exists) {
-		exists = false;
-	});
 }
