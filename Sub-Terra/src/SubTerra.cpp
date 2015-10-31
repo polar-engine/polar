@@ -18,6 +18,8 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	IDType playerID;
 
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("forward", Transition{Push("world")});
+
 		st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
 		st.AddSystem<InputManager>();
@@ -31,10 +33,12 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		assetM->Get<AudioAsset>("beep1");
 		assetM->Get<AudioAsset>("nexus");
 
-		engine->PushState("world");
+		engine->transition = "forward";
 	});
 
 	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("forward", Transition{Push("title")});
+
 		st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
 
 		const float size = 0.05f; /* zNear */
@@ -43,10 +47,12 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<OrientationComponent>(playerID);
 		engine->AddComponent<BoundingComponent>(playerID, Point3(-size), Point3(size));
 
-		engine->PushState("title");
+		engine->transition = "forward";
 	});
 
 	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("forward", Transition{Pop(), Push("playing")});
+
 		st.AddSystem<TitlePlayerController>(playerID);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
@@ -58,8 +64,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		}));
 
 		st.dtors.emplace_back(inputM->On(Key::Space, [engine] (Key) {
-			engine->PopState();
-			engine->PushState("playing");
+			engine->transition = "forward";
 		}));
 
 		IDType beepID;
@@ -73,7 +78,8 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("playing", [&playerID] (Polar *engine, EngineState &st) {
-		//st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
+		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world")});
+
 		st.AddSystem<HumanPlayerController>(playerID);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
@@ -81,9 +87,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
-			engine->PopState();
-			engine->PopState();
-			engine->PushState("world");
+			engine->transition = "back";
 		}));
 
 		IDType beepID;
@@ -100,6 +104,5 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		});
 	});
 
-	engine.PushState("root");
-	engine.Run();
+	engine.Run("root");
 }

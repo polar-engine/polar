@@ -72,9 +72,7 @@ void HumanPlayerController::Init() {
 			/* slide current position along surface multiplied by remaining time */
 			curr += vel * delta.float_ * (1.0f - entryTime);
 
-			engine->PopState();
-			engine->PopState();
-			engine->PushState("world");
+			engine->transition = "back";
 		}
 	}));
 }
