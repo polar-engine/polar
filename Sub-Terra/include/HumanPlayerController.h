@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PlayerController.h"
-
 class HumanPlayerController : public System {
 private:
 	IDType object;
