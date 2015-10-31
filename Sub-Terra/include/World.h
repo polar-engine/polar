@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <boost/container/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include "FileSystem.h"
@@ -24,7 +25,7 @@ typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 
 class World : public System {
 private:
-	static Atomic<bool> exists;
+	std::atomic_bool exists;
 	OpenSimplexNoise noise;
 	Atomic<ChunksType> chunks;
 protected:
@@ -39,10 +40,12 @@ public:
 
 	World(Polar *engine, const Point3 &blockSize, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
 		: System(engine), blockSize(blockSize), chunkSize(chunkWidth, chunkHeight, chunkDepth) {
-		exists.With([] (bool &exists) { exists = true; });
+		exists = true;
 	}
 
-	~World();
+	~World() {
+		exists = false;
+	}
 
 	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const glm::ivec3 &p) {
 		return BlockIndexForCoord(p.x, p.y, p.z);
@@ -159,16 +162,14 @@ public:
 
 		auto chunkTuple = ChunkKeyForChunkCoord(coord);
 		if(deferredToMain) {
-			auto e = exists.With<bool>([] (bool &exists) { return exists; });
-			if(e == false) { return chunk; }
+			if(!exists) { return chunk; }
 
 			auto weak = engine->GetSystem<JobManager>();
 			if(weak.expired()) { return chunk; }
 
 			auto jobM = weak.lock();
 			jobM->Do([this, chunkTuple, pos, chunk, bounds] () {
-				auto e = exists.With<bool>([] (bool &exists) { return exists; });
-				if(e == false) { return; }
+				if(!exists) { return; }
 
 				IDType id;
 				dtors.emplace_back(engine->AddObject(&id));
