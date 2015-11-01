@@ -1,6 +1,9 @@
 @uniform mat4 u_model
 @uniform mat4 u_view
 @uniform mat4 u_projection
+@uniform float u_red
+@uniform float u_green
+@uniform float u_blue
 @attrib vec3 a_vertex
 @attrib vec3 a_normal
 @varying smooth vec3 v_pos
@@ -62,12 +65,12 @@ vec3 perlinNoise(vec3 color) {
 
 	eval5 = smoothstep(0.12, 0.34, eval5);
 
-	vec3 colorSlate = vec3(0.58, 0.57, 0.48);
-	vec3 colorSlateGranite = vec3(0.685, 0.58, 0.46);
-	vec3 colorGranite = vec3(0.79, 0.59, 0.44);
-	vec3 colorOrange = vec3(1.0, 0.6, 0.02);
+	//vec3 colorSolid = vec3(1.0, 0.6, 0.02);
+	vec3 colorSolid = vec3(u_red, u_green, u_blue);
+	vec3 colorSlate = vec3(colorSolid.r * 0.58, colorSolid.g * 0.95, mix(colorSolid.b, 1.0, 0.47));
+	vec3 colorGranite = vec3(colorSolid.r * 0.79, colorSolid.g * 0.98, mix(colorSolid.b, 1.0, 0.45));
 
-	return color.rgb * mix(colorSlate, mix(colorGranite, colorOrange, eval3), eval5) * eval1 * eval2;
+	return color.rgb * mix(colorSlate, mix(colorGranite, colorSolid, eval3), eval5) * eval1 * eval2;
 }
 
 vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float radius) {

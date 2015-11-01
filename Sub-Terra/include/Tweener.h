@@ -6,23 +6,19 @@
 #include <boost/make_shared.hpp>
 #include "System.h"
 
-struct InDescriptor { double seconds; };
-inline InDescriptor In(double x) { return InDescriptor{x}; }
-
 template<typename T> class Tweener : public System {
 public:
-	struct FromDescriptor { T value; };
-	struct ToDescriptor { T value; };
-
 	typedef std::function<void(Polar *, const T &)> TweenHandler;
 	struct TweenDescriptor {
 		T from;
 		T to;
 		double in;
+		bool loop;
 		TweenHandler fn;
 		double accumulator = 0;
 
-		TweenDescriptor(T from, T to, double in, TweenHandler fn) : from(from), to(to), in(in), fn(fn) {}
+		TweenDescriptor(T from, T to, double in, bool loop, TweenHandler fn, double acc)
+			: from(from), to(to), in(in), loop(loop), fn(fn), accumulator(acc) {}
 	};
 private:
 	boost::unordered_map<IDType, TweenDescriptor> tweens;
@@ -33,8 +29,13 @@ protected:
 		for(auto &tween : tweens) {
 			tween.second.accumulator += dt.Seconds();
 			if(tween.second.accumulator > tween.second.in) {
-				tween.second.accumulator = tween.second.in;
-				toRemove.emplace_back(tween.first);
+				if(tween.second.loop) {
+					tween.second.accumulator = 0;
+					std::swap(tween.second.from, tween.second.to);
+				} else {
+					tween.second.accumulator = tween.second.in;
+					toRemove.emplace_back(tween.first);
+				}
 			}
 
 			/* only linear tweening at the moment */
@@ -49,14 +50,16 @@ public:
 	static bool IsSupported() { return true; }
 	Tweener(Polar *engine) : System(engine) {}
 
-	inline void Tween(const FromDescriptor from, const ToDescriptor to, const InDescriptor in, const TweenHandler &fn) {
-		tweens.emplace(nextID++, TweenDescriptor(from.value, to.value, in.seconds, fn));
+	inline boost::shared_ptr<Destructor> Tween(T from, T to, double in, bool loop, TweenHandler fn) {
+		return Tween(from, to, in, loop, fn, from);
 	}
 
-	inline void Tween(const ToDescriptor to, const InDescriptor in, const TweenHandler &fn) {
-		Tween(From<T>(0), to, in, fn);
+	inline boost::shared_ptr<Destructor> Tween(T from, T to, double in, bool loop, TweenHandler fn, T initial) {
+		auto id = nextID++;
+		double acc = (initial - from) / (to - from) * in;
+		tweens.emplace(id, TweenDescriptor(from, to, in, loop, fn, acc));
+		return boost::make_shared<Destructor>([this, id] () {
+			tweens.erase(id);
+		});
 	}
 };
-
-template<typename T> inline typename Tweener<T>::FromDescriptor From(T x) { return Tweener<T>::FromDescriptor{x}; }
-template<typename T> inline typename Tweener<T>::ToDescriptor To(T x) { return Tweener<T>::ToDescriptor{x}; }

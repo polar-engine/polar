@@ -24,7 +24,6 @@ private:
 	SDL_GLContext context;
 	std::vector<std::string> pipelineNames;
 	std::vector<PipelineNode> nodes;
-	boost::unordered_map<std::string, float> uniforms;
 	GLuint viewportVAO;
 
 	void InitGL();
@@ -37,6 +36,8 @@ protected:
 	void ComponentRemoved(IDType, const std::type_info *) override final;
 	void Project(GLuint);
 public:
+	boost::unordered_map<std::string, float> uniforms;
+
 	static bool IsSupported();
 	GL32Renderer(Polar *engine, const std::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();

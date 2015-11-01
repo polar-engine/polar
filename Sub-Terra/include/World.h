@@ -270,6 +270,6 @@ public:
 		auto result3 = eval2 > -0.75;
 
 		/* AND results so there is only a block if no results dictate no block */
-		return eval1 > 0.25;
+		return eval1 > 0.25/* || eval1 < -0.75*/;
 	}
 };
