@@ -66,7 +66,7 @@ vec3 perlinNoise(vec3 color) {
 	eval5 = smoothstep(0.12, 0.34, eval5);
 
 	//vec3 colorSolid = vec3(1.0, 0.6, 0.02);
-	vec3 colorSolid = vec3(u_red, u_green, u_blue);
+	vec3 colorSolid = vec3(u_red * u_red, u_green * u_green, u_blue * u_blue);
 	vec3 colorSlate = vec3(colorSolid.r * 0.58, colorSolid.g * 0.95, mix(colorSolid.b, 1.0, 0.47));
 	vec3 colorGranite = vec3(colorSolid.r * 0.79, colorSolid.g * 0.98, mix(colorSolid.b, 1.0, 0.45));
 
@@ -99,7 +99,7 @@ vec3 light(in vec3 lightPosition, in vec3 color, in float shininess, in float ra
 
 void main() {
 	vec3 lighting = vec3(0.0);
-	lighting += light(vec3(0.0), vec3(1.0), 256.0, 28.0);
+	lighting += light(vec3(0.0), vec3(1.0), 256.0, 32.0);
 
 	o_color = vec4(perlinNoise(lighting), 1.0);
 	o_normal = vec4(v_normal / 2.0 + 0.5, 1.0);
