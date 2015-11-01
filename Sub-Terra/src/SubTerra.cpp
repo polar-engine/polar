@@ -31,6 +31,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("beep1");
+		assetM->Get<AudioAsset>("laser");
 		assetM->Get<AudioAsset>("nexus");
 
 		engine->transition = "forward";
@@ -71,10 +72,14 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&beepID));
 		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("beep1"));
 
-		tweener->Tween(To(0.05f), In(1.0f), [] (Polar *engine, const float &x) {
+		IDType laserID;
+		st.dtors.emplace_back(engine->AddObject(&laserID));
+		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
+
+		st.dtors.emplace_back(tweener->Tween(0.0f, 0.05f, 1.0f, false, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_blur", x);
-		});
+		}));
 	});
 
 	engine.AddState("playing", [&playerID] (Polar *engine, EngineState &st) {
@@ -85,6 +90,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		auto renderer = engine->GetSystem<GL32Renderer>().lock();
 
 		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
 			engine->transition = "back";
@@ -98,10 +104,23 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
 
-		tweener->Tween(From(0.05f), To(0.0f), In(1.0f), [] (Polar *engine, const float &x) {
+		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.71f, true, [] (Polar *engine, const float &x) {
+			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			renderer->SetUniform("u_red", x);
+		}, renderer->uniforms["u_red"]));
+		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 2.47f, true, [] (Polar *engine, const float &x) {
+			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			renderer->SetUniform("u_green", x);
+		}, renderer->uniforms["u_green"]));
+		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.53f, true, [] (Polar *engine, const float &x) {
+			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			renderer->SetUniform("u_blue", x);
+		}, renderer->uniforms["u_blue"]));
+
+		st.dtors.emplace_back(tweener->Tween(0.05f, 0.0f, 1.0f, false, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_blur", x);
-		});
+		}));
 	});
 
 	engine.Run("root");
