@@ -513,7 +513,8 @@ int main(int argc, char **argv) {
 
 				std::string data = FileSystem::ReadFile(path + '/' + file);
 				std::stringstream ss;
-				std::string type = converter->second(data, Serializer(ss));
+				Serializer serializer(ss);
+				std::string type = converter->second(data, serializer);
 
 				std::string name = file.substr(0, pos);
 				FileSystem::CreateDir(buildPath + '/' + type);
