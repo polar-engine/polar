@@ -62,13 +62,10 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<GL32Renderer>().lock();
 
-		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
-			engine->Quit();
-		}));
-
-		st.dtors.emplace_back(inputM->On(Key::Space, [engine] (Key) {
-			engine->transition = "forward";
-		}));
+		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->Quit(); }));
+		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->Quit(); }));
+		st.dtors.emplace_back(inputM->On(Key::Space,       [engine] (Key) { engine->transition = "forward"; }));
+		st.dtors.emplace_back(inputM->On(Key::ControllerA, [engine] (Key) { engine->transition = "forward"; }));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
@@ -107,9 +104,8 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<GL32Renderer>().lock();
 
-		st.dtors.emplace_back(inputM->On(Key::Escape, [engine] (Key) {
-			engine->transition = "back";
-		}));
+		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
+		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));

@@ -109,3 +109,14 @@ inline Key mkKeyFromSDL(SDL_Keycode k) {
 		return Key::None;
 	}
 }
+
+inline Key mkButtonFromSDL(SDL_GameControllerButton b) {
+	switch(b) {
+	case SDL_CONTROLLER_BUTTON_A:
+		return Key::ControllerA;
+	case SDL_CONTROLLER_BUTTON_BACK:
+		return Key::ControllerBack;
+	default:
+		return Key::None;
+	}
+}

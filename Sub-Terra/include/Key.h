@@ -39,7 +39,9 @@ enum class Key : uint8_t {
 	Num9,
 	Num0,
 	Escape,
-	Space
+	Space,
+	ControllerA,
+	ControllerBack
 };
 
 struct KeyHash : public std::unary_function<Key, std::size_t> {

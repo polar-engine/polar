@@ -332,6 +332,14 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 		mouseDelta = Point2(event.motion.xrel, event.motion.yrel);
 		engine->GetSystem<EventManager>().lock()->Fire("mousemove", &mouseDelta);
 		break;
+	case SDL_CONTROLLERBUTTONDOWN:
+		key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(event.cbutton.button));
+		engine->GetSystem<EventManager>().lock()->Fire("keydown", &key);
+		break;
+	case SDL_CONTROLLERBUTTONUP:
+		key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(event.cbutton.button));
+		engine->GetSystem<EventManager>().lock()->Fire("keyup", &key);
+		break;
 	case SDL_CONTROLLERAXISMOTION:
 		/* axis 0 = x axis
 		 * axis 1 = y axis
