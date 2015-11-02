@@ -26,6 +26,10 @@ void HumanPlayerController::Init() {
 		orientVel.y += glm::radians(mouseSpeed) * delta.x;
 		orientVel.x += glm::radians(mouseSpeed) * delta.y;
 	}));
+	dtors.emplace_back(inputM->OnControllerAxes([this, mouseSpeed] (const Point2 &delta) {
+		orientVel.y += glm::radians(mouseSpeed) * delta.x * 30.0f;
+		orientVel.x += glm::radians(mouseSpeed) * delta.y * 30.0f;
+	}));
 
 	/* collision detection and response */
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {

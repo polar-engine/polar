@@ -50,6 +50,11 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { ENGINE_THROW("failed to set swap interval"); }
 	if(!SDL(SDL_SetRelativeMouseMode(SDL_TRUE))) { ENGINE_THROW("failed to set relative mouse mode"); }
 
+	/* set up joystick */
+	SDL_GameController *controller;
+	SDL(controller = SDL_GameControllerOpen(0));
+	SDL(SDL_GameControllerEventState(SDL_ENABLE));
+
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 
@@ -294,6 +299,8 @@ void GL32Renderer::ComponentRemoved(IDType id, const std::type_info *ti) {
 
 void GL32Renderer::HandleSDL(SDL_Event &event) {
 	Key key;
+	Point2 mouseDelta;
+	float controllerAxisValue;
 	switch(event.type) {
 	case SDL_QUIT:
 		engine->Quit();
@@ -322,8 +329,22 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 		engine->GetSystem<EventManager>().lock()->Fire("keyup", &key);
 		break;
 	case SDL_MOUSEMOTION:
-		Point2 delta(event.motion.xrel, event.motion.yrel);
-		engine->GetSystem<EventManager>().lock()->Fire("mousemove", &delta);
+		mouseDelta = Point2(event.motion.xrel, event.motion.yrel);
+		engine->GetSystem<EventManager>().lock()->Fire("mousemove", &mouseDelta);
+		break;
+	case SDL_CONTROLLERAXISMOTION:
+		/* axis 0 = x axis
+		 * axis 1 = y axis
+		 */
+		controllerAxisValue = event.caxis.value;
+		switch(event.caxis.axis) {
+		case 0:
+			engine->GetSystem<EventManager>().lock()->Fire("controlleraxisx", Arg(controllerAxisValue));
+			break;
+		case 1:
+			engine->GetSystem<EventManager>().lock()->Fire("controlleraxisy", Arg(controllerAxisValue));
+			break;
+		}
 		break;
 	}
 }

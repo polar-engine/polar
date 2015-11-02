@@ -14,6 +14,7 @@ typedef std::function<void(Key)> OnKeyHandler;
 typedef std::function<void(Key)> AfterKeyHandler;
 typedef std::function<void(Key, const DeltaTicks &)> WhenKeyHandler;
 typedef std::function<void(const Point2 &)> MouseMoveHandler;
+typedef std::function<void(const Point2 &)> ControllerAxesHandler;
 
 class InputManager : public System {
 public:
@@ -34,11 +35,15 @@ private:
 	KeyHandlerBimap<AfterKeyHandler> afterKeyHandlers;
 	KeyHandlerBimap<WhenKeyHandler> whenKeyHandlers;
 	IDMap<MouseMoveHandler> mouseMoveHandlers;
+	IDMap<ControllerAxesHandler> controllerAxesHandlers;
 	IDType nextID = 1;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 public:
+	const float controllerDeadZone = 0.05f;
+	Point2 controllerAxes;
+
 	static bool IsSupported() { return true; }
 	InputManager(Polar *engine) : System(engine) {}
 
@@ -71,6 +76,14 @@ public:
 		mouseMoveHandlers.insert(IDMap<MouseMoveHandler>::value_type(id, handler));
 		return boost::make_shared<Destructor>([this, id] () {
 			mouseMoveHandlers.left.erase(id);
+		});
+	}
+
+	inline boost::shared_ptr<Destructor> OnControllerAxes(const ControllerAxesHandler &handler) {
+		auto id = nextID++;
+		controllerAxesHandlers.insert(IDMap<ControllerAxesHandler>::value_type(id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			controllerAxesHandlers.left.erase(id);
 		});
 	}
 };
