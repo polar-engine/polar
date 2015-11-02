@@ -30,6 +30,12 @@ void InputManager::Init() {
 			handler.right(delta);
 		}
 	}));
+	dtors.emplace_back(eventM->ListenFor("controlleraxisx", [this] (Arg arg) {
+		controllerAxes.x = arg.float_;
+	}));
+	dtors.emplace_back(eventM->ListenFor("controlleraxisy", [this] (Arg arg) {
+		controllerAxes.y = arg.float_;
+	}));
 }
 
 void InputManager::Update(DeltaTicks &dt) {
@@ -38,5 +44,12 @@ void InputManager::Update(DeltaTicks &dt) {
 		for(auto it = range.first; it != range.second; ++it) {
 			it->info(key, dt);
 		}
+	}
+
+	auto normalized = controllerAxes / 32768.0f;
+	auto logarithmic = normalized * glm::abs(normalized);
+
+	for(auto &handler : controllerAxesHandlers) {
+		handler.right(glm::length(logarithmic) > controllerDeadZone ? logarithmic : Point2(0));
 	}
 }
