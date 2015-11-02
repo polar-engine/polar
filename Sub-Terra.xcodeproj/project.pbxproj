@@ -12,12 +12,12 @@
 		7F0CB6551A25D90B00623543 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64D1A25D90B00623543 /* glew.c */; };
 		7F0CB6561A25D90B00623543 /* JobManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64E1A25D90B00623543 /* JobManager.cpp */; };
 		7F0CB6571A25D90B00623543 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64F1A25D90B00623543 /* main.m */; };
-		7F0CB6581A25D90B00623543 /* Polar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6501A25D90B00623543 /* Polar.cpp */; };
 		7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6511A25D90B00623543 /* SubTerra.cpp */; };
 		7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6521A25D90B00623543 /* Worker.cpp */; };
 		7F0CB65B1A25D98600623543 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F0CB63F1A25D8A500623543 /* MainMenu.xib */; };
 		7F0CB65F1A25DC7500623543 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB65E1A25DC7500623543 /* main.cpp */; };
 		7F3F88711A2C93810078F5F9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */; };
+		7F41DBDF1BE7188100B36981 /* AudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F41DBDE1BE7188100B36981 /* AudioManager.cpp */; };
 		7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407711A1AADD100B55B7A /* OpenGL.framework */; };
 		7F54077B1A1AAF1400B55B7A /* SDL2.framework in Resources */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F54077F1A1AAF8300B55B7A /* Cocoa.framework */; };
@@ -25,12 +25,15 @@
 		7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499261AC175EC0001DCFF /* InputManager.cpp */; };
 		7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499271AC175EC0001DCFF /* Integrator.cpp */; };
 		7F64992F1AC175EC0001DCFF /* OpenSimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */; };
-		7F6499301AC175EC0001DCFF /* PlayerController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499291AC175EC0001DCFF /* PlayerController.cpp */; };
 		7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */; };
 		7F6499321AC175EC0001DCFF /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992B1AC175EC0001DCFF /* World.cpp */; };
-		7F79221A1ACF9019005665E7 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F79221B1ACF9019005665E7 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
+		7F977E4E1BE71CEE006CF366 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F977E4C1BE71CC5006CF366 /* libz.a */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
+		7FFE534B1BE72A1200F39CF1 /* libportaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534A1BE72A1200F39CF1 /* libportaudio.a */; };
+		7FFE534D1BE72AA500F39CF1 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */; };
+		7FFE534F1BE72ACF00F39CF1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */; };
+		7FFE53511BE72B1700F39CF1 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE53501BE72B1700F39CF1 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,7 +82,6 @@
 		7F0CB6301A25D86E00623543 /* Job.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Job.h; path = include/Job.h; sourceTree = "<group>"; };
 		7F0CB6311A25D86E00623543 /* JobManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JobManager.h; path = include/JobManager.h; sourceTree = "<group>"; };
 		7F0CB6321A25D86E00623543 /* ModelComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModelComponent.h; path = include/ModelComponent.h; sourceTree = "<group>"; };
-		7F0CB6331A25D86E00623543 /* NoRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NoRenderer.h; path = include/NoRenderer.h; sourceTree = "<group>"; };
 		7F0CB6341A25D86E00623543 /* Polar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Polar.h; path = include/Polar.h; sourceTree = "<group>"; };
 		7F0CB6351A25D86E00623543 /* PositionComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PositionComponent.h; path = include/PositionComponent.h; sourceTree = "<group>"; };
 		7F0CB6361A25D86E00623543 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Renderer.h; path = include/Renderer.h; sourceTree = "<group>"; };
@@ -87,7 +89,6 @@
 		7F0CB6381A25D86E00623543 /* sdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sdl.h; path = include/sdl.h; sourceTree = "<group>"; };
 		7F0CB6391A25D86E00623543 /* SubTerra.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SubTerra.h; path = include/SubTerra.h; sourceTree = "<group>"; };
 		7F0CB63A1A25D86E00623543 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = include/System.h; sourceTree = "<group>"; };
-		7F0CB63B1A25D86E00623543 /* Tag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tag.h; path = include/Tag.h; sourceTree = "<group>"; };
 		7F0CB63C1A25D86E00623543 /* Worker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Worker.h; path = include/Worker.h; sourceTree = "<group>"; };
 		7F0CB63D1A25D88C00623543 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
 		7F0CB6401A25D8A500623543 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = resources/Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -101,7 +102,6 @@
 		7F0CB64D1A25D90B00623543 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = src/glew.c; sourceTree = "<group>"; };
 		7F0CB64E1A25D90B00623543 /* JobManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JobManager.cpp; path = src/JobManager.cpp; sourceTree = "<group>"; };
 		7F0CB64F1A25D90B00623543 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/main.m; sourceTree = "<group>"; };
-		7F0CB6501A25D90B00623543 /* Polar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Polar.cpp; path = src/Polar.cpp; sourceTree = "<group>"; };
 		7F0CB6511A25D90B00623543 /* SubTerra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubTerra.cpp; path = src/SubTerra.cpp; sourceTree = "<group>"; };
 		7F0CB6521A25D90B00623543 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = "<group>"; };
 		7F0CB65E1A25DC7500623543 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
@@ -115,6 +115,7 @@
 		7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OrientationComponent.h; path = include/OrientationComponent.h; sourceTree = "<group>"; };
 		7F3F886F1A2C92A30078F5F9 /* Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Property.h; path = include/Property.h; sourceTree = "<group>"; };
 		7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		7F41DBDE1BE7188100B36981 /* AudioManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AudioManager.cpp; path = src/AudioManager.cpp; sourceTree = "<group>"; };
 		7F54073E1A1AAC4100B55B7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		7F5407711A1AADD100B55B7A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7F5407781A1AAF0100B55B7A /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
@@ -124,12 +125,16 @@
 		7F6499261AC175EC0001DCFF /* InputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputManager.cpp; path = src/InputManager.cpp; sourceTree = "<group>"; };
 		7F6499271AC175EC0001DCFF /* Integrator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Integrator.cpp; path = src/Integrator.cpp; sourceTree = "<group>"; };
 		7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenSimplexNoise.cpp; path = src/OpenSimplexNoise.cpp; sourceTree = "<group>"; };
-		7F6499291AC175EC0001DCFF /* PlayerController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayerController.cpp; path = src/PlayerController.cpp; sourceTree = "<group>"; };
 		7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpatialIndex.cpp; path = src/SpatialIndex.cpp; sourceTree = "<group>"; };
 		7F64992B1AC175EC0001DCFF /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = src/World.cpp; sourceTree = "<group>"; };
 		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
 		7F949DF61AC7B2CE004F875F /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = World.h; path = include/World.h; sourceTree = "<group>"; };
+		7F977E4C1BE71CC5006CF366 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../lib/osx/libz.a; sourceTree = "<group>"; };
 		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FFE534A1BE72A1200F39CF1 /* libportaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libportaudio.a; path = ../lib/osx/libportaudio.a; sourceTree = "<group>"; };
+		7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		7FFE53501BE72B1700F39CF1 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +143,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F3F88711A2C93810078F5F9 /* CoreFoundation.framework in Frameworks */,
+				7F977E4E1BE71CEE006CF366 /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,10 +151,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */,
+				7FFE53511BE72B1700F39CF1 /* AudioToolbox.framework in Frameworks */,
+				7FFE534D1BE72AA500F39CF1 /* AudioUnit.framework in Frameworks */,
+				7FFE534F1BE72ACF00F39CF1 /* CoreAudio.framework in Frameworks */,
 				7F5407801A1AAF8300B55B7A /* Cocoa.framework in Frameworks */,
 				7F5407721A1AADD100B55B7A /* OpenGL.framework in Frameworks */,
-				7F79221A1ACF9019005665E7 /* SDL2.framework in Frameworks */,
+				7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */,
+				7FFE534B1BE72A1200F39CF1 /* libportaudio.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,8 +230,6 @@
 				7F0CB64E1A25D90B00623543 /* JobManager.cpp */,
 				7F0CB64F1A25D90B00623543 /* main.m */,
 				7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */,
-				7F6499291AC175EC0001DCFF /* PlayerController.cpp */,
-				7F0CB6501A25D90B00623543 /* Polar.cpp */,
 				7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */,
 				7F0CB6511A25D90B00623543 /* SubTerra.cpp */,
 				7F0CB6521A25D90B00623543 /* Worker.cpp */,
@@ -247,14 +254,12 @@
 				7F0CB62F1A25D86E00623543 /* GL32Renderer.h */,
 				7F0CB6301A25D86E00623543 /* Job.h */,
 				7F0CB6311A25D86E00623543 /* JobManager.h */,
-				7F0CB6331A25D86E00623543 /* NoRenderer.h */,
 				7F0CB6341A25D86E00623543 /* Polar.h */,
 				7F3F886F1A2C92A30078F5F9 /* Property.h */,
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
 				7F0CB6381A25D86E00623543 /* sdl.h */,
 				7F0CB6391A25D86E00623543 /* SubTerra.h */,
 				7F0CB63A1A25D86E00623543 /* System.h */,
-				7F0CB63B1A25D86E00623543 /* Tag.h */,
 				7F949DF61AC7B2CE004F875F /* World.h */,
 				7F0CB63C1A25D86E00623543 /* Worker.h */,
 			);
@@ -264,6 +269,7 @@
 		7F54073B1A1AABD600B55B7A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7F41DBDE1BE7188100B36981 /* AudioManager.cpp */,
 				7F0CB63F1A25D8A500623543 /* MainMenu.xib */,
 				7F0CB63D1A25D88C00623543 /* Info.plist */,
 				7F54073E1A1AAC4100B55B7A /* Images.xcassets */,
@@ -274,6 +280,11 @@
 		7F5407731A1AADDD00B55B7A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7F977E4C1BE71CC5006CF366 /* libz.a */,
+				7FFE534A1BE72A1200F39CF1 /* libportaudio.a */,
+				7FFE53501BE72B1700F39CF1 /* AudioToolbox.framework */,
+				7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */,
+				7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */,
 				7F54077F1A1AAF8300B55B7A /* Cocoa.framework */,
 				7F5407781A1AAF0100B55B7A /* SDL2.framework */,
 				7F5407711A1AADD100B55B7A /* OpenGL.framework */,
@@ -366,7 +377,7 @@
 		7FF31F101A1AA90D0008999E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = "David Farrell";
 				TargetAttributes = {
 					7F558EB01A25CB6F006622FA = {
@@ -439,9 +450,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7F41DBDF1BE7188100B36981 /* AudioManager.cpp in Sources */,
 				7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */,
 				7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */,
-				7F0CB6581A25D90B00623543 /* Polar.cpp in Sources */,
 				7F0CB6571A25D90B00623543 /* main.m in Sources */,
 				7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */,
 				7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */,
@@ -451,7 +462,6 @@
 				7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */,
 				7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */,
 				7F6499321AC175EC0001DCFF /* World.cpp in Sources */,
-				7F6499301AC175EC0001DCFF /* PlayerController.cpp in Sources */,
 				7F0CB6551A25D90B00623543 /* glew.c in Sources */,
 				7F64992F1AC175EC0001DCFF /* OpenSimplexNoise.cpp in Sources */,
 			);
@@ -491,6 +501,10 @@
 					"/Applications/Xcode6-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
 					"$(SRCROOT)/include",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/lib/osx",
+				);
 				METAL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include";
@@ -504,6 +518,10 @@
 					"$(inherited)",
 					"/Applications/Xcode6-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
 					"$(SRCROOT)/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/lib/osx",
 				);
 				METAL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -603,6 +621,10 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/lib/osx",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include $(SRCROOT)/Sub-Terra/include";
 			};
@@ -624,6 +646,10 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Sub-Terra/resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/lib/osx",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include $(SRCROOT)/Sub-Terra/include";
 			};

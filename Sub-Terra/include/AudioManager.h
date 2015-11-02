@@ -28,7 +28,7 @@ class AudioManager : public System {
 private:
 	static const int channelSize = 8;
 	boost::array<ChannelMessage, channelSize> channel;
-	std::atomic_int channelWaiting = 0;
+	std::atomic_int channelWaiting = {0};
 	int channelIndexMain = 0;
 	int channelIndexStream = 0;
 

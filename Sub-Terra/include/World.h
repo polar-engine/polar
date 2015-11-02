@@ -111,7 +111,8 @@ public:
 		auto savesPath = FileSystem::GetSavedGamesDir();
 		auto chunkPath = savesPath + "/chunks/" + std::to_string(icoord.x) + "_" + std::to_string(icoord.y) + "_" + std::to_string(icoord.z) + ".chunk";
 		auto ss = std::stringstream();
-		Serializer(ss) << chunk;
+		Serializer serializer(ss);
+		serializer << chunk;
 		FileSystem::WriteFile(chunkPath, ss);
 	}
 

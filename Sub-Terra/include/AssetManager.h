@@ -3,6 +3,7 @@
 #include <boost/unordered_map.hpp>
 #include "Asset.h"
 #include "FileSystem.h"
+#include "Serializer.h"
 
 class AssetManager : public System {
 private:
@@ -31,7 +32,8 @@ public:
 		if(cache.find(path) == cache.end()) {
 			auto asset = std::make_shared<T>(std::forward<Ts>(args)...);
 			std::istringstream ss(FileSystem::ReadFile(path));
-			Deserializer(ss) >> *asset;
+			Deserializer deserializer(ss);
+			deserializer >> *asset;
 			cache.emplace(path, std::static_pointer_cast<Asset>(asset));
 		}
 		return T(*std::static_pointer_cast<T>(cache.at(path)));
