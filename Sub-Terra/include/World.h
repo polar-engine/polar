@@ -106,14 +106,6 @@ public:
 		chunk.blocks[BlockIndexForCoord(glm::ivec3(blockCoord))] = block;
 		DestroyChunk(chunkCoord);
 		CreateChunk(chunkCoord, chunk.blocks);
-
-		auto icoord = glm::ivec3(glm::floor(chunkCoord));
-		auto savesPath = FileSystem::GetSavedGamesDir();
-		auto chunkPath = savesPath + "/chunks/" + std::to_string(icoord.x) + "_" + std::to_string(icoord.y) + "_" + std::to_string(icoord.z) + ".chunk";
-		auto ss = std::stringstream();
-		Serializer serializer(ss);
-		serializer << chunk;
-		FileSystem::WriteFile(chunkPath, ss);
 	}
 
 	inline bool DamageBlock(const Point3 &coord, const float &damage) {

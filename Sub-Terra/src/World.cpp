@@ -41,8 +41,6 @@ void World::Update(DeltaTicks &) {
 							jobM->Do([&eng, obj] () { eng->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
 							chunks.erase(it++);
 							continue;
-						case ChunkStatus::Dying:
-							break;
 						}
 					}
 					++it;
