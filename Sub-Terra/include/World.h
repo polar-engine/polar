@@ -26,12 +26,13 @@ typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
 class World : public System {
 private:
 	std::atomic_bool exists;
-	OpenSimplexNoise noise;
+	OpenSimplexNoise noise, noise2;
 	Atomic<ChunksType> chunks;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 public:
+	float factor = 1;
 	const uint8_t viewDistance = 4;
 	const Point3 blockSize;
 	const glm::ivec3 chunkSize;
@@ -244,32 +245,11 @@ public:
 	}
 
 	inline bool GenerateBlock(const Point3 &&p) const {
-		/* periodic 'normal distribution' function */
-		auto fDensity = [] (const double x) {
-			return 1.0 - glm::abs(glm::sin(x));
-		};
-
 		const float scale1 = 17.0f;
 		const float scale2 = scale1 / 17.0f * 8.0f;
 		auto eval1 = noise.eval(p.x / scale1, p.y / scale1, p.z / scale1);
-		auto eval2 = noise.eval(p.x / scale2, p.y / scale2 / 3.0f, p.z / scale2 / 5.0f);
+		auto eval2 = noise2.eval(p.x / scale1, p.y / scale1, p.z / scale1);
 
-		/* cave systems */
-		auto result1 = (
-			eval1 > (fDensity(p.x / scale1 / 32.0f) - 1) * 1.5f + 0.1f ||
-			eval1 > (fDensity(p.y / scale1 / 10.0f) - 1) * 1.5f + 0.1f ||
-			eval1 > (fDensity(p.z / scale1 / 32.0f) - 1) * 1.5f + 0.1f
-			);
-		/* cave system crevices */
-		auto result2 = (
-			eval1 > (fDensity(p.x / scale1 / 32.0f) - 1) * 1.5f + 0.1f ||
-			eval1 > (fDensity(p.y / scale1 / 10.0f + noise.eval(p.x / scale1 / 60.0f, p.z / scale1 / 60.0f) * 100.0f) - 1) * 1.5f + 0.1f ||
-			eval1 > (fDensity(p.z / scale1 / 32.0f) - 1) * 1.5f + 0.1f
-			);
-		/* crevices */
-		auto result3 = eval2 > -0.75;
-
-		/* AND results so there is only a block if no results dictate no block */
-		return eval1 > 0.25/* || eval1 < -0.75*/;
+		return eval1 > 0.25 || eval2 > 0.25 + 0.75 * factor;
 	}
 };
