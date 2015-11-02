@@ -99,4 +99,6 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * velocity;
 
 	*ownPos->position.Derivative() = Point3(abs);
+
+	engine->GetSystem<World>().lock()->factor *= 1 - 0.01f * dt.Seconds();
 }
