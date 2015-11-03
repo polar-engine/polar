@@ -15,23 +15,23 @@ public:
 	ModelComponent(GeometryType type, const PointsType &points) : type(type), points(points) {}
 	ModelComponent(const TrianglesType &triangles) : type(GeometryType::Triangles) {
 		auto size = triangles.size() * 3;
-		points.reserve(size);
+		points.resize(size);
 		for(TrianglesType::size_type i = 0; i < triangles.size(); ++i) {
 			auto &triangle = triangles.at(i);
-			points.emplace_back(std::get<0>(triangle));
-			points.emplace_back(std::get<1>(triangle));
-			points.emplace_back(std::get<2>(triangle));
+			points[i * 3 + 0] = std::get<0>(triangle);
+			points[i * 3 + 1] = std::get<1>(triangle);
+			points[i * 3 + 2] = std::get<2>(triangle);
 		}
 	}
 
 	PointsType CalculateNormals() const {
 		PointsType normals;
-		normals.reserve(points.size());
+		normals.resize(points.size());
 		for(PointsType::size_type i = 0; i < points.size(); i += 3) {
 			auto normal = CalculateNormal(points[i], points[i + 1], points[i + 2]);
-			normals.emplace_back(normal);
-			normals.emplace_back(normal);
-			normals.emplace_back(normal);
+			normals[i + 0] = normal;
+			normals[i + 1] = normal;
+			normals[i + 2] = normal;
 		}
 		return normals;
 	}
