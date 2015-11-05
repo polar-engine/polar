@@ -28,12 +28,13 @@ private:
 	std::atomic_bool exists;
 	OpenSimplexNoise noise, noise2;
 	Atomic<ChunksType> chunks;
+	boost::unordered_map<ChunkKeyType, IDType> pickups;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 public:
 	float factor = 1;
-	const uint8_t viewDistance = 4;
+	const uint8_t viewDistance = 2;
 	const Point3 blockSize;
 	const glm::ivec3 chunkSize;
 
@@ -195,7 +196,7 @@ public:
 		return chunk;
 	}
 
-	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) {
+	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) { 
 		auto self = std::shared_ptr<World>(this);
 
 		auto chunkTuple = ChunkKeyForChunkCoord(coord);

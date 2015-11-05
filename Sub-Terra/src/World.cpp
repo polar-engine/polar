@@ -24,6 +24,20 @@ void World::Update(DeltaTicks &) {
 			/* clean up chunks outside distance */
 			auto &eng = engine;
 			auto &viewDist = viewDistance;
+			for(auto itPickup = pickups.begin(); itPickup != pickups.end();) {
+				auto &coordTuple = itPickup->first;
+				auto &obj = itPickup->second;
+
+				if(abs(static_cast<int>(std::get<0>(coordTuple)) - chunkCoord.x) > viewDistance ||
+				   abs(static_cast<int>(std::get<1>(coordTuple)) - chunkCoord.y) > viewDistance ||
+				   abs(static_cast<int>(std::get<2>(coordTuple)) - chunkCoord.z) > viewDistance) {
+					INFOS(std::get<0>(coordTuple) << std::get<1>(coordTuple) << std::get<2>(coordTuple));
+					jobM->Do([self, obj] () { self->engine->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
+					pickups.erase(itPickup++);
+					continue;
+				}
+				++itPickup;
+			}
 			chunks.With([self, &jobM, &chunkCoord] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
 					auto &coordTuple = it->first;
@@ -48,6 +62,19 @@ void World::Update(DeltaTicks &) {
 				}
 			});
 
+
+			const float size = 1.0f;
+			ModelComponent::TrianglesType triangles({
+				std::make_tuple(Point3(    0,  size,     0), Point3( size,     0,     0), Point3(    0,     0, -size)),
+				std::make_tuple(Point3(    0,  size,     0), Point3(    0,     0,  size), Point3( size,     0,     0)),
+				std::make_tuple(Point3(    0,  size,     0), Point3(-size,     0,     0), Point3(    0,     0,  size)),
+				std::make_tuple(Point3(    0,  size,     0), Point3(    0,     0, -size), Point3(-size,     0,     0)),
+				std::make_tuple(Point3(    0, -size,     0), Point3(    0,     0, -size), Point3( size,     0,     0)),
+				std::make_tuple(Point3(    0, -size,     0), Point3( size,     0,     0), Point3(    0,     0,  size)),
+				std::make_tuple(Point3(    0, -size,     0), Point3(    0,     0,  size), Point3(-size,     0,     0)),
+				std::make_tuple(Point3(    0, -size,     0), Point3(-size,     0,     0), Point3(    0,     0, -size))
+			});
+
 			for(int d = 0; d <= viewDistance; ++d) {
 				for(int x = -d; x <= d; ++x) {
 					for(int y = -d; y <= d; ++y) {
@@ -59,6 +86,19 @@ void World::Update(DeltaTicks &) {
 							ChunkKeyType coordTuple = std::make_tuple(static_cast<uint64_t>(coord.x),
 							                                          static_cast<uint64_t>(coord.y),
 							                                          static_cast<uint64_t>(coord.z));
+
+							if(abs(std::get<0>(coordTuple)) % 4 == 0 &&
+							   abs(std::get<1>(coordTuple)) % 4 == 0 &&
+							   abs(std::get<2>(coordTuple)) % 4 == 0) {
+								if(pickups.find(coordTuple) == pickups.end()) {
+									IDType pickupID;
+									dtors.emplace_back(engine->AddObject(&pickupID));
+									engine->AddComponent<PositionComponent>(pickupID, PosForChunkCoord(coord));
+									engine->AddComponent<ModelComponent>(pickupID, triangles);
+									//engine->AddComponent<BoundingComponent>(pickupID, Point3(-size), Point3(size));
+									pickups.emplace(coordTuple, pickupID);
+								}
+							}
 
 							if(chunks.With<bool>([&coordTuple] (ChunksType &chunks) {
 								return chunks.find(coordTuple) == chunks.end();
