@@ -11,6 +11,7 @@ void World::Init() {
 }
 
 void World::Update(DeltaTicks &) {
+	auto self = std::shared_ptr<World>(this);
 	auto pair = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto it = pair.first; it != pair.second; ++it) {
 		auto &object = it->get_left();
@@ -23,14 +24,14 @@ void World::Update(DeltaTicks &) {
 			/* clean up chunks outside distance */
 			auto &eng = engine;
 			auto &viewDist = viewDistance;
-			chunks.With([&eng, &viewDist, &jobM, &chunkCoord] (ChunksType &chunks) {
+			chunks.With([self, &jobM, &chunkCoord] (ChunksType &chunks) {
 				for(auto it = chunks.begin(); it != chunks.end();) {
 					auto &coordTuple = it->first;
 					auto &obj = std::get<1>(it->second);
 
-					if(abs(static_cast<int>(std::get<0>(coordTuple)) - chunkCoord.x) > viewDist ||
-					   abs(static_cast<int>(std::get<1>(coordTuple)) - chunkCoord.y) > viewDist ||
-					   abs(static_cast<int>(std::get<2>(coordTuple)) - chunkCoord.z) > viewDist) {
+					if(abs(static_cast<int>(std::get<0>(coordTuple)) - chunkCoord.x) > self->viewDistance ||
+					   abs(static_cast<int>(std::get<1>(coordTuple)) - chunkCoord.y) > self->viewDistance ||
+					   abs(static_cast<int>(std::get<2>(coordTuple)) - chunkCoord.z) > self->viewDistance) {
 						auto &status = std::get<0>(it->second);
 						switch(status) {
 						case ChunkStatus::Generating:
@@ -38,7 +39,7 @@ void World::Update(DeltaTicks &) {
 							break;
 						case ChunkStatus::Alive:
 						case ChunkStatus::Dead:
-							jobM->Do([&eng, obj] () { eng->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
+							jobM->Do([self, obj] () { self->engine->RemoveObject(obj); }, JobPriority::Low, JobThread::Main);
 							chunks.erase(it++);
 							continue;
 						}
@@ -65,8 +66,8 @@ void World::Update(DeltaTicks &) {
 								chunks.With([&coordTuple] (ChunksType &chunks) {
 									chunks.emplace(coordTuple, std::make_tuple(ChunkStatus::Generating, 0));
 								});
-								jobM->Do([this, jobM, coord] () {
-									if(!exists) { return; }
+								jobM->Do([self, jobM, coord] () {
+									if(!self->exists) { return; }
 
 									/* create tuple again inside of copying by binding to lambda
 									 * tuples are packed at compile-time anyway or something
@@ -75,7 +76,7 @@ void World::Update(DeltaTicks &) {
 																			  static_cast<uint64_t>(coord.y),
 																			  static_cast<uint64_t>(coord.z));
 
-									auto dead = chunks.With<bool>([&coordTuple] (ChunksType &chunks) {
+									auto dead = self->chunks.With<bool>([&coordTuple] (ChunksType &chunks) {
 										if(chunks.find(coordTuple) != chunks.end()) {
 											auto &status = std::get<0>(chunks.at(coordTuple));
 											if(status == ChunkStatus::Dying) {
@@ -86,8 +87,8 @@ void World::Update(DeltaTicks &) {
 									});
 									if(dead) { return; }
 
-									auto blocks = GenerateChunk(coord);
-									CreateChunk(coord, blocks, true);
+									auto blocks = self->GenerateChunk(coord);
+									self->CreateChunk(coord, blocks, true);
 								}, JobPriority::Normal, JobThread::Worker);
 							}
 						}

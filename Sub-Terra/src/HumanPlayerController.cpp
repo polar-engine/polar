@@ -44,7 +44,6 @@ void HumanPlayerController::Init() {
 		auto tickVel = vel * delta.float_;
 		float entryTime = 1.0f;
 
-		/* find collision with soonest entry time */
 		for(auto it = pair.first; it != pair.second; ++it) {
 			auto id = it->get_left();
 
@@ -56,27 +55,14 @@ void HumanPlayerController::Init() {
 				auto objBounds = engine->GetComponent<BoundingComponent>(id);
 				if(objBounds != nullptr) {
 					auto r = objBounds->box.AABBSwept(ownBounds->box, objPos->position.Get(), std::make_tuple(prev, curr, tickVel));
-					if(std::get<0>(r) < entryTime) { std::tie(entryTime, normal) = r; }
+					if(std::get<0>(r) < entryTime) {
+						if(engine->GetComponent<TagComponent<Chunk>>(id) != nullptr) {
+							engine->transition = "back";
+							break;
+						}
+					}
 				}
 			}
-		}
-
-		if(entryTime < 1.0f) {
-			/* project velocity onto surface of collider (impulse)
-			* y is given a bounce factor of 0.125
-			*/
-			vel -= normal * glm::dot(Point3(vel.x, vel.y * 1.125f, vel.z), normal);
-
-			/* set current position to just before point of entry */
-			curr = prev + tickVel * (entryTime - 0.0001f);
-
-			/* set previous position to here too */
-			prev += tickVel * entryTime;
-
-			/* slide current position along surface multiplied by remaining time */
-			curr += vel * delta.float_ * (1.0f - entryTime);
-
-			engine->transition = "back";
 		}
 	}));
 }
