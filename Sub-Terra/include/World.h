@@ -109,14 +109,16 @@ public:
 	}
 
 	inline bool DamageBlock(const Point3 &coord, const float &damage) {
-		auto destroy = chunks.With<bool>([this, &coord, &damage] (ChunksType &chunks) {
-			Point3 chunkCoord, blockCoord;
-			std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
-			auto chunkTuple = ChunkKeyForChunkCoord(chunkCoord);
-			auto &container = chunks.at(chunkTuple);
-			auto chunk = static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
+		auto self = std::shared_ptr<World>(this);
 
-			auto index = BlockIndexForCoord(glm::ivec3(blockCoord));
+		auto destroy = chunks.With<bool>([self, &coord, &damage] (ChunksType &chunks) {
+			Point3 chunkCoord, blockCoord;
+			std::tie(chunkCoord, blockCoord) = self->CoordsForBlockCoord(coord);
+			auto chunkTuple = self->ChunkKeyForChunkCoord(chunkCoord);
+			auto &container = chunks.at(chunkTuple);
+			auto chunk = static_cast<Chunk *>(self->engine->GetComponent<ModelComponent>(std::get<1>(container)));
+
+			auto index = self->BlockIndexForCoord(glm::ivec3(blockCoord));
 			return (chunk->blocks.at(index).health -= damage) < 0.0f;
 		});
 
@@ -137,6 +139,8 @@ public:
 	}
 
 	inline Chunk * CreateChunk(const Point3 &coord, const boost::container::vector<Block> &blocks, const bool &deferredToMain = false) {
+		auto self = std::shared_ptr<World>(this);
+
 		auto pos = new PositionComponent(PosForChunkCoord(coord));
 		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z);
 		chunk->blocks = blocks;
@@ -162,15 +166,16 @@ public:
 			if(weak.expired()) { return chunk; }
 
 			auto jobM = weak.lock();
-			jobM->Do([this, chunkTuple, pos, chunk, bounds] () {
-				if(!exists) { return; }
+			jobM->Do([self, chunkTuple, pos, chunk, bounds] () {
+				if(!self->exists) { return; }
 
 				IDType id;
-				dtors.emplace_back(engine->AddObject(&id));
-				engine->InsertComponent<PositionComponent>(id, pos);
-				engine->InsertComponent<ModelComponent>(id, chunk);
-				engine->InsertComponent<BoundingComponent>(id, bounds);
-				chunks.With([&chunkTuple, id] (ChunksType &chunks) {
+				self->dtors.emplace_back(self->engine->AddObject(&id));
+				self->engine->AddComponent<TagComponent<Chunk>>(id);
+				self->engine->InsertComponent<PositionComponent>(id, pos);
+				self->engine->InsertComponent<ModelComponent>(id, chunk);
+				self->engine->InsertComponent<BoundingComponent>(id, bounds);
+				self->chunks.With([&chunkTuple, id] (ChunksType &chunks) {
 					if(chunks.find(chunkTuple) != chunks.end()) {
 						chunks.at(chunkTuple) = std::make_tuple(ChunkStatus::Alive, id);
 					}
@@ -191,6 +196,8 @@ public:
 	}
 
 	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) {
+		auto self = std::shared_ptr<World>(this);
+
 		auto chunkTuple = ChunkKeyForChunkCoord(coord);
 		ChunkContainerType container = chunks.With<ChunkContainerType>([&chunkTuple] (ChunksType &chunks) {
 			auto container = chunks.at(chunkTuple);
@@ -199,7 +206,7 @@ public:
 		});
 		if(deferredToMain) {
 			auto jobM = engine->GetSystem<JobManager>().lock();
-			jobM->Do([this, &container] () { engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
+			jobM->Do([self, container] () { self->engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
 		} else {
 			engine->RemoveObject(std::get<1>(container));
 		}
