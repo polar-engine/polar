@@ -10,17 +10,17 @@ private:
 	IDType object;
 	Point2 orientVel;
 protected:
-	virtual void Init() override {
+	inline void Init() override {
 		engine->AddComponent<PlayerCameraComponent>(object);
 	}
 
-	virtual void Update(DeltaTicks &dt) override {
+	inline void Update(DeltaTicks &dt) override {
 		auto pos = engine->GetComponent<PositionComponent>(object);
 		auto orient = engine->GetComponent<OrientationComponent>(object);
 		auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 		auto world = engine->GetSystem<World>().lock();
 
-		orientVel *= 1 - 5 * dt.Seconds();
+		orientVel *= static_cast<float>(glm::pow(0.996, dt.Seconds() * 1000.0));
 
 		unsigned int i = 0;
 		auto average = Point2(0);
@@ -51,9 +51,9 @@ protected:
 		const auto forward = glm::normalize(Point4(0, 0, -1, 1));
 		auto abs = (glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward) * velocity * dt.Seconds();
 
-		pos->position.Derivative()->x = abs.x;
-		pos->position.Derivative()->y = abs.y;
-		pos->position.Derivative()->z = abs.z;
+		//pos->position.Derivative()->x = abs.x;
+		//pos->position.Derivative()->y = abs.y;
+		//pos->position.Derivative()->z = abs.z;
 	}
 public:
 	const int fieldOfView = 5;
