@@ -72,7 +72,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
-	orientVel *= 1 - 8 * dt.Seconds();
+	orientVel *= static_cast<float>(glm::pow(0.995, dt.Seconds() * 1000.0));
 	orient->orientation = glm::quat(Point3(orientVel.x, 0.0f, 0.0f)) * glm::quat(Point3(0.0f, orientVel.y, 0.0f)) * orient->orientation;
 
 	const float a = 1.32499f;
