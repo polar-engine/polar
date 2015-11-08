@@ -148,6 +148,7 @@ public:
 
 		IDType id;
 		auto dtor = engine->AddObject(&id);
+		engine->AddComponent<TagComponent<Chunk>>(id);
 		engine->AddComponent<PositionComponent>(id, PosForChunkCoord(coord));
 		engine->InsertComponent<ModelComponent>(id, chunk);
 		engine->InsertComponent<BoundingComponent>(id, bounds);
