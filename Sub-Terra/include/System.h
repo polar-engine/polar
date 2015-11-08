@@ -14,7 +14,7 @@ protected:
 
 	virtual void Init() {}
 	virtual void Update(DeltaTicks &) {}
-	virtual void ComponentAdded(IDType, const std::type_info *, std::weak_ptr<Component>) {}
+	virtual void ComponentAdded(IDType, const std::type_info *, boost::weak_ptr<Component>) {}
 	virtual void ComponentRemoved(IDType, const std::type_info *) {}
 public:
 	static bool IsSupported() { return false; }

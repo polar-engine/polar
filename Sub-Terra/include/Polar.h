@@ -22,7 +22,7 @@ public:
 		boost::bimaps::multiset_of<IDType>,
 		boost::bimaps::unordered_multiset_of<const std::type_info *>,
 		boost::bimaps::set_of_relation<>,
-		boost::bimaps::with_info<std::shared_ptr<Component>>
+		boost::bimaps::with_info<boost::shared_ptr<Component>>
 	> Bimap;
 private:
 	bool initDone = false;
@@ -121,11 +121,14 @@ public:
 	}
 
 	template<typename T> inline void InsertComponent(IDType id, T *component) {
+		InsertComponent(id, boost::shared_ptr<T>(component));
+	}
+
+	template<typename T> inline void InsertComponent(IDType id, boost::shared_ptr<T> component) {
 		auto ti = &typeid(T);
-		std::shared_ptr<Component> ptr(component);
-		objects.insert(Bimap::value_type(id, ti, ptr));
+		objects.insert(Bimap::value_type(id, ti, component));
 		for(auto &state : stack) {
-			state.ComponentAdded(id, ti, ptr);
+			state.ComponentAdded(id, ti, component);
 		}
 	}
 

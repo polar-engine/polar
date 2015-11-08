@@ -66,7 +66,7 @@ public:
 		return systems.Get<T>();
 	}
 
-	inline void ComponentAdded(IDType id, const std::type_info *ti, std::shared_ptr<Component> ptr) {
+	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::shared_ptr<Component> ptr) {
 		for(auto &pairSystem : *systems.Get()) {
 			pairSystem.second->ComponentAdded(id, ti, ptr);
 		}
