@@ -242,7 +242,7 @@ GL32Renderer::~GL32Renderer() {
 	SDL(SDL_Quit());
 }
 
-void GL32Renderer::ComponentAdded(IDType id, const std::type_info *ti, std::weak_ptr<Component> ptr) {
+void GL32Renderer::ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) {
 	if(ti != &typeid(ModelComponent)) { return; }
 	auto model = static_cast<ModelComponent *>(ptr.lock().get());
 
@@ -414,7 +414,7 @@ void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 
-			GLenum internalFormat, format, type, attachment;
+			GLenum internalFormat = 0, format = 0, type = 0, attachment = 0;
 
 			/* WARNING: 3-component sized internal formats are not required to be renderable */
 			switch(out.type) {

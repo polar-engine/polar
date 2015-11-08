@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <boost/container/vector.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 #include "FileSystem.h"
 #include "System.h"
@@ -12,48 +13,44 @@
 #include "Chunk.h"
 #include "OpenSimplexNoise.h"
 
-enum class ChunkStatus {
-	Generating,
-	Alive,
-	Dying,
-	Dead
-};
-
-typedef std::tuple<int64_t, int64_t, int64_t> ChunkKeyType;
-typedef std::tuple<ChunkStatus, IDType> ChunkContainerType;
-typedef boost::unordered_map<ChunkKeyType, ChunkContainerType> ChunksType;
-
 class World : public System {
+public:
+	typedef std::tuple<int64_t, int64_t, int64_t> KeyType;
+	typedef std::tuple<boost::shared_ptr<Destructor>, IDType> ContainerType;
 private:
-	std::atomic_bool exists;
 	OpenSimplexNoise noise, noise2;
-	Atomic<ChunksType> chunks;
-	boost::unordered_map<ChunkKeyType, IDType> pickups;
+	boost::unordered_set<IDType> cameras;
+	boost::unordered_map<KeyType, ContainerType> chunks;
+	boost::unordered_map<KeyType, ContainerType> pickups;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 public:
 	float factor = 1;
-	const uint8_t viewDistance = 2;
+	const uint8_t viewDistance = 4;
 	const Point3 blockSize;
-	const glm::ivec3 chunkSize;
+	const Point3i chunkSize;
 
 	static bool IsSupported() { return true; }
 
 	World(Polar *engine, const Point3 &blockSize, const unsigned char chunkWidth, const unsigned char chunkHeight, const unsigned char chunkDepth)
-		: System(engine), blockSize(blockSize), chunkSize(chunkWidth, chunkHeight, chunkDepth) {
-		exists = true;
+		: System(engine), blockSize(blockSize), chunkSize(chunkWidth, chunkHeight, chunkDepth) {}
+
+	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) override final {
+		if(ti != &typeid(PlayerCameraComponent)) { return; }
+		cameras.emplace(id);
 	}
 
-	~World() {
-		exists = false;
+	inline void ComponentRemoved(IDType id, const std::type_info *ti) override final {
+		if(ti != &typeid(PlayerCameraComponent)) { return; }
+		cameras.erase(id);
 	}
 
-	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const glm::ivec3 &p) {
+	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const glm::ivec3 &p) const {
 		return BlockIndexForCoord(p.x, p.y, p.z);
 	}
 
-	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const unsigned char &x, const unsigned char &y, const unsigned char &z) {
+	inline boost::container::vector<Block>::size_type BlockIndexForCoord(const unsigned char &x, const unsigned char &y, const unsigned char &z) const {
 		return z * chunkSize.x * chunkSize.y + x * chunkSize.y + y;
 	}
 
@@ -86,13 +83,13 @@ public:
 		return std::make_pair(chunkCoord, coord - BlockCoordForChunkCoord(chunkCoord));
 	}
 
-	inline ChunkKeyType ChunkKeyForChunkCoord(const Point3 &coord) const {
+	inline KeyType ChunkKeyForChunkCoord(const Point3 &coord) const {
 		return std::make_tuple(static_cast<uint64_t>(coord.x),
 		                       static_cast<uint64_t>(coord.y),
 		                       static_cast<uint64_t>(coord.z));
 	}
 
-	inline Block GetBlock(const Point3 &coord) {
+	inline Block GetBlock(const Point3 &coord) const {
 		Point3 chunkCoord, blockCoord;
 		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
 		auto blocks = GetChunk(chunkCoord)->blocks;
@@ -110,45 +107,35 @@ public:
 	}
 
 	inline bool DamageBlock(const Point3 &coord, const float &damage) {
-		auto self = std::shared_ptr<World>(this);
+		Point3 chunkCoord, blockCoord;
+		std::tie(chunkCoord, blockCoord) = CoordsForBlockCoord(coord);
+		auto chunkTuple = ChunkKeyForChunkCoord(chunkCoord);
+		auto &container = chunks.at(chunkTuple);
+		auto chunk = static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
 
-		auto destroy = chunks.With<bool>([self, &coord, &damage] (ChunksType &chunks) {
-			Point3 chunkCoord, blockCoord;
-			std::tie(chunkCoord, blockCoord) = self->CoordsForBlockCoord(coord);
-			auto chunkTuple = self->ChunkKeyForChunkCoord(chunkCoord);
-			auto &container = chunks.at(chunkTuple);
-			auto chunk = static_cast<Chunk *>(self->engine->GetComponent<ModelComponent>(std::get<1>(container)));
-
-			auto index = self->BlockIndexForCoord(glm::ivec3(blockCoord));
-			return (chunk->blocks.at(index).health -= damage) < 0.0f;
-		});
+		auto index = BlockIndexForCoord(glm::ivec3(blockCoord));
+		auto destroy = (chunk->blocks.at(index).health -= damage) < 0.0f;
 
 		if(destroy) { SetBlock(coord, Block()); }
 		return destroy;
 	}
 
-	inline const ChunkContainerType GetChunkContainer(const Point3 &coord) {
-		auto chunkTuple = ChunkKeyForChunkCoord(coord);
-		return chunks.With<ChunkContainerType>([&chunkTuple] (ChunksType &chunks) {
-			return chunks.at(chunkTuple);
-		});
+	inline const ContainerType GetChunkContainer(const Point3 &coord) const {
+		return chunks.at(ChunkKeyForChunkCoord(coord));
 	}
 
-	inline const Chunk * GetChunk(const Point3 &coord) {
+	inline const Chunk * GetChunk(const Point3 &coord) const {
 		auto container = GetChunkContainer(coord);
 		return static_cast<Chunk *>(engine->GetComponent<ModelComponent>(std::get<1>(container)));
 	}
 
-	inline Chunk * CreateChunk(const Point3 &coord, const boost::container::vector<Block> &blocks, const bool &deferredToMain = false) {
-		auto self = std::shared_ptr<World>(this);
-
-		auto pos = new PositionComponent(PosForChunkCoord(coord));
-		auto chunk = new Chunk(chunkSize.x, chunkSize.y, chunkSize.z);
+	inline void CreateChunk(const Point3 &coord, const boost::container::vector<Block> &blocks) {
+		auto chunk = boost::make_shared<Chunk>(chunkSize.x, chunkSize.y, chunkSize.z);
 		chunk->blocks = blocks;
 		chunk->Generate(blockSize);
-		auto bounds = new BoundingComponent(Point3(0.0f), Point3(chunkSize), true);
 
 		/* add all block bounding boxes in chunk as children */
+		auto bounds = boost::make_shared<BoundingComponent>(Point3(0.0f), Point3(chunkSize), true);
 		for(unsigned char x = 0; x < chunkSize.x; ++x) {
 			for(unsigned char y = 0; y < chunkSize.y; ++y) {
 				for(unsigned char z = 0; z < chunkSize.z; ++z) {
@@ -159,58 +146,18 @@ public:
 			}
 		}
 
-		auto chunkTuple = ChunkKeyForChunkCoord(coord);
-		if(deferredToMain) {
-			if(!exists) { return chunk; }
-
-			auto weak = engine->GetSystem<JobManager>();
-			if(weak.expired()) { return chunk; }
-
-			auto jobM = weak.lock();
-			jobM->Do([self, chunkTuple, pos, chunk, bounds] () {
-				if(!self->exists) { return; }
-
-				IDType id;
-				self->dtors.emplace_back(self->engine->AddObject(&id));
-				self->engine->AddComponent<TagComponent<Chunk>>(id);
-				self->engine->InsertComponent<PositionComponent>(id, pos);
-				self->engine->InsertComponent<ModelComponent>(id, chunk);
-				self->engine->InsertComponent<BoundingComponent>(id, bounds);
-				self->chunks.With([&chunkTuple, id] (ChunksType &chunks) {
-					if(chunks.find(chunkTuple) != chunks.end()) {
-						chunks.at(chunkTuple) = std::make_tuple(ChunkStatus::Alive, id);
-					}
-				});
-			}, JobPriority::High, JobThread::Main);
-		} else {
-			IDType id;
-			dtors.emplace_back(engine->AddObject(&id));
-			engine->InsertComponent<PositionComponent>(id, pos);
-			engine->InsertComponent<ModelComponent>(id, chunk);
-			engine->InsertComponent<BoundingComponent>(id, bounds);
-			chunks.With([&chunkTuple, id] (ChunksType &chunks) {
-				chunks[chunkTuple] = std::make_tuple(ChunkStatus::Alive, id);
-			});
-		}
-
-		return chunk;
+		IDType id;
+		auto dtor = engine->AddObject(&id);
+		engine->AddComponent<PositionComponent>(id, PosForChunkCoord(coord));
+		engine->InsertComponent<ModelComponent>(id, chunk);
+		engine->InsertComponent<BoundingComponent>(id, bounds);
+		chunks[ChunkKeyForChunkCoord(coord)] = std::make_tuple(dtor, id);
 	}
 
-	inline void DestroyChunk(const Point3 &coord, const bool &deferredToMain = false) { 
-		auto self = std::shared_ptr<World>(this);
-
+	inline void DestroyChunk(const Point3 &coord) {
 		auto chunkTuple = ChunkKeyForChunkCoord(coord);
-		ChunkContainerType container = chunks.With<ChunkContainerType>([&chunkTuple] (ChunksType &chunks) {
-			auto container = chunks.at(chunkTuple);
-			chunks.erase(chunkTuple);
-			return container;
-		});
-		if(deferredToMain) {
-			auto jobM = engine->GetSystem<JobManager>().lock();
-			jobM->Do([self, container] () { self->engine->RemoveObject(std::get<1>(container)); }, JobPriority::Low, JobThread::Main);
-		} else {
-			engine->RemoveObject(std::get<1>(container));
-		}
+		auto container = chunks.at(chunkTuple);
+		chunks.erase(chunkTuple);
 	}
 
 	inline void SetBlockAtPos(const Point3 &pos, const bool &value) {

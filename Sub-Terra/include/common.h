@@ -56,9 +56,15 @@ typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> 
 typedef glm::fvec2 EnginePoint2;
 typedef glm::fvec3 EnginePoint3;
 typedef glm::fvec4 EnginePoint4;
+typedef glm::ivec2 EnginePoint2i;
+typedef glm::ivec3 EnginePoint3i;
+typedef glm::ivec4 EnginePoint4i;
 #define Point2 EnginePoint2
 #define Point3 EnginePoint3
 #define Point4 EnginePoint4
+#define Point2i EnginePoint2i
+#define Point3i EnginePoint3i
+#define Point4i EnginePoint4i
 typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 #define Triangle EngineTriangle
 
