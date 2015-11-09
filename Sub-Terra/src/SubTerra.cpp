@@ -21,7 +21,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world")});
 
-		st.AddSystem<JobManager>();
+		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();

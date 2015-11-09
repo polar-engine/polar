@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include "System.h"
 #include "Integrable.h"
 
@@ -12,8 +13,9 @@ protected:
 public:
 	const int fps = 50;
 	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
+	std::atomic_uint32_t alphaMicroseconds = {0};
 
 	static bool IsSupported() { return true; }
 	Integrator(Polar *engine) : System(engine) {}
-	const DeltaTicks & Accumulator() { return accumulator; }
+	const inline DeltaTicks & Accumulator() const { return accumulator; }
 };
