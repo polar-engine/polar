@@ -1,7 +1,8 @@
 #pragma once
 
-#include <atomic>
 #include <boost/array.hpp>
+#include <boost/container/deque.hpp>
+#include <boost/container/vector.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 #include "sdl.h"
@@ -23,63 +24,82 @@ struct PipelineNode {
 
 class GL32ModelProperty : public Property {
 public:
-	const GLsizei numVertices;
-	const GLuint vao;
-	const std::vector<GLuint> vbos;
-	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, const std::vector<GLuint> &vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
-	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, std::vector<GLuint> &&vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
+	GLuint vao;
+	std::vector<GLuint> vbos;
+	GLsizei numVertices;
 };
 
 class GL32Renderer : public Renderer {
 private:
 	SDL_Window *window;
 	SDL_GLContext context;
-	std::vector<std::string> pipelineNames;
-	std::vector<PipelineNode> nodes;
+	boost::container::vector<std::string> pipelineNames;
+	boost::container::vector<PipelineNode> nodes;
+	boost::container::vector<boost::shared_ptr<GL32ModelProperty>> modelPropertyPool;
+
 	GLuint viewportVAO;
 
-	void InitGL();
-	void HandleSDL(SDL_Event &);
-	GLuint MakeProgram(ShaderProgramAsset &);
-protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
+
+	inline boost::shared_ptr<GL32ModelProperty> GetPooledModelProperty() {
+		if(modelPropertyPool.empty()) {
+			GL32ModelProperty prop;
+
+			GL(glGenVertexArrays(1, &prop.vao));
+			GL(glBindVertexArray(prop.vao));
+
+			/* location   attribute
+			 *
+			 *        0   vertex
+			 *        1   normal
+			 */
+
+			prop.vbos.resize(2);
+			GL(glGenBuffers(2, &prop.vbos[0]));
+
+			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
+			GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+
+			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[1]));
+			GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+
+			GL(glEnableVertexAttribArray(0));
+			GL(glEnableVertexAttribArray(1));
+
+			return boost::make_shared<GL32ModelProperty>(prop);
+		} else {
+			auto prop = modelPropertyPool.back();
+			modelPropertyPool.pop_back();
+			return prop;
+		}
+	}
 
 	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) override final {
 		if(ti != &typeid(ModelComponent)) { return; }
 		auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
-
-		GLuint vao;
-		GL(glGenVertexArrays(1, &vao));
-		GL(glBindVertexArray(vao));
-
-		/* location   attribute
-		*
-		*        0   vertex
-		*        1   normal
-		*/
-
-		GLuint vbos[2];
-		GL(glGenBuffers(2, vbos));
-
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
-
+		auto prop = GetPooledModelProperty();
 		auto normals = model->CalculateNormals();
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * normals.size(), normals.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+		auto numVertices = normals.size();
+		auto dataSize = sizeof(Point3) * numVertices;
 
-		GL(glEnableVertexAttribArray(0));
-		GL(glEnableVertexAttribArray(1));
+		if(numVertices > prop->numVertices) {
+			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
+			GL(glBufferData(GL_ARRAY_BUFFER, dataSize, model->points.data(), GL_DYNAMIC_DRAW));
 
-		std::vector<GLuint> vbosVector;
-		for(unsigned int i = 0; i < sizeof(vbos) / sizeof(*vbos); ++i) {
-			vbosVector.emplace_back(vbos[i]);
+			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
+			GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(), GL_DYNAMIC_DRAW));
+		} else {
+			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
+			GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, model->points.data()));
+
+			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
+			GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, normals.data()));
 		}
 
-		model->Add<GL32ModelProperty>(static_cast<GLsizei>(model->points.size()), vao, vbosVector);
+		prop->numVertices = numVertices;
+
+		model->Add<GL32ModelProperty>(prop);
 		//model->points.clear();
 		//model->points.shrink_to_fit();
 	}
@@ -89,13 +109,9 @@ protected:
 		auto model = engine->GetComponent<ModelComponent>(id);
 
 		if(model != nullptr) {
-			auto property = model->Get<GL32ModelProperty>().lock();
-			if(property) {
-				for(auto vbo : property->vbos) {
-					GL(glDeleteBuffers(1, &vbo));
-				}
-				GL(glDeleteVertexArrays(1, &property->vao));
-				model->Remove<GL32ModelProperty>();
+			auto prop = model->Get<GL32ModelProperty>().lock();
+			if(prop) {
+				modelPropertyPool.emplace_back(prop);
 			}
 		}
 	}
@@ -113,13 +129,17 @@ protected:
 		//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / h, zNear);
 		GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 	}
+
+	void InitGL();
+	void HandleSDL(SDL_Event &);
+	GLuint MakeProgram(ShaderProgramAsset &);
 public:
 	boost::unordered_map<std::string, float> uniforms;
 
 	static bool IsSupported();
-	GL32Renderer(Polar *engine, const std::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
+	GL32Renderer(Polar *engine, const boost::container::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();
-	void MakePipeline(const std::vector<std::string> &) override final;
+	void MakePipeline(const boost::container::vector<std::string> &) override final;
 
 	inline void SetClearColor(const Point4 &color) override final {
 		GL(glClearColor(color.x, color.y, color.z, color.w));

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/container/vector.hpp>
 #include "System.h"
 
 class Renderer : public System {
@@ -14,5 +15,5 @@ public:
 	static bool IsSupported() { return false; }
 	Renderer(Polar *engine) : System(engine) {}
 	virtual void SetClearColor(const Point4 &) = 0;
-	virtual void MakePipeline(const std::vector<std::string> &) = 0;
+	virtual void MakePipeline(const boost::container::vector<std::string> &) = 0;
 };
