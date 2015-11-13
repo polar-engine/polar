@@ -1,8 +1,9 @@
 #pragma once
 
+#include <functional>
 #include <boost/array.hpp>
-#include <boost/container/deque.hpp>
 #include <boost/container/vector.hpp>
+#include <boost/container/flat_set.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 #include "sdl.h"
@@ -22,11 +23,21 @@ struct PipelineNode {
 	PipelineNode(GLuint program) : program(program) {}
 };
 
-class GL32ModelProperty : public Property {
-public:
+struct GL32ModelProperty : public Property {
 	GLuint vao;
 	std::vector<GLuint> vbos;
-	GLsizei numVertices;
+	GLsizei numVertices = 0;
+	GLsizei capacity = 0;
+
+	inline friend bool operator<(const GL32ModelProperty &left, const GL32ModelProperty &right) {
+		return left.capacity < right.capacity;
+	}
+};
+
+template<typename T> struct SharedPtrLess : public std::binary_function<boost::shared_ptr<T>, boost::shared_ptr<T>, bool> {
+	inline bool operator()(const boost::shared_ptr<T> &left, const boost::shared_ptr<T> &right) const {
+		return *left < *right;
+	}
 };
 
 class GL32Renderer : public Renderer {
@@ -35,14 +46,14 @@ private:
 	SDL_GLContext context;
 	boost::container::vector<std::string> pipelineNames;
 	boost::container::vector<PipelineNode> nodes;
-	boost::container::vector<boost::shared_ptr<GL32ModelProperty>> modelPropertyPool;
+	boost::container::flat_multiset<boost::shared_ptr<GL32ModelProperty>, SharedPtrLess<GL32ModelProperty>> modelPropertyPool;
 
 	GLuint viewportVAO;
 
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 
-	inline boost::shared_ptr<GL32ModelProperty> GetPooledModelProperty() {
+	inline boost::shared_ptr<GL32ModelProperty> GetPooledModelProperty(const GLsizei required) {
 		if(modelPropertyPool.empty()) {
 			GL32ModelProperty prop;
 
@@ -69,32 +80,40 @@ private:
 
 			return boost::make_shared<GL32ModelProperty>(prop);
 		} else {
-			auto prop = modelPropertyPool.back();
-			modelPropertyPool.pop_back();
+			auto dummy = boost::make_shared<GL32ModelProperty>();
+			dummy->capacity = required;
+
+			auto it = modelPropertyPool.lower_bound(dummy);
+			if(it == modelPropertyPool.cend()) { it = modelPropertyPool.begin(); }
+
+			auto prop = *it;
+			modelPropertyPool.erase(it);
 			return prop;
 		}
 	}
 
-	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) override final {
-		if(ti != &typeid(ModelComponent)) { return; }
-		auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
-		auto prop = GetPooledModelProperty();
+	inline void UploadModel(boost::shared_ptr<ModelComponent> model) {
 		auto normals = model->CalculateNormals();
 		auto numVertices = normals.size();
 		auto dataSize = sizeof(Point3) * numVertices;
+		auto prop = GetPooledModelProperty(numVertices);
 
-		if(numVertices > prop->numVertices) {
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
-			GL(glBufferData(GL_ARRAY_BUFFER, dataSize, model->points.data(), GL_DYNAMIC_DRAW));
+		if(numVertices > 0) {
+			if(GLsizei(numVertices) > prop->capacity) {
+				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
+				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, model->points.data(), GL_DYNAMIC_DRAW));
 
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
-			GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(), GL_DYNAMIC_DRAW));
-		} else {
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
-			GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, model->points.data()));
+				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
+				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(), GL_DYNAMIC_DRAW));
 
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
-			GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, normals.data()));
+				prop->capacity = numVertices;
+			} else {
+				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
+				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, model->points.data()));
+
+				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
+				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, normals.data()));
+			}
 		}
 
 		prop->numVertices = numVertices;
@@ -104,6 +123,12 @@ private:
 		//model->points.shrink_to_fit();
 	}
 
+	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) override final {
+		if(ti != &typeid(ModelComponent)) { return; }
+		auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
+		UploadModel(model);
+	}
+
 	inline void ComponentRemoved(IDType id, const std::type_info *ti) override final {
 		if(ti != &typeid(ModelComponent)) { return; }
 		auto model = engine->GetComponent<ModelComponent>(id);
@@ -111,7 +136,7 @@ private:
 		if(model != nullptr) {
 			auto prop = model->Get<GL32ModelProperty>().lock();
 			if(prop) {
-				modelPropertyPool.emplace_back(prop);
+				modelPropertyPool.emplace(prop);
 			}
 		}
 	}
