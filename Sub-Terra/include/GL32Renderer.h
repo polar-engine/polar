@@ -31,28 +31,7 @@ public:
 };
 
 class GL32Renderer : public Renderer {
-public:
-	enum class MessageType {
-		Add,
-		Remove,
-		Stop
-	};
-
-	struct Message {
-		static Message Add(IDType id, boost::shared_ptr<ModelComponent> model) { return Message{MessageType::Add, id, model}; }
-		static Message Remove(IDType id) { return Message{MessageType::Remove, id}; }
-		static Message Stop() { return Message{MessageType::Stop}; }
-
-		MessageType type;
-		IDType id;
-		boost::shared_ptr<ModelComponent> model;
-	};
 private:
-	static const int channelSize = 8192;
-	boost::array<Message, channelSize> channel;
-	std::atomic_int channelWaiting = {0};
-	int channelIndex = 0;
-
 	SDL_Window *window;
 	SDL_GLContext context;
 	std::vector<std::string> pipelineNames;
