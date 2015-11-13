@@ -18,12 +18,12 @@ public:
 	typedef std::tuple<int64_t, int64_t, int64_t> KeyType;
 	typedef std::tuple<boost::shared_ptr<Destructor>, IDType> ContainerType;
 private:
-	OpenSimplexNoise noise, noise2;
+	OpenSimplexNoise noise = OpenSimplexNoise(std::random_device()());
+	OpenSimplexNoise noise2 = OpenSimplexNoise(std::random_device()());
 	boost::unordered_set<IDType> cameras;
 	boost::unordered_map<KeyType, ContainerType> chunks;
 	boost::unordered_map<KeyType, ContainerType> pickups;
 protected:
-	void Init() override final;
 	void Update(DeltaTicks &) override final;
 public:
 	float factor = 1;
@@ -195,10 +195,7 @@ public:
 
 	inline bool GenerateBlock(const Point3 &&p) const {
 		const float scale1 = 17.0f;
-		const float scale2 = scale1 / 17.0f * 8.0f;
-		auto eval1 = noise.eval(p.x / scale1, p.y / scale1, p.z / scale1);
-		auto eval2 = noise2.eval(p.x / scale1, p.y / scale1, p.z / scale1);
-
-		return eval1 > 0.25 || eval2 > 0.25 + 0.75 * factor;
+		auto scaled = p / scale1;
+		return noise.eval(scaled) > 0.25 || noise2.eval(scaled) > 0.25 + 0.75 * factor;
 	}
 };

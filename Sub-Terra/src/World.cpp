@@ -3,13 +3,6 @@
 #include "FileSystem.h"
 #include "endian.h"
 
-void World::Init() {
-	uint32_t seed = std::random_device()();
-	uint32_t seed2 = std::random_device()();
-	noise = OpenSimplexNoise(seed);
-	noise2 = OpenSimplexNoise(seed2);
-}
-
 void World::Update(DeltaTicks &) {
 	auto jobM = engine->GetSystem<JobManager>().lock();
 	auto &eng = engine;
