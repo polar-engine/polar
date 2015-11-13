@@ -21,6 +21,15 @@ struct PipelineNode {
 	PipelineNode(GLuint program) : program(program) {}
 };
 
+class GL32ModelProperty : public Property {
+public:
+	const GLsizei numVertices;
+	const GLuint vao;
+	const std::vector<GLuint> vbos;
+	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, const std::vector<GLuint> &vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
+	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, std::vector<GLuint> &&vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
+};
+
 class GL32Renderer : public Renderer {
 public:
 	enum class MessageType {
@@ -44,8 +53,6 @@ private:
 	std::atomic_int channelWaiting = {0};
 	int channelIndex = 0;
 
-	bool threaded = false;
-	std::thread thread;
 	SDL_Window *window;
 	SDL_GLContext context;
 	std::vector<std::string> pipelineNames;
@@ -57,15 +64,45 @@ private:
 	GLuint MakeProgram(ShaderProgramAsset &);
 protected:
 	void Init() override final;
+	void Update(DeltaTicks &) override final;
 
 	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) override final {
 		if(ti != &typeid(ModelComponent)) { return; }
 		auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
 
-		channel[channelIndex] = Message::Add(id, model);
-		++channelWaiting;
-		++channelIndex;
-		if(channelIndex == channelSize) { channelIndex = 0; }
+		GLuint vao;
+		GL(glGenVertexArrays(1, &vao));
+		GL(glBindVertexArray(vao));
+
+		/* location   attribute
+		*
+		*        0   vertex
+		*        1   normal
+		*/
+
+		GLuint vbos[2];
+		GL(glGenBuffers(2, vbos));
+
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * model->points.size(), model->points.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+
+		auto normals = model->CalculateNormals();
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * normals.size(), normals.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+
+		GL(glEnableVertexAttribArray(0));
+		GL(glEnableVertexAttribArray(1));
+
+		std::vector<GLuint> vbosVector;
+		for(unsigned int i = 0; i < sizeof(vbos) / sizeof(*vbos); ++i) {
+			vbosVector.emplace_back(vbos[i]);
+		}
+
+		model->Add<GL32ModelProperty>(static_cast<GLsizei>(model->points.size()), vao, vbosVector);
+		//model->points.clear();
+		//model->points.shrink_to_fit();
 	}
 
 	inline void ComponentRemoved(IDType id, const std::type_info *ti) override final {
@@ -73,10 +110,14 @@ protected:
 		auto model = engine->GetComponent<ModelComponent>(id);
 
 		if(model != nullptr) {
-			channel[channelIndex] = Message::Remove(id);
-			++channelWaiting;
-			++channelIndex;
-			if(channelIndex == channelSize) { channelIndex = 0; }
+			auto property = model->Get<GL32ModelProperty>().lock();
+			if(property) {
+				for(auto vbo : property->vbos) {
+					GL(glDeleteBuffers(1, &vbo));
+				}
+				GL(glDeleteVertexArrays(1, &property->vao));
+				model->Remove<GL32ModelProperty>();
+			}
 		}
 	}
 

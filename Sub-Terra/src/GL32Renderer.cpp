@@ -8,15 +8,6 @@
 #include "OrientationComponent.h"
 #include "PlayerCameraComponent.h"
 
-class GL32ModelProperty : public Property {
-public:
-	const GLsizei numVertices;
-	const GLuint vao;
-	const std::vector<GLuint> vbos;
-	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, const std::vector<GLuint> &vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
-	GL32ModelProperty(const GLsizei numVertices, const GLuint vao, std::vector<GLuint> &&vbos) : numVertices(numVertices), vao(vao), vbos(vbos) {}
-};
-
 bool GL32Renderer::IsSupported() {
 	GL32Renderer renderer(nullptr, {});
 	try {
@@ -73,52 +64,83 @@ void GL32Renderer::InitGL() {
 }
 
 void GL32Renderer::Init() {
+	InitGL();
+
+	SetClearColor(Point4(0.0f));
+
+	GL(glGenVertexArrays(1, &viewportVAO));
+	GL(glBindVertexArray(viewportVAO));
+
+	GLuint vbo;
+	GL(glGenBuffers(1, &vbo));
+
+	std::vector<Point2> points = {
+		Point2(-1, -1),
+		Point2(1, -1),
+		Point2(-1,  1),
+		Point2(1,  1)
+	};
+
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point2) * 4, points.data(), GL_STATIC_DRAW));
+	GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
+
+	GL(glEnableVertexAttribArray(0));
+
+	MakePipeline(pipelineNames);
+}
+
+void GL32Renderer::Update(DeltaTicks &) {
+	SDL_Event event;
+	while(SDL_PollEvent(&event)) {
+		HandleSDL(event);
+	}
+	SDL_ClearError();
+
 	auto integrator = engine->GetSystem<Integrator>().lock();
+	float alpha = integrator->alphaMicroseconds / 1000000.0f;
 
-	threaded = true;
-	thread = std::thread([this, integrator] {
-		InitGL();
+	glm::mat4 cameraView;
+	auto pairRight = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
+	for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+		auto camera = static_cast<PlayerCameraComponent *>(itRight->info.get());
 
-		SetClearColor(Point4(0.0f));
+		PositionComponent *pos = nullptr;
+		OrientationComponent *orient = nullptr;
 
-		GL(glGenVertexArrays(1, &viewportVAO));
-		GL(glBindVertexArray(viewportVAO));
+		auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
+		for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
+			auto type = itLeft->get_right();
+			if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); } else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
+		}
 
-		GLuint vbo;
-		GL(glGenBuffers(1, &vbo));
+		cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
+		cameraView *= glm::toMat4(camera->orientation);
+		if(orient != nullptr) { cameraView *= glm::toMat4(orient->orientation); }
+		cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<Point3>());
+		if(pos != nullptr) { cameraView = glm::translate(cameraView, -pos->position.Temporal(alpha).To<Point3>()); }
+	}
 
-		std::vector<Point2> points = {
-			Point2(-1, -1),
-			Point2(1, -1),
-			Point2(-1,  1),
-			Point2(1,  1)
-		};
+	std::unordered_map<std::string, GLuint> globals;
+	for(unsigned int i = 0; i < nodes.size(); ++i) {
+		auto &node = nodes[i];
 
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point2) * 4, points.data(), GL_STATIC_DRAW));
-		GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
+		GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
+		GL(glUseProgram(node.program));
+		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		GL(glEnableVertexAttribArray(0));
+		switch(i) {
+		case 0: {
+			GLint locView;
+			GL(locView = glGetUniformLocation(node.program, "u_view"));
+			GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
+			GLint locModel;
+			GL(locModel = glGetUniformLocation(node.program, "u_model"));
 
-		MakePipeline(pipelineNames);
-
-		boost::container::flat_map<IDType, boost::shared_ptr<ModelComponent>> models;
-		int channelIndexStream = 0;
-		bool running = true;
-
-		while(running) {
-			SDL_Event event;
-			while(SDL_PollEvent(&event)) {
-				HandleSDL(event);
-			}
-			SDL_ClearError();
-
-			float alpha = integrator->alphaMicroseconds / 1000000.0f;
-
-			glm::mat4 cameraView;
-			auto pairRight = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
+			auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
 			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-				auto camera = static_cast<PlayerCameraComponent *>(itRight->info.get());
+				auto model = static_cast<ModelComponent *>(itRight->info.get());
+				glm::mat4 modelMatrix;
 
 				PositionComponent *pos = nullptr;
 				OrientationComponent *orient = nullptr;
@@ -129,189 +151,76 @@ void GL32Renderer::Init() {
 					if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); } else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
 				}
 
-				cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
-				cameraView *= glm::toMat4(camera->orientation);
-				if(orient != nullptr) { cameraView *= glm::toMat4(orient->orientation); }
-				cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<Point3>());
-				if(pos != nullptr) { cameraView = glm::translate(cameraView, -pos->position.Temporal(alpha).To<Point3>()); }
-			}
+				auto property = model->Get<GL32ModelProperty>().lock();
+				if(property) {
+					glm::mat4 modelView = cameraView;
 
-			std::unordered_map<std::string, GLuint> globals;
-			for(unsigned int i = 0; i < nodes.size(); ++i) {
-				auto &node = nodes[i];
+					if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<glm::vec3>()); }
+					if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orientation)); }
 
-				GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
-				GL(glUseProgram(node.program));
-				GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-				switch(i) {
-				case 0: {
-					GLint locView;
-					GL(locView = glGetUniformLocation(node.program, "u_view"));
-					GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
-					GLint locModel;
-					GL(locModel = glGetUniformLocation(node.program, "u_model"));
-
-					for(auto &pair : models) {
-						auto modelID = pair.first;
-						auto &model = pair.second;
-						glm::mat4 modelMatrix;
-
-						PositionComponent *pos = nullptr;
-						OrientationComponent *orient = nullptr;
-
-						auto pairLeft = engine->objects.left.equal_range(modelID);
-						for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
-							auto type = itLeft->get_right();
-							if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); } else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
-						}
-
-						auto property = model->Get<GL32ModelProperty>().lock();
-						if(property) {
-							glm::mat4 modelView = cameraView;
-
-							if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<glm::vec3>()); }
-							if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orientation)); }
-
-							GLenum drawMode = GL_TRIANGLES;
-							switch(model->type) {
-							case GeometryType::Lines:
-								drawMode = GL_LINES;
-								break;
-							case GeometryType::Triangles:
-								drawMode = GL_TRIANGLES;
-								break;
-							case GeometryType::TriangleStrip:
-								drawMode = GL_TRIANGLE_STRIP;
-								break;
-							case GeometryType::None:
-								break;
-							}
-
-							GL(glUniformMatrix4fv(locModel, 1, GL_FALSE, glm::value_ptr(modelMatrix)));
-							GL(glBindVertexArray(property->vao));
-							GL(glDrawArrays(drawMode, 0, property->numVertices));
-						}
-					}
-					break;
-				}
-				default:
-					for(auto &pair : nodes[i - 1].globalOuts) { /* for each previous global output */
-						globals.emplace(pair);
-					}
-					unsigned int b = 0;
-					for(auto &pair : node.ins) { /* for each input */
-						auto buffer = nodes[i - 1].outs[pair.first];
-						GL(glActiveTexture(GL_TEXTURE0 + b));
-						GL(glBindTexture(GL_TEXTURE_2D, buffer));
-
-						GLint locBuffer;
-						GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
-						GL(glUniform1i(locBuffer, b));
-						++b;
-					}
-					for(auto &pair : node.globalIns) { /* for each global input*/
-						auto buffer = globals[pair.first];
-						GL(glActiveTexture(GL_TEXTURE0 + b));
-						GL(glBindTexture(GL_TEXTURE_2D, buffer));
-
-						GLint locBuffer;
-						GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
-						GL(glUniform1i(locBuffer, b));
-						++b;
+					GLenum drawMode = GL_TRIANGLES;
+					switch(model->type) {
+					case GeometryType::Lines:
+						drawMode = GL_LINES;
+						break;
+					case GeometryType::Triangles:
+						drawMode = GL_TRIANGLES;
+						break;
+					case GeometryType::TriangleStrip:
+						drawMode = GL_TRIANGLE_STRIP;
+						break;
+					case GeometryType::None:
+						break;
 					}
 
-					GL(glBindVertexArray(viewportVAO));
-					GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-
-					break;
+					GL(glUniformMatrix4fv(locModel, 1, GL_FALSE, glm::value_ptr(modelMatrix)));
+					GL(glBindVertexArray(property->vao));
+					GL(glDrawArrays(drawMode, 0, property->numVertices));
 				}
 			}
-
-			SDL(SDL_GL_SwapWindow(window));
-
-			while(channelWaiting > 0) {
-				auto msg = channel[channelIndexStream];
-				switch(msg.type) {
-				case MessageType::Add: {
-					GLuint vao;
-					GL(glGenVertexArrays(1, &vao));
-					GL(glBindVertexArray(vao));
-
-					/* location   attribute
-					*
-					*        0   vertex
-					*        1   normal
-					*/
-
-					GLuint vbos[2];
-					GL(glGenBuffers(2, vbos));
-
-					GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[0]));
-					GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * msg.model->points.size(), msg.model->points.data(), GL_STATIC_DRAW));
-					GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
-
-					auto normals = msg.model->CalculateNormals();
-					GL(glBindBuffer(GL_ARRAY_BUFFER, vbos[1]));
-					GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point3) * normals.size(), normals.data(), GL_STATIC_DRAW));
-					GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
-
-					GL(glEnableVertexAttribArray(0));
-					GL(glEnableVertexAttribArray(1));
-
-					std::vector<GLuint> vbosVector;
-					for(unsigned int i = 0; i < sizeof(vbos) / sizeof(*vbos); ++i) {
-						vbosVector.emplace_back(vbos[i]);
-					}
-
-					msg.model->Add<GL32ModelProperty>(static_cast<GLsizei>(msg.model->points.size()), vao, vbosVector);
-					msg.model->points.clear();
-					msg.model->points.shrink_to_fit();
-					models.emplace(msg.id, msg.model);
-					break;
-				}
-				case MessageType::Remove: {
-					auto model = models[msg.id];
-					auto property = model->Get<GL32ModelProperty>().lock();
-					if(property) {
-						for(auto vbo : property->vbos) {
-							GL(glDeleteBuffers(1, &vbo));
-						}
-						GL(glDeleteVertexArrays(1, &property->vao));
-						model->Remove<GL32ModelProperty>();
-					}
-					break;
-				}
-				case MessageType::Stop:
-					SDL(SDL_GL_DeleteContext(context));
-					SDL(SDL_DestroyWindow(window));
-					SDL(SDL_GL_ResetAttributes());
-					SDL(SDL_Quit());
-					running = false;
-					break;
-				}
-				--channelWaiting;
-				++channelIndexStream;
-				if(channelIndexStream == channelSize) { channelIndexStream = 0; }
-			}
+			break;
 		}
-	});
+		default:
+			for(auto &pair : nodes[i - 1].globalOuts) { /* for each previous global output */
+				globals.emplace(pair);
+			}
+			unsigned int b = 0;
+			for(auto &pair : node.ins) { /* for each input */
+				auto buffer = nodes[i - 1].outs[pair.first];
+				GL(glActiveTexture(GL_TEXTURE0 + b));
+				GL(glBindTexture(GL_TEXTURE_2D, buffer));
+
+				GLint locBuffer;
+				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
+				GL(glUniform1i(locBuffer, b));
+				++b;
+			}
+			for(auto &pair : node.globalIns) { /* for each global input*/
+				auto buffer = globals[pair.first];
+				GL(glActiveTexture(GL_TEXTURE0 + b));
+				GL(glBindTexture(GL_TEXTURE_2D, buffer));
+
+				GLint locBuffer;
+				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
+				GL(glUniform1i(locBuffer, b));
+				++b;
+			}
+
+			GL(glBindVertexArray(viewportVAO));
+			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+
+			break;
+		}
+	}
+
+	SDL(SDL_GL_SwapWindow(window));
 }
 
 GL32Renderer::~GL32Renderer() {
-	if(threaded) {
-		channel[channelIndex] = Message::Stop();
-		++channelWaiting;
-		++channelIndex;
-		if(channelIndex == channelSize) { channelIndex = 0; }
-
-		if(thread.joinable()) { thread.join(); }
-	} else {
-		SDL(SDL_GL_DeleteContext(context));
-		SDL(SDL_DestroyWindow(window));
-		SDL(SDL_GL_ResetAttributes());
-		SDL(SDL_Quit());
-	}
+	SDL(SDL_GL_DeleteContext(context));
+	SDL(SDL_DestroyWindow(window));
+	SDL(SDL_GL_ResetAttributes());
+	SDL(SDL_Quit());
 }
 
 void GL32Renderer::HandleSDL(SDL_Event &event) {
