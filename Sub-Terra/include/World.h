@@ -196,6 +196,8 @@ public:
 	inline bool GenerateBlock(const Point3 &&p) const {
 		const float scale1 = 17.0f;
 		auto scaled = p / scale1;
-		return noise.eval(scaled) > 0.25 || noise2.eval(scaled) > 0.25 + 0.75 * factor;
+		return
+			noise.eval(scaled.x, scaled.y, scaled.z) > 0.25 ||
+			noise2.eval(scaled.x, scaled.y, scaled.z) > 0.25 + 0.75 * factor;
 	}
 };

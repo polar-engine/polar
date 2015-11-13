@@ -136,6 +136,7 @@
     <ClCompile Include="src\Integrator.cpp" />
     <ClCompile Include="src\JobManager.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\OpenSimplexNoise.cpp" />
     <ClCompile Include="src\SpatialIndex.cpp" />
     <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
