@@ -1,17 +1,19 @@
 #pragma once
 
 class OpenSimplexNoise {
+public:
+	typedef float DecimalType;
 private:
-	double STRETCH_CONSTANT_2D = -0.211324865405187;   // (1/Math.sqrt(2+1)-1)/2;
-	double SQUISH_CONSTANT_2D  =  0.366025403784439;   //   (Math.sqrt(2+1)-1)/2;
-	double STRETCH_CONSTANT_3D = -1.0 / 6;             // (1/Math.sqrt(3+1)-1)/3;
-	double SQUISH_CONSTANT_3D  =  1.0 / 3;             //   (Math.sqrt(3+1)-1)/3;
-	double STRETCH_CONSTANT_4D = -0.138196601125011;   // (1/Math.sqrt(4+1)-1)/4;
-	double SQUISH_CONSTANT_4D  =  0.309016994374947;   //   (Math.sqrt(4+1)-1)/4;
+	const DecimalType STRETCH_CONSTANT_2D = -0.211324865405187;   // (1/Math.sqrt(2+1)-1)/2;
+	const DecimalType SQUISH_CONSTANT_2D  =  0.366025403784439;   //   (Math.sqrt(2+1)-1)/2;
+	const DecimalType STRETCH_CONSTANT_3D = -1.0 / 6;             // (1/Math.sqrt(3+1)-1)/3;
+	const DecimalType SQUISH_CONSTANT_3D  =  1.0 / 3;             //   (Math.sqrt(3+1)-1)/3;
+	const DecimalType STRETCH_CONSTANT_4D = -0.138196601125011;   // (1/Math.sqrt(4+1)-1)/4;
+	const DecimalType SQUISH_CONSTANT_4D  =  0.309016994374947;   //   (Math.sqrt(4+1)-1)/4;
 
-	double NORM_CONSTANT_2D = 47;
-	double NORM_CONSTANT_3D = 103;
-	double NORM_CONSTANT_4D = 30;
+	const DecimalType NORM_CONSTANT_2D = 47;
+	const DecimalType NORM_CONSTANT_3D = 103;
+	const DecimalType NORM_CONSTANT_4D = 30;
 
 	static const int64_t DEFAULT_SEED = 0;
 
@@ -50,58 +52,58 @@ public:
 	}
 
 	// 2D OpenSimplex (Simplectic) Noise.
-	inline double eval(const double x, const double y) const {
+	inline DecimalType eval(const DecimalType x, const DecimalType y) const {
 		// Place input coordinates onto grid.
-		double stretchOffset = (x + y) * STRETCH_CONSTANT_2D;
-		double xs = x + stretchOffset;
-		double ys = y + stretchOffset;
+		DecimalType stretchOffset = (x + y) * STRETCH_CONSTANT_2D;
+		DecimalType xs = x + stretchOffset;
+		DecimalType ys = y + stretchOffset;
 
 		// Floor to get grid coordinates of rhombus (stretched square) super-cell origin.
 		int32_t xsb = fastFloor(xs);
 		int32_t ysb = fastFloor(ys);
 
 		// Skew out to get actual coordinates of rhombus origin. We'll need these later.
-		double squishOffset = (xsb + ysb) * SQUISH_CONSTANT_2D;
-		double xb = xsb + squishOffset;
-		double yb = ysb + squishOffset;
+		DecimalType squishOffset = (xsb + ysb) * SQUISH_CONSTANT_2D;
+		DecimalType xb = xsb + squishOffset;
+		DecimalType yb = ysb + squishOffset;
 
 		// Compute grid coordinates relative to rhombus origin.
-		double xins = xs - xsb;
-		double yins = ys - ysb;
+		DecimalType xins = xs - xsb;
+		DecimalType yins = ys - ysb;
 
 		// Sum those together to get a value that determines which region we're in.
-		double inSum = xins + yins;
+		DecimalType inSum = xins + yins;
 
 		// Positions relative to origin point.
-		double dx0 = x - xb;
-		double dy0 = y - yb;
+		DecimalType dx0 = x - xb;
+		DecimalType dy0 = y - yb;
 
 		// We'll be defining these inside the next block and using them afterwards.
-		double dx_ext, dy_ext;
+		DecimalType dx_ext, dy_ext;
 		int32_t xsv_ext, ysv_ext;
 
-		double value = 0;
+		DecimalType value = 0;
 
 		// Contribution (1,0)
-		double dx1 = dx0 - 1 - SQUISH_CONSTANT_2D;
-		double dy1 = dy0 - 0 - SQUISH_CONSTANT_2D;
-		double attn1 = 2 - dx1 * dx1 - dy1 * dy1;
+		DecimalType dx1 = dx0 - 1 - SQUISH_CONSTANT_2D;
+		DecimalType dy1 = dy0 - 0 - SQUISH_CONSTANT_2D;
+		DecimalType attn1 = 2 - dx1 * dx1 - dy1 * dy1;
 		if(attn1 > 0) {
 			attn1 *= attn1;
 			value += attn1 * attn1 * extrapolate(xsb + 1, ysb + 0, dx1, dy1);
 		}
 
 		// Contribution (0,1)
-		double dx2 = dx0 - 0 - SQUISH_CONSTANT_2D;
-		double dy2 = dy0 - 1 - SQUISH_CONSTANT_2D;
-		double attn2 = 2 - dx2 * dx2 - dy2 * dy2;
+		DecimalType dx2 = dx0 - 0 - SQUISH_CONSTANT_2D;
+		DecimalType dy2 = dy0 - 1 - SQUISH_CONSTANT_2D;
+		DecimalType attn2 = 2 - dx2 * dx2 - dy2 * dy2;
 		if(attn2 > 0) {
 			attn2 *= attn2;
 			value += attn2 * attn2 * extrapolate(xsb + 0, ysb + 1, dx2, dy2);
 		}
 
 		if(inSum <= 1) { // We're inside the triangle (2-Simplex) at (0,0)
-			double zins = 1 - inSum;
+			DecimalType zins = 1 - inSum;
 			if(zins > xins || zins > yins) { // (0,0) is one of the closest two triangular vertices
 				if(xins > yins) {
 					xsv_ext = xsb + 1;
@@ -121,7 +123,7 @@ public:
 				dy_ext = dy0 - 1 - 2 * SQUISH_CONSTANT_2D;
 			}
 		} else { // We're inside the triangle (2-Simplex) at (1,1)
-			double zins = 2 - inSum;
+			DecimalType zins = 2 - inSum;
 			if(zins < xins || zins < yins) { // (0,0) is one of the closest two triangular vertices
 				if(xins > yins) {
 					xsv_ext = xsb + 2;
@@ -147,14 +149,14 @@ public:
 		}
 
 		// Contribution (0,0) or (1,1)
-		double attn0 = 2 - dx0 * dx0 - dy0 * dy0;
+		DecimalType attn0 = 2 - dx0 * dx0 - dy0 * dy0;
 		if(attn0 > 0) {
 			attn0 *= attn0;
 			value += attn0 * attn0 * extrapolate(xsb, ysb, dx0, dy0);
 		}
 
 		// Extra Vertex
-		double attn_ext = 2 - dx_ext * dx_ext - dy_ext * dy_ext;
+		DecimalType attn_ext = 2 - dx_ext * dx_ext - dy_ext * dy_ext;
 		if(attn_ext > 0) {
 			attn_ext *= attn_ext;
 			value += attn_ext * attn_ext * extrapolate(xsv_ext, ysv_ext, dx_ext, dy_ext);
@@ -164,13 +166,13 @@ public:
 	}
 
 	// 3D OpenSimplex (Simplectic) Noise.
-	inline double eval(const double x, const double y, const double z) const {
+	inline DecimalType eval(const DecimalType x, const DecimalType y, const DecimalType z) const {
 
 		// Place input coordinates on simplectic honeycomb.
-		double stretchOffset = (x + y + z) * STRETCH_CONSTANT_3D;
-		double xs = x + stretchOffset;
-		double ys = y + stretchOffset;
-		double zs = z + stretchOffset;
+		DecimalType stretchOffset = (x + y + z) * STRETCH_CONSTANT_3D;
+		DecimalType xs = x + stretchOffset;
+		DecimalType ys = y + stretchOffset;
+		DecimalType zs = z + stretchOffset;
 
 		// Floor to get simplectic honeycomb coordinates of rhombohedron (stretched cube) super-cell origin.
 		int32_t xsb = fastFloor(xs);
@@ -178,38 +180,38 @@ public:
 		int32_t zsb = fastFloor(zs);
 
 		// Skew out to get actual coordinates of rhombohedron origin. We'll need these later.
-		double squishOffset = (xsb + ysb + zsb) * SQUISH_CONSTANT_3D;
-		double xb = xsb + squishOffset;
-		double yb = ysb + squishOffset;
-		double zb = zsb + squishOffset;
+		DecimalType squishOffset = (xsb + ysb + zsb) * SQUISH_CONSTANT_3D;
+		DecimalType xb = xsb + squishOffset;
+		DecimalType yb = ysb + squishOffset;
+		DecimalType zb = zsb + squishOffset;
 
 		// Compute simplectic honeycomb coordinates relative to rhombohedral origin.
-		double xins = xs - xsb;
-		double yins = ys - ysb;
-		double zins = zs - zsb;
+		DecimalType xins = xs - xsb;
+		DecimalType yins = ys - ysb;
+		DecimalType zins = zs - zsb;
 
 		// Sum those together to get a value that determines which region we're in.
-		double inSum = xins + yins + zins;
+		DecimalType inSum = xins + yins + zins;
 
 		// Positions relative to origin point.
-		double dx0 = x - xb;
-		double dy0 = y - yb;
-		double dz0 = z - zb;
+		DecimalType dx0 = x - xb;
+		DecimalType dy0 = y - yb;
+		DecimalType dz0 = z - zb;
 
 		// We'll be defining these inside the next block and using them afterwards.
-		double dx_ext0, dy_ext0, dz_ext0;
-		double dx_ext1, dy_ext1, dz_ext1;
+		DecimalType dx_ext0, dy_ext0, dz_ext0;
+		DecimalType dx_ext1, dy_ext1, dz_ext1;
 		int32_t xsv_ext0, ysv_ext0, zsv_ext0;
 		int32_t xsv_ext1, ysv_ext1, zsv_ext1;
 
-		double value = 0;
+		DecimalType value = 0;
 		if(inSum <= 1) { // We're inside the tetrahedron (3-Simplex) at (0,0,0)
 
 			// Determine which two of (0,0,1), (0,1,0), (1,0,0) are closest.
 			char aPoint = 0x01;
-			double aScore = xins;
+			DecimalType aScore = xins;
 			char bPoint = 0x02;
-			double bScore = yins;
+			DecimalType bScore = yins;
 			if(aScore >= bScore && zins > bScore) {
 				bScore = zins;
 				bPoint = 0x04;
@@ -221,7 +223,7 @@ public:
 			/* Now we determine the two lattice points not part of the tetrahedron that may contribute.
 			 * This depends on the closest two tetrahedral vertices, including (0,0,0)
 			 */
-			double wins = 1 - inSum;
+			DecimalType wins = 1 - inSum;
 			if(wins > aScore || wins > bScore) { // (0,0,0) is one of the closest two tetrahedral vertices.
 				char c = (bScore > aScore ? bPoint : aPoint); // Our other closest vertex is the closest out of a and b.
 
@@ -297,37 +299,37 @@ public:
 			}
 
 			// Contribution (0,0,0)
-			double attn0 = 2 - dx0 * dx0 - dy0 * dy0 - dz0 * dz0;
+			DecimalType attn0 = 2 - dx0 * dx0 - dy0 * dy0 - dz0 * dz0;
 			if(attn0 > 0) {
 				attn0 *= attn0;
 				value += attn0 * attn0 * extrapolate(xsb + 0, ysb + 0, zsb + 0, dx0, dy0, dz0);
 			}
 
 			// Contribution (1,0,0)
-			double dx1 = dx0 - 1 - SQUISH_CONSTANT_3D;
-			double dy1 = dy0 - 0 - SQUISH_CONSTANT_3D;
-			double dz1 = dz0 - 0 - SQUISH_CONSTANT_3D;
-			double attn1 = 2 - dx1 * dx1 - dy1 * dy1 - dz1 * dz1;
+			DecimalType dx1 = dx0 - 1 - SQUISH_CONSTANT_3D;
+			DecimalType dy1 = dy0 - 0 - SQUISH_CONSTANT_3D;
+			DecimalType dz1 = dz0 - 0 - SQUISH_CONSTANT_3D;
+			DecimalType attn1 = 2 - dx1 * dx1 - dy1 * dy1 - dz1 * dz1;
 			if(attn1 > 0) {
 				attn1 *= attn1;
 				value += attn1 * attn1 * extrapolate(xsb + 1, ysb + 0, zsb + 0, dx1, dy1, dz1);
 			}
 
 			// Contribution (0,1,0)
-			double dx2 = dx0 - 0 - SQUISH_CONSTANT_3D;
-			double dy2 = dy0 - 1 - SQUISH_CONSTANT_3D;
-			double dz2 = dz1;
-			double attn2 = 2 - dx2 * dx2 - dy2 * dy2 - dz2 * dz2;
+			DecimalType dx2 = dx0 - 0 - SQUISH_CONSTANT_3D;
+			DecimalType dy2 = dy0 - 1 - SQUISH_CONSTANT_3D;
+			DecimalType dz2 = dz1;
+			DecimalType attn2 = 2 - dx2 * dx2 - dy2 * dy2 - dz2 * dz2;
 			if(attn2 > 0) {
 				attn2 *= attn2;
 				value += attn2 * attn2 * extrapolate(xsb + 0, ysb + 1, zsb + 0, dx2, dy2, dz2);
 			}
 
 			// Contribution (0,0,1)
-			double dx3 = dx2;
-			double dy3 = dy1;
-			double dz3 = dz0 - 1 - SQUISH_CONSTANT_3D;
-			double attn3 = 2 - dx3 * dx3 - dy3 * dy3 - dz3 * dz3;
+			DecimalType dx3 = dx2;
+			DecimalType dy3 = dy1;
+			DecimalType dz3 = dz0 - 1 - SQUISH_CONSTANT_3D;
+			DecimalType attn3 = 2 - dx3 * dx3 - dy3 * dy3 - dz3 * dz3;
 			if(attn3 > 0) {
 				attn3 *= attn3;
 				value += attn3 * attn3 * extrapolate(xsb + 0, ysb + 0, zsb + 1, dx3, dy3, dz3);
@@ -336,9 +338,9 @@ public:
 
 			// Determine which two tetrahedral vertices are the closest, out of (1,1,0), (1,0,1), (0,1,1) but not (1,1,1).
 			char aPoint = 0x06;
-			double aScore = xins;
+			DecimalType aScore = xins;
 			char bPoint = 0x05;
-			double bScore = yins;
+			DecimalType bScore = yins;
 			if(aScore <= bScore && zins < bScore) {
 				bScore = zins;
 				bPoint = 0x03;
@@ -350,7 +352,7 @@ public:
 			/* Now we determine the two lattice points not part of the tetrahedron that may contribute.
 			 * This depends on the closest two tetrahedral vertices, including (1,1,1)
 			 */
-			double wins = 3 - inSum;
+			DecimalType wins = 3 - inSum;
 			if(wins < aScore || wins < bScore) { // (1,1,1) is one of the closest two tetrahedral vertices.
 				char c = (bScore < aScore ? bPoint : aPoint); // Our other closest vertex is the closest out of a and b.
 
@@ -426,30 +428,30 @@ public:
 			}
 
 			// Contribution (1,1,0)
-			double dx3 = dx0 - 1 - 2 * SQUISH_CONSTANT_3D;
-			double dy3 = dy0 - 1 - 2 * SQUISH_CONSTANT_3D;
-			double dz3 = dz0 - 0 - 2 * SQUISH_CONSTANT_3D;
-			double attn3 = 2 - dx3 * dx3 - dy3 * dy3 - dz3 * dz3;
+			DecimalType dx3 = dx0 - 1 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dy3 = dy0 - 1 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dz3 = dz0 - 0 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType attn3 = 2 - dx3 * dx3 - dy3 * dy3 - dz3 * dz3;
 			if(attn3 > 0) {
 				attn3 *= attn3;
 				value += attn3 * attn3 * extrapolate(xsb + 1, ysb + 1, zsb + 0, dx3, dy3, dz3);
 			}
 
 			// Contribution (1,0,1)
-			double dx2 = dx3;
-			double dy2 = dy0 - 0 - 2 * SQUISH_CONSTANT_3D;
-			double dz2 = dz0 - 1 - 2 * SQUISH_CONSTANT_3D;
-			double attn2 = 2 - dx2 * dx2 - dy2 * dy2 - dz2 * dz2;
+			DecimalType dx2 = dx3;
+			DecimalType dy2 = dy0 - 0 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dz2 = dz0 - 1 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType attn2 = 2 - dx2 * dx2 - dy2 * dy2 - dz2 * dz2;
 			if(attn2 > 0) {
 				attn2 *= attn2;
 				value += attn2 * attn2 * extrapolate(xsb + 1, ysb + 0, zsb + 1, dx2, dy2, dz2);
 			}
 
 			// Contribution (0,1,1)
-			double dx1 = dx0 - 0 - 2 * SQUISH_CONSTANT_3D;
-			double dy1 = dy3;
-			double dz1 = dz2;
-			double attn1 = 2 - dx1 * dx1 - dy1 * dy1 - dz1 * dz1;
+			DecimalType dx1 = dx0 - 0 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dy1 = dy3;
+			DecimalType dz1 = dz2;
+			DecimalType attn1 = 2 - dx1 * dx1 - dy1 * dy1 - dz1 * dz1;
 			if(attn1 > 0) {
 				attn1 *= attn1;
 				value += attn1 * attn1 * extrapolate(xsb + 0, ysb + 1, zsb + 1, dx1, dy1, dz1);
@@ -459,21 +461,21 @@ public:
 			dx0 = dx0 - 1 - 3 * SQUISH_CONSTANT_3D;
 			dy0 = dy0 - 1 - 3 * SQUISH_CONSTANT_3D;
 			dz0 = dz0 - 1 - 3 * SQUISH_CONSTANT_3D;
-			double attn0 = 2 - dx0 * dx0 - dy0 * dy0 - dz0 * dz0;
+			DecimalType attn0 = 2 - dx0 * dx0 - dy0 * dy0 - dz0 * dz0;
 			if(attn0 > 0) {
 				attn0 *= attn0;
 				value += attn0 * attn0 * extrapolate(xsb + 1, ysb + 1, zsb + 1, dx0, dy0, dz0);
 			}
 		} else { // We're inside the octahedron (Rectified 3-Simplex) in between.
-			double aScore;
+		DecimalType aScore;
 			char aPoint;
 			bool aIsFurtherSide;
-			double bScore;
+			DecimalType bScore;
 			char bPoint;
 			bool bIsFurtherSide;
 
 			// Decide between point (0,0,1) and (1,1,0) as closest
-			double p1 = xins + yins;
+			DecimalType p1 = xins + yins;
 			if(p1 > 1) {
 				aScore = p1 - 1;
 				aPoint = 0x03;
@@ -485,7 +487,7 @@ public:
 			}
 
 			// Decide between point (0,1,0) and (1,0,1) as closest
-			double p2 = xins + zins;
+			DecimalType p2 = xins + zins;
 			if(p2 > 1) {
 				bScore = p2 - 1;
 				bPoint = 0x05;
@@ -497,9 +499,9 @@ public:
 			}
 
 			// The closest out of the two (1,0,0) and (0,1,1) will replace the furthest out of the two decided above, if closer.
-			double p3 = yins + zins;
+			DecimalType p3 = yins + zins;
 			if(p3 > 1) {
-				double score = p3 - 1;
+				DecimalType score = p3 - 1;
 				if(aScore <= bScore && aScore < score) {
 					aScore = score;
 					aPoint = 0x06;
@@ -510,7 +512,7 @@ public:
 					bIsFurtherSide = true;
 				}
 			} else {
-				double score = 1 - p3;
+				DecimalType score = 1 - p3;
 				if(aScore <= bScore && aScore < score) {
 					aScore = score;
 					aPoint = 0x01;
@@ -647,60 +649,60 @@ public:
 			}
 
 			// Contribution (1,0,0)
-			double dx1 = dx0 - 1 - SQUISH_CONSTANT_3D;
-			double dy1 = dy0 - 0 - SQUISH_CONSTANT_3D;
-			double dz1 = dz0 - 0 - SQUISH_CONSTANT_3D;
-			double attn1 = 2 - dx1 * dx1 - dy1 * dy1 - dz1 * dz1;
+			DecimalType dx1 = dx0 - 1 - SQUISH_CONSTANT_3D;
+			DecimalType dy1 = dy0 - 0 - SQUISH_CONSTANT_3D;
+			DecimalType dz1 = dz0 - 0 - SQUISH_CONSTANT_3D;
+			DecimalType attn1 = 2 - dx1 * dx1 - dy1 * dy1 - dz1 * dz1;
 			if(attn1 > 0) {
 				attn1 *= attn1;
 				value += attn1 * attn1 * extrapolate(xsb + 1, ysb + 0, zsb + 0, dx1, dy1, dz1);
 			}
 
 			// Contribution (0,1,0)
-			double dx2 = dx0 - 0 - SQUISH_CONSTANT_3D;
-			double dy2 = dy0 - 1 - SQUISH_CONSTANT_3D;
-			double dz2 = dz1;
-			double attn2 = 2 - dx2 * dx2 - dy2 * dy2 - dz2 * dz2;
+			DecimalType dx2 = dx0 - 0 - SQUISH_CONSTANT_3D;
+			DecimalType dy2 = dy0 - 1 - SQUISH_CONSTANT_3D;
+			DecimalType dz2 = dz1;
+			DecimalType attn2 = 2 - dx2 * dx2 - dy2 * dy2 - dz2 * dz2;
 			if(attn2 > 0) {
 				attn2 *= attn2;
 				value += attn2 * attn2 * extrapolate(xsb + 0, ysb + 1, zsb + 0, dx2, dy2, dz2);
 			}
 
 			// Contribution (0,0,1)
-			double dx3 = dx2;
-			double dy3 = dy1;
-			double dz3 = dz0 - 1 - SQUISH_CONSTANT_3D;
-			double attn3 = 2 - dx3 * dx3 - dy3 * dy3 - dz3 * dz3;
+			DecimalType dx3 = dx2;
+			DecimalType dy3 = dy1;
+			DecimalType dz3 = dz0 - 1 - SQUISH_CONSTANT_3D;
+			DecimalType attn3 = 2 - dx3 * dx3 - dy3 * dy3 - dz3 * dz3;
 			if(attn3 > 0) {
 				attn3 *= attn3;
 				value += attn3 * attn3 * extrapolate(xsb + 0, ysb + 0, zsb + 1, dx3, dy3, dz3);
 			}
 
 			// Contribution (1,1,0)
-			double dx4 = dx0 - 1 - 2 * SQUISH_CONSTANT_3D;
-			double dy4 = dy0 - 1 - 2 * SQUISH_CONSTANT_3D;
-			double dz4 = dz0 - 0 - 2 * SQUISH_CONSTANT_3D;
-			double attn4 = 2 - dx4 * dx4 - dy4 * dy4 - dz4 * dz4;
+			DecimalType dx4 = dx0 - 1 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dy4 = dy0 - 1 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dz4 = dz0 - 0 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType attn4 = 2 - dx4 * dx4 - dy4 * dy4 - dz4 * dz4;
 			if(attn4 > 0) {
 				attn4 *= attn4;
 				value += attn4 * attn4 * extrapolate(xsb + 1, ysb + 1, zsb + 0, dx4, dy4, dz4);
 			}
 
 			// Contribution (1,0,1)
-			double dx5 = dx4;
-			double dy5 = dy0 - 0 - 2 * SQUISH_CONSTANT_3D;
-			double dz5 = dz0 - 1 - 2 * SQUISH_CONSTANT_3D;
-			double attn5 = 2 - dx5 * dx5 - dy5 * dy5 - dz5 * dz5;
+			DecimalType dx5 = dx4;
+			DecimalType dy5 = dy0 - 0 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dz5 = dz0 - 1 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType attn5 = 2 - dx5 * dx5 - dy5 * dy5 - dz5 * dz5;
 			if(attn5 > 0) {
 				attn5 *= attn5;
 				value += attn5 * attn5 * extrapolate(xsb + 1, ysb + 0, zsb + 1, dx5, dy5, dz5);
 			}
 
 			// Contribution (0,1,1)
-			double dx6 = dx0 - 0 - 2 * SQUISH_CONSTANT_3D;
-			double dy6 = dy4;
-			double dz6 = dz5;
-			double attn6 = 2 - dx6 * dx6 - dy6 * dy6 - dz6 * dz6;
+			DecimalType dx6 = dx0 - 0 - 2 * SQUISH_CONSTANT_3D;
+			DecimalType dy6 = dy4;
+			DecimalType dz6 = dz5;
+			DecimalType attn6 = 2 - dx6 * dx6 - dy6 * dy6 - dz6 * dz6;
 			if(attn6 > 0) {
 				attn6 *= attn6;
 				value += attn6 * attn6 * extrapolate(xsb + 0, ysb + 1, zsb + 1, dx6, dy6, dz6);
@@ -708,14 +710,14 @@ public:
 		}
 
 		// First extra vertex
-		double attn_ext0 = 2 - dx_ext0 * dx_ext0 - dy_ext0 * dy_ext0 - dz_ext0 * dz_ext0;
+		DecimalType attn_ext0 = 2 - dx_ext0 * dx_ext0 - dy_ext0 * dy_ext0 - dz_ext0 * dz_ext0;
 		if(attn_ext0 > 0) {
 			attn_ext0 *= attn_ext0;
 			value += attn_ext0 * attn_ext0 * extrapolate(xsv_ext0, ysv_ext0, zsv_ext0, dx_ext0, dy_ext0, dz_ext0);
 		}
 
 		// Second extra vertex
-		double attn_ext1 = 2 - dx_ext1 * dx_ext1 - dy_ext1 * dy_ext1 - dz_ext1 * dz_ext1;
+		DecimalType attn_ext1 = 2 - dx_ext1 * dx_ext1 - dy_ext1 * dy_ext1 - dz_ext1 * dz_ext1;
 		if(attn_ext1 > 0) {
 			attn_ext1 *= attn_ext1;
 			value += attn_ext1 * attn_ext1 * extrapolate(xsv_ext1, ysv_ext1, zsv_ext1, dx_ext1, dy_ext1, dz_ext1);
@@ -724,20 +726,20 @@ public:
 		return value / NORM_CONSTANT_3D;
 	}
 
-	inline double extrapolate(int32_t xsb, int32_t ysb, double dx, double dy) const {
+	inline DecimalType extrapolate(int32_t xsb, int32_t ysb, DecimalType dx, DecimalType dy) const {
 		int32_t index = perm[(perm[xsb & 0xFF] + ysb) & 0xFF] & 0x0E;
 		return gradients2D[index] * dx
 			+ gradients2D[index + 1] * dy;
 	}
 
-	inline double extrapolate(int32_t xsb, int32_t ysb, int32_t zsb, double dx, double dy, double dz) const {
+	inline DecimalType extrapolate(int32_t xsb, int32_t ysb, int32_t zsb, DecimalType dx, DecimalType dy, DecimalType dz) const {
 		int32_t index = permGradIndex3D[(perm[(perm[xsb & 0xFF] + ysb) & 0xFF] + zsb) & 0xFF];
 		return gradients3D[index] * dx
 			+ gradients3D[index + 1] * dy
 			+ gradients3D[index + 2] * dz;
 	}
 
-	static inline int32_t fastFloor(double x) {
+	static inline int32_t fastFloor(DecimalType x) {
 		int32_t xi = static_cast<int32_t>(x);
 		return x < xi ? xi - 1 : xi;
 	}
