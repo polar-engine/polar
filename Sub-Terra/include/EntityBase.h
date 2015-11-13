@@ -15,12 +15,16 @@ public:
 	}
 
 	template<typename T, typename ...Ts> inline void Add(Ts && ...args) {
-		Add(new T(std::forward<Ts>(args)...));
+		Add(boost::make_shared<T>(std::forward<Ts>(args)...));
 	}
 
 	template<typename T> inline void Add(T *component) {
+		Add(boost::shared_ptr<T>(component));
+	}
+
+	template<typename T> inline void Add(boost::shared_ptr<T> ptr) {
 		static_assert(std::is_base_of<C, T>::value, "EntityBase::Add requires object of correct type");
-		components.emplace(&typeid(T), std::unique_ptr<C>(component));
+		components.emplace(&typeid(T), boost::static_pointer_cast<C>(ptr));
 	}
 
 	template<typename T> inline void Remove() {
