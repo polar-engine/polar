@@ -174,3 +174,5 @@ xcuserdata/**/*
 UserInterfaceState.xcuserstate
 /Sub-Terra/Sub-Terra_project_suppressions.cfg
 /Sub-Terra_solution_suppressions.cfg
+/Sub-Terra.VC.db
+/Sub-Terra.VC.VC.opendb

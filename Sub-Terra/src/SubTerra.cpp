@@ -41,7 +41,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("title")});
 
-		st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
+		//st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
 
 		const float size = 0.05f; /* zNear */
 		st.dtors.emplace_back(engine->AddObject(&playerID));
