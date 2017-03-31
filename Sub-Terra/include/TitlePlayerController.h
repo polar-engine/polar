@@ -24,16 +24,18 @@ protected:
 
 		unsigned int i = 0;
 		auto average = Point2(0);
-		for(float x = -world->blockSize.x * fieldOfView; x < world->blockSize.x * fieldOfView; x += world->blockSize.x / 2.0f) {
-			for(float y = -world->blockSize.y * fieldOfView; y < world->blockSize.y * fieldOfView; y += world->blockSize.y / 2.0f) {
-				for(float d = 1; d < viewDistance; d += world->blockSize.x / 2.0f) {
-					auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * Point4(x, y, -d, 1);
-					auto block = world->GenerateBlock(pos->position.Get() + Point3(abs));
-					if(block) {
-						average.x += 0.0037f * ((y >= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
-						average.y += 0.0037f * ((x <= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
-						++i;
-						break;
+		if(world) {
+			for(float x = -world->blockSize.x * fieldOfView; x < world->blockSize.x * fieldOfView; x += world->blockSize.x / 2.0f) {
+				for(float y = -world->blockSize.y * fieldOfView; y < world->blockSize.y * fieldOfView; y += world->blockSize.y / 2.0f) {
+					for(float d = 1; d < viewDistance; d += world->blockSize.x / 2.0f) {
+						auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * Point4(x, y, -d, 1);
+						auto block = world->GenerateBlock(pos->position.Get() + Point3(abs));
+						if(block) {
+							average.x += 0.0037f * ((y >= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
+							average.y += 0.0037f * ((x <= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
+							++i;
+							break;
+						}
 					}
 				}
 			}

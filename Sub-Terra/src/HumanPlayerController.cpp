@@ -87,5 +87,8 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 
 	*ownPos->position.Derivative() = Point3(abs);
 
-	engine->GetSystem<World>().lock()->factor *= 1 - 0.01f * dt.Seconds();
+	auto world = engine->GetSystem<World>().lock();
+	if(world) {
+		world->factor *= 1 - 0.01f * dt.Seconds();
+	}
 }
