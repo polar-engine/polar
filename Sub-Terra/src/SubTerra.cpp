@@ -28,7 +28,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
 		st.AddSystem<AudioManager>();
-		st.AddSystem<GL32Renderer, const boost::container::vector<std::string> &>({"main", "unified", "fxaa", "gaussian"});
+		st.AddSystem<GL32Renderer, const boost::container::vector<std::string> &>({ "main", "perlin"});
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("beep1");
