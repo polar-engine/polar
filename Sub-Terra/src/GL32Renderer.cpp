@@ -129,11 +129,12 @@ void GL32Renderer::Update(DeltaTicks &) {
 		GL(glUseProgram(node.program));
 		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+		GLint locView;
+		GL(locView = glGetUniformLocation(node.program, "u_view"));
+		GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
+
 		switch(i) {
 		case 0: {
-			GLint locView;
-			GL(locView = glGetUniformLocation(node.program, "u_view"));
-			GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
 			GLint locModel;
 			GL(locModel = glGetUniformLocation(node.program, "u_model"));
 
@@ -410,7 +411,9 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 			msg << "framebuffer status incomplete (0x" << std::hex << status << ')';
 			ENGINE_THROW(msg.str());
 		}
+	}
 
+	for(auto &node : nodes) {
 		/* upload projection matrix to pipeline stage */
 		Project(node.program);
 	}
