@@ -31,14 +31,14 @@ void HumanPlayerController::Init() {
 		orientVel.y += glm::radians(mouseSpeed) * delta.x * 30.0f;
 		orientVel.x += glm::radians(mouseSpeed) * delta.y * 30.0f;
 	}));
-	dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
-	dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
-	dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
-	dtors.emplace_back(inputM->On(Key::D, [this] (Key) { moveRight = true; }));
-	dtors.emplace_back(inputM->After(Key::W, [this] (Key) { moveForward = false; }));
-	dtors.emplace_back(inputM->After(Key::S, [this] (Key) { moveBackward = false; }));
-	dtors.emplace_back(inputM->After(Key::A, [this] (Key) { moveLeft = false; }));
-	dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
+	//dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
+	//dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
+	//dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
+	//dtors.emplace_back(inputM->On(Key::D, [this] (Key) { moveRight = true; }));
+	//dtors.emplace_back(inputM->After(Key::W, [this] (Key) { moveForward = false; }));
+	//dtors.emplace_back(inputM->After(Key::S, [this] (Key) { moveBackward = false; }));
+	//dtors.emplace_back(inputM->After(Key::A, [this] (Key) { moveLeft = false; }));
+	//dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
 
 	/* collision detection and response */
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
@@ -90,12 +90,12 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	accum += dt.Seconds();
 	velocity = 10.0f + 40.0f * a * (1.0f - glm::pow(r, k * -static_cast<float>(accum)));
 
-	//auto forward = glm::normalize(Point4(0, 0, -1, 1));
-	const float moveSpeed = 100.0f;
-	auto forward = glm::normalize(Point4(moveRight - moveLeft, 0, moveBackward - moveForward, 1)) * moveSpeed;
-	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward;// *velocity;
+	auto forward = glm::normalize(Point4(0, 0, -1, 1));
+	//const float moveSpeed = 10.0f;
+	//auto forward = glm::normalize(Point4(moveRight - moveLeft, 0, moveBackward - moveForward, 1)) * moveSpeed;
+	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward *velocity;
 
-	*ownPos->position.Derivative().Derivative() = Point3(abs);
+	*ownPos->position.Derivative() = Point3(abs);
 
 	auto world = engine->GetSystem<World>().lock();
 	if(world) {
