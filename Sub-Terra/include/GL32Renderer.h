@@ -50,6 +50,8 @@ private:
 
 	GLuint viewportVAO;
 
+	uint32_t time = 0;
+
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 

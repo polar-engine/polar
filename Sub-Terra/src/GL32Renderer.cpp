@@ -90,7 +90,9 @@ void GL32Renderer::Init() {
 	MakePipeline(pipelineNames);
 }
 
-void GL32Renderer::Update(DeltaTicks &) {
+void GL32Renderer::Update(DeltaTicks &dt) {
+	time += dt.Ticks();
+
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);
@@ -132,6 +134,10 @@ void GL32Renderer::Update(DeltaTicks &) {
 		GLint locView;
 		GL(locView = glGetUniformLocation(node.program, "u_view"));
 		GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
+
+		GLint locTime;
+		GL(locTime = glGetUniformLocation(node.program, "u_time"));
+		GL(glUniform1ui(locTime, time));
 
 		switch(i) {
 		case 0: {
