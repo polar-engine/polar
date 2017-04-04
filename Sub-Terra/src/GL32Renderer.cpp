@@ -135,6 +135,11 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		GL(locView = glGetUniformLocation(node.program, "u_view"));
 		GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
 
+		GLint locInvViewProj;
+		GL(locInvViewProj = glGetUniformLocation(node.program, "u_invViewProj"));
+		auto invViewProj = glm::inverse(CalculateProjection() * cameraView);
+		GL(glUniformMatrix4fv(locInvViewProj, 1, GL_FALSE, glm::value_ptr(invViewProj)));
+
 		GLint locTime;
 		GL(locTime = glGetUniformLocation(node.program, "u_time"));
 		GL(glUniform1ui(locTime, time));

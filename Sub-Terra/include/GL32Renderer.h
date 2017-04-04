@@ -143,6 +143,14 @@ private:
 		}
 	}
 
+	inline glm::mat4 CalculateProjection() {
+		auto heightF = static_cast<float>(height);
+		auto fovy = 2.0f * glm::atan(heightF, 2.0f * pixelDistanceFromScreen) + fovPlus;
+		auto projection = glm::perspective(fovy, static_cast<float>(width) / heightF, zNear, zFar);
+		//auto projection = glm::infinitePerspective(fovy, static_cast<float>(width) / h, zNear);
+		return projection;
+	}
+
 	inline void Project(GLuint programID) {
 		GL(glUseProgram(programID));
 
@@ -150,10 +158,7 @@ private:
 		GL(locProjection = glGetUniformLocation(programID, "u_projection"));
 		if(locProjection == -1) { return; } /* -1 if uniform does not exist in program */
 
-		auto heightF = static_cast<float>(height);
-		auto fovy = 2.0f * glm::atan(heightF, 2.0f * pixelDistanceFromScreen) + fovPlus;
-		glm::mat4 projection = glm::perspective(fovy, static_cast<float>(width) / heightF, zNear, zFar);
-		//glm::mat4 projection = glm::infinitePerspective(fovy, static_cast<float>(width) / h, zNear);
+		auto projection = CalculateProjection();
 		GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
 	}
 

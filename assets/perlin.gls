@@ -1,11 +1,15 @@
 @uniform mat4 u_view
 @uniform mat4 u_projection
+@uniform mat4 u_invViewProj
 @uniform uint u_time
 @uniform float u_red
 @uniform float u_green
 @uniform float u_blue
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
+@varying flat vec3 v_solidColor
+@varying flat float v_threshold
+@varying flat float v_dividedTime
 @gin position u_posBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
@@ -13,9 +17,22 @@
 
 @shader vertex
 
+float thresholdF() {
+	float s = sin(float(u_time) / 1000.0);
+	float f = 1.0 - pow(abs(s), 1.0 / 4.0);
+	return 0.7 + f * 0.005;
+}
+
 void main() {
 	gl_Position = vec4(a_vertex, 0.0, 1.0);
 	v_vertex = a_vertex;
+
+	v_solidColor = vec3(u_red, u_green, u_blue);
+	if(length(v_solidColor) < 1.0) { v_solidColor = vec3(0.8); }
+
+	v_threshold = thresholdF();
+
+	v_dividedTime = float(u_time) / 2345.0;
 }
 
 @shader fragment
@@ -146,42 +163,32 @@ float snoise(vec3 v) {
 	dot(p2,x2), dot(p3,x3) ) );
 }
 
-float thresholdF() {
-	float s = sin(float(u_time) / 1000.0);
-	float f = 1.0 - pow(abs(s), 1.0 / 4.0);
-	return 0.7 + f * 0.005;
-}
-
 void main(void) {
 	vec4 screenCoord = vec4(v_vertex.x, v_vertex.y, 0.0, 1.0);
 
-	vec3 solidColor = vec3(u_red, u_green, u_blue);
-	if(length(solidColor) < 1.0) { solidColor = vec3(0.8); }
-
 	vec3 color = vec3(0.0);
 
-	float threshold = thresholdF();
 	float len = length(v_vertex);
-	float numSamples = 63.0 + pow(len, 2) * 60.0;
+	float numSamples = 63.0 + pow(len, 2) * 30.0;
 
 	for(float sample = 0.0; sample < numSamples;) {
 		float z = sample / numSamples;
 		screenCoord.z = InverseDepth(z);
 
-		vec4 realCoordV4 = inverse(u_view) * inverse(u_projection) * screenCoord;
+		vec4 realCoordV4 = u_invViewProj * screenCoord;
 		vec3 realCoord = realCoordV4.xyz / realCoordV4.w;
 
 		float eval1 = snoise(realCoord * 0.05) * 0.5 + 0.5;
 
-		float s = sin(z * 3.14159 * 2.0 - float(u_time) / 2345.0) - 0.9;
+		float s = sin(z * 3.14159 * 2.0 - v_dividedTime) - 0.9;
 		float f = 1.0 - pow(abs(s), 1.0 / 8.0);
-		float thresh = threshold + f * 0.02;
+		float thresh = v_threshold + f * 0.02;
 
 		if(eval1 > thresh) {
-			color = mix(solidColor, vec3(1.0, 0.9, 0.3), (threshold - thresh) / 0.02) - sqrt(z);
+			color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), (v_threshold - thresh) / 0.02) - sqrt(z);
 			break;
 		} else {
-			sample += max(1.0, (threshold - eval1) * 10.0);
+			sample += max(1.0, pow((v_threshold - eval1) * 10.0, 1.3));
 		}
 	}
 
