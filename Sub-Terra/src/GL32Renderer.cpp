@@ -144,6 +144,11 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			GLint locModel;
 			GL(locModel = glGetUniformLocation(node.program, "u_model"));
 
+			// freefall main shader is in screen space
+			GL(glBindVertexArray(viewportVAO));
+			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+			break;
+
 			auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
 			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 				auto model = static_cast<ModelComponent *>(itRight->info.get());
