@@ -6,7 +6,6 @@
 @uniform float u_blue
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
-@in color u_colorBuffer
 @gin position u_posBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
@@ -20,10 +19,6 @@ void main() {
 }
 
 @shader fragment
-
-vec3 Color(in vec2 texCoord) {
-	return texture(u_colorBuffer, texCoord).rgb;
-}
 
 float InverseDepth(in float linear) {
 	float f = 48.0;
