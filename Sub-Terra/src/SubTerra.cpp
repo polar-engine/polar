@@ -12,6 +12,7 @@
 #include "World.h"
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
+#include "BoundingComponent.h"
 
 void SubTerra::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
@@ -41,7 +42,7 @@ void SubTerra::Run(const std::vector<std::string> &args) {
 	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("title")});
 
-		//st.AddSystem<World>(Point3(0.5f), 16, 16, 16);
+		st.AddSystem<World>();
 
 		const float size = 0.05f; /* zNear */
 		st.dtors.emplace_back(engine->AddObject(&playerID));

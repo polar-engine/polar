@@ -1,5 +1,6 @@
 
 #include "common.h"
+#include <glm/gtc/noise.hpp>
 #include "HumanPlayerController.h"
 #include "EventManager.h"
 #include "InputManager.h"
@@ -44,34 +45,10 @@ void HumanPlayerController::Init() {
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
 		auto &prev = ownPos->position.GetPrevious();
 		auto &curr = *ownPos->position;
-		auto &vel = *ownPos->position.Derivative();
 
-		Point3 normal;
-
-		auto pair = engine->objects.right.equal_range(&typeid(BoundingComponent));
-
-		auto tickVel = vel * delta.float_;
-		float entryTime = 1.0f;
-
-		for(auto it = pair.first; it != pair.second; ++it) {
-			auto id = it->get_left();
-
-			/* don't check for collisions with self */
-			if(id == object) { continue; }
-
-			auto objPos = engine->GetComponent<PositionComponent>(id);
-			if(objPos != nullptr) {
-				auto objBounds = engine->GetComponent<BoundingComponent>(id);
-				if(objBounds != nullptr) {
-					auto r = objBounds->box.AABBSwept(ownBounds->box, objPos->position.Get(), std::make_tuple(prev, curr, tickVel));
-					if(std::get<0>(r) < entryTime) {
-						if(engine->GetComponent<TagComponent<Chunk>>(id) != nullptr) {
-							engine->transition = "back";
-							break;
-						}
-					}
-				}
-			}
+		float eval = glm::simplex(curr * 0.05f + 10.0f) * 0.5 + 0.5;
+		if(eval > 0.7) {
+			engine->transition = "back";
 		}
 	}));
 }
@@ -96,9 +73,4 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward *velocity;
 
 	*ownPos->position.Derivative() = Point3(abs);
-
-	auto world = engine->GetSystem<World>().lock();
-	if(world) {
-		world->factor *= 1 - 0.01f * dt.Seconds();
-	}
 }
