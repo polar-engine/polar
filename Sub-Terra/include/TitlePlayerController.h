@@ -24,7 +24,7 @@ protected:
 
 		unsigned int i = 0;
 		auto average = Point2(0);
-		if(world) {
+		/*if(world) {
 			for(float x = -world->blockSize.x * fieldOfView; x < world->blockSize.x * fieldOfView; x += world->blockSize.x / 2.0f) {
 				for(float y = -world->blockSize.y * fieldOfView; y < world->blockSize.y * fieldOfView; y += world->blockSize.y / 2.0f) {
 					for(float d = 1; d < viewDistance; d += world->blockSize.x / 2.0f) {
@@ -39,7 +39,7 @@ protected:
 					}
 				}
 			}
-		}
+		}*/
 
 		if(i > 0) {
 			average /= static_cast<float>(i);
