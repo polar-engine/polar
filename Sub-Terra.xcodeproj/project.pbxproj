@@ -24,9 +24,7 @@
 		7F64992C1AC175EC0001DCFF /* HumanPlayerController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */; };
 		7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499261AC175EC0001DCFF /* InputManager.cpp */; };
 		7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499271AC175EC0001DCFF /* Integrator.cpp */; };
-		7F64992F1AC175EC0001DCFF /* OpenSimplexNoise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */; };
 		7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */; };
-		7F6499321AC175EC0001DCFF /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992B1AC175EC0001DCFF /* World.cpp */; };
 		7F79221B1ACF9019005665E7 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7F977E4E1BE71CEE006CF366 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F977E4C1BE71CC5006CF366 /* libz.a */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
@@ -124,9 +122,7 @@
 		7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HumanPlayerController.cpp; path = src/HumanPlayerController.cpp; sourceTree = "<group>"; };
 		7F6499261AC175EC0001DCFF /* InputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputManager.cpp; path = src/InputManager.cpp; sourceTree = "<group>"; };
 		7F6499271AC175EC0001DCFF /* Integrator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Integrator.cpp; path = src/Integrator.cpp; sourceTree = "<group>"; };
-		7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenSimplexNoise.cpp; path = src/OpenSimplexNoise.cpp; sourceTree = "<group>"; };
 		7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpatialIndex.cpp; path = src/SpatialIndex.cpp; sourceTree = "<group>"; };
-		7F64992B1AC175EC0001DCFF /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = World.cpp; path = src/World.cpp; sourceTree = "<group>"; };
 		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
 		7F949DF61AC7B2CE004F875F /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = World.h; path = include/World.h; sourceTree = "<group>"; };
 		7F977E4C1BE71CC5006CF366 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../lib/osx/libz.a; sourceTree = "<group>"; };
@@ -229,11 +225,9 @@
 				7F6499271AC175EC0001DCFF /* Integrator.cpp */,
 				7F0CB64E1A25D90B00623543 /* JobManager.cpp */,
 				7F0CB64F1A25D90B00623543 /* main.m */,
-				7F6499281AC175EC0001DCFF /* OpenSimplexNoise.cpp */,
 				7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */,
 				7F0CB6511A25D90B00623543 /* SubTerra.cpp */,
 				7F0CB6521A25D90B00623543 /* Worker.cpp */,
-				7F64992B1AC175EC0001DCFF /* World.cpp */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
@@ -461,9 +455,7 @@
 				7F64992C1AC175EC0001DCFF /* HumanPlayerController.cpp in Sources */,
 				7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */,
 				7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */,
-				7F6499321AC175EC0001DCFF /* World.cpp in Sources */,
 				7F0CB6551A25D90B00623543 /* glew.c in Sources */,
-				7F64992F1AC175EC0001DCFF /* OpenSimplexNoise.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
