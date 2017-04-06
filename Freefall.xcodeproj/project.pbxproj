@@ -25,7 +25,7 @@
 		7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499261AC175EC0001DCFF /* InputManager.cpp */; };
 		7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499271AC175EC0001DCFF /* Integrator.cpp */; };
 		7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */; };
-		7F79221B1ACF9019005665E7 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
+		7F79221B1ACF9019005665E7 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		7F977E4E1BE71CEE006CF366 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F977E4C1BE71CC5006CF366 /* libz.a */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
 		7FFE534B1BE72A1200F39CF1 /* libportaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534A1BE72A1200F39CF1 /* libportaudio.a */; };
@@ -126,7 +126,7 @@
 		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
 		7F949DF61AC7B2CE004F875F /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = World.h; path = include/World.h; sourceTree = "<group>"; };
 		7F977E4C1BE71CC5006CF366 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../lib/osx/libz.a; sourceTree = "<group>"; };
-		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sub-Terra.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Sub-Terra.app"; path = Freefall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FFE534A1BE72A1200F39CF1 /* libportaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libportaudio.a; path = ../lib/osx/libportaudio.a; sourceTree = "<group>"; };
 		7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -371,7 +371,7 @@
 		7FF31F101A1AA90D0008999E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "David Farrell";
 				TargetAttributes = {
 					7F558EB01A25CB6F006622FA = {
@@ -534,15 +534,19 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -576,8 +580,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -586,6 +592,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -617,6 +624,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/lib/osx",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "me.shockk.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include $(SRCROOT)/Sub-Terra/include";
 			};
@@ -642,6 +650,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/lib/osx",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "me.shockk.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include $(SRCROOT)/Sub-Terra/include";
 			};
