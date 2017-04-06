@@ -16,7 +16,6 @@ void HumanPlayerController::Init() {
 
 	auto inputM = engine->GetSystem<InputManager>().lock();
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
-	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto ownBounds = engine->GetComponent<BoundingComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
@@ -43,7 +42,6 @@ void HumanPlayerController::Init() {
 
 	/* collision detection and response */
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
-		auto &prev = ownPos->position.GetPrevious();
 		auto &curr = *ownPos->position;
 
 		float eval = glm::simplex(curr * 0.05f + 10.0f) * 0.5 + 0.5;

@@ -21,7 +21,7 @@ struct BoundingBox {
 		auto tMin = 0.0f;
 		auto p = ownPos + Center() - origin;
 		auto h = size / 2.0f;
-		glm::length_t axis;
+		glm::length_t axis = 0;
 		Point3 tEntry;
 		Point3 tExit;
 		Point3 normal;
