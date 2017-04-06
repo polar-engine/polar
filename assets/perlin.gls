@@ -189,7 +189,6 @@ bool Eval(in vec2 screenCoord, in float startZ, in float endZ,
 		float s = sin(z * 3.14159 * 2.0 - v_dividedTime) - 0.9;
 		float f = 1.0 - pow(abs(s), 1.0 / 8.0);
 		thresh = threshold + f * 0.02;
-		thresh = 0.7;
 
 		if(eval >= thresh) {
 			return true;
