@@ -345,9 +345,9 @@
 			productReference = 7F558EB11A25CB6F006622FA /* AssetBuilder */;
 			productType = "com.apple.product-type.tool";
 		};
-		7FF31F171A1AA90D0008999E /* Sub-Terra */ = {
+		7FF31F171A1AA90D0008999E /* Freefall */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Sub-Terra" */;
+			buildConfigurationList = 7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Freefall" */;
 			buildPhases = (
 				7F0CB66B1A25E41700623543 /* ShellScript */,
 				7FF31F141A1AA90D0008999E /* Sources */,
@@ -360,7 +360,7 @@
 			dependencies = (
 				7F0CB66A1A25DD8100623543 /* PBXTargetDependency */,
 			);
-			name = "Sub-Terra";
+			name = Freefall;
 			productName = "Sub-Terra";
 			productReference = 7FF31F181A1AA90D0008999E /* Sub-Terra.app */;
 			productType = "com.apple.product-type.application";
@@ -382,7 +382,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Sub-Terra" */;
+			buildConfigurationList = 7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Freefall" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -395,7 +395,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7FF31F171A1AA90D0008999E /* Sub-Terra */,
+				7FF31F171A1AA90D0008999E /* Freefall */,
 				7F558EB01A25CB6F006622FA /* AssetBuilder */,
 			);
 		};
@@ -659,7 +659,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Sub-Terra" */ = {
+		7FF31F131A1AA90D0008999E /* Build configuration list for PBXProject "Freefall" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7FF31F331A1AA90E0008999E /* Debug */,
@@ -668,7 +668,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Sub-Terra" */ = {
+		7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Freefall" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7FF31F361A1AA90E0008999E /* Debug */,

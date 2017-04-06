@@ -14,77 +14,70 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7FF31F171A1AA90D0008999E"
-               BuildableName = "Sub-Terra.app"
-               BlueprintName = "Sub-Terra"
-               ReferencedContainer = "container:Sub-Terra.xcodeproj">
+               BlueprintIdentifier = "7F558EB01A25CB6F006622FA"
+               BuildableName = "AssetBuilder"
+               BlueprintName = "AssetBuilder"
+               ReferencedContainer = "container:Freefall.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7FF31F2A1A1AA90E0008999E"
-               BuildableName = "Sub-TerraTests.xctest"
-               BlueprintName = "Sub-TerraTests"
-               ReferencedContainer = "container:Sub-Terra.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7FF31F171A1AA90D0008999E"
-            BuildableName = "Sub-Terra.app"
-            BlueprintName = "Sub-Terra"
-            ReferencedContainer = "container:Sub-Terra.xcodeproj">
+            BlueprintIdentifier = "7F558EB01A25CB6F006622FA"
+            BuildableName = "AssetBuilder"
+            BlueprintName = "AssetBuilder"
+            ReferencedContainer = "container:Freefall.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7FF31F171A1AA90D0008999E"
-            BuildableName = "Sub-Terra.app"
-            BlueprintName = "Sub-Terra"
-            ReferencedContainer = "container:Sub-Terra.xcodeproj">
+            BlueprintIdentifier = "7F558EB01A25CB6F006622FA"
+            BuildableName = "AssetBuilder"
+            BlueprintName = "AssetBuilder"
+            ReferencedContainer = "container:Freefall.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
+      buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7FF31F171A1AA90D0008999E"
-            BuildableName = "Sub-Terra.app"
-            BlueprintName = "Sub-Terra"
-            ReferencedContainer = "container:Sub-Terra.xcodeproj">
+            BlueprintIdentifier = "7F558EB01A25CB6F006622FA"
+            BuildableName = "AssetBuilder"
+            BlueprintName = "AssetBuilder"
+            ReferencedContainer = "container:Freefall.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
