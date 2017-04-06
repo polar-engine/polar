@@ -218,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				7F0CB64B1A25D90B00623543 /* AppDelegate.mm */,
+				7F41DBDE1BE7188100B36981 /* AudioManager.cpp */,
 				7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */,
 				7F0CB64D1A25D90B00623543 /* glew.c */,
 				7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */,
@@ -263,7 +264,6 @@
 		7F54073B1A1AABD600B55B7A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				7F41DBDE1BE7188100B36981 /* AudioManager.cpp */,
 				7F0CB63F1A25D8A500623543 /* MainMenu.xib */,
 				7F0CB63D1A25D88C00623543 /* Info.plist */,
 				7F54073E1A1AAC4100B55B7A /* Images.xcassets */,
