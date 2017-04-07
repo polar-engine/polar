@@ -17,6 +17,7 @@
 #include "TextAsset.h"
 #include "ImageAsset.h"
 #include "AudioAsset.h"
+#include "FontAsset.h"
 #include "ShaderProgramAsset.h"
 
 int main(int argc, char **argv) {
@@ -25,6 +26,10 @@ int main(int argc, char **argv) {
 	auto files = FileSystem::ListDir(path);
 
 	std::unordered_map < std::string, std::function<std::string(const std::string &, Serializer &)>> converters;
+	converters["otf"] = [] (const std::string &data, Serializer &s) {
+		s.write(data.c_str(), data.size());
+		return AssetName<FontAsset>();
+	};
 	converters["txt"] = [] (const std::string &data, Serializer &s) {
 		s << data;
 		return AssetName<std::string>();

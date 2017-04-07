@@ -72,7 +72,6 @@
 		7F0CB6281A25D86E00623543 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = include/AssetManager.h; sourceTree = "<group>"; };
 		7F0CB6291A25D86E00623543 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = common.h; path = include/common.h; sourceTree = "<group>"; };
 		7F0CB62A1A25D86E00623543 /* Component.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Component.h; path = include/Component.h; sourceTree = "<group>"; };
-		7F0CB62B1A25D86E00623543 /* components.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = components.h; path = include/components.h; sourceTree = "<group>"; };
 		7F0CB62C1A25D86E00623543 /* EntityBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityBase.h; path = include/EntityBase.h; sourceTree = "<group>"; };
 		7F0CB62D1A25D86E00623543 /* EventManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EventManager.h; path = include/EventManager.h; sourceTree = "<group>"; };
 		7F0CB62E1A25D86E00623543 /* gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gl.h; path = include/gl.h; sourceTree = "<group>"; };
@@ -104,12 +103,13 @@
 		7F0CB6521A25D90B00623543 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = "<group>"; };
 		7F0CB65E1A25DC7500623543 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
 		7F0CB6601A25DC8100623543 /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Asset.h; path = include/Asset.h; sourceTree = SOURCE_ROOT; };
-		7F0CB6611A25DC8100623543 /* assets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = assets.h; path = include/assets.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6621A25DC8100623543 /* debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = debug.h; path = include/debug.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6631A25DC8100623543 /* endian.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = endian.h; path = include/endian.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6641A25DC8100623543 /* FileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileSystem.h; path = include/FileSystem.h; sourceTree = SOURCE_ROOT; };
-		7F0CB6651A25DC8100623543 /* ShaderAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderAsset.h; path = include/ShaderAsset.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6661A25DC8100623543 /* TextAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextAsset.h; path = include/TextAsset.h; sourceTree = SOURCE_ROOT; };
+		7F1F405F1E9787AC00DDC932 /* ShaderProgramAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderProgramAsset.h; path = include/ShaderProgramAsset.h; sourceTree = SOURCE_ROOT; };
+		7F1F40601E9787B200DDC932 /* ShaderProgramAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderProgramAsset.h; path = include/ShaderProgramAsset.h; sourceTree = SOURCE_ROOT; };
+		7F1F40611E97888000DDC932 /* FontAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FontAsset.h; path = include/FontAsset.h; sourceTree = SOURCE_ROOT; };
 		7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OrientationComponent.h; path = include/OrientationComponent.h; sourceTree = "<group>"; };
 		7F3F886F1A2C92A30078F5F9 /* Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Property.h; path = include/Property.h; sourceTree = "<group>"; };
 		7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -165,7 +165,6 @@
 			children = (
 				7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */,
 				7F0CB62A1A25D86E00623543 /* Component.h */,
-				7F0CB62B1A25D86E00623543 /* components.h */,
 				7F0CB6321A25D86E00623543 /* ModelComponent.h */,
 				7F0CB6351A25D86E00623543 /* PositionComponent.h */,
 				7F0CB6371A25D86E00623543 /* ScaleComponent.h */,
@@ -178,6 +177,7 @@
 			children = (
 				7F0CB6441A25D8DA00623543 /* Asset.h */,
 				7F0CB6471A25D8DA00623543 /* TextAsset.h */,
+				7F1F40601E9787B200DDC932 /* ShaderProgramAsset.h */,
 				7F0CB6281A25D86E00623543 /* AssetManager.h */,
 			);
 			name = Assets;
@@ -187,13 +187,13 @@
 			isa = PBXGroup;
 			children = (
 				7F0CB6601A25DC8100623543 /* Asset.h */,
-				7F0CB6611A25DC8100623543 /* assets.h */,
 				7F6865C61A9C857A00170F08 /* getline.h */,
 				7F0CB6621A25DC8100623543 /* debug.h */,
 				7F0CB6631A25DC8100623543 /* endian.h */,
 				7F0CB6641A25DC8100623543 /* FileSystem.h */,
-				7F0CB6651A25DC8100623543 /* ShaderAsset.h */,
+				7F1F40611E97888000DDC932 /* FontAsset.h */,
 				7F0CB6661A25DC8100623543 /* TextAsset.h */,
+				7F1F405F1E9787AC00DDC932 /* ShaderProgramAsset.h */,
 			);
 			name = "Header Files";
 			sourceTree = "<group>";
