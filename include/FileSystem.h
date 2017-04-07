@@ -62,7 +62,7 @@ public:
 		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, szPath);
 		if(FAILED(result)) { ENGINE_THROW("CSIDL_PERSONAL: failed to retrieve path"); }
 		PathAppendA(szPath, "My Games");
-		PathAppendA(szPath, "Sub-Terra");
+		PathAppendA(szPath, "Freefall");
 		return std::string(szPath);
 #endif
 #ifdef __APPLE__
