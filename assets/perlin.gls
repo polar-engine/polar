@@ -210,14 +210,7 @@ void main(void) {
 	float prevZ = 0.0;
 	float z = 0.0;
 	float thresh = 0.0;
-	if(Eval(v_vertex, 0.0, 1.0, 32.0, v_threshold, prevZ, z, thresh)) {
-		float prevZ_ = 0.0;
-		float z_ = 0.0;
-		float thresh_ = 0.0;
-		if(Eval(v_vertex, prevZ, z, 4.0, v_threshold, prevZ_, z_, thresh_)) {
-			z = z_;
-			thresh = thresh_;
-		}
+	if(Eval(v_vertex, 0.0, 1.0, 64.0, v_threshold, prevZ, z, thresh)) {
 		color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), (v_threshold - thresh) / 0.02) - sqrt(z);
 	}
 
