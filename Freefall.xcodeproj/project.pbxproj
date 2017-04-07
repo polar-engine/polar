@@ -12,7 +12,7 @@
 		7F0CB6551A25D90B00623543 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64D1A25D90B00623543 /* glew.c */; };
 		7F0CB6561A25D90B00623543 /* JobManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64E1A25D90B00623543 /* JobManager.cpp */; };
 		7F0CB6571A25D90B00623543 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64F1A25D90B00623543 /* main.m */; };
-		7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6511A25D90B00623543 /* SubTerra.cpp */; };
+		7F0CB6591A25D90B00623543 /* Freefall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6511A25D90B00623543 /* Freefall.cpp */; };
 		7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB6521A25D90B00623543 /* Worker.cpp */; };
 		7F0CB65B1A25D98600623543 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7F0CB63F1A25D8A500623543 /* MainMenu.xib */; };
 		7F0CB65F1A25DC7500623543 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB65E1A25DC7500623543 /* main.cpp */; };
@@ -84,7 +84,7 @@
 		7F0CB6361A25D86E00623543 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Renderer.h; path = include/Renderer.h; sourceTree = "<group>"; };
 		7F0CB6371A25D86E00623543 /* ScaleComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScaleComponent.h; path = include/ScaleComponent.h; sourceTree = "<group>"; };
 		7F0CB6381A25D86E00623543 /* sdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sdl.h; path = include/sdl.h; sourceTree = "<group>"; };
-		7F0CB6391A25D86E00623543 /* SubTerra.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SubTerra.h; path = include/SubTerra.h; sourceTree = "<group>"; };
+		7F0CB6391A25D86E00623543 /* Freefall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Freefall.h; path = include/Freefall.h; sourceTree = "<group>"; };
 		7F0CB63A1A25D86E00623543 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = include/System.h; sourceTree = "<group>"; };
 		7F0CB63C1A25D86E00623543 /* Worker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Worker.h; path = include/Worker.h; sourceTree = "<group>"; };
 		7F0CB63D1A25D88C00623543 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
@@ -99,7 +99,7 @@
 		7F0CB64D1A25D90B00623543 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = src/glew.c; sourceTree = "<group>"; };
 		7F0CB64E1A25D90B00623543 /* JobManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JobManager.cpp; path = src/JobManager.cpp; sourceTree = "<group>"; };
 		7F0CB64F1A25D90B00623543 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = src/main.m; sourceTree = "<group>"; };
-		7F0CB6511A25D90B00623543 /* SubTerra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SubTerra.cpp; path = src/SubTerra.cpp; sourceTree = "<group>"; };
+		7F0CB6511A25D90B00623543 /* Freefall.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Freefall.cpp; path = src/Freefall.cpp; sourceTree = "<group>"; };
 		7F0CB6521A25D90B00623543 /* Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Worker.cpp; path = src/Worker.cpp; sourceTree = "<group>"; };
 		7F0CB65E1A25DC7500623543 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
 		7F0CB6601A25DC8100623543 /* Asset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Asset.h; path = include/Asset.h; sourceTree = SOURCE_ROOT; };
@@ -227,7 +227,7 @@
 				7F0CB64E1A25D90B00623543 /* JobManager.cpp */,
 				7F0CB64F1A25D90B00623543 /* main.m */,
 				7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */,
-				7F0CB6511A25D90B00623543 /* SubTerra.cpp */,
+				7F0CB6511A25D90B00623543 /* Freefall.cpp */,
 				7F0CB6521A25D90B00623543 /* Worker.cpp */,
 			);
 			name = "Source Files";
@@ -253,7 +253,7 @@
 				7F3F886F1A2C92A30078F5F9 /* Property.h */,
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
 				7F0CB6381A25D86E00623543 /* sdl.h */,
-				7F0CB6391A25D86E00623543 /* SubTerra.h */,
+				7F0CB6391A25D86E00623543 /* Freefall.h */,
 				7F0CB63A1A25D86E00623543 /* System.h */,
 				7F949DF61AC7B2CE004F875F /* World.h */,
 				7F0CB63C1A25D86E00623543 /* Worker.h */,
@@ -446,7 +446,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F41DBDF1BE7188100B36981 /* AudioManager.cpp in Sources */,
-				7F0CB6591A25D90B00623543 /* SubTerra.cpp in Sources */,
+				7F0CB6591A25D90B00623543 /* Freefall.cpp in Sources */,
 				7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */,
 				7F0CB6571A25D90B00623543 /* main.m in Sources */,
 				7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */,

@@ -1,8 +1,8 @@
 #pragma once
 
-class SubTerra {
+class Freefall {
 public:
-	SubTerra() {}
-	virtual ~SubTerra() {}
+	Freefall() {}
+	virtual ~Freefall() {}
 	void Run(const std::vector<std::string> &);
 };
