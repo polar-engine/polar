@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 
 	std::unordered_map < std::string, std::function<std::string(const std::string &, Serializer &)>> converters;
 	converters["otf"] = [] (const std::string &data, Serializer &s) {
-		s.write(data.c_str(), data.size());
+		s << data;
 		return AssetName<FontAsset>();
 	};
 	converters["txt"] = [] (const std::string &data, Serializer &s) {

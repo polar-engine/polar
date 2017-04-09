@@ -13,6 +13,7 @@
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
 #include "BoundingComponent.h"
+#include "Text.h"
 
 void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
@@ -67,6 +68,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->Quit(); }));
 		st.dtors.emplace_back(inputM->On(Key::Space,       [engine] (Key) { engine->transition = "forward"; }));
 		st.dtors.emplace_back(inputM->On(Key::ControllerA, [engine] (Key) { engine->transition = "forward"; }));
+
+		auto font = assetM->Get<FontAsset>("TranscendsGamesUpright");
+
+		IDType textID;
+		st.dtors.emplace_back(engine->AddObject(&textID));
+		engine->AddComponent<Text>(textID, font, "hello world");
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
