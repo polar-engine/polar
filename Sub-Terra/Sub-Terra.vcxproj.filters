@@ -194,9 +194,6 @@
     <ClInclude Include="include\WaveShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AudioSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\TitlePlayerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -208,6 +205,18 @@
     </ClInclude>
     <ClInclude Include="include\Freefall.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FontAsset.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Text.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AudioSource.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AudioAsset.h">
+      <Filter>Header Files\Assets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
