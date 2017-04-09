@@ -44,13 +44,6 @@ float InverseDepth(in float linear) {
 	return z;
 }
 
-float Depth(in float hyperbolic) {
-	float f = 48.0;
-	float n = 0.1;
-	float z = (2 * n) / (f + n - hyperbolic * (f - n));
-	return z;
-}
-
 float Depth(in vec2 texCoord) {
 	float f = 48.0;
 	float n = 0.1;
@@ -170,15 +163,16 @@ float snoise(vec3 v) {
 	dot(p2,x2), dot(p3,x3) ) );
 }
 
-bool Eval(in vec2 screenCoord, in float startZ, in float endZ,
-          in float numSamples, in float threshold,
-          out float prevZ, out float z, out float thresh) {
-	vec4 coord = vec4(screenCoord, 0.0, 1.0);
+void main(void) {
+	vec3 color = vec3(0.0);
 
-	z = startZ;
+	float len = length(v_vertex);
+	float numSamples = 32.0;
+
+	vec4 coord = vec4(v_vertex.x, v_vertex.y, 0.0, 1.0);
+
 	for(float sample = 0.0; sample < numSamples;) {
-		prevZ = z;
-		z = startZ + sample / numSamples * (endZ - startZ);
+		float z = sample / numSamples;
 		coord.z = InverseDepth(z);
 
 		vec4 realCoordV4 = u_invViewProj * coord;
@@ -188,30 +182,14 @@ bool Eval(in vec2 screenCoord, in float startZ, in float endZ,
 
 		float s = sin(z * 3.14159 * 2.0 - v_dividedTime) - 0.9;
 		float f = 1.0 - pow(abs(s), 1.0 / 8.0);
-		thresh = threshold + f * 0.02;
+		float thresh = v_threshold + f * 0.02;
 
 		if(eval >= thresh) {
-			return true;
+			color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), (v_threshold - thresh) / 0.02) - sqrt(z);
+			break;
 		} else {
-			sample += max(0.01, pow((threshold - eval) * 20.0, 1.0 / 2.718281828));
+			sample += max(0.01, pow((v_threshold - eval) * 20.0, 1.0 / 2.718281828));
 		}
-	}
-	return false;
-}
-
-void main(void) {
-	vec4 screenCoord = vec4(v_vertex.x, v_vertex.y, 0.0, 1.0);
-
-	vec3 color = vec3(0.0);
-
-	float len = length(v_vertex);
-	float numSamples = 63.0 + pow(len, 2) * 30.0;
-
-	float prevZ = 0.0;
-	float z = 0.0;
-	float thresh = 0.0;
-	if(Eval(v_vertex, 0.0, 1.0, 48.0, v_threshold, prevZ, z, thresh)) {
-		color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), (v_threshold - thresh) / 0.02) - sqrt(z);
 	}
 
 	o_color = vec4(color, 1.0);
