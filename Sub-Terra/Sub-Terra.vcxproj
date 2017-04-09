@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioManager.cpp" />
+    <ClCompile Include="src\Freefall.cpp" />
     <ClCompile Include="src\GL32Renderer.cpp" />
     <ClCompile Include="src\glew.c" />
     <ClCompile Include="src\HumanPlayerController.cpp" />
@@ -138,7 +139,6 @@
     <ClCompile Include="src\JobManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SpatialIndex.cpp" />
-    <ClCompile Include="src\SubTerra.cpp" />
     <ClCompile Include="src\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +161,7 @@
     <ClInclude Include="include\EngineState.h" />
     <ClInclude Include="include\EntityBase.h" />
     <ClInclude Include="include\EventManager.h" />
+    <ClInclude Include="include\Freefall.h" />
     <ClInclude Include="include\gl.h" />
     <ClInclude Include="include\GL32Renderer.h" />
     <ClInclude Include="include\HumanPlayerController.h" />
@@ -186,7 +187,6 @@
     <ClInclude Include="include\sdl.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\SpatialIndex.h" />
-    <ClInclude Include="include\SubTerra.h" />
     <ClInclude Include="include\System.h" />
     <ClInclude Include="include\TitlePlayerController.h" />
     <ClInclude Include="include\Tweener.h" />
