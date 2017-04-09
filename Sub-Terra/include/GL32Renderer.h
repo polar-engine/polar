@@ -11,6 +11,7 @@
 #include "Renderer.h"
 #include "ShaderProgramAsset.h"
 #include "ModelComponent.h"
+#include "Text.h"
 
 struct PipelineNode {
 	GLuint program;
@@ -34,6 +35,10 @@ struct GL32ModelProperty : public Property {
 	}
 };
 
+struct GL32TextProperty : public Property {
+	GLuint texture;
+};
+
 template<typename T> struct SharedPtrLess : public std::binary_function<boost::shared_ptr<T>, boost::shared_ptr<T>, bool> {
 	inline bool operator()(const boost::shared_ptr<T> &left, const boost::shared_ptr<T> &right) const {
 		return *left < *right;
@@ -49,6 +54,7 @@ private:
 	boost::container::flat_multiset<boost::shared_ptr<GL32ModelProperty>, SharedPtrLess<GL32ModelProperty>> modelPropertyPool;
 
 	GLuint viewportVAO;
+	GLuint textProgram;
 
 	uint32_t time = 0;
 
@@ -126,9 +132,26 @@ private:
 	}
 
 	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::weak_ptr<Component> ptr) override final {
-		if(ti != &typeid(ModelComponent)) { return; }
-		auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
-		UploadModel(model);
+		if(ti == &typeid(ModelComponent)) {
+			auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
+			UploadModel(model);
+		} else if(ti == &typeid(Text)) {
+			auto text = boost::static_pointer_cast<Text>(ptr.lock());
+			GL32TextProperty prop;
+
+			GL(glGenTextures(1, &prop.texture));
+			GL(glBindTexture(GL_TEXTURE_2D, prop.texture));
+
+			GLint format = GL_RGBA;
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, text->surface->w, text->surface->h, 0, format, GL_UNSIGNED_BYTE, text->surface->pixels));
+
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+
+			text->Add<GL32TextProperty>(prop);
+		}
 	}
 
 	inline void ComponentRemoved(IDType id, const std::type_info *ti) override final {

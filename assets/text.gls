@@ -1,0 +1,23 @@
+@uniform mat4 u_transform
+@uniform sampler2D u_texture
+@attrib vec2 a_vertex
+@varying smooth vec2 v_vertex
+@out rgba8 color o_color
+
+@shader vertex
+
+void main() {
+	vec4 vertex = u_transform * vec4(a_vertex, 0.0, 1.0);
+	gl_Position = vertex;
+
+	v_vertex = a_vertex * 0.5 + 0.5;
+}
+
+@shader fragment
+
+void main() {
+	vec2 texCoord = v_vertex;
+	texCoord.y = 1.0 - texCoord.y;
+	vec4 color = texture(u_texture, texCoord);
+	o_color.rgba = color.bgra;
+}
