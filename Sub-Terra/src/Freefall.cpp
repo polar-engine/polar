@@ -1,5 +1,5 @@
 #include "common.h"
-#include "SubTerra.h"
+#include "Freefall.h"
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"
@@ -14,7 +14,7 @@
 #include "HumanPlayerController.h"
 #include "BoundingComponent.h"
 
-void SubTerra::Run(const std::vector<std::string> &args) {
+void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
 	Polar engine;
 	IDType playerID;

@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 #import "common.h"
-#import "SubTerra.h"
+#import "Freefall.h"
 
 @interface AppDelegate ()
 
@@ -12,7 +12,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	const std::vector<std::string> args;
-	SubTerra().Run(args);
+	Freefall().Run(args);
 	[NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
 }
 
