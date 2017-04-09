@@ -149,6 +149,8 @@
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
     <ClInclude Include="..\include\FontAsset.h" />
+    <ClInclude Include="..\include\Key.h" />
+    <ClInclude Include="..\include\sdl.h" />
     <ClInclude Include="..\include\Serializer.h" />
     <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
@@ -173,7 +175,6 @@
     <ClInclude Include="include\Integrator.h" />
     <ClInclude Include="include\Job.h" />
     <ClInclude Include="include\JobManager.h" />
-    <ClInclude Include="include\Key.h" />
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\OpenSimplexNoise.h" />
     <ClInclude Include="include\OrientationComponent.h" />
@@ -186,7 +187,6 @@
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\ScaleComponent.h" />
-    <ClInclude Include="include\sdl.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\SpatialIndex.h" />
     <ClInclude Include="include\System.h" />

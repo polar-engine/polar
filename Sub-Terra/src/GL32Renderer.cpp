@@ -28,7 +28,8 @@ bool GL32Renderer::IsSupported() {
 }
 
 void GL32Renderer::InitGL() {
-	if(!SDL(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER))) { ENGINE_THROW("failed to init SDL"); }
+	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { ENGINE_THROW("failed to init SDL"); }
+	if(!SDL(TTF_Init())) { ENGINE_THROW("failed to init TTF"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { ENGINE_THROW("failed to set major version attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) { ENGINE_THROW("failed to set minor version attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { ENGINE_THROW("failed to set profile mask attribute"); }
@@ -56,7 +57,7 @@ void GL32Renderer::InitGL() {
 	 */
 	glGetError();
 
-	GL(glEnable(GL_DEPTH_TEST));
+	GL(glDisable(GL_DEPTH_TEST));
 	GL(glEnable(GL_BLEND));
 	GL(glEnable(GL_CULL_FACE));
 	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -88,6 +89,9 @@ void GL32Renderer::Init() {
 	GL(glEnableVertexAttribArray(0));
 
 	MakePipeline(pipelineNames);
+
+	auto assetM = engine->GetSystem<AssetManager>().lock();
+	textProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("text"));
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
@@ -227,6 +231,38 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
 			break;
+		}
+	}
+
+	// text
+	{
+		GL(glUseProgram(textProgram));
+		GLint locTexture;
+		GL(locTexture = glGetUniformLocation(textProgram, "u_texture"));
+		GL(glUniform1i(locTexture, 0));
+
+		auto pairRight = engine->objects.right.equal_range(&typeid(Text));
+		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+			auto text = static_cast<Text *>(itRight->info.get());
+			auto property = text->Get<GL32TextProperty>().lock();
+			if(property) {
+				auto viewport = Point2(this->width, this->height);
+				auto scale = text->scale / viewport;
+				glm::mat4 transform;
+				transform = glm::translate(transform, Point3(-1.0f, -1.0f, 0.0f));
+				transform = glm::scale(transform, Point3(scale, 1.0f));
+				transform = glm::translate(transform, Point3(1.0f, 1.0f, 0.0f));
+				transform = glm::translate(transform, Point3(text->position / text->scale * 2.0f, 0.0f));
+
+				GLint locTransform;
+				GL(locTransform = glGetUniformLocation(textProgram, "u_transform"));
+				GL(glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(transform)));
+
+				GL(glActiveTexture(GL_TEXTURE0));
+				GL(glBindTexture(GL_TEXTURE_2D, property->texture));
+				GL(glBindVertexArray(viewportVAO));
+				GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+			}
 		}
 	}
 

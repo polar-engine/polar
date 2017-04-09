@@ -77,9 +77,6 @@
     <ClInclude Include="include\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\sdl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\System.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -127,9 +124,6 @@
     </ClInclude>
     <ClInclude Include="include\PlayerCameraComponent.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Key.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\InputManager.h">
       <Filter>Header Files</Filter>
@@ -217,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="..\include\AudioAsset.h">
       <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sdl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Key.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -73,7 +73,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		IDType textID;
 		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponent<Text>(textID, font, "hello world");
+		engine->AddComponent<Text>(textID, font, "Quit Game", Point2(50, 50));
+
+		st.dtors.emplace_back(engine->AddObject(&textID));
+		engine->AddComponent<Text>(textID, font, "Options", Point2(50, 100));
+
+		st.dtors.emplace_back(engine->AddObject(&textID));
+		engine->AddComponent<Text>(textID, font, "Solo Play", Point2(50, 150));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
