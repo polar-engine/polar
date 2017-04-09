@@ -1,5 +1,5 @@
 #include "common.h"
-#include "SubTerra.h"
+#include "Freefall.h"
 
 int main(int argc, char **argv) {
 	std::vector<std::string> args;
@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 		args.emplace_back(std::string(argv[i]));
 	}
 
-	SubTerra().Run(args);
+	Freefall().Run(args);
 	ENGINE_CONTINUE;
 	return 0;
 }
