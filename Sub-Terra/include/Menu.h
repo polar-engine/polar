@@ -32,7 +32,7 @@ protected:
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 
-		auto font = assetM->Get<FontAsset>("TranscendsGamesUpright");
+		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
 		dtors.emplace_back(engine->AddObject(&menuIDs[0]));
 		engine->AddComponent<Text>(menuIDs[0], font, "Solo Play", Point2(50, 150));

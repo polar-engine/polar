@@ -109,6 +109,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
 		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
 
+		auto font = assetM->Get<FontAsset>("nasalization-rg");
+
+		IDType scoreID;
+		st.dtors.emplace_back(engine->AddObject(&scoreID));
+		engine->AddComponent<Text>(scoreID, font, "0.00s", Point2(20, 20), Origin::TopRight, Point4(0.7f, 0.95f, 1.0f, 0.5f));
+
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
 		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("beep1"));

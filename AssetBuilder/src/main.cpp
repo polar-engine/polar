@@ -26,6 +26,10 @@ int main(int argc, char **argv) {
 	auto files = FileSystem::ListDir(path);
 
 	std::unordered_map < std::string, std::function<std::string(const std::string &, Serializer &)>> converters;
+	converters["ttf"] = [] (const std::string &data, Serializer &s) {
+		s << data;
+		return AssetName<FontAsset>();
+	};
 	converters["otf"] = [] (const std::string &data, Serializer &s) {
 		s << data;
 		return AssetName<FontAsset>();
