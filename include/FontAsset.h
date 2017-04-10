@@ -21,10 +21,12 @@ template<> inline std::string AssetName<FontAsset>() { return "Font"; }
 inline Deserializer & operator>>(Deserializer &s, FontAsset &asset) {
 	std::string data;
 	s >> data;
+	char *buffer = static_cast<char *>(malloc(data.size()));
+	memcpy(buffer, data.data(), data.size());
 
 	SDL_RWops *rwopts;
-	SDL(rwopts = SDL_RWFromConstMem(data.data(), data.size()));
-	SDL(asset.font = TTF_OpenFontRW(rwopts, true, 36));
+	SDL(rwopts = SDL_RWFromConstMem(buffer, data.size()));
+	SDL(asset.font = TTF_OpenFontRW(rwopts, false, 36));
 
 	return s;
 }
