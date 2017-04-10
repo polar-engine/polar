@@ -247,12 +247,63 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			auto property = text->Get<GL32TextProperty>().lock();
 			if(property) {
 				auto viewport = Point2(this->width, this->height);
-				auto scale = text->scale / viewport;
 				glm::mat4 transform;
-				transform = glm::translate(transform, Point3(-1.0f, -1.0f, 0.0f));
-				transform = glm::scale(transform, Point3(scale, 1.0f));
-				transform = glm::translate(transform, Point3(1.0f, 1.0f, 0.0f));
-				transform = glm::translate(transform, Point3(text->position / text->scale * 2.0f, 0.0f));
+
+				switch(text->origin) {
+				case Origin::BottomLeft:
+					transform = glm::translate(transform, Point3(-1.0f, -1.0f, 0.0f));
+					break;
+				case Origin::BottomRight:
+					transform = glm::translate(transform, Point3( 1.0f, -1.0f, 0.0f));
+					break;
+				case Origin::TopLeft:
+					transform = glm::translate(transform, Point3(-1.0f,  1.0f, 0.0f));
+					break;
+				case Origin::TopRight:
+					transform = glm::translate(transform, Point3( 1.0f,  1.0f, 0.0f));
+					break;
+				case Origin::Center:
+					break;
+				}
+
+				transform = glm::scale(transform, Point3(1.0f / viewport, 1.0f));
+
+				switch(text->origin) {
+				case Origin::BottomLeft:
+					transform = glm::translate(transform, Point3(text->position * Point2( 2.0f,  2.0f), 0.0f));
+					break;
+				case Origin::BottomRight:
+					transform = glm::translate(transform, Point3(text->position * Point2(-2.0f,  2.0f), 0.0f));
+					break;
+				case Origin::TopLeft:
+					transform = glm::translate(transform, Point3(text->position * Point2( 2.0f, -2.0f), 0.0f));
+					break;
+				case Origin::TopRight:
+					transform = glm::translate(transform, Point3(text->position * Point2(-2.0f, -2.0f), 0.0f));
+					break;
+				case Origin::Center:
+					transform = glm::translate(transform, Point3(text->position * Point2( 2.0f,  2.0f), 0.0f));
+					break;
+				}
+
+				transform = glm::scale(transform, Point3(text->scale, 1.0f));
+
+				switch(text->origin) {
+				case Origin::BottomLeft:
+					transform = glm::translate(transform, Point3( 1.0f,  1.0f, 0.0f));
+					break;
+				case Origin::BottomRight:
+					transform = glm::translate(transform, Point3(-1.0f,  1.0f, 0.0f));
+					break;
+				case Origin::TopLeft:
+					transform = glm::translate(transform, Point3( 1.0f, -1.0f, 0.0f));
+					break;
+				case Origin::TopRight:
+					transform = glm::translate(transform, Point3(-1.0f, -1.0f, 0.0f));
+					break;
+				case Origin::Center:
+					break;
+				}
 
 				GLint locTransform;
 				GL(locTransform = glGetUniformLocation(textProgram, "u_transform"));
