@@ -192,5 +192,11 @@ void main(void) {
 		}
 	}
 
+	// crosshairs
+	if(length(coord.xy) < 0.01 && (length(coord.x) < 0.002 || length(coord.y) < 0.002)) {
+		float alpha = 0.25;
+		color = alpha * vec3(1.0) + (1 - alpha) * color;
+	}
+
 	o_color = vec4(color, 1.0);
 }
