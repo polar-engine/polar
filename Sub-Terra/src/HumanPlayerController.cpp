@@ -42,11 +42,13 @@ void HumanPlayerController::Init() {
 
 	/* collision detection and response */
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
-		auto &curr = *ownPos->position;
+		auto world = engine->GetSystem<World>().lock();
 
-		float eval = glm::simplex(curr * 0.05f + 10.0f) * 0.5 + 0.5;
-		if(eval > 0.7) {
-			engine->transition = "back";
+		if(world) {
+			auto &curr = *ownPos->position;
+			if(world->Eval(curr)) {
+				engine->transition = "back";
+			}
 		}
 	}));
 }
