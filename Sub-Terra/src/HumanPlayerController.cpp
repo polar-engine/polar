@@ -72,9 +72,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	} else {
 		color = Point3(0.7f, 0.95f, 1.0f);
 	}
-	float alpha = 0.35f;
-	//color = glm::mix(Point3(1.0f), color, 1.0f - glm::abs(glm::pow(glm::sin(time * glm::pi<float>()), 5.0f)));
-	alpha = glm::mix(0.8f, alpha, 1.0f - glm::abs(glm::pow(glm::sin(time * glm::pi<float>()), 5.0f)));
+	float alpha = glm::mix(0.8f, 0.35f, 1.0f - glm::abs(glm::pow(glm::sin((time - 0.5f) * glm::pi<float>()), 8.0f)));
 
 	engine->AddComponent<Text>(timeID, font, oss.str(), Point2(20, 20), Origin::TopRight, Point4(color, alpha));
 
