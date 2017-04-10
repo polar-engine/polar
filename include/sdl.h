@@ -105,6 +105,8 @@ inline Key mkKeyFromSDL(SDL_Keycode k) {
 		return Key::Escape;
 	case SDLK_SPACE:
 		return Key::Space;
+	case SDLK_RETURN:
+		return Key::Enter;
 	case SDLK_UP:
 		return Key::Up;
 	case SDLK_DOWN:

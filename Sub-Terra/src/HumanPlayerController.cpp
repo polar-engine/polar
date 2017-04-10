@@ -62,9 +62,21 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	auto font = assetM->Get<FontAsset>("nasalization-rg");
 	timeDtor = engine->AddObject(&timeID);
+
 	std::ostringstream oss;
 	oss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << time << 's';
-	engine->AddComponent<Text>(timeID, font, oss.str(), Point2(20, 20), Origin::TopRight, Point4(0.7f, 0.95f, 1.0f, 0.5f));
+
+	Point3 color;
+	if(time > 60.0f) {
+		color = Point3(1.0f, 0.75f, 0.5f);
+	} else {
+		color = Point3(0.7f, 0.95f, 1.0f);
+	}
+	float alpha = 0.35f;
+	//color = glm::mix(Point3(1.0f), color, 1.0f - glm::abs(glm::pow(glm::sin(time * glm::pi<float>()), 5.0f)));
+	alpha = glm::mix(0.8f, alpha, 1.0f - glm::abs(glm::pow(glm::sin(time * glm::pi<float>()), 5.0f)));
+
+	engine->AddComponent<Text>(timeID, font, oss.str(), Point2(20, 20), Origin::TopRight, Point4(color, alpha));
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
