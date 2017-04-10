@@ -40,6 +40,10 @@ enum class Key : uint8_t {
 	Num0,
 	Escape,
 	Space,
+	Up,
+	Down,
+	Left,
+	Right,
 	ControllerA,
 	ControllerBack
 };

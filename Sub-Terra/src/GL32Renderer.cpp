@@ -258,6 +258,10 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				GL(locTransform = glGetUniformLocation(textProgram, "u_transform"));
 				GL(glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(transform)));
 
+				GLint locColor;
+				GL(locColor = glGetUniformLocation(textProgram, "u_color"));
+				GL(glUniform4f(locColor, text->color.r, text->color.g, text->color.b, text->color.a));
+
 				GL(glActiveTexture(GL_TEXTURE0));
 				GL(glBindTexture(GL_TEXTURE_2D, property->texture));
 				GL(glBindVertexArray(viewportVAO));

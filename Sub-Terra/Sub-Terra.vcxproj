@@ -175,6 +175,7 @@
     <ClInclude Include="include\Integrator.h" />
     <ClInclude Include="include\Job.h" />
     <ClInclude Include="include\JobManager.h" />
+    <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\ModelComponent.h" />
     <ClInclude Include="include\OpenSimplexNoise.h" />
     <ClInclude Include="include\OrientationComponent.h" />
