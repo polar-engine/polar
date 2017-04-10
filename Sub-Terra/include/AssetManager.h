@@ -26,7 +26,7 @@ public:
 		return GetAssetsDir() + '/' + AssetName<T>() + '/' + name + ".asset";
 	}
 
-	template<typename T, typename ...Ts> T Get(const std::string name, Ts && ...args) {
+	template<typename T, typename ...Ts> std::shared_ptr<T> Get(const std::string name, Ts && ...args) {
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
 		auto path = GetPath<T>(name);
 		if(cache.find(path) == cache.end()) {
@@ -36,6 +36,6 @@ public:
 			deserializer >> *asset;
 			cache.emplace(path, std::static_pointer_cast<Asset>(asset));
 		}
-		return T(*std::static_pointer_cast<T>(cache.at(path)));
+		return std::static_pointer_cast<T>(cache.at(path));
 	}
 };

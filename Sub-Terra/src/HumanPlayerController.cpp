@@ -1,7 +1,9 @@
 
 #include "common.h"
+#include <iomanip>
 #include <glm/gtc/noise.hpp>
 #include "HumanPlayerController.h"
+#include "AssetManager.h"
 #include "EventManager.h"
 #include "InputManager.h"
 #include "World.h"
@@ -10,6 +12,7 @@
 #include "PlayerCameraComponent.h"
 #include "BoundingComponent.h"
 #include "PhysicalComponent.h"
+#include "Text.h"
 
 void HumanPlayerController::Init() {
 	engine->AddComponent<PlayerCameraComponent>(object);
@@ -54,6 +57,15 @@ void HumanPlayerController::Init() {
 }
 
 void HumanPlayerController::Update(DeltaTicks &dt) {
+	time += dt.Seconds();
+
+	auto assetM = engine->GetSystem<AssetManager>().lock();
+	auto font = assetM->Get<FontAsset>("nasalization-rg");
+	timeDtor = engine->AddObject(&timeID);
+	std::ostringstream oss;
+	oss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << time << 's';
+	engine->AddComponent<Text>(timeID, font, oss.str(), Point2(20, 20), Origin::TopRight, Point4(0.7f, 0.95f, 1.0f, 0.5f));
+
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
