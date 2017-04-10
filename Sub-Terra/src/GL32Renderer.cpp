@@ -393,7 +393,7 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 
 void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &names) {
 	auto assetM = engine->GetSystem<AssetManager>().lock();
-	std::vector<ShaderProgramAsset> assets;
+	std::vector<std::shared_ptr<ShaderProgramAsset>> assets;
 	for(auto &node : nodes) {
 		for(auto &out : node.globalOuts) { GL(glDeleteTextures(1, &out.second)); }
 		for(auto &out : node.outs) { GL(glDeleteTextures(1, &out.second)); }
@@ -407,7 +407,7 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 		auto asset = assetM->Get<ShaderProgramAsset>(name);
 		assets.emplace_back(asset);
 		nodes.emplace_back(MakeProgram(asset));
-		for(auto &uniform : asset.uniforms) { nodes.back().uniforms.emplace(uniform); }
+		for(auto &uniform : asset->uniforms) { nodes.back().uniforms.emplace(uniform); }
 	}
 
 	for(unsigned int i = 0; i < nodes.size() - 1; ++i) {
@@ -492,16 +492,16 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 			return texture;
 		};
 
-		for(auto &out : asset.outs) { node.outs.emplace(out.key, fOut(out)); }
-		for(auto &out : asset.globalOuts) { node.globalOuts.emplace(out.key, fOut(out)); }
+		for(auto &out : asset->outs) { node.outs.emplace(out.key, fOut(out)); }
+		for(auto &out : asset->globalOuts) { node.globalOuts.emplace(out.key, fOut(out)); }
 
-		for(auto &in : nextAsset.ins) {
+		for(auto &in : nextAsset->ins) {
 			auto it = node.outs.find(in.key);
 			if(it == node.outs.end()) { ENGINE_THROW("failed to connect nodes (invalid key `" + in.key + "`)"); }
 			nextNode.ins.emplace(in.key, in.name);
 		}
 
-		for(auto &in : nextAsset.globalIns) { nextNode.globalIns.emplace(in.key, in.name); }
+		for(auto &in : nextAsset->globalIns) { nextNode.globalIns.emplace(in.key, in.name); }
 
 		GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data()));
 
@@ -526,9 +526,9 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 	}
 }
 
-GLuint GL32Renderer::MakeProgram(ShaderProgramAsset &asset) {
+GLuint GL32Renderer::MakeProgram(std::shared_ptr<ShaderProgramAsset> asset) {
 	std::vector<GLuint> ids;
-	for(auto &shader : asset.shaders) {
+	for(auto &shader : asset->shaders) {
 		GLenum type = 0;
 		switch(shader.type) {
 		case ShaderType::Vertex:

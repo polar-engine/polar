@@ -187,7 +187,7 @@ private:
 
 	void InitGL();
 	void HandleSDL(SDL_Event &);
-	GLuint MakeProgram(ShaderProgramAsset &);
+	GLuint MakeProgram(std::shared_ptr<ShaderProgramAsset>);
 public:
 	boost::unordered_map<std::string, float> uniforms;
 
