@@ -8,16 +8,20 @@ protected:
 	FontAsset asset;
 	std::string str;
 public:
-	SDL_Surface *surface;
+	Point4 color;
 	Point2 position;
 	Point2 scale;
+	SDL_Surface *surface;
 
-	Text(const FontAsset &asset, const std::string &str, const Point2 pos = Point2(0.0f), const Point2 scale = Point2(-1.0f))
-		: asset(asset), str(str), position(pos), scale(scale) {
-		SDL_Color color = { 255, 255, 0, 255 };
-		SDL(this->surface = TTF_RenderUTF8_Blended(this->asset.font, this->str.data(), color));
+	Text(const FontAsset &asset, const std::string &str, const Point2 pos = Point2(0.0f), const Point4 color = Point4(1.0f), const Point2 scale = Point2(-1.0f))
+		: asset(asset), str(str), position(pos), color(color), scale(scale) {
+		Render();
+	}
 
-		if(this->scale.x < 0.0f) { this->scale.x = surface->w; }
-		if(this->scale.y < 0.0f) { this->scale.y = surface->h; }
+	void Render() {
+		SDL(surface = TTF_RenderUTF8_Blended(asset.font, str.data(), { 255, 255, 255, 255 }));
+
+		if(scale.x < 0.0f) { scale.x = surface->w; }
+		if(scale.y < 0.0f) { scale.y = surface->h; }
 	}
 };

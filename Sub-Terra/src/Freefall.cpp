@@ -10,6 +10,7 @@
 #include "AudioManager.h"
 #include "GL32Renderer.h"
 #include "World.h"
+#include "Menu.h"
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
 #include "BoundingComponent.h"
@@ -58,6 +59,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.transitions.emplace("forward", Transition{Pop(), Push("playing")});
 
 		st.AddSystem<TitlePlayerController>(playerID);
+		st.AddSystem<Menu>();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
@@ -66,20 +68,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->Quit(); }));
 		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->Quit(); }));
-		st.dtors.emplace_back(inputM->On(Key::Space,       [engine] (Key) { engine->transition = "forward"; }));
-		st.dtors.emplace_back(inputM->On(Key::ControllerA, [engine] (Key) { engine->transition = "forward"; }));
-
-		auto font = assetM->Get<FontAsset>("TranscendsGamesUpright");
-
-		IDType textID;
-		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponent<Text>(textID, font, "Quit Game", Point2(50, 50));
-
-		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponent<Text>(textID, font, "Options", Point2(50, 100));
-
-		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponent<Text>(textID, font, "Solo Play", Point2(50, 150));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
