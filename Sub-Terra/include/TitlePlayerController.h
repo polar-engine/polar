@@ -20,7 +20,7 @@ protected:
 		auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 		auto world = engine->GetSystem<World>().lock();
 
-		orientVel *= static_cast<float>(glm::pow(0.993, dt.Seconds() * 1000.0));
+		orientVel *= static_cast<float>(glm::pow(0.998, dt.Seconds() * 1000.0));
 
 		unsigned int i = 0;
 		auto average = Point2(0);
@@ -31,8 +31,8 @@ protected:
 						auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * Point4(x, y, -d, 1);
 						auto eval = world->Eval(pos->position.Get() + Point3(abs));
 						if(eval) {
-							average.x += 0.0007f * ((y >= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
-							average.y += 0.0007f * ((x <= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
+							average.x += 0.00003f * ((y >= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
+							average.y += 0.00003f * ((x <= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
 							++i;
 							break;
 						}
@@ -60,7 +60,7 @@ protected:
 public:
 	const int fieldOfView = 5;
 	const float viewDistance = 40.0f;
-	const float velocity = 1000.0f;
+	const float velocity = 300.0f;
 
 	static bool IsSupported() { return true; }
 	TitlePlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}
