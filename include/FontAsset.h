@@ -26,7 +26,7 @@ inline Deserializer & operator>>(Deserializer &s, FontAsset &asset) {
 
 	SDL_RWops *rwopts;
 	SDL(rwopts = SDL_RWFromConstMem(buffer, data.size()));
-	SDL(asset.font = TTF_OpenFontRW(rwopts, false, 36));
+	SDL(asset.font = TTF_OpenFontRW(rwopts, false, 144));
 
 	return s;
 }

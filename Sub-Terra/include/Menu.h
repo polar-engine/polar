@@ -35,13 +35,14 @@ protected:
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
 		dtors.emplace_back(engine->AddObject(&menuIDs[0]));
-		engine->AddComponent<Text>(menuIDs[0], font, "Solo Play", Point2(50, 150));
-
 		dtors.emplace_back(engine->AddObject(&menuIDs[1]));
-		engine->AddComponent<Text>(menuIDs[1], font, "Options", Point2(50, 100));
-
 		dtors.emplace_back(engine->AddObject(&menuIDs[2]));
-		engine->AddComponent<Text>(menuIDs[2], font, "Quit Game", Point2(50, 50));
+		engine->AddComponent<Text>(menuIDs[0], font, "Solo Play", Point2(60, 170));
+		engine->AddComponent<Text>(menuIDs[1], font, "Options",   Point2(60, 110));
+		engine->AddComponent<Text>(menuIDs[2], font, "Quit Game", Point2(60, 50));
+		engine->GetComponent<Text>(menuIDs[0])->scale *= 0.375f;
+		engine->GetComponent<Text>(menuIDs[1])->scale *= 0.375f;
+		engine->GetComponent<Text>(menuIDs[2])->scale *= 0.375f;
 
 		dtors.emplace_back(inputM->On(Key::Down, [this] (Key) { DownBy(1); }));
 		dtors.emplace_back(inputM->On(Key::S,    [this] (Key) { DownBy(1); }));
@@ -54,6 +55,7 @@ protected:
 		}));
 
 		dtors.emplace_back(inputM->On(Key::Space,       [this] (Key) { Transition(); }));
+		dtors.emplace_back(inputM->On(Key::Enter,       [this] (Key) { Transition(); }));
 		dtors.emplace_back(inputM->On(Key::ControllerA, [this] (Key) { Transition(); }));
 	}
 
