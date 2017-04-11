@@ -20,7 +20,7 @@ public:
 	Origin origin;
 	Point2 position;
 	Point2 scale;
-	SDL_Surface *surface;
+	SDL_Surface *surface = nullptr;
 
 	Text(std::shared_ptr<FontAsset> asset, const std::string str, const Point2 pos = Point2(0.0f), const Origin origin = Origin::BottomLeft,
 	     const Point4 color = Point4(1.0f), const Point2 scale = Point2(-1.0f))
@@ -33,7 +33,9 @@ public:
 	}
 
 	void Render() {
-		SDL(SDL_FreeSurface(surface));
+		if(surface) {
+			SDL(SDL_FreeSurface(surface));
+		}
 		SDL(surface = TTF_RenderUTF8_Blended(asset->font, str.data(), { 255, 255, 255, 255 }));
 
 		if(scale.x < 0.0f) { scale.x = surface->w; }
