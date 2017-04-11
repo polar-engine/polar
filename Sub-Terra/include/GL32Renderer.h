@@ -200,7 +200,8 @@ private:
 	void HandleSDL(SDL_Event &);
 	GLuint MakeProgram(std::shared_ptr<ShaderProgramAsset>);
 public:
-	boost::unordered_map<std::string, float> uniforms;
+	boost::unordered_map<std::string, float> uniformsFloat;
+	boost::unordered_map<std::string, Point3> uniformsPoint3;
 	float fps = 60.0f;
 
 	static bool IsSupported();
@@ -213,13 +214,25 @@ public:
 	}
 
 	void SetUniform(const std::string &name, float x) {
-		uniforms[name] = x;
+		uniformsFloat[name] = x;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
 				GL(glUseProgram(node.program));
 				GLint loc;
 				GL(loc = glGetUniformLocation(node.program, name.c_str()));
 				GL(glUniform1f(loc, x));
+			}
+		}
+	}
+
+	void SetUniform(const std::string &name, Point3 p) {
+		uniformsPoint3[name] = p;
+		for(auto &node : nodes) {
+			if(node.uniforms.find(name) != node.uniforms.end()) {
+				GL(glUseProgram(node.program));
+				GLint loc;
+				GL(loc = glGetUniformLocation(node.program, name.c_str()));
+				GL(glUniform3f(loc, p.x, p.y, p.z));
 			}
 		}
 	}
