@@ -1,5 +1,6 @@
 #include "common.h"
 #include "Freefall.h"
+#include <random>
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"
@@ -21,6 +22,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	Polar engine;
 	IDType playerID;
 
+	std::mt19937_64 rng(time(0));
+
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world")});
 
@@ -41,16 +44,19 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->transition = "forward";
 	});
 
-	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
+	engine.AddState("world", [&rng, &playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("title")});
 
-		st.AddSystem<World>();
+		auto renderer = engine->GetSystem<GL32Renderer>().lock();
 
-		const float size = 0.05f; /* zNear */
+		float seed = (float)rng() / rng.max() * 1000.0f;
+		st.AddSystem<World>(seed);
+		renderer->SetUniform("u_seed", seed);
+
 		st.dtors.emplace_back(engine->AddObject(&playerID));
+
 		engine->AddComponent<PositionComponent>(playerID);
 		engine->AddComponent<OrientationComponent>(playerID);
-		engine->AddComponent<BoundingComponent>(playerID, Point3(-size), Point3(size));
 
 		engine->transition = "forward";
 	});

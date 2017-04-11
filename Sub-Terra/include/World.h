@@ -18,7 +18,7 @@ public:
 	World(Polar *engine, float seed = 0.0f) : System(engine), seed(seed) {}
 
 	inline bool Eval(const Point3 &p) const {
-		float eval = glm::simplex(p * 0.05f + 10.0f) * 0.5 + 0.5;
+		float eval = glm::simplex(Point4(p * 0.05f, seed)) * 0.5f + 0.5f;
 		return eval >= 0.7;
 		return false;
 	}
