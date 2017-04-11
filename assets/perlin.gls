@@ -9,8 +9,6 @@
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @varying flat vec3 v_solidColor
-@varying flat float v_threshold
-@varying flat float v_dividedTime
 @gin position u_posBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
@@ -18,22 +16,12 @@
 
 @shader vertex
 
-float thresholdF() {
-	float s = sin(float(u_time) / 1000.0);
-	float f = 1.0 - pow(abs(s), 1.0 / 4.0);
-	return 0.7 + f * 0.005;
-}
-
 void main() {
 	gl_Position = vec4(a_vertex, 0.0, 1.0);
 	v_vertex = a_vertex;
 
 	v_solidColor = vec3(u_red, u_green, u_blue);
 	if(length(v_solidColor) < 1.0) { v_solidColor = vec3(0.8); }
-
-	v_threshold = thresholdF();
-
-	v_dividedTime = float(u_time) / 2345.0;
 }
 
 @shader fragment
@@ -192,6 +180,26 @@ float snoise(vec4 v) {
 	+ dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;
 }
 
+float Threshold() {
+	float s = sin(float(u_time) / 1000.0);
+	float f = 1.0 - pow(abs(s), 1.0 / 4.0);
+	return 0.7 + f * 0.005;
+}
+
+#define PI_2 (3.14159 * 2.0)
+
+float Threshold2(in float z) {
+	float s = sin(z * PI_2 - float(u_time) / 2345.0) - 0.9;
+	float f = 1.0 - pow(abs(s), 1.0 / 8.0);
+	return f * 0.02;
+}
+
+bool Eval(in vec3 coord, in float z, out float result) {
+	const float scale = 0.05;
+	result = snoise(vec4(coord * scale, u_seed)) * 0.5 + 0.5;
+	return result >= Threshold() + Threshold2(z);
+}
+
 void main(void) {
 	vec3 color = vec3(0.0);
 
@@ -207,17 +215,12 @@ void main(void) {
 		vec4 realCoordV4 = u_invViewProj * coord;
 		vec3 realCoord = realCoordV4.xyz / realCoordV4.w;
 
-		float eval = snoise(vec4(realCoord * 0.05, u_seed)) * 0.5 + 0.5;
-
-		float s = sin(z * 3.14159 * 2.0 - v_dividedTime) - 0.9;
-		float f = 1.0 - pow(abs(s), 1.0 / 8.0);
-		float thresh = v_threshold + f * 0.02;
-
-		if(eval >= thresh) {
-			color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), (v_threshold - thresh) / 0.02) - sqrt(z);
+		float result;
+		if(Eval(realCoord, z, result)) {
+			color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), -Threshold2(z) / 0.02) - sqrt(z);
 			break;
 		} else {
-			sample += max(0.01, pow((v_threshold - eval) * 20.0, 1.0 / 2.718281828));
+			sample += max(0.01, pow((Threshold() - result) * 20.0, 1.0 / 2.718281828));
 		}
 	}
 
