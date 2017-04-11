@@ -158,13 +158,21 @@ private:
 	}
 
 	inline void ComponentRemoved(IDType id, const std::type_info *ti) override final {
-		if(ti != &typeid(ModelComponent)) { return; }
-		auto model = engine->GetComponent<ModelComponent>(id);
-
-		if(model != nullptr) {
-			auto prop = model->Get<GL32ModelProperty>().lock();
-			if(prop) {
-				modelPropertyPool.emplace(prop);
+		if(ti == &typeid(ModelComponent)) {
+			auto model = engine->GetComponent<ModelComponent>(id);
+			if(model != nullptr) {
+				auto prop = model->Get<GL32ModelProperty>().lock();
+				if(prop) {
+					modelPropertyPool.emplace(prop);
+				}
+			}
+		} else if(ti == &typeid(Text)) {
+			auto text = engine->GetComponent<Text>(id);
+			if(text != nullptr) {
+				auto prop = text->Get<GL32TextProperty>().lock();
+				if(prop) {
+					GL(glDeleteTextures(1, &prop->texture));
+				}
 			}
 		}
 	}
