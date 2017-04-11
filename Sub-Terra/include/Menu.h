@@ -8,6 +8,10 @@ private:
 	int currentID = 0;
 	FontAsset font;
 
+	// the size of the array determines how many concurrent sounds we can play at once
+	std::array<boost::shared_ptr<Destructor>, 4> soundDtors;
+	size_t soundIndex = 0;
+
 	void Transition() {
 		switch(currentID) {
 		case 0:
@@ -21,10 +25,19 @@ private:
 	}
 
 	void DownBy(int delta) {
-		engine->GetComponent<Text>(menuIDs[currentID])->color.b = 1.0f;
-		currentID += delta;
-		if(currentID < 0) { currentID += menuIDs.size(); }
-		currentID %= menuIDs.size();
+		if(delta != 0) {
+			auto assetM = engine->GetSystem<AssetManager>().lock();
+
+			IDType soundID;
+			soundDtors[soundIndex++] = engine->AddObject(&soundID);
+			soundIndex %= soundDtors.size();
+			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+
+			engine->GetComponent<Text>(menuIDs[currentID])->color.b = 1.0f;
+			currentID += delta;
+			if(currentID < 0) { currentID += menuIDs.size(); }
+			currentID %= menuIDs.size();
+		}
 	}
 protected:
 	void Init() override final {
