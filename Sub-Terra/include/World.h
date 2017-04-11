@@ -9,16 +9,15 @@
 
 class World : public System {
 private:
-	float seed;
 protected:
 	void Update(DeltaTicks &) override final {}
 public:
 	static bool IsSupported() { return true; }
 
-	World(Polar *engine, float seed = 0.0f) : System(engine), seed(seed) {}
+	World(Polar *engine) : System(engine) {}
 
 	inline bool Eval(const Point3 &p) const {
-		float eval = glm::simplex(Point4(p * 0.05f, seed)) * 0.5f + 0.5f;
+		float eval = glm::simplex(p / 20.0f) * 0.5f + 0.5f;
 		return eval >= 0.7;
 		return false;
 	}

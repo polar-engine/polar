@@ -1,6 +1,6 @@
 #include "common.h"
 #include "Freefall.h"
-#include <random>
+#include <glm/gtc/random.hpp>
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"
@@ -47,15 +47,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	engine.AddState("world", [&rng, &playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("title")});
 
-		auto renderer = engine->GetSystem<GL32Renderer>().lock();
-
-		float seed = (float)rng() / rng.max() * 1000.0f;
-		st.AddSystem<World>(seed);
-		renderer->SetUniform("u_seed", seed);
+		st.AddSystem<World>();
 
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
-		engine->AddComponent<PositionComponent>(playerID);
+		Point3 seed = glm::ballRand(1000.0f);
+		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
 		engine->transition = "forward";
@@ -91,15 +88,15 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.0, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_red", x);
-		}, 5.0 * 4 - 1.0, renderer->uniforms["u_red"]));
+		}, 5.0 * 4 - 1.0, renderer->uniformsFloat["u_red"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_green", x);
-		}, 5.0 * 2 - 1.0, renderer->uniforms["u_green"]));
+		}, 5.0 * 2 - 1.0, renderer->uniformsFloat["u_green"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_blue", x);
-		}, 5.0 - 1.0, renderer->uniforms["u_blue"]));
+		}, 5.0 - 1.0, renderer->uniformsFloat["u_blue"]));
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
@@ -131,15 +128,15 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_red", x);
-		}, secsPerBeat * 4 - 0.5, renderer->uniforms["u_red"]));
+		}, secsPerBeat * 4 - 0.5, renderer->uniformsFloat["u_red"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_green", x);
-		}, secsPerBeat * 2 - 0.5, renderer->uniforms["u_green"]));
+		}, secsPerBeat * 2 - 0.5, renderer->uniformsFloat["u_green"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<GL32Renderer>().lock();
 			renderer->SetUniform("u_blue", x);
-		}, secsPerBeat - 0.5, renderer->uniforms["u_blue"]));
+		}, secsPerBeat - 0.5, renderer->uniformsFloat["u_blue"]));
 	});
 
 	engine.Run("root");

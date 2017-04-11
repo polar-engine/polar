@@ -359,7 +359,10 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
 			MakePipeline(pipelineNames);
-			for(auto uniform : uniforms) {
+			for(auto uniform : uniformsFloat) {
+				SetUniform(uniform.first, uniform.second);
+			}
+			for(auto uniform : uniformsPoint3) {
 				SetUniform(uniform.first, uniform.second);
 			}
 			break;
