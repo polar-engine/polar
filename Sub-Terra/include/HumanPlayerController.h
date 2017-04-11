@@ -3,6 +3,7 @@
 class HumanPlayerController : public System {
 private:
 	boost::shared_ptr<Destructor> timeDtor;
+	IDType timeID = 0;
 
 	IDType object;
 	Point2 orientVel;
@@ -15,7 +16,6 @@ protected:
 	virtual void Update(DeltaTicks &) override;
 public:
 	float time = 0.0f;
-	IDType timeID = 0;
 
 	static bool IsSupported() { return true; }
 	HumanPlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}

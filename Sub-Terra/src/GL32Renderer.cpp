@@ -97,6 +97,19 @@ void GL32Renderer::Init() {
 void GL32Renderer::Update(DeltaTicks &dt) {
 	time += dt.Ticks();
 
+	auto assetM = engine->GetSystem<AssetManager>().lock();
+	auto font = assetM->Get<FontAsset>("nasalization-rg");
+	fpsDtor = engine->AddObject(&fpsID);
+
+	if(dt.Seconds() > 0) {
+		fps = glm::mix(fps, 1.0f / dt.Seconds(), 0.1f);
+	}
+
+	std::ostringstream oss;
+	oss << (int)fps << " fps";
+	engine->AddComponent<Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1.0f, 1.0f, 1.0f, 0.2f));
+	engine->GetComponent<Text>(fpsID)->scale *= 0.125f;
+
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		HandleSDL(event);

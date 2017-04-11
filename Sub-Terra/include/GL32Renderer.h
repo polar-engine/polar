@@ -58,6 +58,9 @@ private:
 
 	uint32_t time = 0;
 
+	boost::shared_ptr<Destructor> fpsDtor;
+	IDType fpsID = 0;
+
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 
@@ -144,11 +147,11 @@ private:
 
 			GLint format = GL_RGBA;
 			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, text->surface->w, text->surface->h, 0, format, GL_UNSIGNED_BYTE, text->surface->pixels));
-
+			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
 			text->Add<GL32TextProperty>(prop);
 		}
@@ -190,6 +193,7 @@ private:
 	GLuint MakeProgram(std::shared_ptr<ShaderProgramAsset>);
 public:
 	boost::unordered_map<std::string, float> uniforms;
+	float fps = 60.0f;
 
 	static bool IsSupported();
 	GL32Renderer(Polar *engine, const boost::container::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
