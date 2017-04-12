@@ -40,6 +40,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("beep1");
 		assetM->Get<AudioAsset>("menu1");
+		assetM->Get<AudioAsset>("30s");
 		assetM->Get<AudioAsset>("laser");
 		assetM->Get<AudioAsset>("nexus");
 

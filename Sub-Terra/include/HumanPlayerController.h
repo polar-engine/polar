@@ -3,6 +3,7 @@
 class HumanPlayerController : public System {
 private:
 	boost::shared_ptr<Destructor> timeDtor;
+	boost::shared_ptr<Destructor> soundDtor;
 	IDType timeID = 0;
 
 	IDType object;
