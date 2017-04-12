@@ -22,7 +22,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	Polar engine;
 	IDType playerID;
 
-	srand(time(0));
+	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
 
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {

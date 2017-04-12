@@ -95,7 +95,7 @@ void GL32Renderer::Init() {
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
-	time += dt.Ticks();
+	time += (uint32_t)dt.Ticks();
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	auto font = assetM->Get<FontAsset>("nasalization-rg");
