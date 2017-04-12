@@ -177,17 +177,15 @@ float Threshold2(in float z) {
 
 bool Eval(in vec3 coord, in float z, out float result) {
 	const vec3 scale = vec3(20.0);
-
 	result = snoise(coord / scale) * 0.5 + 0.5;
-	return result >= Threshold() + Threshold2(z);
+	return result > Threshold() + Threshold2(z);
 }
 
 void main(void) {
 	vec3 color = vec3(0.0);
 
 	float len = length(v_vertex);
-
-	const float numSamples = 32.0;
+	float numSamples = 32.0 + pow(len, 2.0) / 10.0;
 
 	vec4 coord = vec4(v_vertex.x, v_vertex.y, 0.0, 1.0);
 
