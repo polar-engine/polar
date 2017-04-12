@@ -10,6 +10,7 @@
 
 inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
+	SDL_ClearError();
 	if(err[0] != '\0') {
 		ENGINE_DEBUGERROR("SDL: " << err,
 						  "    " << file << ' ' << line << '\n' <<
