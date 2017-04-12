@@ -13,6 +13,7 @@
 #include "BoundingComponent.h"
 #include "PhysicalComponent.h"
 #include "Text.h"
+#include "AudioSource.h"
 
 void HumanPlayerController::Init() {
 	engine->AddComponent<PlayerCameraComponent>(object);
@@ -57,9 +58,17 @@ void HumanPlayerController::Init() {
 }
 
 void HumanPlayerController::Update(DeltaTicks &dt) {
+	auto assetM = engine->GetSystem<AssetManager>().lock();
+
+	auto oldTime = time;
 	time += dt.Seconds();
 
-	auto assetM = engine->GetSystem<AssetManager>().lock();
+	if(oldTime < 30 && time >= 30) {
+		IDType soundID;
+		soundDtor = engine->AddObject(&soundID);
+		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("30s"));
+	}
+
 	auto font = assetM->Get<FontAsset>("nasalization-rg");
 	timeDtor = engine->AddObject(&timeID);
 
