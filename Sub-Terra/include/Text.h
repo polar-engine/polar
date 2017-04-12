@@ -38,8 +38,8 @@ public:
 		}
 		SDL(surface = TTF_RenderUTF8_Blended(asset->font, str.data(), { 255, 255, 255, 255 }));
 
-		if(scale.x < 0.0f) { scale.x = surface->w; }
-		if(scale.y < 0.0f) { scale.y = surface->h; }
+		if(scale.x < 0.0f) { scale.x = static_cast<float>(surface->w); }
+		if(scale.y < 0.0f) { scale.y = static_cast<float>(surface->h); }
 	}
 
 	void SetText(const std::string str) {

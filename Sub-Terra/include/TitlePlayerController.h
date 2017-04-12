@@ -58,7 +58,7 @@ protected:
 		pos->position.Derivative()->z = abs.z;
 	}
 public:
-	const int fieldOfView = 5;
+	const float fieldOfView = 5;
 	const float viewDistance = 40.0f;
 	const float velocity = 300.0f;
 

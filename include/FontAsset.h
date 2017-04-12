@@ -22,7 +22,11 @@ inline Deserializer & operator>>(Deserializer &s, FontAsset &asset) {
 	std::string data;
 	s >> data;
 	char *buffer = static_cast<char *>(malloc(data.size()));
-	memcpy(buffer, data.data(), data.size());
+	if(buffer == NULL) {
+		ENGINE_THROW("failed to allocate memory for font data");
+	} else {
+		memcpy(buffer, data.data(), data.size());
+	}
 
 	SDL_RWops *rwopts;
 	SDL(rwopts = SDL_RWFromConstMem(buffer, data.size()));
