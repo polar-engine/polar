@@ -11,7 +11,7 @@
 #include "AudioManager.h"
 #include "GL32Renderer.h"
 #include "World.h"
-#include "Menu.h"
+#include "MenuSystem.h"
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
 #include "BoundingComponent.h"
@@ -62,18 +62,35 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("forward", Transition{Pop(), Push("playing")});
+		st.transitions.emplace("forward", Transition{ Pop(), Push("playing") });
+		st.transitions.emplace("back", Transition{ QuitAction() });
 
 		st.AddSystem<TitlePlayerController>(playerID);
-		st.AddSystem<Menu>();
+
+		Menu menu = {
+			MenuItem("Solo Play", [engine] () {
+				engine->transition = "forward";
+			}),
+			MenuItem("Options", {
+				MenuItem("Graphics", {
+					MenuItem("Base Detail", [] () {}),
+					MenuItem("Far Detail", [] () {}),
+					MenuItem("Far Limiter", [] () {}),
+					MenuItem("Precision", [] () {})
+				}),
+				MenuItem("Audio", [] () {}),
+				MenuItem("Controls", [] () {}),
+			}),
+			MenuItem("Quit Game", [engine] () {
+				engine->Quit();
+			})
+		};
+		st.AddSystem<MenuSystem>(menu);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<GL32Renderer>().lock();
-
-		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->Quit(); }));
-		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->Quit(); }));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));

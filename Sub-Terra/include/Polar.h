@@ -74,10 +74,14 @@ public:
 						states[action.name].first(this, stack.back());
 						stack.back().Init();
 						break;
-					case StackActionType::Pop:
+					case StackActionType::Pop: {
 						auto &state = stack.back();
 						states[state.name].second(this, state);
 						stack.pop_back();
+						break;
+					}
+					case StackActionType::Quit:
+						Quit();
 						break;
 					}
 				}
