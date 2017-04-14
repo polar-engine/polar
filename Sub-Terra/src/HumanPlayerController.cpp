@@ -57,17 +57,61 @@ void HumanPlayerController::Init() {
 	}));
 }
 
+#define TIMEDSOUND(TIME, NAME)                                                     \
+	if(oldTime < TIME && time >= TIME) {                                           \
+		soundDtors[soundIndex++] = engine->AddObject(&soundID);                    \
+		soundIndex %= soundDtors.size();                                           \
+		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>(NAME)); \
+	}
+
 void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 
 	auto oldTime = time;
 	time += dt.Seconds();
 
-	if(oldTime < 30 && time >= 30) {
-		IDType soundID;
-		soundDtor = engine->AddObject(&soundID);
-		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("30s"));
-	}
+	IDType soundID;
+	TIMEDSOUND( 3.0f, "30");
+	TIMEDSOUND( 3.65f, "seconds");
+	TIMEDSOUND( 6.0f, "60");
+	TIMEDSOUND( 6.9f, "seconds");
+	TIMEDSOUND( 10.0f, "1");
+	TIMEDSOUND( 10.7f, "hundred");
+	TIMEDSOUND( 15.0f, "1");
+	TIMEDSOUND( 15.7f, "fifty");
+	TIMEDSOUND( 20.0f, "2");
+	TIMEDSOUND( 20.7f, "hundred");
+	TIMEDSOUND( 25.0f, "2");
+	TIMEDSOUND( 25.7f, "fifty");
+	TIMEDSOUND( 30.0f, "3");
+	TIMEDSOUND( 30.7f, "hundred");
+	TIMEDSOUND( 35.0f, "3");
+	TIMEDSOUND( 35.7f, "fifty");
+	TIMEDSOUND( 40.0f, "4");
+	TIMEDSOUND( 40.85f, "hundred");
+	TIMEDSOUND( 45.0f, "4");
+	TIMEDSOUND( 45.85f, "fifty");
+	TIMEDSOUND( 50.0f, "5");
+	TIMEDSOUND( 50.85f, "hundred");
+	TIMEDSOUND( 55.0f, "5");
+	TIMEDSOUND( 55.85f, "fifty");
+	TIMEDSOUND( 60.0f, "6");
+	TIMEDSOUND( 60.9f, "hundred");
+	TIMEDSOUND( 65.0f, "6");
+	TIMEDSOUND( 65.9f, "fifty");
+	TIMEDSOUND( 70.0f, "7");
+	TIMEDSOUND( 70.85f, "hundred");
+	TIMEDSOUND( 75.0f, "7");
+	TIMEDSOUND( 75.85f, "fifty");
+	TIMEDSOUND( 80.0f, "8");
+	TIMEDSOUND( 80.6f, "hundred");
+	TIMEDSOUND( 85.0f, "8");
+	TIMEDSOUND( 85.6f, "fifty");
+	TIMEDSOUND( 90.0f, "9");
+	TIMEDSOUND( 90.85f, "hundred");
+	TIMEDSOUND( 95.0f, "9");
+	TIMEDSOUND( 95.85f, "fifty");
+	TIMEDSOUND(100.0f, "freefall");
 
 	auto font = assetM->Get<FontAsset>("nasalization-rg");
 	timeDtor = engine->AddObject(&timeID);
