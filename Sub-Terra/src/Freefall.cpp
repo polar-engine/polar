@@ -38,11 +38,25 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<GL32Renderer, const boost::container::vector<std::string> &>({ "perlin" });
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
+		assetM->Get<AudioAsset>("nexus");
+		assetM->Get<AudioAsset>("laser");
 		assetM->Get<AudioAsset>("beep1");
 		assetM->Get<AudioAsset>("menu1");
-		assetM->Get<AudioAsset>("30s");
-		assetM->Get<AudioAsset>("laser");
-		assetM->Get<AudioAsset>("nexus");
+		assetM->Get<AudioAsset>("30");
+		assetM->Get<AudioAsset>("60");
+		assetM->Get<AudioAsset>("1");
+		assetM->Get<AudioAsset>("2");
+		assetM->Get<AudioAsset>("3");
+		assetM->Get<AudioAsset>("4");
+		assetM->Get<AudioAsset>("5");
+		assetM->Get<AudioAsset>("6");
+		assetM->Get<AudioAsset>("7");
+		assetM->Get<AudioAsset>("8");
+		assetM->Get<AudioAsset>("9");
+		assetM->Get<AudioAsset>("seconds");
+		assetM->Get<AudioAsset>("hundred");
+		assetM->Get<AudioAsset>("fifty");
+		assetM->Get<AudioAsset>("freefall");
 
 		engine->transition = "forward";
 	});
@@ -92,10 +106,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<GL32Renderer>().lock();
 
-		IDType beepID;
-		st.dtors.emplace_back(engine->AddObject(&beepID));
-		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("beep1"));
-
 		IDType laserID;
 		st.dtors.emplace_back(engine->AddObject(&laserID));
 		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
@@ -134,7 +144,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
-		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("beep1"));
+		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("begin"));
 
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
