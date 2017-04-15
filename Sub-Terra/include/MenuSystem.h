@@ -165,7 +165,7 @@ protected:
 
 		font = assetM->Get<FontAsset>("nasalization-rg");
 
-		for(auto k : { Key::Escape, Key::ControllerBack }) {
+		for(auto k : { Key::Escape, Key::Backspace, Key::ControllerBack }) {
 			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1, true); }));
 		}
 
