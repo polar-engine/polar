@@ -102,13 +102,15 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	fpsDtor = engine->AddObject(&fpsID);
 
 	if(dt.Seconds() > 0) {
-		fps = glm::mix(fps, 1.0f / dt.Seconds(), 0.1f);
+		fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
 	}
 
-	std::ostringstream oss;
-	oss << (int)fps << " fps";
-	engine->AddComponent<Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1.0f, 1.0f, 1.0f, 0.2f));
-	engine->GetComponent<Text>(fpsID)->scale *= 0.125f;
+	if(showFPS) {
+		std::ostringstream oss;
+		oss << (int)fps << " fps";
+		engine->AddComponent<Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1.0f, 1.0f, 1.0f, 0.2f));
+		engine->GetComponent<Text>(fpsID)->scale *= 0.125f;
+	}
 
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
@@ -119,7 +121,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	auto integrator = engine->GetSystem<Integrator>().lock();
 	float alpha = integrator->alphaMicroseconds / 1000000.0f;
 
-	glm::mat4 cameraView;
+	Mat4 cameraView;
 	auto pairRight = engine->objects.right.equal_range(&typeid(PlayerCameraComponent));
 	for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 		auto camera = static_cast<PlayerCameraComponent *>(itRight->info.get());
@@ -133,7 +135,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); } else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
 		}
 
-		cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<glm::vec3>());
+		cameraView = glm::translate(cameraView, -camera->distance.Temporal(alpha).To<Point3>());
 		cameraView *= glm::toMat4(camera->orientation);
 		if(orient != nullptr) { cameraView *= glm::toMat4(orient->orientation); }
 		cameraView = glm::translate(cameraView, -camera->position.Temporal(alpha).To<Point3>());
@@ -148,33 +150,21 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		GL(glUseProgram(node.program));
 		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		GLint locView;
-		GL(locView = glGetUniformLocation(node.program, "u_view"));
-		GL(glUniformMatrix4fv(locView, 1, GL_FALSE, glm::value_ptr(cameraView)));
-
-		GLint locInvViewProj;
-		GL(locInvViewProj = glGetUniformLocation(node.program, "u_invViewProj"));
-		auto invViewProj = glm::inverse(CalculateProjection() * cameraView);
-		GL(glUniformMatrix4fv(locInvViewProj, 1, GL_FALSE, glm::value_ptr(invViewProj)));
-
-		GLint locTime;
-		GL(locTime = glGetUniformLocation(node.program, "u_time"));
-		GL(glUniform1ui(locTime, time));
+		UploadUniform(node.program, "u_view", cameraView);
+		UploadUniform(node.program, "u_invViewProj", glm::inverse(CalculateProjection() * cameraView));
+		UploadUniform(node.program, "u_time", time);
 
 		switch(i) {
 		case 0: {
-			GLint locModel;
-			GL(locModel = glGetUniformLocation(node.program, "u_model"));
-
 			// freefall main shader is in screen space
 			GL(glBindVertexArray(viewportVAO));
 			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 			break;
 
-			auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
+			/*auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
 			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 				auto model = static_cast<ModelComponent *>(itRight->info.get());
-				glm::mat4 modelMatrix;
+				Mat4 modelMatrix;
 
 				PositionComponent *pos = nullptr;
 				OrientationComponent *orient = nullptr;
@@ -187,9 +177,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 				auto property = model->Get<GL32ModelProperty>().lock();
 				if(property) {
-					glm::mat4 modelView = cameraView;
+					glm::dmat4 modelView = cameraView;
 
-					if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<glm::vec3>()); }
+					if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<Point3>()); }
 					if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orientation)); }
 
 					GLenum drawMode = GL_TRIANGLES;
@@ -207,12 +197,13 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 						break;
 					}
 
-					GL(glUniformMatrix4fv(locModel, 1, GL_FALSE, glm::value_ptr(modelMatrix)));
+					UploadUniform(node.program, "u_model", modelMatrix);
+
 					GL(glBindVertexArray(property->vao));
 					GL(glDrawArrays(drawMode, 0, property->numVertices));
 				}
 			}
-			break;
+			break;*/
 		}
 		default:
 			for(auto &pair : nodes[i - 1].globalOuts) { /* for each previous global output */
@@ -224,9 +215,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				GL(glActiveTexture(GL_TEXTURE0 + b));
 				GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-				GLint locBuffer;
-				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
-				GL(glUniform1i(locBuffer, b));
+				UploadUniform(node.program, pair.second.c_str(), b);
 				++b;
 			}
 			for(auto &pair : node.globalIns) { /* for each global input*/
@@ -234,9 +223,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				GL(glActiveTexture(GL_TEXTURE0 + b));
 				GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-				GLint locBuffer;
-				GL(locBuffer = glGetUniformLocation(node.program, pair.second.c_str()));
-				GL(glUniform1i(locBuffer, b));
+				UploadUniform(node.program, pair.second.c_str(), b);
 				++b;
 			}
 
@@ -250,9 +237,6 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	// text
 	{
 		GL(glUseProgram(textProgram));
-		GLint locTexture;
-		GL(locTexture = glGetUniformLocation(textProgram, "u_texture"));
-		GL(glUniform1i(locTexture, 0));
 
 		auto pairRight = engine->objects.right.equal_range(&typeid(Text));
 		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
@@ -260,71 +244,67 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			auto property = text->Get<GL32TextProperty>().lock();
 			if(property) {
 				auto viewport = Point2(this->width, this->height);
-				glm::mat4 transform;
+				Mat4 transform;
 
 				switch(text->origin) {
 				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3(-1.0f, -1.0f, 0.0f));
+					transform = glm::translate(transform, Point3(-1, -1, 0));
 					break;
 				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3( 1.0f, -1.0f, 0.0f));
+					transform = glm::translate(transform, Point3( 1, -1, 0));
 					break;
 				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3(-1.0f,  1.0f, 0.0f));
+					transform = glm::translate(transform, Point3(-1,  1, 0));
 					break;
 				case Origin::TopRight:
-					transform = glm::translate(transform, Point3( 1.0f,  1.0f, 0.0f));
+					transform = glm::translate(transform, Point3( 1,  1, 0));
 					break;
 				case Origin::Center:
 					break;
 				}
 
-				transform = glm::scale(transform, Point3(1.0f / viewport, 1.0f));
+				transform = glm::scale(transform, Point3(Decimal(1) / viewport, 1));
 
 				switch(text->origin) {
 				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3(text->position * Point2( 2.0f,  2.0f), 0.0f));
+					transform = glm::translate(transform, Point3(text->position * Point2( 2,  2), 0));
 					break;
 				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3(text->position * Point2(-2.0f,  2.0f), 0.0f));
+					transform = glm::translate(transform, Point3(text->position * Point2(-2,  2), 0));
 					break;
 				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3(text->position * Point2( 2.0f, -2.0f), 0.0f));
+					transform = glm::translate(transform, Point3(text->position * Point2( 2, -2), 0));
 					break;
 				case Origin::TopRight:
-					transform = glm::translate(transform, Point3(text->position * Point2(-2.0f, -2.0f), 0.0f));
+					transform = glm::translate(transform, Point3(text->position * Point2(-2, -2), 0));
 					break;
 				case Origin::Center:
-					transform = glm::translate(transform, Point3(text->position * Point2( 2.0f,  2.0f), 0.0f));
+					transform = glm::translate(transform, Point3(text->position * Point2( 2,  2), 0));
 					break;
 				}
 
-				transform = glm::scale(transform, Point3(text->scale, 1.0f));
+				transform = glm::scale(transform, Point3(text->scale, 1));
 
 				switch(text->origin) {
 				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3( 1.0f,  1.0f, 0.0f));
+					transform = glm::translate(transform, Point3( 1,  1, 0));
 					break;
 				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3(-1.0f,  1.0f, 0.0f));
+					transform = glm::translate(transform, Point3(-1,  1, 0));
 					break;
 				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3( 1.0f, -1.0f, 0.0f));
+					transform = glm::translate(transform, Point3( 1, -1, 0));
 					break;
 				case Origin::TopRight:
-					transform = glm::translate(transform, Point3(-1.0f, -1.0f, 0.0f));
+					transform = glm::translate(transform, Point3(-1, -1, 0));
 					break;
 				case Origin::Center:
 					break;
 				}
 
-				GLint locTransform;
-				GL(locTransform = glGetUniformLocation(textProgram, "u_transform"));
-				GL(glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(transform)));
-
-				GLint locColor;
-				GL(locColor = glGetUniformLocation(textProgram, "u_color"));
-				GL(glUniform4f(locColor, text->color.r, text->color.g, text->color.b, text->color.a));
+				UploadUniform(textProgram, "u_texture", 0);
+				UploadUniform(textProgram, "u_transform", transform);
+				UploadUniform(textProgram, "u_color", text->color);
 
 				GL(glActiveTexture(GL_TEXTURE0));
 				GL(glBindTexture(GL_TEXTURE_2D, property->texture));

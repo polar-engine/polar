@@ -15,7 +15,12 @@ public:
 	}
 
 	template<typename T, typename ...Ts> inline void Add(Ts && ...args) {
-		Add(boost::make_shared<T>(std::forward<Ts>(args)...));
+		AddAs<T, T>(std::forward<Ts>(args)...);
+	}
+
+	template<typename B, typename T, typename ...Ts> inline void AddAs(Ts && ...args) {
+		static_assert(std::is_base_of<C, T>::value, "EntityBase::AddAs requires base class and sub class");
+		Add(boost::shared_ptr<B>(new T(std::forward<Ts>(args)...)));
 	}
 
 	template<typename T> inline void Add(T *component) {

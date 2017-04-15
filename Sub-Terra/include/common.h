@@ -50,15 +50,15 @@
 
 #define ENGINE_TICKS_PER_SECOND 10000
 
-typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> DeltaTicksBase;
-#include "DeltaTicks.h"
-
-typedef glm::fvec2 EnginePoint2;
-typedef glm::fvec3 EnginePoint3;
-typedef glm::fvec4 EnginePoint4;
+typedef float Decimal;
+typedef glm::detail::tvec2<Decimal, glm::highp> EnginePoint2;
+typedef glm::detail::tvec3<Decimal, glm::highp> EnginePoint3;
+typedef glm::detail::tvec4<Decimal, glm::highp> EnginePoint4;
 typedef glm::ivec2 EnginePoint2i;
 typedef glm::ivec3 EnginePoint3i;
 typedef glm::ivec4 EnginePoint4i;
+typedef glm::detail::tquat<Decimal, glm::highp> Quat;
+typedef glm::detail::tmat4x4<Decimal, glm::highp> Mat4;
 #define Point2 EnginePoint2
 #define Point3 EnginePoint3
 #define Point4 EnginePoint4
@@ -67,6 +67,9 @@ typedef glm::ivec4 EnginePoint4i;
 #define Point4i EnginePoint4i
 typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 #define Triangle EngineTriangle
+
+typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> DeltaTicksBase;
+#include "DeltaTicks.h"
 
 enum class GeometryType : uint8_t {
 	None,

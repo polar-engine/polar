@@ -72,7 +72,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 
 	IDType soundID;
 	TIMEDSOUND(  30.0f, "30");
-	TIMEDSOUND(  30.65f, "seconds");
+	TIMEDSOUND(  30.75f, "seconds");
 	TIMEDSOUND(  60.0f, "60");
 	TIMEDSOUND(  60.9f, "seconds");
 	TIMEDSOUND( 100.0f, "1");
@@ -121,13 +121,13 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 
 	Point3 color;
 	if(time >= 100.0f) {
-		color = Point3(1.0f, 0.3f, 0.1f);
+		color = Point3(1.0, 0.3,  0.1);
 	} else if(time > 60.0f) {
-		color = Point3(1.0f, 0.75f, 0.5f);
+		color = Point3(1.0, 0.75, 0.5);
 	} else {
-		color = Point3(0.7f, 0.95f, 1.0f);
+		color = Point3(0.7, 0.95, 1.0);
 	}
-	float alpha = glm::mix(0.8f, 0.35f, 1.0f - glm::abs(glm::pow(glm::sin((time - 0.5f) * glm::pi<float>()), 8.0f)));
+	float alpha = glm::mix(0.8f, 0.35f, 1.0f - glm::abs(glm::pow(glm::sin((time - 0.5) * glm::pi<Decimal>()), 8.0)));
 
 	engine->AddComponent<Text>(timeID, font, oss.str(), Point2(20, 20), Origin::TopRight, Point4(color, alpha));
 
@@ -136,18 +136,18 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
 	orientVel *= static_cast<float>(glm::pow(0.995, dt.Seconds() * 1000.0));
-	orient->orientation = glm::quat(Point3(orientVel.x, 0.0f, 0.0f)) * glm::quat(Point3(0.0f, orientVel.y, 0.0f)) * orient->orientation;
+	orient->orientation = Quat(Point3(orientVel.x, 0.0, 0.0)) * Quat(Point3(0.0, orientVel.y, 0.0)) * orient->orientation;
 
-	const float a = 1.32499f;
-	const float r = 1.01146f;
-	const float k = 1.66377f;
+	const Decimal a(1.32499);
+	const Decimal r(1.01146);
+	const Decimal k(1.66377);
 	accum += dt.Seconds();
-	velocity = 10.0f + 40.0f * a * (1.0f - glm::pow(r, k * -static_cast<float>(accum)));
+	velocity = 10.0 + 40.0 * a * (1.0 - glm::pow(r, k * -static_cast<Decimal>(accum)));
 
 	auto forward = glm::normalize(Point4(0, 0, -1, 1));
 	//const float moveSpeed = 10.0f;
 	//auto forward = glm::normalize(Point4(moveRight - moveLeft, 0, moveBackward - moveForward, 1)) * moveSpeed;
-	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward *velocity;
+	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * velocity;
 
 	*ownPos->position.Derivative() = Point3(abs);
 }

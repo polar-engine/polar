@@ -4,7 +4,7 @@
 
 class OrientationComponent : public Component {
 public:
-	glm::quat orientation;
+	Quat orientation;
 	OrientationComponent() {}
 	OrientationComponent(const Point3 &euler) : orientation(euler) {}
 	OrientationComponent(const Point3 &&euler) : orientation(euler) {}

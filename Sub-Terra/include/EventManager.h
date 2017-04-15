@@ -10,10 +10,10 @@
 #include "System.h"
 
 union Arg {
-	float float_;
+	Decimal float_;
 	void *pVoid;
 
-	Arg(float f) { float_ = f; }
+	Arg(Decimal f) { float_ = f; }
 	Arg(std::nullptr_t) { pVoid = nullptr; }
 	template<typename T> Arg(T *p) { pVoid = reinterpret_cast<void *>(p); }
 	template<typename T> inline T * Get() { return reinterpret_cast<T *>(pVoid); }

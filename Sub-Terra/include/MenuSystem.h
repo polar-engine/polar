@@ -3,16 +3,65 @@
 #include "System.h"
 #include <stdint.h>
 
-template<typename T, typename FTy> struct RoseTree {
-	T value;
-	std::vector<RoseTree<T, FTy>> children;
-	std::function<FTy> fn;
+namespace MenuControl {
+	class Base {
+	public:
+		virtual ~Base() {}
+		virtual float Get() { return 0; }
+		virtual void Activate() {}
+		virtual void Navigate(int) {}
+	};
 
-	RoseTree(T value, std::function<FTy> fn) : value(value), fn(fn) {}
-	RoseTree(T value, std::vector<RoseTree<T, FTy>> children) : value(value), children(children) {}
+	class Button : public Base {
+	public:
+		Button() {}
+	};
+
+	class Checkbox : public Base {
+	private:
+		bool state;
+	public:
+		Checkbox(bool initial = false) : state(initial) {}
+
+		float Get() override final { return state; }
+
+		void Activate() override final {
+			state = !state;
+		}
+	};
+
+	template<typename T> class Slider : public Base {
+	private:
+		T min;
+		T max;
+		T value;
+	public:
+		Slider() {}
+	};
+
+	class Selection : public Base {
+	public:
+		Selection(std::vector<std::string> options) {}
+	};
+}
+
+class MenuItem {
+public:
+	using FTy = bool(float);
+
+	std::string value;
+	std::vector<MenuItem> children = {};
+	std::function<FTy> fn;
+	std::shared_ptr<MenuControl::Base> control;
+
+	MenuItem(std::string value, std::vector<MenuItem> children) : value(value), children(children) {}
+	MenuItem(std::string value, std::function<FTy> fn) : MenuItem(value, MenuControl::Button(), fn) {}
+	template<typename T> MenuItem(std::string value, T control, std::function<FTy> fn) : value(value), fn(fn) {
+		static_assert(std::is_base_of<MenuControl::Base, T>::value, "MenuItem requires object of base class MenuControl::Base");
+		this->control = std::shared_ptr<MenuControl::Base>(new T(control));
+	}
 };
 
-using MenuItem = RoseTree<std::string, void()>;
 using Menu = std::vector<MenuItem>;
 
 class MenuSystem : public System {
@@ -29,25 +78,30 @@ private:
 	std::array<boost::shared_ptr<Destructor>, 4> soundDtors;
 	size_t soundIndex = 0;
 
-	void Transition() {
+	Menu * GetCurrentMenu() {
+		Menu *m = &menu;
+		for(auto i : stack) {
+			m = &m->at(i).children;
+		}
+		return m;
+	}
+
+	void Activate() {
 		auto m = GetCurrentMenu();
 		auto &item = m->at(current);
 
-		if(item.children.empty()) {
-			item.fn();
-		} else {
+		if(item.control) {
+			item.control->Activate();
+			if(item.fn(item.control->Get())) {
+				auto assetM = engine->GetSystem<AssetManager>().lock();
+				IDType soundID;
+				soundDtors[soundIndex++] = engine->AddObject(&soundID);
+				soundIndex %= soundDtors.size();
+				engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+			}
+		} else if(!item.children.empty()) {
 			Navigate(0, 1);
 		}
-		/*switch(current) {
-		case 0:
-			engine->transition = "forward";
-		case 1:
-			stack.emplace_back(1);
-			break;
-		case 2:
-			engine->Quit();
-			break;
-		}*/
 	}
 
 	void Navigate(int down, int right = 0) {
@@ -78,14 +132,6 @@ private:
 		soundIndex %= soundDtors.size();
 		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
 	}
-
-	Menu * GetCurrentMenu() {
-		Menu *m = &menu;
-		for(auto i : stack) {
-			m = &m->at(i).children;
-		}
-		return m;
-	}
 protected:
 	void Init() override final {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
@@ -104,13 +150,13 @@ protected:
 		dtors.emplace_back(inputM->On(Key::Up, [this] (Key) { Navigate(-1); }));
 		dtors.emplace_back(inputM->On(Key::W,  [this] (Key) { Navigate(-1); }));
 
+		dtors.emplace_back(inputM->On(Key::Space, [this] (Key) { Activate(); }));
+		dtors.emplace_back(inputM->On(Key::Enter, [this] (Key) { Activate(); }));
+		dtors.emplace_back(inputM->On(Key::ControllerA, [this] (Key) { Activate(); }));
+
 		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
 			selectionAlpha = x;
 		}));
-
-		dtors.emplace_back(inputM->On(Key::Space,       [this] (Key) { Transition(); }));
-		dtors.emplace_back(inputM->On(Key::Enter,       [this] (Key) { Transition(); }));
-		dtors.emplace_back(inputM->On(Key::ControllerA, [this] (Key) { Transition(); }));
 	}
 
 	void Update(DeltaTicks &) override final {
