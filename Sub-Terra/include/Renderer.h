@@ -12,15 +12,17 @@ protected:
 	Decimal zFar = 48.0f;
 	Decimal pixelDistanceFromScreen = 1000.0f;
 public:
-	boost::unordered_map<std::string, float> uniformsFloat;
-	boost::unordered_map<std::string, Point3> uniformsPoint3;
 	bool showFPS = false;
+
+	boost::unordered_map<std::string, Decimal> uniformsFloat;
+	boost::unordered_map<std::string, Point3> uniformsPoint3;
 
 	static bool IsSupported() { return false; }
 	Renderer(Polar *engine) : System(engine) {}
 
 	virtual void MakePipeline(const boost::container::vector<std::string> &) = 0;
 	virtual void SetClearColor(const Point4 &) = 0;
-	virtual void SetUniform(const std::string &, float) = 0;
+	virtual Decimal GetUniformDecimal(const std::string &) const = 0;
+	virtual void SetUniform(const std::string &, Decimal) = 0;
 	virtual void SetUniform(const std::string &, Point3) = 0;
 };
