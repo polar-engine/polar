@@ -60,6 +60,7 @@ protected:
 public:
 	const double sampleRate = 44100.0;
 	const unsigned long framesPerBuffer = 256;
+	std::atomic<bool> muted = false;
 
 	static bool IsSupported() { return true; }
 
@@ -94,8 +95,10 @@ public:
 			auto &right = buffer[frame * 2 + 1];
 			left = 0;
 			right = 0;
-			for(auto &source : sources) {
-				source.second->Tick(left, right);
+			if(!muted) {
+				for(auto &source : sources) {
+					source.second->Tick(left, right);
+				}
 			}
 		}
 		return paContinue;
