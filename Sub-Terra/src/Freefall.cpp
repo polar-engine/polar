@@ -100,6 +100,11 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					MenuItem("Far Detail", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					MenuItem("Far Limiter", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
+					MenuItem("Retro Factor", MenuControl::Slider<Decimal>(renderer->GetUniformDecimal("u_retroFactor")), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_retroFactor", x);
+						return true;
+					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->showFPS = state;

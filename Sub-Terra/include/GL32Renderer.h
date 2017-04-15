@@ -205,7 +205,12 @@ public:
 		GL(glClearColor(float(color.x), float(color.y), float(color.z), float(color.w)));
 	}
 
-	void SetUniform(const std::string &name, float x) override final {
+	Decimal GetUniformDecimal(const std::string &name) const override final {
+		auto it = uniformsFloat.find(name);
+		if(it != uniformsFloat.end()) { return it->second; } else { return 0; }
+	}
+
+	void SetUniform(const std::string &name, Decimal x) override final {
 		uniformsFloat[name] = x;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
@@ -246,6 +251,14 @@ public:
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		GL(glUniform1f(loc, float(x)));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, Point2 p) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform2f(loc, float(p.x), float(p.y)));
 		return true;
 	}
 

@@ -1,3 +1,4 @@
+@uniform vec2 u_resolution
 @uniform mat4 u_view
 @uniform mat4 u_projection
 @uniform mat4 u_invViewProj
@@ -5,6 +6,7 @@
 @uniform float u_red
 @uniform float u_green
 @uniform float u_blue
+@uniform float u_retroFactor
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @varying flat vec3 v_solidColor
@@ -188,6 +190,10 @@ void main(void) {
 	float numSamples = 32.0 + pow(len, 2.0) / 10.0;
 
 	vec4 coord = vec4(v_vertex.x, v_vertex.y, 0.0, 1.0);
+
+	float factor = max(u_resolution.x, u_resolution.y) / (u_retroFactor + 1.0);
+	coord.x = floor(coord.x * factor) / factor;
+	coord.y = floor(coord.y * factor) / factor;
 
 	for(float sample = 0.0; sample < numSamples;) {
 		float z = sample / numSamples;

@@ -517,8 +517,10 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 	}
 
 	for(auto &node : nodes) {
-		/* upload projection matrix to pipeline stage */
+		// upload projection matrix to pipeline stage
 		Project(node.program);
+		// upload resolution
+		UploadUniform(node.program, "u_resolution", Point2(width, height));
 	}
 }
 
