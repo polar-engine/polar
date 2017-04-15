@@ -41,6 +41,7 @@ enum class Key : uint8_t {
 	Escape,
 	Space,
 	Enter,
+	Backspace,
 	Up,
 	Down,
 	Left,
