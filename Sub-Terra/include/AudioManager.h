@@ -97,7 +97,7 @@ public:
 			right = 0;
 			if(!muted) {
 				for(auto &source : sources) {
-					source.second->Tick(left, right);
+					source.second->Tick(sampleRate, left, right);
 				}
 			}
 		}
