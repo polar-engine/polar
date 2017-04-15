@@ -7,6 +7,7 @@
 @uniform float u_green
 @uniform float u_blue
 @uniform float u_retroFactor
+@uniform float u_retroFactor2
 @attrib vec2 a_vertex
 @varying smooth vec2 v_vertex
 @varying flat vec3 v_solidColor
@@ -179,7 +180,12 @@ float Threshold2(in float z) {
 
 bool Eval(in vec3 coord, in float z, out float result) {
 	const vec3 scale = vec3(20.0);
-	result = snoise(coord / scale) * 0.5 + 0.5;
+	vec3 finalCoord = coord / scale;
+
+	float factor2 = max(u_resolution.x, u_resolution.y) / pow(u_retroFactor2 + 1, 1.5);
+	finalCoord = floor(finalCoord * factor2) / factor2;
+
+	result = snoise(finalCoord) * 0.5 + 0.5;
 	return result > Threshold() + Threshold2(z);
 }
 
@@ -191,7 +197,7 @@ void main(void) {
 
 	vec4 coord = vec4(v_vertex.x, v_vertex.y, 0.0, 1.0);
 
-	float factor = max(u_resolution.x, u_resolution.y) / (u_retroFactor + 1.0);
+	float factor = max(u_resolution.x, u_resolution.y) / pow(u_retroFactor + 1, 1.5);
 	coord.x = floor(coord.x * factor) / factor;
 	coord.y = floor(coord.y * factor) / factor;
 
