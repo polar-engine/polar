@@ -24,19 +24,23 @@ public:
 	AudioSource(std::shared_ptr<AudioAsset> as, const LoopOut &out) : asset(as), looping(true), loopIn(0), loopOut(out.value) {}
 	AudioSource(std::shared_ptr<AudioAsset> as, const LoopIn  &in, const LoopOut &out) : asset(as), looping(true), loopIn(in.value), loopOut(out.value) {}
 
-	bool Tick(int16_t &left, int16_t &right) {
+	void Advance(double sampleRate, int delta) {
+		currentSample += size_t(double(delta) * (44100.0 / sampleRate));
+	}
+
+	bool Tick(double sampleRate, int16_t &left, int16_t &right) {
 		if(looping) {
-			if(currentSample == loopOut || currentSample == asset->samples.size()) { currentSample = loopIn; }
-		} else if(currentSample == asset->samples.size()) { return false; }
+			if(currentSample == loopOut || currentSample >= asset->samples.size()) { currentSample = loopIn; }
+		} else if(currentSample >= asset->samples.size()) { return false; }
 
 		if(asset->stereo) {
 			left += asset->samples[currentSample];
 			right += asset->samples[currentSample + 1];
-			currentSample += 2;
+			Advance(sampleRate, 2);
 		} else {
 			left += asset->samples[currentSample];
 			right += asset->samples[currentSample];
-			++currentSample;
+			Advance(sampleRate, 1);
 		}
 		return true;
 	}
