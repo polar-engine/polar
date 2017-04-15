@@ -124,7 +124,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						return true;
 					})
 				}),
-				MenuItem("Controls", [] (Decimal) { return true; }),
+				//MenuItem("Controls", [] (Decimal) { return true; }),
 			}),
 			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
