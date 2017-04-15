@@ -177,32 +177,24 @@ private:
 		}
 	}
 
-	inline glm::mat4 CalculateProjection() {
-		auto heightF = static_cast<float>(height);
-		auto fovy = 2.0f * glm::atan(heightF, 2.0f * pixelDistanceFromScreen) + fovPlus;
-		auto projection = glm::perspective(fovy, static_cast<float>(width) / heightF, zNear, zFar);
-		//auto projection = glm::infinitePerspective(fovy, static_cast<float>(width) / h, zNear);
+	inline Mat4 CalculateProjection() {
+		auto heightF = static_cast<Decimal>(height);
+		auto fovy = 2.0f * glm::atan(heightF, Decimal(2) * pixelDistanceFromScreen) + fovPlus;
+		auto projection = glm::perspective(fovy, static_cast<Decimal>(width) / heightF, zNear, zFar);
+		//auto projection = glm::infinitePerspective(fovy, static_cast<Decimal>(width) / h, zNear);
 		return projection;
 	}
 
 	inline void Project(GLuint programID) {
 		GL(glUseProgram(programID));
-
-		GLint locProjection;
-		GL(locProjection = glGetUniformLocation(programID, "u_projection"));
-		if(locProjection == -1) { return; } /* -1 if uniform does not exist in program */
-
-		auto projection = CalculateProjection();
-		GL(glUniformMatrix4fv(locProjection, 1, GL_FALSE, glm::value_ptr(projection)));
+		UploadUniform(programID, "u_projection", CalculateProjection());
 	}
 
 	void InitGL();
 	void HandleSDL(SDL_Event &);
 	GLuint MakeProgram(std::shared_ptr<ShaderProgramAsset>);
 public:
-	boost::unordered_map<std::string, float> uniformsFloat;
-	boost::unordered_map<std::string, Point3> uniformsPoint3;
-	float fps = 60.0f;
+	Decimal fps = 60.0;
 
 	static bool IsSupported();
 	GL32Renderer(Polar *engine, const boost::container::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
@@ -210,30 +202,75 @@ public:
 	void MakePipeline(const boost::container::vector<std::string> &) override final;
 
 	inline void SetClearColor(const Point4 &color) override final {
-		GL(glClearColor(color.x, color.y, color.z, color.w));
+		GL(glClearColor(float(color.x), float(color.y), float(color.z), float(color.w)));
 	}
 
-	void SetUniform(const std::string &name, float x) {
+	void SetUniform(const std::string &name, float x) override final {
 		uniformsFloat[name] = x;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
 				GL(glUseProgram(node.program));
-				GLint loc;
-				GL(loc = glGetUniformLocation(node.program, name.c_str()));
-				GL(glUniform1f(loc, x));
+				UploadUniform(node.program, name, x);
 			}
 		}
 	}
 
-	void SetUniform(const std::string &name, Point3 p) {
+	void SetUniform(const std::string &name, Point3 p) override final {
 		uniformsPoint3[name] = p;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
 				GL(glUseProgram(node.program));
-				GLint loc;
-				GL(loc = glGetUniformLocation(node.program, name.c_str()));
-				GL(glUniform3f(loc, p.x, p.y, p.z));
+				UploadUniform(node.program, name, p);
 			}
 		}
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, glm::int32 x) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform1i(loc, x));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, glm::uint32 x) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform1ui(loc, x));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, Decimal x) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform1f(loc, float(x)));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, Point3 p) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform3f(loc, float(p.x), float(p.y), float(p.z)));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, Point4 p) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform4f(loc, float(p.x), float(p.y), float(p.z), float(p.w)));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, Mat4 m) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		auto m2 = glm::mat4(m);
+		GL(glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m2)));
+		return true;
 	}
 };

@@ -35,7 +35,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
 		st.AddSystem<AudioManager>();
-		st.AddSystem<GL32Renderer, const boost::container::vector<std::string> &>({ "perlin" });
+		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin" });
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");
@@ -68,7 +68,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
-		Point3 seed = glm::ballRand(1000.0f);
+		Point3 seed = glm::ballRand(Decimal(1000.0));
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
@@ -81,50 +81,57 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		st.AddSystem<TitlePlayerController>(playerID);
 
-		Menu menu = {
-			MenuItem("Solo Play", [engine] () {
-				engine->transition = "forward";
-			}),
-			MenuItem("Options", {
-				MenuItem("Graphics", {
-					MenuItem("Base Detail", [] () {}),
-					MenuItem("Far Detail", [] () {}),
-					MenuItem("Far Limiter", [] () {}),
-					MenuItem("Precision", [] () {})
-				}),
-				MenuItem("Audio", [] () {}),
-				MenuItem("Controls", [] () {}),
-			}),
-			MenuItem("Quit Game", [engine] () {
-				engine->Quit();
-			})
-		};
-		st.AddSystem<MenuSystem>(menu);
-
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		auto renderer = engine->GetSystem<GL32Renderer>().lock();
+		auto renderer = engine->GetSystem<Renderer>().lock();
+
+		Menu menu = {
+			MenuItem("Solo Play", [engine] (float) {
+				engine->transition = "forward";
+				return false;
+			}),
+			MenuItem("Options", {
+				MenuItem("Graphics", {
+					MenuItem("Base Detail", MenuControl::Slider<float>(), [] (float) { return true; }),
+					MenuItem("Far Detail", MenuControl::Slider<float>(), [] (float) { return true; }),
+					MenuItem("Far Limiter", MenuControl::Slider<float>(), [] (float) { return true; }),
+					MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (float) { return true; }),
+					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (float state) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->showFPS = state;
+						return true;
+					})
+				}),
+				MenuItem("Audio", [] (float) { return true; }),
+				MenuItem("Controls", [] (float) { return true; }),
+			}),
+			MenuItem("Quit Game", [engine] (float) {
+				engine->Quit();
+				return false;
+			})
+		};
+		st.AddSystem<MenuSystem>(menu);
 
 		IDType laserID;
 		st.dtors.emplace_back(engine->AddObject(&laserID));
 		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
 
 		st.dtors.emplace_back(tweener->Tween(0.0f, 0.05f, 1.0f, false, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_blur", x);
 		}));
 
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.0, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_red", x);
 		}, 5.0 * 4 - 1.0, renderer->uniformsFloat["u_red"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_green", x);
 		}, 5.0 * 2 - 1.0, renderer->uniformsFloat["u_green"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_blue", x);
 		}, 5.0 - 1.0, renderer->uniformsFloat["u_blue"]));
 	});
@@ -137,7 +144,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		auto renderer = engine->GetSystem<GL32Renderer>().lock();
+		auto renderer = engine->GetSystem<Renderer>().lock();
 
 		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
 		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
@@ -151,20 +158,20 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
 
 		st.dtors.emplace_back(tweener->Tween(0.05f, 0.0f, 1.0f, false, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_blur", x);
 		}));
 
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_red", x);
 		}, secsPerBeat * 4 - 0.5, renderer->uniformsFloat["u_red"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_green", x);
 		}, secsPerBeat * 2 - 0.5, renderer->uniformsFloat["u_green"]));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<GL32Renderer>().lock();
+			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_blue", x);
 		}, secsPerBeat - 0.5, renderer->uniformsFloat["u_blue"]));
 	});

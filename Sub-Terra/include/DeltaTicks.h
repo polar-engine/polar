@@ -4,7 +4,7 @@ class DeltaTicks {
 private:
 	DeltaTicksBase value;
 public:
-	typedef float seconds_type;
+	using seconds_type = Decimal;
 
 	DeltaTicks() {}
 	DeltaTicks(const DeltaTicksBase &value) : value(value) {}

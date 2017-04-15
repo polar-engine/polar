@@ -69,7 +69,7 @@ public:
 
 			/* if second-order derivative exists, integrate polynomially */
 			if(HasDerivative(1)) {
-				value += Derivative().value * seconds + Derivative().Derivative().value * seconds * seconds / 2.0f;
+				value += Derivative().value * seconds + Derivative().Derivative().value * seconds * seconds / Decimal(2);
 			} else {
 				value += Derivative().value * seconds;
 			}

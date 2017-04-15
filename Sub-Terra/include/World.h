@@ -17,8 +17,8 @@ public:
 	World(Polar *engine) : System(engine) {}
 
 	inline bool Eval(const Point3 &p) const {
-		float eval = glm::simplex(p / 20.0f) * 0.5f + 0.5f;
-		return eval >= 0.7;
+		Decimal eval = glm::simplex(p / Decimal(20)) * Decimal(0.5) + Decimal(0.5);
+		return eval >= Decimal(0.7);
 		return false;
 	}
 

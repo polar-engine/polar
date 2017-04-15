@@ -20,19 +20,19 @@ protected:
 		auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 		auto world = engine->GetSystem<World>().lock();
 
-		orientVel *= static_cast<float>(glm::pow(0.998, dt.Seconds() * 1000.0));
+		orientVel *= static_cast<Decimal>(glm::pow(0.998, dt.Seconds() * 1000.0));
 
 		unsigned int i = 0;
 		auto average = Point2(0);
 		if(world) {
-			for(float x = -fieldOfView; x < fieldOfView; x += 0.5f) {
-				for(float y = -fieldOfView; y < fieldOfView; y += 0.5f) {
-					for(float d = 1; d < viewDistance; d += 0.5f) {
+			for(Decimal x = -fieldOfView; x < fieldOfView; x += 0.5f) {
+				for(Decimal y = -fieldOfView; y < fieldOfView; y += 0.5f) {
+					for(Decimal d = 1; d < viewDistance; d += 0.5f) {
 						auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * Point4(x, y, -d, 1);
 						auto eval = world->Eval(pos->position.Get() + Point3(abs));
 						if(eval) {
-							average.x += 0.00003f * ((y >= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
-							average.y += 0.00003f * ((x <= 0) ? 1 : -1) / (glm::max(1.0f, d - 2) * 2 / viewDistance);
+							average.x += Decimal(0.00003) * ((y >= 0) ? 1 : -1) / (glm::max(Decimal(1), d - 2) * 2 / viewDistance);
+							average.y += Decimal(0.00003) * ((x <= 0) ? 1 : -1) / (glm::max(Decimal(1), d - 2) * 2 / viewDistance);
 							++i;
 							break;
 						}
@@ -42,13 +42,13 @@ protected:
 		}
 
 		if(i > 0) {
-			average /= static_cast<float>(i);
+			average /= static_cast<Decimal>(i);
 			if(average.length() < 0.1f && average.length() >= 0) { average = Point2(0, 1); }
 			if(average.length() > 0.1f && average.length() <= 0) { average = Point2(0, -1); }
 			orientVel += average;
 		}
 
-		orient->orientation = glm::quat(Point3(orientVel.x, 0, 0)) * glm::quat(Point3(0, orientVel.y, 0)) * orient->orientation;
+		orient->orientation = Quat(Point3(orientVel.x, 0, 0)) * Quat(Point3(0, orientVel.y, 0)) * orient->orientation;
 
 		const auto forward = glm::normalize(Point4(0, 0, -1, 1));
 		auto abs = (glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward) * velocity * dt.Seconds();
@@ -58,9 +58,9 @@ protected:
 		pos->position.Derivative()->z = abs.z;
 	}
 public:
-	const float fieldOfView = 5;
-	const float viewDistance = 40.0f;
-	const float velocity = 300.0f;
+	const Decimal fieldOfView = 5;
+	const Decimal viewDistance = 40.0f;
+	const Decimal velocity = 300.0f;
 
 	static bool IsSupported() { return true; }
 	TitlePlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}

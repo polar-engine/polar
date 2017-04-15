@@ -46,7 +46,7 @@ void InputManager::Update(DeltaTicks &dt) {
 		}
 	}
 
-	auto normalized = controllerAxes / 32768.0f;
+	auto normalized = controllerAxes / Decimal(32768);
 	auto logarithmic = normalized * glm::abs(normalized);
 
 	for(auto &handler : controllerAxesHandlers) {

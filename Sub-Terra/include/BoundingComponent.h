@@ -13,30 +13,30 @@ struct BoundingBox {
 	BoundingBox(const Point3 &position, const Point3 &size, const bool &skipRoot = false) : position(position), size(size), skipRoot(skipRoot) {}
 
 	inline Point3 Center() const {
-		return position + size / 2.0f;
+		return position + size / Decimal(2.0);
 	}
 
-	inline std::tuple<bool, float, Point3, Point3> TestRay(const Point3 &origin, const Point3 &direction, float tMax, const Point3 &ownPos) const {
-		auto failure = std::make_tuple(false, std::numeric_limits<float>::infinity(), Point3(0.0f), Point3(0.0f));
-		auto tMin = 0.0f;
+	inline std::tuple<bool, Decimal, Point3, Point3> TestRay(const Point3 &origin, const Point3 &direction, Decimal tMax, const Point3 &ownPos) const {
+		auto failure = std::make_tuple(false, std::numeric_limits<Decimal>::infinity(), Point3(0.0), Point3(0.0));
+		Decimal tMin(0.0);
 		auto p = ownPos + Center() - origin;
-		auto h = size / 2.0f;
+		auto h = size / Decimal(2.0);
 		glm::length_t axis = 0;
 		Point3 tEntry;
 		Point3 tExit;
 		Point3 normal;
 
 		for(glm::length_t i = 0; i < 3; ++i) {
-			if(glm::abs(direction[i]) > 0.00000000000000000001f) {
-				float invDir = 1.0f / direction[i];
+			if(glm::abs(direction[i]) > Decimal(0.00000000000000000001)) {
+				Decimal invDir = Decimal(1.0) / direction[i];
 				tEntry[i] = (p[i] - h[i]) * invDir;
 				tExit[i] = (p[i] + h[i]) * invDir;
 				if(tEntry[i] > tExit[i]) { std::swap(tEntry[i], tExit[i]); }
 				if(tEntry[i] > tMin) { tMin = tEntry[i]; axis = i; }
 				if(tExit[i] < tMax) { tMax = tExit[i]; }
 				if(tMin > tMax) { return failure; }
-				if(tMax < 0.0f) { return failure; }
-			} else if(-p[i] - h[i] > 0.0f || -p[i] + h[i] < 0.0f) { return failure; }
+				if(tMax < 0) { return failure; }
+			} else if(-p[i] - h[i] > 0 || -p[i] + h[i] < 0) { return failure; }
 		}
 
 		/* return child with soonest entry time */
@@ -51,11 +51,11 @@ struct BoundingBox {
 
 		/* determine normal of collided surface */
 		if(axis == 0) {
-			normal = glm::normalize(Point3(-direction.x, 0.0f, 0.0f));
+			normal = glm::normalize(Point3(-direction.x, 0, 0));
 		} else if(axis == 1) {
-			normal = glm::normalize(Point3(0.0f, -direction.y, 0.0f));
+			normal = glm::normalize(Point3(0, -direction.y, 0));
 		} else {
-			normal = glm::normalize(Point3(0.0f, 0.0f, -direction.z));
+			normal = glm::normalize(Point3(0, 0, -direction.z));
 		}
 
 		return std::make_tuple(true, tMin > 0.0f ? tMin : tMax, ownPos + position, normal);
@@ -76,8 +76,8 @@ struct BoundingBox {
 			aBegin.z > bEnd.z);
 	}
 
-	std::pair<float, Point3> AABBSwept(const BoundingBox &b, const Point3 &ownPos, const std::tuple<Point3, Point3, Point3> &bTuple) const {
-		std::pair<float, Point3> result = std::make_pair(1.0f, Point3(0.0f));
+	std::pair<Decimal, Point3> AABBSwept(const BoundingBox &b, const Point3 &ownPos, const std::tuple<Point3, Point3, Point3> &bTuple) const {
+		std::pair<Decimal, Point3> result = std::make_pair(1.0f, Point3(0.0f));
 
 		auto &bPos1 = std::get<0>(bTuple);
 		auto &bPos2 = std::get<1>(bTuple);
@@ -131,8 +131,8 @@ struct BoundingBox {
 			* prevent division by zero by setting entry time to minumum infinity and exit time to maximum infinity
 			*/
 			if(bVel[i] == 0.0f) {
-				entry[i] = -std::numeric_limits<float>::infinity();
-				exit[i] = std::numeric_limits<float>::infinity();
+				entry[i] = -std::numeric_limits<Decimal>::infinity();
+				exit[i] = std::numeric_limits<Decimal>::infinity();
 			} else {
 				entry[i] = inverseEntry[i] / bVel[i];
 				exit[i] = inverseExit[i] / bVel[i];
@@ -140,10 +140,10 @@ struct BoundingBox {
 		}
 
 		/* find time at which all axes have entered b */
-		float entryTime = std::max({entry.x, entry.y, entry.z});
+		Decimal entryTime = std::max({entry.x, entry.y, entry.z});
 
 		/* find time at which any axis has exited b */
-		float exitTime = std::min({exit.x, exit.y, exit.z});
+		Decimal exitTime = std::min({exit.x, exit.y, exit.z});
 
 		/* false if entry time is after exit time
 		 * OR if all entry times are less than 0
