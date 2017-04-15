@@ -205,9 +205,14 @@ public:
 		GL(glClearColor(float(color.x), float(color.y), float(color.z), float(color.w)));
 	}
 
-	Decimal GetUniformDecimal(const std::string &name) const override final {
+	Decimal GetUniformDecimal(const std::string &name, const Decimal def) override final {
 		auto it = uniformsFloat.find(name);
-		if(it != uniformsFloat.end()) { return it->second; } else { return 0; }
+		if(it != uniformsFloat.end()) {
+			return it->second;
+		} else {
+			SetUniform(name, def);
+			return def;
+		}
 	}
 
 	void SetUniform(const std::string &name, Decimal x) override final {
