@@ -95,10 +95,14 @@ public:
 			auto &right = buffer[frame * 2 + 1];
 			left = 0;
 			right = 0;
-			if(!muted) {
-				for(auto &source : sources) {
-					source.second->Tick(sampleRate, left, right);
-				}
+
+			for(auto &source : sources) {
+				source.second->Tick(sampleRate, left, right);
+			}
+
+			if(muted) {
+				left = 0;
+				right = 0;
 			}
 		}
 		return paContinue;
