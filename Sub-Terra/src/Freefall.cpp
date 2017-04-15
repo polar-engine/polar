@@ -85,6 +85,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
+		auto audioM = engine->GetSystem<AudioManager>().lock();
 
 		Menu menu = {
 			MenuItem("Solo Play", [engine] (Decimal) {
@@ -111,7 +112,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						return true;
 					})
 				}),
-				MenuItem("Audio", [] (Decimal) { return true; }),
+				MenuItem("Audio", {
+					MenuItem("Mute", MenuControl::Checkbox(audioM->muted), [engine] (Decimal state) {
+						auto audioM = engine->GetSystem<AudioManager>().lock();
+						audioM->muted = state;
+						return true;
+					})
+				}),
 				MenuItem("Controls", [] (Decimal) { return true; }),
 			}),
 			MenuItem("Quit Game", [engine] (Decimal) {
