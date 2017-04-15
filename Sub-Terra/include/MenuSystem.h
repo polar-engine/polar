@@ -9,7 +9,7 @@ namespace MenuControl {
 		virtual ~Base() {}
 		virtual float Get() { return 0; }
 		virtual void Activate() {}
-		virtual void Navigate(int) {}
+		virtual bool Navigate(int) { return false; }
 	};
 
 	class Button : public Base {
@@ -36,7 +36,14 @@ namespace MenuControl {
 		T max;
 		T value;
 	public:
-		Slider() {}
+		Slider(T initial = 0) : value(initial) {}
+
+		float Get() override final { return value; }
+
+		bool Navigate(int delta) {
+			value += delta;
+			return true;
+		}
 	};
 
 	class Selection : public Base {
@@ -104,20 +111,36 @@ private:
 		}
 	}
 
-	void Navigate(int down, int right = 0) {
-		while(right > 0) {
-			stack.emplace_back(current);
-			current = 0;
-			--right;
-		}
-		while(right < 0) {
-			if(stack.empty()) {
-				engine->transition = "back";
-				return;
-			} else {
-				current = stack.back();
-				stack.pop_back();
-				++right;
+	void Navigate(int down, int right = 0, bool force = false) {
+		auto m = GetCurrentMenu();
+		auto &item = m->at(current);
+
+		if(!force && right && item.control && item.control->Navigate(right)) {
+			item.fn(item.control->Get());
+		} else { force = true; }
+
+		if(force) {
+			while(right > 0) {
+				auto m = GetCurrentMenu();
+				auto &i = m->at(current);
+				if(!i.children.empty()) {
+					stack.emplace_back(current);
+					current = 0;
+					--right;
+				} else {
+					Activate();
+					return;
+				}
+			}
+			while(right < 0) {
+				if(stack.empty()) {
+					engine->transition = "back";
+					return;
+				} else {
+					current = stack.back();
+					stack.pop_back();
+					++right;
+				}
 			}
 		}
 		if(down != 0) {
@@ -141,18 +164,28 @@ protected:
 		font = assetM->Get<FontAsset>("nasalization-rg");
 
 		for(auto k : { Key::Escape, Key::ControllerBack }) {
+			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1, true); }));
+		}
+
+		for(auto k : { Key::Down, Key::S }) {
+			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(1); }));
+		}
+
+		for(auto k : { Key::Up, Key::W }) {
+			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(-1); }));
+		}
+
+		for(auto k : { Key::Left, Key::A }) {
 			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1); }));
 		}
 
-		dtors.emplace_back(inputM->On(Key::Down, [this] (Key) { Navigate(1); }));
-		dtors.emplace_back(inputM->On(Key::S,    [this] (Key) { Navigate(1); }));
+		for(auto k : { Key::Right, Key::D }) {
+			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, 1); }));
+		}
 
-		dtors.emplace_back(inputM->On(Key::Up, [this] (Key) { Navigate(-1); }));
-		dtors.emplace_back(inputM->On(Key::W,  [this] (Key) { Navigate(-1); }));
-
-		dtors.emplace_back(inputM->On(Key::Space, [this] (Key) { Activate(); }));
-		dtors.emplace_back(inputM->On(Key::Enter, [this] (Key) { Activate(); }));
-		dtors.emplace_back(inputM->On(Key::ControllerA, [this] (Key) { Activate(); }));
+		for(auto k : { Key::Space, Key::Enter, Key::ControllerA }) {
+			dtors.emplace_back(inputM->On(k, [this] (Key) { Activate(); }));
+		}
 
 		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
 			selectionAlpha = x;
