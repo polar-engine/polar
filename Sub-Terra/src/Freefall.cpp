@@ -87,26 +87,29 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto renderer = engine->GetSystem<Renderer>().lock();
 
 		Menu menu = {
-			MenuItem("Solo Play", [engine] (float) {
+			MenuItem("Solo Play", [engine] (Decimal) {
 				engine->transition = "forward";
 				return false;
 			}),
 			MenuItem("Options", {
 				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<float>(), [] (float) { return true; }),
-					MenuItem("Far Detail", MenuControl::Slider<float>(), [] (float) { return true; }),
-					MenuItem("Far Limiter", MenuControl::Slider<float>(), [] (float) { return true; }),
-					MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (float) { return true; }),
-					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (float state) {
+					MenuItem("Base Detail", MenuControl::Slider<Decimal>(32.0f), [] (Decimal x) {
+						INFOS(x);
+						return true;
+					}),
+					MenuItem("Far Detail", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
+					MenuItem("Far Limiter", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
+					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
+					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->showFPS = state;
 						return true;
 					})
 				}),
-				MenuItem("Audio", [] (float) { return true; }),
-				MenuItem("Controls", [] (float) { return true; }),
+				MenuItem("Audio", [] (Decimal) { return true; }),
+				MenuItem("Controls", [] (Decimal) { return true; }),
 			}),
-			MenuItem("Quit Game", [engine] (float) {
+			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
 				return false;
 			})
