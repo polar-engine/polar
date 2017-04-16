@@ -8,13 +8,14 @@ namespace MenuControl {
 	public:
 		virtual ~Base() {}
 		virtual float Get() { return 0; }
-		virtual void Activate() {}
+		virtual bool Activate() { return false; }
 		virtual bool Navigate(int) { return false; }
 	};
 
 	class Button : public Base {
 	public:
 		Button() {}
+		bool Activate() override final { return true; }
 	};
 
 	class Checkbox : public Base {
@@ -22,11 +23,11 @@ namespace MenuControl {
 		bool state;
 	public:
 		Checkbox(bool initial = false) : state(initial) {}
-
 		float Get() override final { return state; }
 
-		void Activate() override final {
+		bool Activate() override final {
 			state = !state;
+			return true;
 		}
 	};
 
@@ -37,8 +38,8 @@ namespace MenuControl {
 		T value;
 	public:
 		Slider(T min, T max, T initial = 0) : min(min), max(max), value(initial) {}
-
 		float Get() override final { return value; }
+		bool Activate() { return Navigate(1); }
 
 		bool Navigate(int delta) {
 			T newValue = glm::clamp(value + T(delta), min, max);
@@ -46,11 +47,6 @@ namespace MenuControl {
 			value = newValue;
 			return changed;
 		}
-	};
-
-	class Selection : public Base {
-	public:
-		Selection(std::vector<std::string> options) {}
 	};
 }
 
@@ -100,8 +96,7 @@ private:
 		auto &item = m->at(current);
 
 		if(item.control) {
-			item.control->Activate();
-			if(item.fn(item.control->Get())) {
+			if(item.control->Activate() && item.fn(item.control->Get())) {
 				auto assetM = engine->GetSystem<AssetManager>().lock();
 				IDType soundID;
 				soundDtors[soundIndex++] = engine->AddObject(&soundID);
@@ -117,11 +112,12 @@ private:
 		auto m = GetCurrentMenu();
 		auto &item = m->at(current);
 
+		bool newForce = force;
 		if(!force && right && item.control && item.control->Navigate(right)) {
 			item.fn(item.control->Get());
-		} else { force = true; }
+		} else { newForce = true; }
 
-		if(force) {
+		if(newForce) {
 			while(right > 0) {
 				auto m = GetCurrentMenu();
 				auto &i = m->at(current);
@@ -136,7 +132,7 @@ private:
 			}
 			while(right < 0) {
 				if(stack.empty()) {
-					engine->transition = "back";
+					if(force) { engine->transition = "back"; }
 					return;
 				} else {
 					current = stack.back();
