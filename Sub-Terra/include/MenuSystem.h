@@ -36,13 +36,14 @@ namespace MenuControl {
 		T min;
 		T max;
 		T value;
+		T step;
 	public:
-		Slider(T min, T max, T initial = 0) : min(min), max(max), value(initial) {}
+		Slider(T min, T max, T initial = 0, T step = 1) : min(min), max(max), value(initial), step(step) {}
 		float Get() override final { return value; }
 		bool Activate() { return Navigate(1); }
 
 		bool Navigate(int delta) {
-			T newValue = glm::clamp(value + T(delta), min, max);
+			T newValue = glm::clamp(value + T(delta) * step, min, max);
 			bool changed = newValue != value;
 			value = newValue;
 			return changed;

@@ -237,6 +237,9 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	// text
 	{
 		GL(glUseProgram(textProgram));
+		UploadUniform(textProgram, "u_texture", 0);
+		GL(glActiveTexture(GL_TEXTURE0));
+		GL(glBindVertexArray(viewportVAO));
 
 		auto pairRight = engine->objects.right.equal_range(&typeid(Text));
 		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
@@ -302,13 +305,10 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 					break;
 				}
 
-				UploadUniform(textProgram, "u_texture", 0);
 				UploadUniform(textProgram, "u_transform", transform);
 				UploadUniform(textProgram, "u_color", text->color);
 
-				GL(glActiveTexture(GL_TEXTURE0));
 				GL(glBindTexture(GL_TEXTURE_2D, property->texture));
-				GL(glBindVertexArray(viewportVAO));
 				GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 			}
 		}

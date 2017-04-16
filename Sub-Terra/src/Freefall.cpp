@@ -72,6 +72,16 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
+		auto renderer = engine->GetSystem<Renderer>().lock();
+		renderer->SetUniform("u_baseThreshold", 0.7);
+		renderer->SetUniform("u_beatTicks",  1000.0);
+		renderer->SetUniform("u_beatPower",     4.0);
+		renderer->SetUniform("u_beatStrength",  0.005);
+		renderer->SetUniform("u_waveTicks",  2345.0);
+		renderer->SetUniform("u_wavePower",     8.0);
+		renderer->SetUniform("u_waveStrength",  0.02);
+		renderer->SetUniform("u_worldScale", Point3(20.0));
+
 		engine->transition = "forward";
 	});
 
@@ -116,21 +126,58 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->showFPS = state;
 						return true;
-					})
+					}),
 				}),
 				MenuItem("Audio", {
 					MenuItem("Mute", MenuControl::Checkbox(audioM->muted), [engine] (Decimal state) {
 						auto audioM = engine->GetSystem<AudioManager>().lock();
 						audioM->muted = state;
 						return true;
-					})
+					}),
 				}),
 				//MenuItem("Controls", [] (Decimal) { return true; }),
+				MenuItem("World", {
+					MenuItem("u_baseThreshold", MenuControl::Slider<Decimal>(0, 1, renderer->GetUniformDecimal("u_baseThreshold"), 0.05), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_baseThreshold", x);
+						return true;
+					}),
+					MenuItem("u_beatTicks", MenuControl::Slider<Decimal>(50, 10000, renderer->GetUniformDecimal("u_beatTicks"), 50), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_beatTicks", x);
+						return true;
+					}),
+					MenuItem("u_beatPower", MenuControl::Slider<Decimal>(1, 16, renderer->GetUniformDecimal("u_beatPower")), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_beatPower", x);
+						return true;
+					}),
+					MenuItem("u_beatStrength", MenuControl::Slider<Decimal>(-1, 1, renderer->GetUniformDecimal("u_beatStrength"), 0.002), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_beatStrength", x);
+						return true;
+					}),
+					MenuItem("u_waveTicks", MenuControl::Slider<Decimal>(50, 10000, renderer->GetUniformDecimal("u_waveTicks"), 50), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_waveTicks", x);
+						return true;
+					}),
+					MenuItem("u_wavePower", MenuControl::Slider<Decimal>(1, 16, renderer->GetUniformDecimal("u_wavePower")), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_wavePower", x);
+						return true;
+					}),
+					MenuItem("u_waveStrength", MenuControl::Slider<Decimal>(-1, 1, renderer->GetUniformDecimal("u_waveStrength"), 0.002), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_waveStrength", x);
+						return true;
+					}),
+				}),
 			}),
 			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
 				return false;
-			})
+			}),
 		};
 		st.AddSystem<MenuSystem>(menu);
 
