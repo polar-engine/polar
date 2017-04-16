@@ -3,18 +3,33 @@
 @uniform mat4 u_projection
 @uniform mat4 u_invViewProj
 @uniform uint u_time
-@uniform float u_red
-@uniform float u_green
-@uniform float u_blue
+
 @uniform float u_baseDetail
 @uniform float u_retroFactor
 @uniform float u_retroFactor2
+
+@uniform float u_red
+@uniform float u_green
+@uniform float u_blue
+
+@uniform float u_baseThreshold
+@uniform float u_beatTicks
+@uniform float u_beatPower
+@uniform float u_beatStrength
+@uniform float u_waveTicks
+@uniform float u_wavePower
+@uniform float u_waveStrength
+@uniform vec3  u_worldScale
+
 @attrib vec2 a_vertex
+
 @varying smooth vec2 v_vertex
 @varying flat vec3 v_solidColor
+
 @gin position u_posBuffer
 @gin normal u_normalBuffer
 @gin depth u_depthBuffer
+
 @out rgba8 color o_color
 
 @shader vertex
@@ -157,31 +172,21 @@ float snoise(vec3 v) {
 }
 
 float Threshold() {
-	const float baseThreshold = 0.7;
-	const float beatTicks = 1000.0;
-	const float beatPower = 4.0;
-	const float beatStrength = 0.005;
-
-	float s = sin(float(u_time) / beatTicks);
-	float f = 1.0 - pow(abs(s), 1.0 / beatPower);
-	return baseThreshold + f * beatStrength;
+	float s = sin(float(u_time) / u_beatTicks);
+	float f = 1.0 - pow(abs(s), 1.0 / u_beatPower);
+	return u_baseThreshold + f * u_beatStrength;
 }
 
 #define PI_2 (3.14159 * 2.0)
 
 float Threshold2(in float z) {
-	const float waveTicks = 2345.0;
-	const float wavePower = 8.0;
-	const float waveStrength = 0.02;
-
-	float s = sin(z * PI_2 - float(u_time) / waveTicks) - 0.9;
-	float f = 1.0 - pow(abs(s), 1.0 / wavePower);
-	return f * waveStrength;
+	float s = sin(z * PI_2 - float(u_time) / u_waveTicks) - 0.9;
+	float f = 1.0 - pow(abs(s), 1.0 / u_wavePower);
+	return f * u_waveStrength;
 }
 
 bool Eval(in vec3 coord, in float z, out float result) {
-	const vec3 scale = vec3(20.0);
-	vec3 finalCoord = coord / scale;
+	vec3 finalCoord = coord / u_worldScale;
 
 	if(u_retroFactor2 > 1) {
 		float factor2 = max(u_resolution.x, u_resolution.y) / pow(u_retroFactor2 + 1, 1.5);
