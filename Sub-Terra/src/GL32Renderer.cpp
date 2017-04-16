@@ -96,6 +96,7 @@ void GL32Renderer::Init() {
 
 void GL32Renderer::Update(DeltaTicks &dt) {
 	time += (uint32_t)dt.Ticks();
+	SetUniform("u_time", time);
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	auto font = assetM->Get<FontAsset>("nasalization-rg");
@@ -152,7 +153,6 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 		UploadUniform(node.program, "u_view", cameraView);
 		UploadUniform(node.program, "u_invViewProj", glm::inverse(CalculateProjection() * cameraView));
-		UploadUniform(node.program, "u_time", time);
 
 		switch(i) {
 		case 0: {
