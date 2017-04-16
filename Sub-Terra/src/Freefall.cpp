@@ -172,6 +172,27 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						renderer->SetUniform("u_waveStrength", x);
 						return true;
 					}),
+					MenuItem("u_worldScale.x", MenuControl::Slider<Decimal>(1, 100, renderer->GetUniformPoint3("u_worldScale").x, 0.5), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						auto p = renderer->GetUniformPoint3("u_worldScale");
+						p.x = x;
+						renderer->SetUniform("u_worldScale", p);
+						return true;
+					}),
+					MenuItem("u_worldScale.y", MenuControl::Slider<Decimal>(1, 100, renderer->GetUniformPoint3("u_worldScale").y, 0.5), [engine] (Decimal y) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						auto p = renderer->GetUniformPoint3("u_worldScale");
+						p.y = y;
+						renderer->SetUniform("u_worldScale", p);
+						return true;
+					}),
+					MenuItem("u_worldScale.z", MenuControl::Slider<Decimal>(1, 100, renderer->GetUniformPoint3("u_worldScale").z, 0.5), [engine] (Decimal z) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						auto p = renderer->GetUniformPoint3("u_worldScale");
+						p.z = z;
+						renderer->SetUniform("u_worldScale", p);
+						return true;
+					}),
 				}),
 			}),
 			MenuItem("Quit Game", [engine] (Decimal) {

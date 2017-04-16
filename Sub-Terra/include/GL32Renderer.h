@@ -215,6 +215,16 @@ public:
 		}
 	}
 
+	Point3 GetUniformPoint3(const std::string &name, const Point3 def) override final {
+		auto it = uniformsPoint3.find(name);
+		if(it != uniformsPoint3.end()) {
+			return it->second;
+		} else {
+			SetUniform(name, def);
+			return def;
+		}
+	}
+
 	void SetUniform(const std::string &name, Decimal x) override final {
 		uniformsFloat[name] = x;
 		for(auto &node : nodes) {

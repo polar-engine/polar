@@ -6,6 +6,7 @@
 #include <boost/unordered_map.hpp>
 #include <glm/gtc/noise.hpp>
 #include "System.h"
+#include "Renderer.h"
 
 class World : public System {
 private:
@@ -15,6 +16,23 @@ public:
 	static bool IsSupported() { return true; }
 
 	World(Polar *engine) : System(engine) {}
+
+	float Threshold() {
+		auto renderer = engine->GetSystem<Renderer>().lock();
+
+		float s = glm::sin(float(renderer->GetUniformDecimal("u_time")) / renderer->GetUniformDecimal("u_beatTicks"));
+		float f = 1.0 - glm::pow(glm::abs(s), Decimal(1.0) / renderer->GetUniformDecimal("u_beatPower"));
+		return renderer->GetUniformDecimal("u_baseThreshold") + f * renderer->GetUniformDecimal("u_beatStrength");
+	}
+
+	bool Eval(Point3 coord) {
+		auto renderer = engine->GetSystem<Renderer>().lock();
+
+		Point3 finalCoord = coord / renderer->GetUniformPoint3("u_worldScale");
+
+		auto result = glm::simplex(finalCoord) * 0.5 + 0.5;
+		return result > Threshold();
+	}
 
 	inline bool Eval(const Point3 &p) const {
 		Decimal eval = glm::simplex(p / Decimal(20)) * Decimal(0.5) + Decimal(0.5);
