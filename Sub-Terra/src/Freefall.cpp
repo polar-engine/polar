@@ -208,16 +208,22 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.0, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
-			renderer->SetUniform("u_red", x);
-		}, 5.0 * 4 - 1.0, renderer->GetUniformDecimal("u_red")));
+			auto color = renderer->GetUniformPoint3("u_color");
+			color.r = x;
+			renderer->SetUniform("u_color", color);
+		}, 5.0 * 4 - 1.0, renderer->GetUniformPoint3("u_color").r));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
-			renderer->SetUniform("u_green", x);
-		}, 5.0 * 2 - 1.0, renderer->GetUniformDecimal("u_green")));
+			auto color = renderer->GetUniformPoint3("u_color");
+			color.g = x;
+			renderer->SetUniform("u_color", color);
+		}, 5.0 * 2 - 1.0, renderer->GetUniformPoint3("u_color").g));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
-			renderer->SetUniform("u_blue", x);
-		}, 5.0 - 1.0, renderer->GetUniformDecimal("u_blue")));
+			auto color = renderer->GetUniformPoint3("u_color");
+			color.b = x;
+			renderer->SetUniform("u_color", color);
+		}, 5.0 - 1.0, renderer->GetUniformPoint3("u_color").b));
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
@@ -243,16 +249,22 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
-			renderer->SetUniform("u_red", x);
-		}, secsPerBeat * 4 - 0.5, renderer->GetUniformDecimal("u_red")));
+			auto color = renderer->GetUniformPoint3("u_color");
+			color.r = x;
+			renderer->SetUniform("u_color", color);
+		}, secsPerBeat * 4 - 0.5, renderer->GetUniformPoint3("u_color").r));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
-			renderer->SetUniform("u_green", x);
-		}, secsPerBeat * 2 - 0.5, renderer->GetUniformDecimal("u_green")));
+			auto color = renderer->GetUniformPoint3("u_color");
+			color.g = x;
+			renderer->SetUniform("u_color", color);
+		}, secsPerBeat * 2 - 0.5, renderer->GetUniformPoint3("u_color").g));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
-			renderer->SetUniform("u_blue", x);
-		}, secsPerBeat - 0.5, renderer->GetUniformDecimal("u_blue")));
+			auto color = renderer->GetUniformPoint3("u_color");
+			color.b = x;
+			renderer->SetUniform("u_color", color);
+		}, secsPerBeat - 0.5, renderer->GetUniformPoint3("u_color").b));
 	});
 
 	engine.Run("root");
