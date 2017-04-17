@@ -112,14 +112,14 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					//MenuItem("Far Detail", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					//MenuItem("Far Limiter", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-					MenuItem("Retro Factor 1", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_retroFactor", 0)), [engine] (Decimal x) {
+					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_pixelFactor", 0)), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_retroFactor", x);
+						renderer->SetUniform("u_pixelFactor", x);
 						return true;
 					}),
-					MenuItem("Retro Factor 2", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_retroFactor2", 0)), [engine] (Decimal x) {
+					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_voxelFactor", 0)), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_retroFactor2", x);
+						renderer->SetUniform("u_voxelFactor", x);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
