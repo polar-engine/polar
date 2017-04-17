@@ -24,6 +24,7 @@ protected:
 		auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 		auto world = engine->GetSystem<World>().lock();
 
+		if(accum > timestep * 10) { accum = timestep * 10; }
 		while(accum >= timestep) {
 			accum -= timestep;
 
