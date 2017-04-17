@@ -104,7 +104,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			}),
 			MenuItem("Options", {
 				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, renderer->GetUniformDecimal("u_baseDetail", 10)), [engine] (Decimal x) {
+					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 40, renderer->GetUniformDecimal("u_baseDetail", 10)), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->SetUniform("u_baseDetail", x);
 						return true;
