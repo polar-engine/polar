@@ -141,11 +141,15 @@ private:
 					++right;
 				}
 			}
+			RenderAll();
 		}
 		if(down != 0) {
 			auto m = GetCurrentMenu();
+			auto previous = current;
 			current += down;
 			if(current < 0) { current += m->size(); } else { current %= m->size(); }
+			Render(previous, true);
+			Render(current, true);
 		}
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
@@ -153,6 +157,33 @@ private:
 		soundDtors[soundIndex++] = engine->AddObject(&soundID);
 		soundIndex %= soundDtors.size();
 		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+	}
+
+	void RenderAll() {
+		auto m = GetCurrentMenu();
+
+		itemDtors.clear();
+		for(size_t i = 0; i < m->size(); ++i) {
+			Render(i);
+		}
+	}
+
+	void Render(size_t i, bool replace = false) {
+		auto m = GetCurrentMenu();
+		auto &item = m->at(i);
+
+		IDType id;
+		if(replace) {
+			itemDtors.at(i) = engine->AddObject(&id);
+		} else {
+			itemDtors.emplace_back(engine->AddObject(&id));
+		}
+		engine->AddComponent<Text>(id, font, item.value, Point2(60, 50 + 60 * (m->size() - i - 1)));
+		auto t = engine->GetComponent<Text>(id);
+		t->scale *= 0.375f;
+		if(i == current) {
+			t->color.b = selectionAlpha;
+		}
 	}
 protected:
 	void Init() override final {
@@ -189,23 +220,12 @@ protected:
 		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
 			selectionAlpha = x;
 		}));
+
+		RenderAll();
 	}
 
 	void Update(DeltaTicks &) override final {
-		auto m = GetCurrentMenu();
-
-		itemDtors.clear();
-		for(size_t i = 0; i < m->size(); ++i) {
-			auto &item = m->at(i);
-			IDType id;
-			itemDtors.emplace_back(engine->AddObject(&id));
-			engine->AddComponent<Text>(id, font, item.value, Point2(60, 50 + 60 * (m->size() - i - 1)));
-			auto t = engine->GetComponent<Text>(id);
-			t->scale *= 0.375f;
-			if(i == current) {
-				t->color.b = selectionAlpha;
-			}
-		}
+		Render(current, true);
 	}
 public:
 	static bool IsSupported() { return true; }

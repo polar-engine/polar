@@ -56,10 +56,12 @@ private:
 	GLuint viewportVAO;
 	GLuint textProgram;
 
-	uint32_t time = 0;
-
 	boost::shared_ptr<Destructor> fpsDtor;
 	IDType fpsID = 0;
+
+	boost::unordered_map<std::string, glm::uint32> uniformsU32;
+	boost::unordered_map<std::string, Decimal> uniformsFloat;
+	boost::unordered_map<std::string, Point3> uniformsPoint3;
 
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
@@ -222,6 +224,16 @@ public:
 		} else {
 			SetUniform(name, def);
 			return def;
+		}
+	}
+
+	void SetUniform(const std::string &name, glm::uint32 x) override final {
+		uniformsU32[name] = x;
+		for(auto &node : nodes) {
+			if(node.uniforms.find(name) != node.uniforms.end()) {
+				GL(glUseProgram(node.program));
+				UploadUniform(node.program, name, x);
+			}
 		}
 	}
 

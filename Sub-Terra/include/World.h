@@ -20,7 +20,7 @@ public:
 	float Threshold() {
 		auto renderer = engine->GetSystem<Renderer>().lock();
 
-		float s = glm::sin(float(renderer->GetUniformDecimal("u_time")) / renderer->GetUniformDecimal("u_beatTicks"));
+		float s = glm::sin(Decimal(renderer->time) / renderer->GetUniformDecimal("u_beatTicks"));
 		float f = 1.0 - glm::pow(glm::abs(s), Decimal(1.0) / renderer->GetUniformDecimal("u_beatPower"));
 		return renderer->GetUniformDecimal("u_baseThreshold") + f * renderer->GetUniformDecimal("u_beatStrength");
 	}
