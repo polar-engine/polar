@@ -123,6 +123,19 @@ inline Key mkKeyFromSDL(SDL_Keycode k) {
 	}
 }
 
+inline Key mkMouseButtonFromSDL(Uint8 mb) {
+	switch(mb) {
+	case SDL_BUTTON_LEFT:
+		return Key::MouseLeft;
+	case SDL_BUTTON_MIDDLE:
+		return Key::MouseMiddle;
+	case SDL_BUTTON_RIGHT:
+		return Key::MouseRight;
+	default:
+		return Key::None;
+	}
+}
+
 inline Key mkButtonFromSDL(SDL_GameControllerButton b) {
 	switch(b) {
 	case SDL_CONTROLLER_BUTTON_A:

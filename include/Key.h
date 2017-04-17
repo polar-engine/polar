@@ -46,6 +46,9 @@ enum class Key : uint8_t {
 	Down,
 	Left,
 	Right,
+	MouseLeft,
+	MouseMiddle,
+	MouseRight,
 	ControllerA,
 	ControllerBack
 };

@@ -30,6 +30,12 @@ void InputManager::Init() {
 			handler.right(delta);
 		}
 	}));
+	dtors.emplace_back(eventM->ListenFor("mousewheel", [this] (Arg arg) {
+		auto &delta = *arg.Get<Point2>();
+		for(auto &handler : mouseWheelHandlers) {
+			handler.right(delta);
+		}
+	}));
 	dtors.emplace_back(eventM->ListenFor("controlleraxisx", [this] (Arg arg) {
 		controllerAxes.x = arg.float_;
 	}));
