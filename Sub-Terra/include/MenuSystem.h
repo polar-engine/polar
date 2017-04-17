@@ -149,7 +149,6 @@ private:
 			current += down;
 			if(current < 0) { current += m->size(); } else { current %= m->size(); }
 			Render(previous, true);
-			Render(current, true);
 		}
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();

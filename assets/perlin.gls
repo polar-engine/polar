@@ -8,10 +8,6 @@
 @uniform float u_pixelFactor
 @uniform float u_voxelFactor
 
-@uniform float u_red
-@uniform float u_green
-@uniform float u_blue
-
 @uniform float u_baseThreshold
 @uniform float u_beatTicks
 @uniform float u_beatPower
@@ -20,11 +16,11 @@
 @uniform float u_wavePower
 @uniform float u_waveStrength
 @uniform vec3  u_worldScale
+@uniform vec3  u_color
 
 @attrib vec2 a_vertex
 
 @varying smooth vec2 v_vertex
-@varying flat vec3 v_solidColor
 
 @gin position u_posBuffer
 @gin normal u_normalBuffer
@@ -37,9 +33,6 @@
 void main() {
 	gl_Position = vec4(a_vertex, 0.0, 1.0);
 	v_vertex = a_vertex;
-
-	v_solidColor = vec3(u_red, u_green, u_blue);
-	if(length(v_solidColor) < 1.0) { v_solidColor = vec3(0.8); }
 }
 
 @shader fragment
@@ -199,6 +192,8 @@ bool Eval(in vec3 coord, in float z, out float result) {
 
 void main(void) {
 	vec3 color = vec3(0.0);
+	vec3 solidColor = u_color;
+	if(length(solidColor) < 1.0) { solidColor = vec3(0.8); }
 
 	float len = length(v_vertex);
 	float numSamples = pow(u_baseDetail, 1.5) + pow(len, 2.0) / 10.0;
@@ -220,7 +215,7 @@ void main(void) {
 
 		float result;
 		if(Eval(realCoord, z, result)) {
-			color = mix(v_solidColor, vec3(1.0, 0.9, 0.3), -Threshold2(z) / 0.02) - sqrt(z);
+			color = mix(solidColor, vec3(1.0, 0.9, 0.3), -Threshold2(z) / 0.02) - sqrt(z);
 			break;
 		} else {
 			sample += max(0.01, pow((Threshold() - result) * 20.0, 1.0 / 2.718281828));
