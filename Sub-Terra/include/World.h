@@ -30,6 +30,11 @@ public:
 
 		Point3 finalCoord = coord / renderer->GetUniformPoint3("u_worldScale");
 
+		if(renderer->GetUniformDecimal("u_voxelFactor") > 1) {
+			float factor2 = glm::max(renderer->GetWidth(), renderer->GetHeight()) / glm::pow(renderer->GetUniformDecimal("u_voxelFactor") + 1, Decimal(1.5));
+			finalCoord = glm::floor(finalCoord * factor2) / factor2;
+		}
+
 		auto result = glm::simplex(finalCoord) * 0.5 + 0.5;
 		return result > Threshold();
 	}
