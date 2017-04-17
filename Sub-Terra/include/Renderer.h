@@ -13,9 +13,7 @@ protected:
 	Decimal pixelDistanceFromScreen = 1000.0f;
 public:
 	bool showFPS = false;
-
-	boost::unordered_map<std::string, Decimal> uniformsFloat;
-	boost::unordered_map<std::string, Point3> uniformsPoint3;
+	uint32_t time = 0;
 
 	static bool IsSupported() { return false; }
 	Renderer(Polar *engine) : System(engine) {}
@@ -24,6 +22,7 @@ public:
 	virtual void SetClearColor(const Point4 &) = 0;
 	virtual Decimal GetUniformDecimal(const std::string &, const Decimal = 0) = 0;
 	virtual Point3 GetUniformPoint3(const std::string &, const Point3 = Point3(0)) = 0;
+	virtual void SetUniform(const std::string &, glm::uint32) = 0;
 	virtual void SetUniform(const std::string &, Decimal) = 0;
 	virtual void SetUniform(const std::string &, Point3) = 0;
 };

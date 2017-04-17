@@ -73,13 +73,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<OrientationComponent>(playerID);
 
 		auto renderer = engine->GetSystem<Renderer>().lock();
-		renderer->SetUniform("u_baseThreshold", 0.7);
-		renderer->SetUniform("u_beatTicks",  1000.0);
-		renderer->SetUniform("u_beatPower",     4.0);
-		renderer->SetUniform("u_beatStrength",  0.005);
-		renderer->SetUniform("u_waveTicks",  2345.0);
-		renderer->SetUniform("u_wavePower",     8.0);
-		renderer->SetUniform("u_waveStrength",  0.02);
+		renderer->SetUniform("u_baseThreshold", Decimal(   0.7));
+		renderer->SetUniform("u_beatTicks",     Decimal(1000.0));
+		renderer->SetUniform("u_beatPower",     Decimal(   4.0));
+		renderer->SetUniform("u_beatStrength",  Decimal(   0.005));
+		renderer->SetUniform("u_waveTicks",     Decimal(2345.0));
+		renderer->SetUniform("u_wavePower",     Decimal(   8.0));
+		renderer->SetUniform("u_waveStrength",  Decimal(   0.02));
 		renderer->SetUniform("u_worldScale", Point3(20.0));
 
 		engine->transition = "forward";
@@ -209,15 +209,15 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.0, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_red", x);
-		}, 5.0 * 4 - 1.0, renderer->uniformsFloat["u_red"]));
+		}, 5.0 * 4 - 1.0, renderer->GetUniformDecimal("u_red")));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_green", x);
-		}, 5.0 * 2 - 1.0, renderer->uniformsFloat["u_green"]));
+		}, 5.0 * 2 - 1.0, renderer->GetUniformDecimal("u_green")));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_blue", x);
-		}, 5.0 - 1.0, renderer->uniformsFloat["u_blue"]));
+		}, 5.0 - 1.0, renderer->GetUniformDecimal("u_blue")));
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
@@ -244,15 +244,15 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_red", x);
-		}, secsPerBeat * 4 - 0.5, renderer->uniformsFloat["u_red"]));
+		}, secsPerBeat * 4 - 0.5, renderer->GetUniformDecimal("u_red")));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_green", x);
-		}, secsPerBeat * 2 - 0.5, renderer->uniformsFloat["u_green"]));
+		}, secsPerBeat * 2 - 0.5, renderer->GetUniformDecimal("u_green")));
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			renderer->SetUniform("u_blue", x);
-		}, secsPerBeat - 0.5, renderer->uniformsFloat["u_blue"]));
+		}, secsPerBeat - 0.5, renderer->GetUniformDecimal("u_blue")));
 	});
 
 	engine.Run("root");
