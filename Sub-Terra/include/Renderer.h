@@ -18,6 +18,9 @@ public:
 	static bool IsSupported() { return false; }
 	Renderer(Polar *engine) : System(engine) {}
 
+	inline uint16_t GetWidth() { return width; }
+	inline uint16_t GetHeight() { return height; }
+
 	virtual void MakePipeline(const boost::container::vector<std::string> &) = 0;
 	virtual void SetClearColor(const Point4 &) = 0;
 	virtual Decimal GetUniformDecimal(const std::string &, const Decimal = 0) = 0;
