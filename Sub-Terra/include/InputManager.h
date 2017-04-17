@@ -14,6 +14,7 @@ typedef std::function<void(Key)> OnKeyHandler;
 typedef std::function<void(Key)> AfterKeyHandler;
 typedef std::function<void(Key, const DeltaTicks &)> WhenKeyHandler;
 typedef std::function<void(const Point2 &)> MouseMoveHandler;
+typedef std::function<void(const Point2 &)> MouseWheelHandler;
 typedef std::function<void(const Point2 &)> ControllerAxesHandler;
 
 class InputManager : public System {
@@ -35,6 +36,7 @@ private:
 	KeyHandlerBimap<AfterKeyHandler> afterKeyHandlers;
 	KeyHandlerBimap<WhenKeyHandler> whenKeyHandlers;
 	IDMap<MouseMoveHandler> mouseMoveHandlers;
+	IDMap<MouseWheelHandler> mouseWheelHandlers;
 	IDMap<ControllerAxesHandler> controllerAxesHandlers;
 	IDType nextID = 1;
 protected:
@@ -76,6 +78,14 @@ public:
 		mouseMoveHandlers.insert(IDMap<MouseMoveHandler>::value_type(id, handler));
 		return boost::make_shared<Destructor>([this, id] () {
 			mouseMoveHandlers.left.erase(id);
+		});
+	}
+
+	inline boost::shared_ptr<Destructor> OnMouseWheel(const MouseWheelHandler &handler) {
+		auto id = nextID++;
+		mouseWheelHandlers.insert(IDMap<MouseWheelHandler>::value_type(id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			mouseWheelHandlers.left.erase(id);
 		});
 	}
 

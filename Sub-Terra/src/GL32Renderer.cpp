@@ -358,9 +358,21 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 		key = mkKeyFromSDL(event.key.keysym.sym);
 		engine->GetSystem<EventManager>().lock()->Fire("keyup", &key);
 		break;
+	case SDL_MOUSEBUTTONDOWN:
+		key = mkMouseButtonFromSDL(event.button.button);
+		engine->GetSystem<EventManager>().lock()->Fire("keydown", &key);
+		break;
+	case SDL_MOUSEBUTTONUP:
+		key = mkMouseButtonFromSDL(event.button.button);
+		engine->GetSystem<EventManager>().lock()->Fire("keyup", &key);
+		break;
 	case SDL_MOUSEMOTION:
 		mouseDelta = Point2(event.motion.xrel, event.motion.yrel);
 		engine->GetSystem<EventManager>().lock()->Fire("mousemove", &mouseDelta);
+		break;
+	case SDL_MOUSEWHEEL:
+		mouseDelta = Point2(event.wheel.x, event.wheel.y);
+		engine->GetSystem<EventManager>().lock()->Fire("mousewheel", &mouseDelta);
 		break;
 	case SDL_CONTROLLERBUTTONDOWN:
 		key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(event.cbutton.button));

@@ -192,10 +192,6 @@ protected:
 
 		font = assetM->Get<FontAsset>("nasalization-rg");
 
-		for(auto k : { Key::Escape, Key::Backspace, Key::ControllerBack }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1, true); }));
-		}
-
 		for(auto k : { Key::Down, Key::S }) {
 			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(1); }));
 		}
@@ -212,9 +208,15 @@ protected:
 			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, 1); }));
 		}
 
-		for(auto k : { Key::Space, Key::Enter, Key::ControllerA }) {
+		for(auto k : { Key::Space, Key::Enter, Key::MouseLeft, Key::ControllerA }) {
 			dtors.emplace_back(inputM->On(k, [this] (Key) { Activate(); }));
 		}
+
+		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
+			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1, true); }));
+		}
+
+		dtors.emplace_back(inputM->OnMouseWheel([this] (const Point2 &delta) { Navigate(-delta.y, delta.x); }));
 
 		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
 			selectionAlpha = x;
