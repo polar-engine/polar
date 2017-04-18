@@ -60,11 +60,11 @@ protected:
 public:
 	const double sampleRate = 44100.0;
 	const unsigned long framesPerBuffer = 256;
-	std::atomic<bool> muted = false;
+	std::atomic<bool> muted;
 
 	static bool IsSupported() { return true; }
 
-	AudioManager(Polar *engine) : System(engine) {
+	AudioManager(Polar *engine) : System(engine), muted(false) {
 		Pa_Initialize();
 		Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate, framesPerBuffer, StreamCallback, this);
 	}
