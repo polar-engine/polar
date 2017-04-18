@@ -7,31 +7,58 @@
 #include <glm/gtc/noise.hpp>
 #include "System.h"
 #include "Renderer.h"
+#include "Level.h"
 
 class World : public System {
 private:
+	Level level;
+	void SetUniforms() {
+		auto kf = level.GetNow();
+		auto renderer = engine->GetSystem<Renderer>().lock();
+		renderer->SetUniform("u_baseThreshold", kf.baseThreshold);
+		renderer->SetUniform("u_beatTicks",     kf.beatTicks);
+		renderer->SetUniform("u_beatPower",     kf.beatPower);
+		renderer->SetUniform("u_beatStrength",  kf.beatStrength);
+		renderer->SetUniform("u_waveTicks",     kf.waveTicks);
+		renderer->SetUniform("u_wavePower",     kf.wavePower);
+		renderer->SetUniform("u_waveStrength",  kf.waveStrength);
+		renderer->SetUniform("u_worldScale",    kf.worldScale);
+	}
 protected:
-	void Update(DeltaTicks &) override final {}
+	void Init() override final {
+		SetUniforms();
+	}
+
+	void Update(DeltaTicks &dt) override final {
+		if(active) {
+			level.ticks += dt.Ticks();
+			SetUniforms();
+		}
+	}
 public:
+	bool active;
+
 	static bool IsSupported() { return true; }
 
-	World(Polar *engine) : System(engine) {}
+	World(Polar *engine, Level level, bool active = true) : System(engine), level(level), active(active) {}
 
 	float Threshold() {
-		auto renderer = engine->GetSystem<Renderer>().lock();
+		auto kf = level.GetNow();
 
-		float s = glm::sin(Decimal(renderer->time) / renderer->GetUniformDecimal("u_beatTicks"));
-		float f = 1.0 - glm::pow(glm::abs(s), Decimal(1.0) / renderer->GetUniformDecimal("u_beatPower"));
-		return renderer->GetUniformDecimal("u_baseThreshold") + f * renderer->GetUniformDecimal("u_beatStrength");
+		float s = glm::sin(Decimal(level.ticks) / kf.beatTicks);
+		float f = 1.0 - glm::pow(glm::abs(s), Decimal(1.0) / kf.beatPower);
+		return kf.baseThreshold + f * kf.beatStrength;
 	}
 
 	bool Eval(Point3 coord) {
+		auto kf = level.GetNow();
 		auto renderer = engine->GetSystem<Renderer>().lock();
+		auto voxelFactor = renderer->GetUniformDecimal("u_voxelFactor");
 
-		Point3 finalCoord = coord / renderer->GetUniformPoint3("u_worldScale");
+		Point3 finalCoord = coord / kf.worldScale;
 
-		if(renderer->GetUniformDecimal("u_voxelFactor") > 1) {
-			float factor2 = glm::max(renderer->GetWidth(), renderer->GetHeight()) / glm::pow(renderer->GetUniformDecimal("u_voxelFactor") + 1, Decimal(1.5));
+		if(voxelFactor > 1) {
+			float factor2 = glm::max(renderer->GetWidth(), renderer->GetHeight()) / glm::pow(voxelFactor + 1, Decimal(1.5));
 			finalCoord = glm::floor(finalCoord * factor2) / factor2;
 		}
 
@@ -42,7 +69,6 @@ public:
 	inline bool Eval(const Point3 &p) const {
 		Decimal eval = glm::simplex(p / Decimal(20)) * Decimal(0.5) + Decimal(0.5);
 		return eval >= Decimal(0.7);
-		return false;
 	}
 
 	/* old logo generation matching */
