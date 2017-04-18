@@ -86,7 +86,6 @@
 		7F0CB6351A25D86E00623543 /* PositionComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PositionComponent.h; path = include/PositionComponent.h; sourceTree = "<group>"; };
 		7F0CB6361A25D86E00623543 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Renderer.h; path = include/Renderer.h; sourceTree = "<group>"; };
 		7F0CB6371A25D86E00623543 /* ScaleComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScaleComponent.h; path = include/ScaleComponent.h; sourceTree = "<group>"; };
-		7F0CB6381A25D86E00623543 /* sdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sdl.h; path = include/sdl.h; sourceTree = "<group>"; };
 		7F0CB6391A25D86E00623543 /* Freefall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Freefall.h; path = include/Freefall.h; sourceTree = "<group>"; };
 		7F0CB63A1A25D86E00623543 /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = include/System.h; sourceTree = "<group>"; };
 		7F0CB63C1A25D86E00623543 /* Worker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Worker.h; path = include/Worker.h; sourceTree = "<group>"; };
@@ -115,6 +114,8 @@
 		7F1F40611E97888000DDC932 /* FontAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FontAsset.h; path = include/FontAsset.h; sourceTree = SOURCE_ROOT; };
 		7F1F40621E978D7F00DDC932 /* FontAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FontAsset.h; path = include/FontAsset.h; sourceTree = SOURCE_ROOT; };
 		7F1F40631E9D3ECF00DDC932 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = /Library/Frameworks/SDL2_ttf.framework; sourceTree = "<absolute>"; };
+		7F1F40661EA6166A00DDC932 /* MenuSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MenuSystem.h; path = include/MenuSystem.h; sourceTree = "<group>"; };
+		7F1F40671EA616DC00DDC932 /* Text.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Text.h; path = include/Text.h; sourceTree = "<group>"; };
 		7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OrientationComponent.h; path = include/OrientationComponent.h; sourceTree = "<group>"; };
 		7F3F886F1A2C92A30078F5F9 /* Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Property.h; path = include/Property.h; sourceTree = "<group>"; };
 		7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -174,6 +175,7 @@
 				7F0CB6321A25D86E00623543 /* ModelComponent.h */,
 				7F0CB6351A25D86E00623543 /* PositionComponent.h */,
 				7F0CB6371A25D86E00623543 /* ScaleComponent.h */,
+				7F1F40671EA616DC00DDC932 /* Text.h */,
 			);
 			name = Components;
 			sourceTree = "<group>";
@@ -256,10 +258,10 @@
 				7F0CB62F1A25D86E00623543 /* GL32Renderer.h */,
 				7F0CB6301A25D86E00623543 /* Job.h */,
 				7F0CB6311A25D86E00623543 /* JobManager.h */,
+				7F1F40661EA6166A00DDC932 /* MenuSystem.h */,
 				7F0CB6341A25D86E00623543 /* Polar.h */,
 				7F3F886F1A2C92A30078F5F9 /* Property.h */,
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
-				7F0CB6381A25D86E00623543 /* sdl.h */,
 				7F0CB6391A25D86E00623543 /* Freefall.h */,
 				7F0CB63A1A25D86E00623543 /* System.h */,
 				7F949DF61AC7B2CE004F875F /* World.h */,
