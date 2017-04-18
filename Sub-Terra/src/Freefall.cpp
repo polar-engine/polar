@@ -14,8 +14,8 @@
 #include "MenuSystem.h"
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
-#include "BoundingComponent.h"
 #include "Text.h"
+#include "Level.h"
 
 void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
@@ -64,23 +64,29 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	engine.AddState("world", [&rng, &playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("title")});
 
-		st.AddSystem<World>();
-
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
 		Point3 seed = glm::ballRand(Decimal(1000.0));
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
-		auto renderer = engine->GetSystem<Renderer>().lock();
-		renderer->SetUniform("u_baseThreshold", Decimal(   0.7));
-		renderer->SetUniform("u_beatTicks",     Decimal(1000.0));
-		renderer->SetUniform("u_beatPower",     Decimal(   4.0));
-		renderer->SetUniform("u_beatStrength",  Decimal(   0.005));
-		renderer->SetUniform("u_waveTicks",     Decimal(2345.0));
-		renderer->SetUniform("u_wavePower",     Decimal(   8.0));
-		renderer->SetUniform("u_waveStrength",  Decimal(   0.02));
-		renderer->SetUniform("u_worldScale", Point3(20.0));
+		Keyframe kf0(0);
+		kf0.baseThreshold = Decimal(   0.8);
+		kf0.beatTicks     = Decimal(1000.0);
+		kf0.beatPower     = Decimal(   4.0);
+		kf0.beatStrength  = Decimal(   0.005);
+		kf0.waveTicks     = Decimal(2345.0);
+		kf0.wavePower     = Decimal(   8.0);
+		kf0.waveStrength  = Decimal(   0.02);
+		kf0.worldScale = Point3(20.0);
+		Keyframe kf10(10 * ENGINE_TICKS_PER_SECOND, kf0);
+		kf10.baseThreshold = Decimal(0.7);
+		Keyframe kf55(55 * ENGINE_TICKS_PER_SECOND, kf10);
+		Keyframe kf60(60 * ENGINE_TICKS_PER_SECOND, kf55);
+		kf60.baseThreshold = Decimal(0.55);
+		Level level({ kf0, kf10, kf55, kf60 });
+
+		st.AddSystem<World>(level, false);
 
 		engine->transition = "forward";
 	});
@@ -235,6 +241,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
+		engine->GetSystem<World>().lock()->active = true;
 
 		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
 		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
