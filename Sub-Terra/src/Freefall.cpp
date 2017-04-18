@@ -142,7 +142,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					}),
 				}),
 				//MenuItem("Controls", [] (Decimal) { return true; }),
-				MenuItem("World", {
+				/*MenuItem("World", {
 					MenuItem("u_baseThreshold", MenuControl::Slider<Decimal>(0, 1, renderer->GetUniformDecimal("u_baseThreshold"), 0.05), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->SetUniform("u_baseThreshold", x);
@@ -199,7 +199,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						renderer->SetUniform("u_worldScale", p);
 						return true;
 					}),
-				}),
+				}),*/
 			}),
 			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
@@ -234,6 +234,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world")});
+		st.transitions.emplace("gameover", Transition{Pop(), Push("gameover")});
 
 		st.AddSystem<HumanPlayerController>(playerID);
 
@@ -272,6 +273,26 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			color.b = x;
 			renderer->SetUniform("u_color", color);
 		}, secsPerBeat - 0.5, renderer->GetUniformPoint3("u_color").b));
+	});
+
+	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world")});
+
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		auto inputM = engine->GetSystem<InputManager>().lock();
+		auto world = engine->GetSystem<World>().lock();
+
+		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
+		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
+
+		world->active = false;
+		auto seconds = Decimal(world->GetTicks()) / ENGINE_TICKS_PER_SECOND;
+
+		auto font = assetM->Get<FontAsset>("nasalization-rg");
+
+		IDType textID;
+		st.dtors.emplace_back(engine->AddObject(&textID));
+		engine->AddComponent<Text>(textID, font, "Game Over", Point2(0), Origin::Center);
 	});
 
 	engine.Run("root");

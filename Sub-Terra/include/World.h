@@ -42,6 +42,8 @@ public:
 
 	World(Polar *engine, Level level, bool active = true) : System(engine), level(level), active(active) {}
 
+	uint64_t GetTicks() const { return level.ticks; }
+
 	float Threshold() {
 		auto kf = level.GetNow();
 
