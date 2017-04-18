@@ -51,7 +51,7 @@ void HumanPlayerController::Init() {
 		if(world) {
 			auto &curr = *ownPos->position;
 			if(world->Eval(curr)) {
-				engine->transition = "back";
+				engine->transition = "gameover";
 			}
 		}
 	}));
