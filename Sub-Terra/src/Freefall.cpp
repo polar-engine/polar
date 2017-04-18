@@ -1,4 +1,5 @@
 #include "common.h"
+#include <iomanip>
 #include "Freefall.h"
 #include <glm/gtc/random.hpp>
 #include "Polar.h"
@@ -26,7 +27,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	std::mt19937_64 rng(time(0));
 
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("forward", Transition{Push("world")});
+		st.transitions.emplace("forward", Transition{Push("world"), Push("title")});
 
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
@@ -62,8 +63,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("world", [&rng, &playerID] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("forward", Transition{Push("title")});
-
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
 		Point3 seed = glm::ballRand(Decimal(1000.0));
@@ -87,8 +86,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		Level level({ kf0, kf10, kf55, kf60 });
 
 		st.AddSystem<World>(level, false);
-
-		engine->transition = "forward";
 	});
 
 	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
@@ -233,7 +230,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world")});
+		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("title")});
 		st.transitions.emplace("gameover", Transition{Pop(), Push("gameover")});
 
 		st.AddSystem<HumanPlayerController>(playerID);
@@ -244,8 +241,9 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto renderer = engine->GetSystem<Renderer>().lock();
 		engine->GetSystem<World>().lock()->active = true;
 
-		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
-		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
+		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
+			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
+		}
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
@@ -276,14 +274,20 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world")});
+		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("title")});
+		st.transitions.emplace("forward", Transition{Pop(), Pop(), Push("world"), Push("playing")});
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto world = engine->GetSystem<World>().lock();
 
-		st.dtors.emplace_back(inputM->On(Key::Escape,         [engine] (Key) { engine->transition = "back"; }));
-		st.dtors.emplace_back(inputM->On(Key::ControllerBack, [engine] (Key) { engine->transition = "back"; }));
+		for(auto k : { Key::Space, Key::Enter, Key::MouseLeft, Key::ControllerA }) {
+			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "forward"; }));
+		}
+
+		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
+			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
+		}
 
 		world->active = false;
 		auto seconds = Decimal(world->GetTicks()) / ENGINE_TICKS_PER_SECOND;
@@ -293,6 +297,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		IDType textID;
 		st.dtors.emplace_back(engine->AddObject(&textID));
 		engine->AddComponent<Text>(textID, font, "Game Over", Point2(0), Origin::Center);
+
+		std::ostringstream oss;
+		oss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << seconds << 's';
+
+		IDType timeID;
+		st.dtors.emplace_back(engine->AddObject(&timeID));
+		engine->AddComponent<Text>(timeID, font, oss.str(), Point2(0, -150), Origin::Center);
 	});
 
 	engine.Run("root");
