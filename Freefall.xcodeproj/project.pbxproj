@@ -114,7 +114,7 @@
 		7F1F40601E9787B200DDC932 /* ShaderProgramAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ShaderProgramAsset.h; path = include/ShaderProgramAsset.h; sourceTree = SOURCE_ROOT; };
 		7F1F40611E97888000DDC932 /* FontAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FontAsset.h; path = include/FontAsset.h; sourceTree = SOURCE_ROOT; };
 		7F1F40621E978D7F00DDC932 /* FontAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FontAsset.h; path = include/FontAsset.h; sourceTree = SOURCE_ROOT; };
-		7F1F40631E9D3ECF00DDC932 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
+		7F1F40631E9D3ECF00DDC932 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = /Library/Frameworks/SDL2_ttf.framework; sourceTree = "<absolute>"; };
 		7F3F886D1A2C92920078F5F9 /* OrientationComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OrientationComponent.h; path = include/OrientationComponent.h; sourceTree = "<group>"; };
 		7F3F886F1A2C92A30078F5F9 /* Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Property.h; path = include/Property.h; sourceTree = "<group>"; };
 		7F3F88701A2C93810078F5F9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -288,6 +288,7 @@
 				7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */,
 				7F54077F1A1AAF8300B55B7A /* Cocoa.framework */,
 				7F5407781A1AAF0100B55B7A /* SDL2.framework */,
+				7F1F40631E9D3ECF00DDC932 /* SDL2_ttf.framework */,
 				7F5407711A1AADD100B55B7A /* OpenGL.framework */,
 			);
 			name = Frameworks;
@@ -306,7 +307,6 @@
 		7FF31F0F1A1AA90D0008999E = {
 			isa = PBXGroup;
 			children = (
-				7F1F40631E9D3ECF00DDC932 /* SDL2_ttf.framework */,
 				7F558EB21A25CB6F006622FA /* AssetBuilder */,
 				7FF31F1A1A1AA90D0008999E /* Freefall */,
 				7FF31F191A1AA90D0008999E /* Products */,
