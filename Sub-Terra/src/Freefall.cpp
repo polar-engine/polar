@@ -27,7 +27,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	std::mt19937_64 rng(time(0));
 
 	engine.AddState("root", [] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("forward", Transition{Push("world"), Push("title")});
+		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
@@ -88,8 +88,15 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<World>(level, false);
 	});
 
+	engine.AddState("notplaying", [] (Polar *engine, EngineState &st) {
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		IDType laserID;
+		st.dtors.emplace_back(engine->AddObject(&laserID));
+		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
+	});
+
 	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("forward", Transition{ Pop(), Push("playing") });
+		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
 		st.AddSystem<TitlePlayerController>(playerID);
@@ -205,10 +212,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		};
 		st.AddSystem<MenuSystem>(menu);
 
-		IDType laserID;
-		st.dtors.emplace_back(engine->AddObject(&laserID));
-		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
-
 		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.0, true, [] (Polar *engine, const float &x) {
 			auto renderer = engine->GetSystem<Renderer>().lock();
 			auto color = renderer->GetUniformPoint3("u_color");
@@ -230,8 +233,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("title")});
-		st.transitions.emplace("gameover", Transition{Pop(), Push("gameover")});
+		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("notplaying"), Push("title")});
+		st.transitions.emplace("gameover", Transition{Pop(), Push("notplaying"), Push("gameover")});
 
 		st.AddSystem<HumanPlayerController>(playerID);
 
@@ -274,8 +277,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("title")});
-		st.transitions.emplace("forward", Transition{Pop(), Pop(), Push("world"), Push("playing")});
+		st.transitions.emplace("back", Transition{Pop(), Pop(), Pop(), Push("world"), Push("notplaying"), Push("title")});
+		st.transitions.emplace("forward", Transition{Pop(), Pop(), Pop(), Push("world"), Push("playing")});
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
@@ -304,6 +307,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		IDType timeID;
 		st.dtors.emplace_back(engine->AddObject(&timeID));
 		engine->AddComponent<Text>(timeID, font, oss.str(), Point2(0, -150), Origin::Center);
+
+		IDType beepID;
+		st.dtors.emplace_back(engine->AddObject(&beepID));
+		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("gameover"));
 	});
 
 	engine.Run("root");
