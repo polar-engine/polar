@@ -77,7 +77,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		kf0.waveTicks     = Decimal(2345.0);
 		kf0.wavePower     = Decimal(   8.0);
 		kf0.waveStrength  = Decimal(   0.02);
-		kf0.worldScale = Point3(20.0);
+		kf0.worldScale    = Point3(20.0);
+		kf0.colors        = {
+			Point3(0.4, 1.0, 0.4),
+			Point3(0.3, 0.9, 0.5),
+			Point3(0.4, 0.8, 0.7)
+		};
+		kf0.colorTicks    = 10000.0;
 		Keyframe kf10(10 * ENGINE_TICKS_PER_SECOND, kf0);
 		kf10.baseThreshold = Decimal(0.75);
 		Keyframe kf55(55 * ENGINE_TICKS_PER_SECOND, kf10);
@@ -87,11 +93,21 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		kf60.baseThreshold = Decimal(0.6);
 		kf60.beatPower     = Decimal(1.0);
 		kf60.beatStrength  = Decimal(0.1);
+		kf60.colors        = {
+			Point3(1.0,  0.7, 0.1),
+			Point3(0.95, 0.8, 0.3),
+			Point3(0.9,  0.8, 0.6)
+		};
 		Keyframe kf90(90 * ENGINE_TICKS_PER_SECOND, kf60);
 		Keyframe kf100(100 * ENGINE_TICKS_PER_SECOND, kf90);
 		kf100.baseThreshold = Decimal(0.5);
 		kf100.beatPower     = Decimal(4.0);
 		kf100.beatStrength  = Decimal(0.002);
+		kf100.colors        = {
+			Point3(1.0, 0.3, 0.3),
+			Point3(1.0, 0.7, 0.0),
+			Point3(0.9, 0.3, 0.5)
+		};
 		Level level({ kf0, kf10, kf55, kf55_1, kf60, kf90, kf100 });
 
 		st.AddSystem<World>(level, false);
@@ -220,25 +236,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			}),
 		};
 		st.AddSystem<MenuSystem>(menu);
-
-		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 1.0, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<Renderer>().lock();
-			auto color = renderer->GetUniformPoint3("u_color");
-			color.r = x;
-			renderer->SetUniform("u_color", color);
-		}, 5.0 * 4 - 1.0, renderer->GetUniformPoint3("u_color").r));
-		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<Renderer>().lock();
-			auto color = renderer->GetUniformPoint3("u_color");
-			color.g = x;
-			renderer->SetUniform("u_color", color);
-		}, 5.0 * 2 - 1.0, renderer->GetUniformPoint3("u_color").g));
-		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<Renderer>().lock();
-			auto color = renderer->GetUniformPoint3("u_color");
-			color.b = x;
-			renderer->SetUniform("u_color", color);
-		}, 5.0 - 1.0, renderer->GetUniformPoint3("u_color").b));
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
@@ -264,25 +261,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
-
-		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<Renderer>().lock();
-			auto color = renderer->GetUniformPoint3("u_color");
-			color.r = x;
-			renderer->SetUniform("u_color", color);
-		}, secsPerBeat * 4 - 0.5, renderer->GetUniformPoint3("u_color").r));
-		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<Renderer>().lock();
-			auto color = renderer->GetUniformPoint3("u_color");
-			color.g = x;
-			renderer->SetUniform("u_color", color);
-		}, secsPerBeat * 2 - 0.5, renderer->GetUniformPoint3("u_color").g));
-		st.dtors.emplace_back(tweener->Tween(0.5f, 1.0f, 0.5, true, [] (Polar *engine, const float &x) {
-			auto renderer = engine->GetSystem<Renderer>().lock();
-			auto color = renderer->GetUniformPoint3("u_color");
-			color.b = x;
-			renderer->SetUniform("u_color", color);
-		}, secsPerBeat - 0.5, renderer->GetUniformPoint3("u_color").b));
 	});
 
 	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {

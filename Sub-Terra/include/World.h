@@ -23,6 +23,8 @@ private:
 		renderer->SetUniform("u_wavePower",     kf.wavePower);
 		renderer->SetUniform("u_waveStrength",  kf.waveStrength);
 		renderer->SetUniform("u_worldScale",    kf.worldScale);
+		size_t iColor = kf.ticks / kf.colorTicks % kf.colors.size();
+		renderer->SetUniform("u_color",         kf.colors[iColor]);
 	}
 protected:
 	void Init() override final {
