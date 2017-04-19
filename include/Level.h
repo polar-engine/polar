@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <set>
 
-struct Keyframe {
+class Keyframe {
+public:
 	uint64_t ticks;
 	Decimal baseThreshold;
 	Decimal beatTicks;
@@ -16,8 +17,8 @@ struct Keyframe {
 	std::array<Point3, 3> colors;
 	uint64_t colorTicks;
 
-	Keyframe(uint64_t t) : ticks(t) {}
-	Keyframe(uint64_t t, const Keyframe &kf) : Keyframe(kf) { ticks = t; }
+	explicit Keyframe(uint64_t t) : ticks(t) {}
+	explicit Keyframe(uint64_t t, const Keyframe &kf) : Keyframe(kf) { ticks = t; }
 
 	friend std::ostream & operator<<(std::ostream &s, const Keyframe &kf) {
 		s << "ticks         = " << kf.ticks         << std::endl;
