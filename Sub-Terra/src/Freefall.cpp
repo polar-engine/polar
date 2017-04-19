@@ -79,11 +79,20 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		kf0.waveStrength  = Decimal(   0.02);
 		kf0.worldScale = Point3(20.0);
 		Keyframe kf10(10 * ENGINE_TICKS_PER_SECOND, kf0);
-		kf10.baseThreshold = Decimal(0.7);
+		kf10.baseThreshold = Decimal(0.75);
 		Keyframe kf55(55 * ENGINE_TICKS_PER_SECOND, kf10);
-		Keyframe kf60(60 * ENGINE_TICKS_PER_SECOND, kf55);
-		kf60.baseThreshold = Decimal(0.55);
-		Level level({ kf0, kf10, kf55, kf60 });
+		Keyframe kf55_1(55 * ENGINE_TICKS_PER_SECOND + 1, kf55);
+		kf55_1.beatTicks = Decimal(20000.0);
+		Keyframe kf60(60 * ENGINE_TICKS_PER_SECOND, kf55_1);
+		kf60.baseThreshold = Decimal(0.6);
+		kf60.beatPower     = Decimal(1.0);
+		kf60.beatStrength  = Decimal(0.1);
+		Keyframe kf90(90 * ENGINE_TICKS_PER_SECOND, kf60);
+		Keyframe kf100(100 * ENGINE_TICKS_PER_SECOND, kf90);
+		kf100.baseThreshold = Decimal(0.5);
+		kf100.beatPower     = Decimal(4.0);
+		kf100.beatStrength  = Decimal(0.002);
+		Level level({ kf0, kf10, kf55, kf55_1, kf60, kf90, kf100 });
 
 		st.AddSystem<World>(level, false);
 	});

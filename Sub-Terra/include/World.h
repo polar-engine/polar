@@ -30,6 +30,9 @@ protected:
 	}
 
 	void Update(DeltaTicks &dt) override final {
+		auto renderer = engine->GetSystem<Renderer>().lock();
+		renderer->SetUniform("u_time", (uint32_t)level.ticks);
+
 		if(active) {
 			level.ticks += dt.Ticks();
 			SetUniforms();

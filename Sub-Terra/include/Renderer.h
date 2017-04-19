@@ -13,7 +13,6 @@ protected:
 	Decimal pixelDistanceFromScreen = 1000.0f;
 public:
 	bool showFPS = false;
-	uint32_t time = 0;
 
 	static bool IsSupported() { return false; }
 	Renderer(Polar *engine) : System(engine) {}

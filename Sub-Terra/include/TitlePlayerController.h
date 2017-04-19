@@ -10,7 +10,7 @@ private:
 	IDType object;
 	Point2 orientVel;
 	Decimal accum;
-	const Decimal timestep = 0.05;
+	const Decimal timestep = 0.02;
 protected:
 	inline void Init() override {
 		engine->AddComponent<PlayerCameraComponent>(object);
@@ -28,7 +28,7 @@ protected:
 		while(accum >= timestep) {
 			accum -= timestep;
 
-			orientVel *= static_cast<Decimal>(glm::pow(0.996, dt.Seconds() * 1000.0));
+			orientVel *= static_cast<Decimal>(glm::pow(0.998, timestep * 1000.0));
 
 			unsigned int i = 0;
 			auto average = Point2(0);
@@ -51,7 +51,7 @@ protected:
 
 			if(i > 0) {
 				average /= static_cast<Decimal>(i);
-				if(average.length() < 0.1f && average.length() >= 0) { average = Point2(0, 1); }
+				if(average.length() < 0.1f && average.length() >= 0) { average = Point2(0,  1); }
 				if(average.length() > 0.1f && average.length() <= 0) { average = Point2(0, -1); }
 				orientVel += average;
 			}
@@ -67,7 +67,7 @@ protected:
 		pos->position.Derivative()->z = abs.z;
 	}
 public:
-	const Decimal fieldOfView = 4;
+	const Decimal fieldOfView = 3;
 	const Decimal viewDistance = 40.0f;
 	const Decimal velocity = 300.0f;
 
