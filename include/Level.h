@@ -13,6 +13,8 @@ struct Keyframe {
 	Decimal wavePower;
 	Decimal waveStrength;
 	Point3  worldScale;
+	std::array<Point3, 3> colors;
+	uint64_t colorTicks;
 
 	Keyframe(uint64_t t) : ticks(t) {}
 	Keyframe(uint64_t t, const Keyframe &kf) : Keyframe(kf) { ticks = t; }
@@ -26,6 +28,7 @@ struct Keyframe {
 		s << "waveTicks     = " << kf.waveTicks     << std::endl;
 		s << "wavePower     = " << kf.wavePower     << std::endl;
 		s << "waveStrength  = " << kf.waveStrength  << std::endl;
+		s << "colorTicks    = " << kf.colorTicks    << std::endl;
 		return s;
 	}
 
@@ -43,6 +46,10 @@ struct Keyframe {
 		kf.wavePower     = lhs.wavePower     + rhs.wavePower;
 		kf.waveStrength  = lhs.waveStrength  + rhs.waveStrength;
 		kf.worldScale    = lhs.worldScale    + rhs.worldScale;
+		for(size_t i = 0; i < kf.colors.size(); ++i) {
+			kf.colors[i]  = lhs.colors[i]      + rhs.colors[i];
+		}
+		kf.colorTicks    = lhs.colorTicks    + rhs.colorTicks;
 		return kf;
 	}
 
@@ -56,6 +63,10 @@ struct Keyframe {
 		kf.wavePower     = lhs.wavePower     * x;
 		kf.waveStrength  = lhs.waveStrength  * x;
 		kf.worldScale    = lhs.worldScale    * x;
+		for(size_t i = 0; i < kf.colors.size(); ++i) {
+			kf.colors[i]  = lhs.colors[i]      * x;
+		}
+		kf.colorTicks    = lhs.colorTicks    * x;
 		return kf;
 	}
 };
