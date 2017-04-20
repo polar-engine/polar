@@ -20,13 +20,17 @@
 
 void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
+
 	Polar engine;
+
 	IDType playerID;
+	std::vector<std::string> levels;
+	size_t levelIndex = 0;
 
 	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
 
-	engine.AddState("root", [] (Polar *engine, EngineState &st) {
+	engine.AddState("root", [&levels, &levelIndex] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		//st.AddSystem<JobManager>();
@@ -59,10 +63,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		assetM->Get<AudioAsset>("fifty");
 		assetM->Get<AudioAsset>("freefall");
 
+		levels = assetM->List<Level>();
+		levelIndex = 0;
+
 		engine->transition = "forward";
 	});
 
-	engine.AddState("world", [&rng, &playerID] (Polar *engine, EngineState &st) {
+	engine.AddState("world", [&playerID, &levels, &levelIndex] (Polar *engine, EngineState &st) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 
 		st.dtors.emplace_back(engine->AddObject(&playerID));
@@ -71,8 +78,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
-		auto levels = assetM->List<Level>();
-		st.AddSystem<World>(assetM->Get<Level>(levels[0]), false);
+		st.AddSystem<World>(assetM->Get<Level>(levels[levelIndex]), false);
 	});
 
 	engine.AddState("notplaying", [] (Polar *engine, EngineState &st) {
@@ -82,7 +88,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
 	});
 
-	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
+	engine.AddState("title", [&playerID, &levels, &levelIndex] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
@@ -93,6 +99,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
 		auto audioM = engine->GetSystem<AudioManager>().lock();
+
+		st.dtors.emplace_back(inputM->On(Key::E, [engine, &levels, &levelIndex] (Key) {
+			auto assetM = engine->GetSystem<AssetManager>().lock();
+			auto world = engine->GetSystem<World>().lock();
+			levelIndex = (levelIndex + 1) % levels.size();
+			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
+		}));
 
 		Menu menu = {
 			MenuItem("Solo Play", [engine] (Decimal) {
