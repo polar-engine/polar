@@ -155,6 +155,7 @@
     <ClInclude Include="..\include\Serializer.h" />
     <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
+    <ClInclude Include="..\include\types.h" />
     <ClInclude Include="include\Atomic.h" />
     <ClInclude Include="include\AudioManager.h" />
     <ClInclude Include="include\AudioSource.h" />

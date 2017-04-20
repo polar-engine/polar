@@ -23,6 +23,7 @@
     <ClInclude Include="..\include\ImageAsset.h" />
     <ClInclude Include="..\include\ShaderProgramAsset.h" />
     <ClInclude Include="..\include\TextAsset.h" />
+    <ClInclude Include="..\include\types.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{82AB365B-AB91-4DD9-A16B-06F256B36F7D}</ProjectGuid>

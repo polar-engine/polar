@@ -47,5 +47,8 @@
     <ClInclude Include="..\include\ImageAsset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

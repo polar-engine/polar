@@ -1,9 +1,13 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <cmath>
+#include <array>
+#include <set>
 #include <string>
 #include <iostream>
+#include "types.h"
 #include "endian.h"
 
 class Serializer {
@@ -41,6 +45,11 @@ inline Serializer & operator<<(Serializer &s, const std::uint32_t i) {
 	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint32_t));
 }
 
+inline Serializer & operator<<(Serializer &s, const std::uint64_t i) {
+	std::uint64_t be = swapbe(i);
+	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint64_t));
+}
+
 inline Serializer & operator<<(Serializer &s, const std::float_t f) {
 	return s << *reinterpret_cast<const std::uint32_t *>(&f);
 }
@@ -50,12 +59,32 @@ inline Serializer & operator<<(Serializer &s, const std::string &str) {
 	return s.write(str.data(), str.length());
 }
 
+template<typename T, std::size_t N> inline Serializer & operator<<(Serializer &s, const std::array<T, N> &arr) {
+	s << static_cast<const std::uint32_t>(arr.size());
+	for(auto &elem : arr) {
+		s << elem;
+	}
+	return s;
+}
+
 template<typename T> inline Serializer & operator<<(Serializer &s, const std::vector<T> &vec) {
 	s << static_cast<const std::uint32_t>(vec.size());
 	for(auto &elem : vec) {
 		s << elem;
 	}
 	return s;
+}
+
+template<typename T> inline Serializer & operator<<(Serializer &s, const std::set<T> &set) {
+	s << static_cast<const std::uint32_t>(set.size());
+	for(auto &elem : set) {
+		s << elem;
+	}
+	return s;
+}
+
+inline Serializer & operator<<(Serializer &s, const Point3 &p) {
+	return s << p.x << p.y << p.z;
 }
 
 class Deserializer {
@@ -99,6 +128,13 @@ inline Deserializer & operator>>(Deserializer &s, std::uint32_t &i) {
 	return s;
 }
 
+inline Deserializer & operator>>(Deserializer &s, std::uint64_t &i) {
+	std::uint64_t be;
+	s.read(reinterpret_cast<char *>(&be), sizeof(std::uint64_t));
+	i = swapbe(be);
+	return s;
+}
+
 inline Deserializer & operator>>(Deserializer &s, std::float_t &f) {
 	return s >> *reinterpret_cast<std::uint32_t *>(&f);
 }
@@ -111,6 +147,15 @@ inline Deserializer & operator>>(Deserializer &s, std::string &str) {
 	return s.read(&str.at(0), len);
 }
 
+template<typename T, std::size_t N> inline Deserializer & operator>>(Deserializer &s, std::array<T, N> &arr) {
+	std::uint32_t len;
+	s >> len;
+	for(auto &elem : arr) {
+		s >> elem;
+	}
+	return s;
+}
+
 template<typename T> inline Deserializer & operator>>(Deserializer &s, std::vector<T> &vec) {
 	std::uint32_t len;
 	s >> len;
@@ -119,4 +164,20 @@ template<typename T> inline Deserializer & operator>>(Deserializer &s, std::vect
 		s >> elem;
 	}
 	return s;
+}
+
+template<typename T> inline Deserializer & operator>>(Deserializer &s, std::set<T> &set) {
+	std::uint32_t len;
+	s >> len;
+	set.clear();
+	for(std::size_t i = 0; i < len; ++i) {
+		T elem;
+		s >> elem;
+		set.emplace(elem);
+	}
+	return s;
+}
+
+inline Deserializer & operator>>(Deserializer &s, Point3 &p) {
+	return s >> p.x >> p.y >> p.z;
 }
