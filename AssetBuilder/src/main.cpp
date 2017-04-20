@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
 					size_t pos = 0;
 					for(uint32_t scanline = 0; scanline < asset.height; ++scanline) {
 						uint8_t filterType = filteredBytes[pos++];
-						INFO(int(filterType));
+						//INFO(int(filterType));
 
 						for(uint32_t column = 0; column < asset.width; ++column) {
 							ImagePixel &pixel = asset.pixels[scanline * asset.width + column];
