@@ -71,7 +71,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
-		st.AddSystem<World>(assetM->Get<Level>("1"), false);
+		auto levels = assetM->List<Level>();
+		st.AddSystem<World>(assetM->Get<Level>(levels[0]), false);
 	});
 
 	engine.AddState("notplaying", [] (Polar *engine, EngineState &st) {

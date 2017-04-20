@@ -18,13 +18,27 @@ public:
 #endif
 	}
 
+	template<typename T> static std::string GetDir() {
+		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::GetDir requires typename of type Asset");
+		return GetAssetsDir() + "/" + AssetName<T>();
+	}
+
+	template<typename T> static std::string GetPath(const std::string &name) {
+		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::GetPath requires typename of type Asset");
+		return GetDir<T>() + "/" + name + ".asset";
+	}
+
+	template<typename T> std::vector<std::string> List() {
+		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::List requires typename of type Asset");
+		auto ls = FileSystem::ListDir(GetDir<T>());
+		std::transform(ls.begin(), ls.end(), ls.begin(), [] (std::string s) {
+			return s.substr(0, s.size() - 6);
+		});
+		return ls;
+	}
+
 	static bool IsSupported() { return true; }
 	AssetManager(Polar *engine) : System(engine) {}
-
-	template<typename T> std::string GetPath(const std::string &name) const {
-		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::GetPath requires typename of type Asset");
-		return GetAssetsDir() + '/' + AssetName<T>() + '/' + name + ".asset";
-	}
 
 	template<typename T, typename ...Ts> std::shared_ptr<T> Get(const std::string name, Ts && ...args) {
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
