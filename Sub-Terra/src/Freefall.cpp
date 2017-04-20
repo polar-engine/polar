@@ -63,77 +63,15 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	});
 
 	engine.AddState("world", [&rng, &playerID] (Polar *engine, EngineState &st) {
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
 		Point3 seed = glm::ballRand(Decimal(1000.0));
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
-		Keyframe kf0(0);
-		kf0.baseThreshold = Decimal(   0.8);
-		kf0.beatTicks     = Decimal(1000.0);
-		kf0.beatPower     = Decimal(   4.0);
-		kf0.beatStrength  = Decimal(   0.005);
-		kf0.waveTicks     = Decimal(2345.0);
-		kf0.wavePower     = Decimal(   8.0);
-		kf0.waveStrength  = Decimal(   0.02);
-		kf0.worldScale    = Point3(20.0);
-		kf0.colors        = {
-			Point3(0.4, 1.0, 0.4),
-			Point3(0.3, 0.9, 0.5),
-			Point3(0.4, 0.8, 0.7)
-		};
-		kf0.colorTicks    = 10000.0;
-		Keyframe kf10(10 * ENGINE_TICKS_PER_SECOND, kf0);
-		kf10.baseThreshold = Decimal(0.75);
-		Keyframe kf55(55 * ENGINE_TICKS_PER_SECOND, kf10);
-		Keyframe kf55_1(55 * ENGINE_TICKS_PER_SECOND + 1, kf55);
-		kf55_1.beatTicks = Decimal(20000.0);
-		Keyframe kf60(60 * ENGINE_TICKS_PER_SECOND, kf55_1);
-		kf60.baseThreshold = Decimal(0.6);
-		kf60.beatPower     = Decimal(1.0);
-		kf60.beatStrength  = Decimal(0.15);
-		kf60.colors        = {
-			Point3(1.0,  0.7, 0.1),
-			Point3(0.95, 0.8, 0.3),
-			Point3(0.9,  0.8, 0.6)
-		};
-		Keyframe kf90(90 * ENGINE_TICKS_PER_SECOND, kf60);
-		Keyframe kf100(100 * ENGINE_TICKS_PER_SECOND, kf90);
-		kf100.baseThreshold = Decimal(0.55);
-		kf100.beatPower     = Decimal(4.0);
-		kf100.beatStrength  = Decimal(0.002);
-		kf100.colors        = {
-			Point3(1.0, 0.3, 0.3),
-			Point3(1.0, 0.7, 0.0),
-			Point3(0.9, 0.3, 0.5)
-		};
-		Keyframe kf118(118 * ENGINE_TICKS_PER_SECOND, kf100);
-		Keyframe kf120(120 * ENGINE_TICKS_PER_SECOND, kf118);
-		kf120.baseThreshold = Decimal(0.75);
-		kf120.beatPower     = Decimal(1.0);
-		kf120.beatStrength  = Decimal(0.0);
-		kf120.colors        = {
-			Point3(0.4, 0.4, 1.0),
-			Point3(0.5, 0.3, 0.9),
-			Point3(0.7, 0.4, 0.8)
-		};
-		Keyframe kf138(138 * ENGINE_TICKS_PER_SECOND, kf120);
-		Keyframe kf142(142 * ENGINE_TICKS_PER_SECOND, kf138);
-		kf142.baseThreshold = Decimal(0.6);
-		kf142.beatStrength  = Decimal(0.3);
-		Keyframe kf155(155 * ENGINE_TICKS_PER_SECOND, kf142);
-		Keyframe kf160(160 * ENGINE_TICKS_PER_SECOND, kf155);
-		kf160.baseThreshold = Decimal(0.5);
-		kf160.beatStrength  = Decimal(0.1);
-		kf160.colors        = {
-			Point3(1.0, 0.3, 0.3),
-			Point3(1.0, 0.7, 0.0),
-			Point3(0.9, 0.3, 0.5)
-		};
-		Level level({ kf0, kf10, kf55, kf55_1, kf60, kf90, kf100, kf118, kf120, kf138, kf142, kf155, kf160 });
-
-		st.AddSystem<World>(level, false);
+		st.AddSystem<World>(assetM->Get<Level>("1"), false);
 	});
 
 	engine.AddState("notplaying", [] (Polar *engine, EngineState &st) {
