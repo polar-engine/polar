@@ -36,7 +36,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
 		st.AddSystem<AudioManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin" });
+		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");
