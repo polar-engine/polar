@@ -12,6 +12,7 @@
 class World : public System {
 private:
 	Level level;
+
 	void SetUniforms() {
 		auto kf = level.GetNow();
 		auto renderer = engine->GetSystem<Renderer>().lock();
@@ -48,6 +49,10 @@ public:
 	World(Polar *engine, std::shared_ptr<Level> level, bool active = true) : System(engine), level(*level), active(active) {}
 
 	uint64_t GetTicks() const { return level.ticks; }
+	void SetLevel(std::shared_ptr<Level> lvl) {
+		level = *lvl;
+		SetUniforms();
+	}
 
 	float Threshold() {
 		auto kf = level.GetNow();
