@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include <set>
 
-class Keyframe {
-public:
+struct Keyframe {
 	uint64_t ticks;
 	Decimal baseThreshold;
 	Decimal beatTicks;
@@ -47,7 +46,7 @@ public:
 		kf.wavePower     = lhs.wavePower     + rhs.wavePower;
 		kf.waveStrength  = lhs.waveStrength  + rhs.waveStrength;
 		kf.worldScale    = lhs.worldScale    + rhs.worldScale;
-		kf.colorTicks = lhs.colorTicks + rhs.colorTicks;
+		kf.colorTicks    = lhs.colorTicks + rhs.colorTicks;
 		for(size_t i = 0; i < kf.colors.size(); ++i) {
 			kf.colors[i]  = lhs.colors[i]    + rhs.colors[i];
 		}
@@ -64,7 +63,7 @@ public:
 		kf.wavePower     = lhs.wavePower     * x;
 		kf.waveStrength  = lhs.waveStrength  * x;
 		kf.worldScale    = lhs.worldScale    * x;
-		kf.colorTicks = lhs.colorTicks    * x;
+		kf.colorTicks    = lhs.colorTicks    * x;
 		for(size_t i = 0; i < kf.colors.size(); ++i) {
 			kf.colors[i]  = lhs.colors[i]    * x;
 		}
@@ -80,12 +79,11 @@ inline Deserializer & operator>>(Deserializer &s, Keyframe &kf) {
 	return s >> kf.baseThreshold >> kf.beatTicks >> kf.beatPower >> kf.beatStrength >> kf.waveTicks >> kf.wavePower >> kf.waveStrength >> kf.worldScale >> kf.colorTicks >> kf.colors;
 }
 
-class Level {
-public:
+struct Level : Asset {
 	std::set<Keyframe> keyframes;
 	uint64_t ticks;
 
-	explicit Level(std::set<Keyframe> kfs, uint64_t t = 0) : keyframes(kfs), ticks(t) {}
+	explicit Level(std::set<Keyframe> kfs = {}, uint64_t t = 0) : keyframes(kfs), ticks(t) {}
 
 	const Keyframe & GetCurrent() const {
 		auto it = keyframes.lower_bound(Keyframe(ticks));
@@ -111,6 +109,8 @@ public:
 		return kf;
 	}
 };
+
+template<> inline std::string AssetName<Level>() { return "Level"; }
 
 inline Serializer & operator<<(Serializer &s, const Level &level) {
 	return s << level.keyframes;
