@@ -14,10 +14,10 @@ public:
 	Decimal wavePower;
 	Decimal waveStrength;
 	Point3  worldScale;
-	std::array<Point3, 3> colors;
 	uint64_t colorTicks;
+	std::array<Point3, 3> colors;
 
-	explicit Keyframe(uint64_t t) : ticks(t) {}
+	explicit Keyframe(uint64_t t = 0) : ticks(t) {}
 	explicit Keyframe(uint64_t t, const Keyframe &kf) : Keyframe(kf) { ticks = t; }
 
 	friend std::ostream & operator<<(std::ostream &s, const Keyframe &kf) {
@@ -47,10 +47,10 @@ public:
 		kf.wavePower     = lhs.wavePower     + rhs.wavePower;
 		kf.waveStrength  = lhs.waveStrength  + rhs.waveStrength;
 		kf.worldScale    = lhs.worldScale    + rhs.worldScale;
+		kf.colorTicks = lhs.colorTicks + rhs.colorTicks;
 		for(size_t i = 0; i < kf.colors.size(); ++i) {
-			kf.colors[i]  = lhs.colors[i]      + rhs.colors[i];
+			kf.colors[i]  = lhs.colors[i]    + rhs.colors[i];
 		}
-		kf.colorTicks    = lhs.colorTicks    + rhs.colorTicks;
 		return kf;
 	}
 
@@ -64,19 +64,28 @@ public:
 		kf.wavePower     = lhs.wavePower     * x;
 		kf.waveStrength  = lhs.waveStrength  * x;
 		kf.worldScale    = lhs.worldScale    * x;
+		kf.colorTicks = lhs.colorTicks    * x;
 		for(size_t i = 0; i < kf.colors.size(); ++i) {
-			kf.colors[i]  = lhs.colors[i]      * x;
+			kf.colors[i]  = lhs.colors[i]    * x;
 		}
-		kf.colorTicks    = lhs.colorTicks    * x;
 		return kf;
 	}
 };
 
-struct Level {
+inline Serializer & operator<<(Serializer &s, const Keyframe &kf) {
+	return s << kf.baseThreshold << kf.beatTicks << kf.beatPower << kf.beatStrength << kf.waveTicks << kf.wavePower << kf.waveStrength << kf.worldScale << kf.colorTicks << kf.colors;
+}
+
+inline Deserializer & operator>>(Deserializer &s, Keyframe &kf) {
+	return s >> kf.baseThreshold >> kf.beatTicks >> kf.beatPower >> kf.beatStrength >> kf.waveTicks >> kf.wavePower >> kf.waveStrength >> kf.worldScale >> kf.colorTicks >> kf.colors;
+}
+
+class Level {
+public:
 	std::set<Keyframe> keyframes;
 	uint64_t ticks;
 
-	Level(std::set<Keyframe> kfs, uint64_t t = 0) : keyframes(kfs), ticks(t) {}
+	explicit Level(std::set<Keyframe> kfs, uint64_t t = 0) : keyframes(kfs), ticks(t) {}
 
 	const Keyframe & GetCurrent() const {
 		auto it = keyframes.lower_bound(Keyframe(ticks));
@@ -102,3 +111,11 @@ struct Level {
 		return kf;
 	}
 };
+
+inline Serializer & operator<<(Serializer &s, const Level &level) {
+	return s << level.keyframes;
+}
+
+inline Deserializer & operator>>(Deserializer &s, Level &level) {
+	return s >> level.keyframes;
+}
