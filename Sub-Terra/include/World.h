@@ -45,7 +45,7 @@ public:
 
 	static bool IsSupported() { return true; }
 
-	World(Polar *engine, Level level, bool active = true) : System(engine), level(level), active(active) {}
+	World(Polar *engine, std::shared_ptr<Level> level, bool active = true) : System(engine), level(*level), active(active) {}
 
 	uint64_t GetTicks() const { return level.ticks; }
 

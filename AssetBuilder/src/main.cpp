@@ -19,6 +19,7 @@
 #include "AudioAsset.h"
 #include "FontAsset.h"
 #include "ShaderProgramAsset.h"
+#include "Level.h"
 
 int main(int argc, char **argv) {
 	std::string path = (argc >= 2) ? argv[1] : FileSystem::GetAppDir() + "/assets";
@@ -26,6 +27,10 @@ int main(int argc, char **argv) {
 	auto files = FileSystem::ListDir(path);
 
 	std::unordered_map < std::string, std::function<std::string(const std::string &, Serializer &)>> converters;
+	converters["txt"] = [] (const std::string &data, Serializer &s) {
+		s << data;
+		return AssetName<std::string>();
+	};
 	converters["ttf"] = [] (const std::string &data, Serializer &s) {
 		s << data;
 		return AssetName<FontAsset>();
@@ -33,10 +38,6 @@ int main(int argc, char **argv) {
 	converters["otf"] = [] (const std::string &data, Serializer &s) {
 		s << data;
 		return AssetName<FontAsset>();
-	};
-	converters["txt"] = [] (const std::string &data, Serializer &s) {
-		s << data;
-		return AssetName<std::string>();
 	};
 	converters["png"] = [] (const std::string &data, Serializer &s) {
 		ImageAsset asset;
@@ -509,6 +510,53 @@ int main(int argc, char **argv) {
 
 		s << asset;
 		return AssetName<ShaderProgramAsset>();
+	};
+	converters["lvl"] = [] (const std::string &data, Serializer &s) {
+		Level level;
+		std::vector<Keyframe> kfs;
+
+		std::istringstream iss(data);
+		std::string word;
+
+		while(iss >> word) {
+			if(word[0] == '@') {
+				std::istringstream issSeconds(word.substr(1));
+				float seconds;
+				issSeconds >> seconds;
+				auto ticks = uint64_t(seconds * 10000.0);
+
+				if(kfs.empty()) { kfs.emplace_back(ticks); } else { kfs.emplace_back(ticks, kfs.back()); }
+			} else if(word == "baseThreshold") {
+				iss >> kfs.back().baseThreshold;
+			} else if(word == "beatTicks") {
+				iss >> kfs.back().beatTicks;
+			} else if(word == "beatPower") {
+				iss >> kfs.back().beatPower;
+			} else if(word == "beatStrength") {
+				iss >> kfs.back().beatStrength;
+			} else if(word == "waveTicks") {
+				iss >> kfs.back().waveTicks;
+			} else if(word == "wavePower") {
+				iss >> kfs.back().wavePower;
+			} else if(word == "waveStrength") {
+				iss >> kfs.back().waveStrength;
+			} else if(word == "worldScale") {
+				auto &worldScale = kfs.back().worldScale;
+				iss >> worldScale.x >> worldScale.y >> worldScale.z;
+			} else if(word == "colorTicks") {
+				iss >> kfs.back().colorTicks;
+			} else if(word == "colors") {
+				auto &colors = kfs.back().colors;
+				iss >> colors[0].r >> colors[0].g >> colors[0].b
+					>> colors[1].r >> colors[1].g >> colors[1].b
+					>> colors[2].r >> colors[2].g >> colors[2].b;
+			}
+		}
+		for(auto &kf : kfs) {
+			level.keyframes.emplace(kf);
+		}
+		s << level;
+		return AssetName<Level>();
 	};
 
 	for(auto &file : files) {
