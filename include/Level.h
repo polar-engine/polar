@@ -72,11 +72,11 @@ struct Keyframe {
 };
 
 inline Serializer & operator<<(Serializer &s, const Keyframe &kf) {
-	return s << kf.baseThreshold << kf.beatTicks << kf.beatPower << kf.beatStrength << kf.waveTicks << kf.wavePower << kf.waveStrength << kf.worldScale << kf.colorTicks << kf.colors;
+	return s << kf.ticks << kf.baseThreshold << kf.beatTicks << kf.beatPower << kf.beatStrength << kf.waveTicks << kf.wavePower << kf.waveStrength << kf.worldScale << kf.colorTicks << kf.colors;
 }
 
 inline Deserializer & operator>>(Deserializer &s, Keyframe &kf) {
-	return s >> kf.baseThreshold >> kf.beatTicks >> kf.beatPower >> kf.beatStrength >> kf.waveTicks >> kf.wavePower >> kf.waveStrength >> kf.worldScale >> kf.colorTicks >> kf.colors;
+	return s >> kf.ticks >> kf.baseThreshold >> kf.beatTicks >> kf.beatPower >> kf.beatStrength >> kf.waveTicks >> kf.wavePower >> kf.waveStrength >> kf.worldScale >> kf.colorTicks >> kf.colors;
 }
 
 struct Level : Asset {
