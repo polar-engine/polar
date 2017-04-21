@@ -128,8 +128,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						renderer->SetUniform("u_baseDetail", x);
 						return true;
 					}),
-					//MenuItem("Far Detail", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
-					//MenuItem("Far Limiter", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
 					MenuItem("Bloom", MenuControl::Checkbox(bloom), [engine, &bloom] (Decimal state) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
@@ -149,6 +147,16 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_voxelFactor", 0)), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->SetUniform("u_voxelFactor", x);
+						return true;
+					}),
+					MenuItem("Far Limiter", MenuControl::Slider<Decimal>(0, 3, renderer->GetUniformDecimal("u_farLimiter", 2), Decimal(0.1)), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_farLimiter", x);
+						return true;
+					}),
+					MenuItem("Far Focus", MenuControl::Slider<Decimal>(0.5, 1.5, renderer->GetUniformDecimal("u_farFocus", 1), Decimal(0.1)), [engine] (Decimal x) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						renderer->SetUniform("u_farFocus", x);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
