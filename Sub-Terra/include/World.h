@@ -23,17 +23,18 @@ private:
 		}
 
 		auto renderer = engine->GetSystem<Renderer>().lock();
-		renderer->SetUniform("u_time", (uint32_t)level.ticks);
-		renderer->SetUniform("u_baseThreshold", kf.baseThreshold);
-		renderer->SetUniform("u_beatTicks",     kf.beatTicks);
-		renderer->SetUniform("u_beatPower",     kf.beatPower);
-		renderer->SetUniform("u_beatStrength",  kf.beatStrength);
-		renderer->SetUniform("u_waveTicks",     kf.waveTicks);
-		renderer->SetUniform("u_wavePower",     kf.wavePower);
+
+		size_t iColor = kf.ticks / kf.colorTicks % kf.colors.size();
+		auto color = kf.colors[iColor];
+		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
+
+		renderer->SetUniform("u_time",          uint32_t(level.ticks));
+		renderer->SetUniform("u_threshold",     Threshold());
+		renderer->SetUniform("u_waveTime",      Decimal(kf.ticks) / kf.waveTicks);
+		renderer->SetUniform("u_wavePowRecip",  Decimal(1) / kf.wavePower);
 		renderer->SetUniform("u_waveStrength",  kf.waveStrength);
 		renderer->SetUniform("u_worldScale",    kf.worldScale);
-		size_t iColor = kf.ticks / kf.colorTicks % kf.colors.size();
-		renderer->SetUniform("u_color",         kf.colors[iColor]);
+		renderer->SetUniform("u_color",         color);
 	}
 protected:
 	void Init() override final {
@@ -67,7 +68,7 @@ public:
 		SetUniforms();
 	}
 
-	float Threshold() {
+	float Threshold() const {
 		auto kf = level.GetNow();
 
 		float s = glm::sin(Decimal(level.ticks) / kf.beatTicks);
@@ -75,7 +76,7 @@ public:
 		return kf.baseThreshold + f * kf.beatStrength;
 	}
 
-	bool Eval(Point3 coord) {
+	bool Eval(const Point3 &coord) const {
 		auto kf = level.GetNow();
 		auto renderer = engine->GetSystem<Renderer>().lock();
 		auto voxelFactor = renderer->GetUniformDecimal("u_voxelFactor");
@@ -89,11 +90,6 @@ public:
 
 		auto result = glm::simplex(finalCoord) * 0.5 + 0.5;
 		return result > Threshold();
-	}
-
-	inline bool Eval(const Point3 &p) const {
-		Decimal eval = glm::simplex(p / Decimal(20)) * Decimal(0.5) + Decimal(0.5);
-		return eval >= Decimal(0.7);
 	}
 
 	/* old logo generation matching */
