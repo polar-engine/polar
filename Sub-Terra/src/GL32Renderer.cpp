@@ -336,12 +336,6 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
 			MakePipeline(pipelineNames);
-			for(auto uniform : uniformsFloat) {
-				SetUniform(uniform.first, uniform.second);
-			}
-			for(auto uniform : uniformsPoint3) {
-				SetUniform(uniform.first, uniform.second);
-			}
 			break;
 		}
 		break;
@@ -530,6 +524,13 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 		Project(node.program);
 		// upload resolution
 		UploadUniform(node.program, "u_resolution", Point2(width, height));
+	}
+
+	for(auto uniform : uniformsFloat) {
+		SetUniform(uniform.first, uniform.second);
+	}
+	for(auto uniform : uniformsPoint3) {
+		SetUniform(uniform.first, uniform.second);
 	}
 }
 
