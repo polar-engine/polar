@@ -91,6 +91,11 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&eID));
 		engine->AddComponent<Text>(eID, font, "E", Point2(20), Origin::TopRight, Point4(0.8902, 0.9647, 0.9922, 0));
 		engine->GetComponent<Text>(eID)->scale *= 0.5;
+
+		auto qIndex = (levelIndex - 1) % levels.size();
+		auto eIndex = (levelIndex + 1) % levels.size();
+		engine->GetComponent<Text>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+		engine->GetComponent<Text>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 	});
 
 	boost::shared_ptr<Destructor> soundDtor;;
@@ -103,22 +108,32 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&laserID));
 		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
 
-		st.dtors.emplace_back(inputM->On(Key::E, [engine, &levels, &levelIndex, &soundDtor] (Key) {
+		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &levels, &levelIndex, &qID, &eID, &soundDtor] (Key) {
 			auto assetM = engine->GetSystem<AssetManager>().lock();
 			auto world = engine->GetSystem<World>().lock();
-			levelIndex = (levelIndex + 1) % levels.size();
+			levelIndex = (levelIndex - 1) % levels.size();
 			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
+
+			auto qIndex = (levelIndex - 1) % levels.size();
+			auto eIndex = (levelIndex + 1) % levels.size();
+			engine->GetComponent<Text>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Text>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 
 			IDType soundID;
 			soundDtor = engine->AddObject(&soundID);
 			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
 		}));
 
-		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &levels, &levelIndex, &soundDtor] (Key) {
+		st.dtors.emplace_back(inputM->On(Key::E, [engine, &levels, &levelIndex, &qID, &eID, &soundDtor] (Key) {
 			auto assetM = engine->GetSystem<AssetManager>().lock();
 			auto world = engine->GetSystem<World>().lock();
-			levelIndex = (levelIndex - 1) % levels.size();
+			levelIndex = (levelIndex + 1) % levels.size();
 			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
+
+			auto qIndex = (levelIndex - 1) % levels.size();
+			auto eIndex = (levelIndex + 1) % levels.size();
+			engine->GetComponent<Text>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Text>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 
 			IDType soundID;
 			soundDtor = engine->AddObject(&soundID);
@@ -127,7 +142,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		st.dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [&qID, &eID] (Polar *engine, const float &x) {
-			auto alpha = glm::pow(x, Decimal(0.5));
+			auto alpha = glm::pow(x, Decimal(0.75));
 			engine->GetComponent<Text>(qID)->color.a = alpha;
 			engine->GetComponent<Text>(eID)->color.a = alpha;
 		}));
