@@ -23,7 +23,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 	Polar engine;
 
-	IDType playerID;
+	IDType playerID, qID, eID;
 	std::vector<std::string> levels;
 	size_t levelIndex = 0;
 	bool bloom = false;
@@ -71,7 +71,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->transition = "forward";
 	});
 
-	engine.AddState("world", [&playerID, &levels, &levelIndex] (Polar *engine, EngineState &st) {
+	engine.AddState("world", [&playerID, &levels, &levelIndex, &qID, &eID] (Polar *engine, EngineState &st) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 
 		st.dtors.emplace_back(engine->AddObject(&playerID));
@@ -81,9 +81,19 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<OrientationComponent>(playerID);
 
 		st.AddSystem<World>(assetM->Get<Level>(levels[levelIndex]), false);
+
+		auto font = assetM->Get<FontAsset>("nasalization-rg");
+
+		st.dtors.emplace_back(engine->AddObject(&qID));
+		engine->AddComponent<Text>(qID, font, "Q", Point2(20), Origin::TopLeft, Point4(0.8902, 0.9647, 0.9922, 0));
+		engine->GetComponent<Text>(qID)->scale *= 0.5;
+
+		st.dtors.emplace_back(engine->AddObject(&eID));
+		engine->AddComponent<Text>(eID, font, "E", Point2(20), Origin::TopRight, Point4(0.8902, 0.9647, 0.9922, 0));
+		engine->GetComponent<Text>(eID)->scale *= 0.5;
 	});
 
-	engine.AddState("notplaying", [&levels, &levelIndex] (Polar *engine, EngineState &st) {
+	engine.AddState("notplaying", [&levels, &levelIndex, &qID, &eID] (Polar *engine, EngineState &st) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 
@@ -91,18 +101,34 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&laserID));
 		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
 
-		st.dtors.emplace_back(inputM->On(Key::E, [engine, &levels, &levelIndex] (Key) {
+		st.dtors.emplace_back(inputM->On(Key::E, [engine, &st, &levels, &levelIndex] (Key) {
 			auto assetM = engine->GetSystem<AssetManager>().lock();
 			auto world = engine->GetSystem<World>().lock();
 			levelIndex = (levelIndex + 1) % levels.size();
 			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
+
+			// XXX: probably a leak here
+			IDType soundID;
+			st.dtors.emplace_back(engine->AddObject(&soundID));
+			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
 		}));
 
-		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &levels, &levelIndex] (Key) {
+		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &st, &levels, &levelIndex] (Key) {
 			auto assetM = engine->GetSystem<AssetManager>().lock();
 			auto world = engine->GetSystem<World>().lock();
 			levelIndex = (levelIndex - 1) % levels.size();
 			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
+
+			IDType soundID;
+			st.dtors.emplace_back(engine->AddObject(&soundID));
+			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+		}));
+
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		st.dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [&qID, &eID] (Polar *engine, const float &x) {
+			auto alpha = glm::pow(x, Decimal(0.5));
+			engine->GetComponent<Text>(qID)->color.a = alpha;
+			engine->GetComponent<Text>(eID)->color.a = alpha;
 		}));
 	});
 
@@ -113,7 +139,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<TitlePlayerController>(playerID);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
 		auto audioM = engine->GetSystem<AudioManager>().lock();
 
@@ -190,7 +215,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<MenuSystem>(menu);
 	});
 
-	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
+	engine.AddState("playing", [secsPerBeat, &playerID, &qID, &eID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("notplaying"), Push("title")});
 		st.transitions.emplace("gameover", Transition{Pop(), Push("notplaying"), Push("gameover")});
 
@@ -213,6 +238,11 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
+
+		st.dtors.emplace_back(tweener->Tween(1, 0, 0.2, false, [&qID, &eID] (Polar *engine, const float &x) {
+			engine->GetComponent<Text>(qID)->color.a = x;
+			engine->GetComponent<Text>(eID)->color.a = x;
+		}));
 	});
 
 	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
