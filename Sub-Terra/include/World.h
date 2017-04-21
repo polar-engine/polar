@@ -11,11 +11,19 @@
 
 class World : public System {
 private:
+	Level oldLevel;
 	Level level;
+	float alpha = 1;
 
 	void SetUniforms() {
 		auto kf = level.GetNow();
+		if(alpha < 1) {
+			auto oldKf = oldLevel.GetNow();
+			kf = kf * alpha + oldKf * (1 - alpha);
+		}
+
 		auto renderer = engine->GetSystem<Renderer>().lock();
+		renderer->SetUniform("u_time", (uint32_t)level.ticks);
 		renderer->SetUniform("u_baseThreshold", kf.baseThreshold);
 		renderer->SetUniform("u_beatTicks",     kf.beatTicks);
 		renderer->SetUniform("u_beatPower",     kf.beatPower);
@@ -33,13 +41,15 @@ protected:
 	}
 
 	void Update(DeltaTicks &dt) override final {
-		auto renderer = engine->GetSystem<Renderer>().lock();
-		renderer->SetUniform("u_time", (uint32_t)level.ticks);
-
 		if(active) {
 			level.ticks += dt.Ticks();
-			SetUniforms();
 		}
+
+		if(alpha < 1) {
+			alpha = glm::min(Decimal(1.0), alpha + dt.Seconds() * Decimal(8.0));
+		}
+
+		SetUniforms();
 	}
 public:
 	bool active;
@@ -49,8 +59,11 @@ public:
 	World(Polar *engine, std::shared_ptr<Level> level, bool active = true) : System(engine), level(*level), active(active) {}
 
 	uint64_t GetTicks() const { return level.ticks; }
+
 	void SetLevel(std::shared_ptr<Level> lvl) {
+		oldLevel = level;
 		level = *lvl;
+		alpha = 0;
 		SetUniforms();
 	}
 
