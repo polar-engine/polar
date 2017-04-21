@@ -26,6 +26,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	IDType playerID;
 	std::vector<std::string> levels;
 	size_t levelIndex = 0;
+	bool bloom = false;
 
 	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
@@ -104,7 +105,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		}));
 	});
 
-	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
+	engine.AddState("title", [&playerID, &bloom] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
@@ -130,6 +131,16 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					//MenuItem("Far Detail", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					//MenuItem("Far Limiter", MenuControl::Slider<Decimal>(), [] (Decimal) { return true; }),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
+					MenuItem("Bloom", MenuControl::Checkbox(bloom), [engine, &bloom] (Decimal state) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						bloom = state;
+						if(state) {
+							renderer->MakePipeline({ "perlin", "bloom" });
+						} else {
+							renderer->MakePipeline({ "perlin" });
+						}
+						return true;
+					}),
 					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_pixelFactor", 0)), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->SetUniform("u_pixelFactor", x);
@@ -153,65 +164,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						return true;
 					}),
 				}),
-				//MenuItem("Controls", [] (Decimal) { return true; }),
-				/*MenuItem("World", {
-					MenuItem("u_baseThreshold", MenuControl::Slider<Decimal>(0, 1, renderer->GetUniformDecimal("u_baseThreshold"), 0.05), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_baseThreshold", x);
-						return true;
-					}),
-					MenuItem("u_beatTicks", MenuControl::Slider<Decimal>(50, 10000, renderer->GetUniformDecimal("u_beatTicks"), 50), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_beatTicks", x);
-						return true;
-					}),
-					MenuItem("u_beatPower", MenuControl::Slider<Decimal>(1, 16, renderer->GetUniformDecimal("u_beatPower")), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_beatPower", x);
-						return true;
-					}),
-					MenuItem("u_beatStrength", MenuControl::Slider<Decimal>(-1, 1, renderer->GetUniformDecimal("u_beatStrength"), 0.002), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_beatStrength", x);
-						return true;
-					}),
-					MenuItem("u_waveTicks", MenuControl::Slider<Decimal>(50, 10000, renderer->GetUniformDecimal("u_waveTicks"), 50), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_waveTicks", x);
-						return true;
-					}),
-					MenuItem("u_wavePower", MenuControl::Slider<Decimal>(1, 16, renderer->GetUniformDecimal("u_wavePower")), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_wavePower", x);
-						return true;
-					}),
-					MenuItem("u_waveStrength", MenuControl::Slider<Decimal>(-1, 1, renderer->GetUniformDecimal("u_waveStrength"), 0.002), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_waveStrength", x);
-						return true;
-					}),
-					MenuItem("u_worldScale.x", MenuControl::Slider<Decimal>(1, 100, renderer->GetUniformPoint3("u_worldScale").x, 0.5), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						auto p = renderer->GetUniformPoint3("u_worldScale");
-						p.x = x;
-						renderer->SetUniform("u_worldScale", p);
-						return true;
-					}),
-					MenuItem("u_worldScale.y", MenuControl::Slider<Decimal>(1, 100, renderer->GetUniformPoint3("u_worldScale").y, 0.5), [engine] (Decimal y) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						auto p = renderer->GetUniformPoint3("u_worldScale");
-						p.y = y;
-						renderer->SetUniform("u_worldScale", p);
-						return true;
-					}),
-					MenuItem("u_worldScale.z", MenuControl::Slider<Decimal>(1, 100, renderer->GetUniformPoint3("u_worldScale").z, 0.5), [engine] (Decimal z) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						auto p = renderer->GetUniformPoint3("u_worldScale");
-						p.z = z;
-						renderer->SetUniform("u_worldScale", p);
-						return true;
-					}),
-				}),*/
 			}),
 			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
