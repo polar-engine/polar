@@ -27,6 +27,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	std::vector<std::string> levels;
 	size_t levelIndex = 0;
 	bool bloom = false;
+	bool fxaa = false;
 
 	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
@@ -105,7 +106,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		}));
 	});
 
-	engine.AddState("title", [&playerID, &bloom] (Polar *engine, EngineState &st) {
+	engine.AddState("title", [&playerID, &bloom, &fxaa] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
@@ -128,17 +129,25 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						renderer->SetUniform("u_baseDetail", x);
 						return true;
 					}),
-					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-					MenuItem("Bloom", MenuControl::Checkbox(bloom), [engine, &bloom] (Decimal state) {
+					MenuItem("Bloom", MenuControl::Checkbox(bloom), [engine, &bloom, &fxaa] (Decimal state) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						bloom = state;
-						if(state) {
-							renderer->MakePipeline({ "perlin", "bloom" });
-						} else {
-							renderer->MakePipeline({ "perlin" });
-						}
+						boost::container::vector<std::string> names = { "perlin" };
+						if(bloom) { names.emplace_back("bloom"); }
+						if(fxaa) { names.emplace_back("fxaa"); }
+						renderer->MakePipeline(names);
 						return true;
 					}),
+					MenuItem("FXAA", MenuControl::Checkbox(fxaa), [engine, &bloom, &fxaa] (Decimal state) {
+						auto renderer = engine->GetSystem<Renderer>().lock();
+						fxaa = state;
+						boost::container::vector<std::string> names = { "perlin" };
+						if(bloom) { names.emplace_back("bloom"); }
+						if(fxaa) { names.emplace_back("fxaa"); }
+						renderer->MakePipeline(names);
+						return true;
+					}),
+					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
 					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_pixelFactor", 0)), [engine] (Decimal x) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->SetUniform("u_pixelFactor", x);
