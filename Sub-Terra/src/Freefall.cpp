@@ -81,24 +81,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<World>(assetM->Get<Level>(levels[levelIndex]), false);
 	});
 
-	engine.AddState("notplaying", [] (Polar *engine, EngineState &st) {
+	engine.AddState("notplaying", [&levels, &levelIndex] (Polar *engine, EngineState &st) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
+		auto inputM = engine->GetSystem<InputManager>().lock();
+
 		IDType laserID;
 		st.dtors.emplace_back(engine->AddObject(&laserID));
 		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
-	});
-
-	engine.AddState("title", [&playerID, &levels, &levelIndex] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
-		st.transitions.emplace("back", Transition{ QuitAction() });
-
-		st.AddSystem<TitlePlayerController>(playerID);
-
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto inputM = engine->GetSystem<InputManager>().lock();
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		auto renderer = engine->GetSystem<Renderer>().lock();
-		auto audioM = engine->GetSystem<AudioManager>().lock();
 
 		st.dtors.emplace_back(inputM->On(Key::E, [engine, &levels, &levelIndex] (Key) {
 			auto assetM = engine->GetSystem<AssetManager>().lock();
@@ -106,6 +95,25 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			levelIndex = (levelIndex + 1) % levels.size();
 			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
 		}));
+
+		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &levels, &levelIndex] (Key) {
+			auto assetM = engine->GetSystem<AssetManager>().lock();
+			auto world = engine->GetSystem<World>().lock();
+			levelIndex = (levelIndex - 1) % levels.size();
+			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
+		}));
+	});
+
+	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
+		st.transitions.emplace("back", Transition{ QuitAction() });
+
+		st.AddSystem<TitlePlayerController>(playerID);
+
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		auto renderer = engine->GetSystem<Renderer>().lock();
+		auto audioM = engine->GetSystem<AudioManager>().lock();
 
 		Menu menu = {
 			MenuItem("Solo Play", [engine] (Decimal) {
