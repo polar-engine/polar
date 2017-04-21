@@ -391,6 +391,8 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 }
 
 void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &names) {
+	pipelineNames = names;
+
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	std::vector<std::shared_ptr<ShaderProgramAsset>> assets;
 	for(auto &node : nodes) {
