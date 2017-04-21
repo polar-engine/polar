@@ -10,12 +10,9 @@
 @uniform float u_pixelFactor
 @uniform float u_voxelFactor
 
-@uniform float u_baseThreshold
-@uniform float u_beatTicks
-@uniform float u_beatPower
-@uniform float u_beatStrength
-@uniform float u_waveTicks
-@uniform float u_wavePower
+@uniform float u_threshold
+@uniform float u_waveTime
+@uniform float u_wavePowRecip
 @uniform float u_waveStrength
 @uniform vec3  u_worldScale
 @uniform vec3  u_color
@@ -24,10 +21,7 @@
 
 @varying smooth vec2 v_vertex
 
-@gin position u_posBuffer
-@gin normal u_normalBuffer
 @gin depth u_depthBuffer
-
 @out rgba8 color o_color
 
 @shader vertex
@@ -40,15 +34,15 @@ void main() {
 @shader fragment
 
 float InverseDepth(in float linear) {
-	float f = 48.0;
-	float n = 0.1;
+	const float f = 48.0;
+	const float n = 0.1;
 	float z = (f + n - 2 * n / linear) / (f - n);
 	return z;
 }
 
 float Depth(in vec2 texCoord) {
-	float f = 48.0;
-	float n = 0.1;
+	const float f = 48.0;
+	const float n = 0.1;
 	float z = (2 * n) / (f + n - texture(u_depthBuffer, texCoord).r * (f - n));
 	return z;
 }
@@ -166,17 +160,11 @@ float snoise(vec3 v) {
 	dot(p2,x2), dot(p3,x3) ) );
 }
 
-float Threshold() {
-	float s = sin(float(u_time) / u_beatTicks);
-	float f = 1.0 - pow(abs(s), 1.0 / u_beatPower);
-	return u_baseThreshold + f * u_beatStrength;
-}
-
 #define PI_2 (3.14159 * 2.0)
 
 float Threshold2(in float z) {
-	float s = sin(z * PI_2 - float(u_time) / u_waveTicks) - 0.9;
-	float f = 1.0 - pow(abs(s), 1.0 / u_wavePower);
+	float s = sin(z * PI_2 - u_waveTime) - 0.9;
+	float f = 1.0 - pow(abs(s), u_wavePowRecip);
 	return f * u_waveStrength;
 }
 
@@ -189,13 +177,11 @@ bool Eval(in vec3 coord, in float z, out float result) {
 	}
 
 	result = snoise(finalCoord) * 0.5 + 0.5;
-	return result > Threshold() + Threshold2(z);
+	return result > u_threshold + Threshold2(z);
 }
 
 void main(void) {
 	vec3 color = vec3(0.0);
-	vec3 solidColor = u_color;
-	if(length(solidColor) < 1.0) { solidColor = vec3(0.8); }
 
 	float len = length(v_vertex);
 	float numSamples = pow(u_baseDetail, 1.5) + pow(len, 2.0) / 10.0;
@@ -208,6 +194,9 @@ void main(void) {
 		coord.xy = floor(coord.xy * factor) / factor;
 	}
 
+	float farLimiter = pow(10, -u_farLimiter);
+	float farFocus = pow(2.718281828, -u_farFocus);
+
 	for(float sample = 0.0; sample < numSamples;) {
 		float z = sample / numSamples;
 		coord.z = InverseDepth(z);
@@ -217,12 +206,10 @@ void main(void) {
 
 		float result;
 		if(Eval(realCoord, z, result)) {
-			color = mix(solidColor, vec3(1.0, 0.9, 0.3), -Threshold2(z) / 0.02) - pow(z, 0.8);
+			color = mix(u_color, vec3(1.0, 0.9, 0.3), -Threshold2(z) / 0.02) - pow(z, 0.8);
 			break;
 		} else {
-			float farFocus = pow(2.718281828, -u_farFocus);
-			float farLimiter = pow(10, -u_farLimiter);
-			sample += max(farLimiter, pow((Threshold() - result) * 20.0, farFocus));
+			sample += max(farLimiter, pow((u_threshold - result) * 20.0, farFocus));
 		}
 	}
 
