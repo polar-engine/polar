@@ -142,6 +142,7 @@ private:
 			UploadModel(model);
 		} else if(ti == &typeid(Sprite)) {
 			auto sprite = boost::static_pointer_cast<Sprite>(ptr.lock());
+			sprite->Render();
 			GL32SpriteProperty prop;
 
 			GL(glGenTextures(1, &prop.texture));
