@@ -92,7 +92,7 @@ void GL32Renderer::Init() {
 	MakePipeline(pipelineNames);
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();
-	spriteProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("text"));
+	spriteProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("sprite"));
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
