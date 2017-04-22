@@ -112,7 +112,7 @@ private:
 
 		if(item.control) {
 			if(item.control->Activate()) {
-				Render(current);
+				Render(current, true);
 				if(item.fn(item.control->Get())) {
 					auto assetM = engine->GetSystem<AssetManager>().lock();
 					IDType soundID;
@@ -131,7 +131,7 @@ private:
 		bool newForce = force;
 		if(!force && right && item.control && item.control->Navigate(right)) {
 			item.fn(item.control->Get());
-			Render(current);
+			Render(current, true);
 		} else { newForce = true; }
 
 		if(newForce) {
