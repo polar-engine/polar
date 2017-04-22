@@ -39,7 +39,7 @@ namespace MenuControl {
 		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id) override final {
 			auto dtor = engine->AddObject(&id);
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
-			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(50), Point2(0), color);
+			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(1), Point2(0), color);
 			return dtor;
 		}
 	};
@@ -196,6 +196,7 @@ private:
 		}
 
 		Point2 pos = Point2(60, 50 + 60 * (m->size() - i - 1));
+		Point2 pad = Point2(15);
 
 		engine->AddComponentAs<Sprite, Text>(id, font, item.value, pos);
 		auto t = engine->GetComponent<Sprite>(id);
@@ -209,7 +210,10 @@ private:
 			controlDtors[i] = item.control->Render(engine, controlID);
 
 			if(controlID != INVALID_ID()) {
-				engine->GetComponent<Sprite>(controlID)->position = Point2(pos + Point2(450, 0));
+				auto sprite = engine->GetComponent<Sprite>(controlID);
+				auto scale = engine->GetComponent<Sprite>(id)->scale.y;
+				sprite->scale = Point2(scale) - pad * Decimal(2);
+				sprite->position = pos + Point2(400 + scale, 0) + pad;
 			}
 		}
 	}
