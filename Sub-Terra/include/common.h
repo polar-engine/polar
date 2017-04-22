@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <random>
 #include <chrono>
 #include <thread>
@@ -53,6 +54,7 @@ enum class GeometryType : uint8_t {
 };
 
 typedef std::uint_fast64_t IDType;
+#define INVALID_ID std::numeric_limits<IDType>::max
 
 #include "Atomic.h"
 #include "Polar.h"

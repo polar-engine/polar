@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "System.h"
 #include "Text.h"
+#include "BoxSprite.h"
 
 namespace MenuControl {
 	class Base {
@@ -11,6 +12,10 @@ namespace MenuControl {
 		virtual float Get() { return 0; }
 		virtual bool Activate() { return false; }
 		virtual bool Navigate(int) { return false; }
+		virtual boost::shared_ptr<Destructor> Render(Polar *, IDType &id) {
+			id = INVALID_ID();
+			return boost::shared_ptr<Destructor>();
+		}
 	};
 
 	class Button : public Base {
@@ -29,6 +34,13 @@ namespace MenuControl {
 		bool Activate() override final {
 			state = !state;
 			return true;
+		}
+
+		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id) override final {
+			auto dtor = engine->AddObject(&id);
+			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
+			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(50), Point2(0), color);
+			return dtor;
 		}
 	};
 
@@ -79,6 +91,7 @@ private:
 
 	std::shared_ptr<FontAsset> font;
 	std::vector<boost::shared_ptr<Destructor>> itemDtors;
+	std::unordered_map<int, boost::shared_ptr<Destructor>> controlDtors;
 	float selectionAlpha = 0.0f;
 
 	// the size of the array determines how many concurrent sounds we can play at once
@@ -98,16 +111,17 @@ private:
 		auto &item = m->at(current);
 
 		if(item.control) {
-			if(item.control->Activate() && item.fn(item.control->Get())) {
-				auto assetM = engine->GetSystem<AssetManager>().lock();
-				IDType soundID;
-				soundDtors[soundIndex++] = engine->AddObject(&soundID);
-				soundIndex %= soundDtors.size();
-				engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+			if(item.control->Activate()) {
+				Render(current);
+				if(item.fn(item.control->Get())) {
+					auto assetM = engine->GetSystem<AssetManager>().lock();
+					IDType soundID;
+					soundDtors[soundIndex++] = engine->AddObject(&soundID);
+					soundIndex %= soundDtors.size();
+					engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+				}
 			}
-		} else if(!item.children.empty()) {
-			Navigate(0, 1);
-		}
+		} else if(!item.children.empty()) { Navigate(0, 1); }
 	}
 
 	void Navigate(int down, int right = 0, bool force = false) {
@@ -117,6 +131,7 @@ private:
 		bool newForce = force;
 		if(!force && right && item.control && item.control->Navigate(right)) {
 			item.fn(item.control->Get());
+			Render(current);
 		} else { newForce = true; }
 
 		if(newForce) {
@@ -163,6 +178,7 @@ private:
 		auto m = GetCurrentMenu();
 
 		itemDtors.clear();
+		controlDtors.clear();
 		for(size_t i = 0; i < m->size(); ++i) {
 			Render(i);
 		}
@@ -178,11 +194,23 @@ private:
 		} else {
 			itemDtors.emplace_back(engine->AddObject(&id));
 		}
-		engine->AddComponentAs<Sprite, Text>(id, font, item.value, Point2(60, 50 + 60 * (m->size() - i - 1)));
+
+		Point2 pos = Point2(60, 50 + 60 * (m->size() - i - 1));
+
+		engine->AddComponentAs<Sprite, Text>(id, font, item.value, pos);
 		auto t = engine->GetComponent<Sprite>(id);
 		t->scale *= 0.375f;
 		if(i == current) {
 			t->color.b = selectionAlpha;
+		}
+
+		if(item.control) {
+			IDType controlID;
+			controlDtors[i] = item.control->Render(engine, controlID);
+
+			if(controlID != INVALID_ID()) {
+				engine->GetComponent<Sprite>(controlID)->position = Point2(pos + Point2(450, 0));
+			}
 		}
 	}
 protected:
