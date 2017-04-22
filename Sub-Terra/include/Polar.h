@@ -124,6 +124,11 @@ public:
 		InsertComponent(id, new T(std::forward<Ts>(args)...));
 	}
 
+	template<typename B, typename T, typename ...Ts> inline void AddComponentAs(IDType id, Ts && ...args) {
+		static_assert(std::is_base_of<B, T>::value, "AddComponentAs requires base class and sub class");
+		InsertComponent<B>(id, new T(std::forward<Ts>(args)...));
+	}
+
 	template<typename T> inline void InsertComponent(IDType id, T *component) {
 		InsertComponent(id, boost::shared_ptr<T>(component));
 	}

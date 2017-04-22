@@ -192,6 +192,7 @@
     <ClInclude Include="include\ScaleComponent.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\SpatialIndex.h" />
+    <ClInclude Include="include\Sprite.h" />
     <ClInclude Include="include\System.h" />
     <ClInclude Include="include\Text.h" />
     <ClInclude Include="include\TitlePlayerController.h" />

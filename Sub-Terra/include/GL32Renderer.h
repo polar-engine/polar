@@ -11,7 +11,7 @@
 #include "Renderer.h"
 #include "ShaderProgramAsset.h"
 #include "ModelComponent.h"
-#include "Text.h"
+#include "Sprite.h"
 
 struct PipelineNode {
 	GLuint program;
@@ -35,7 +35,7 @@ struct GL32ModelProperty : public Property {
 	}
 };
 
-struct GL32TextProperty : public Property {
+struct GL32SpriteProperty : public Property {
 	GLuint texture;
 };
 
@@ -54,7 +54,7 @@ private:
 	boost::container::flat_multiset<boost::shared_ptr<GL32ModelProperty>, SharedPtrLess<GL32ModelProperty>> modelPropertyPool;
 
 	GLuint viewportVAO;
-	GLuint textProgram;
+	GLuint spriteProgram;
 
 	boost::shared_ptr<Destructor> fpsDtor;
 	IDType fpsID = 0;
@@ -140,22 +140,22 @@ private:
 		if(ti == &typeid(ModelComponent)) {
 			auto model = boost::static_pointer_cast<ModelComponent>(ptr.lock());
 			UploadModel(model);
-		} else if(ti == &typeid(Text)) {
-			auto text = boost::static_pointer_cast<Text>(ptr.lock());
-			GL32TextProperty prop;
+		} else if(ti == &typeid(Sprite)) {
+			auto sprite = boost::static_pointer_cast<Sprite>(ptr.lock());
+			GL32SpriteProperty prop;
 
 			GL(glGenTextures(1, &prop.texture));
 			GL(glBindTexture(GL_TEXTURE_2D, prop.texture));
 
 			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, text->surface->w, text->surface->h, 0, format, GL_UNSIGNED_BYTE, text->surface->pixels));
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w, sprite->surface->h, 0, format, GL_UNSIGNED_BYTE, sprite->surface->pixels));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
-			text->Add<GL32TextProperty>(prop);
+			sprite->Add<GL32SpriteProperty>(prop);
 		}
 	}
 
@@ -168,10 +168,10 @@ private:
 					modelPropertyPool.emplace(prop);
 				}
 			}
-		} else if(ti == &typeid(Text)) {
-			auto text = engine->GetComponent<Text>(id);
+		} else if(ti == &typeid(Sprite)) {
+			auto text = engine->GetComponent<Sprite>(id);
 			if(text != nullptr) {
-				auto prop = text->Get<GL32TextProperty>().lock();
+				auto prop = text->Get<GL32SpriteProperty>().lock();
 				if(prop) {
 					GL(glDeleteTextures(1, &prop->texture));
 				}
