@@ -160,6 +160,7 @@
     <ClInclude Include="include\AudioManager.h" />
     <ClInclude Include="include\AudioSource.h" />
     <ClInclude Include="include\BoundingComponent.h" />
+    <ClInclude Include="include\BoxSprite.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\DeltaTicks.h" />
