@@ -7,6 +7,7 @@
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
 #include "PlayerCameraComponent.h"
+#include "Text.h"
 
 bool GL32Renderer::IsSupported() {
 	GL32Renderer renderer(nullptr, {});
@@ -91,12 +92,10 @@ void GL32Renderer::Init() {
 	MakePipeline(pipelineNames);
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();
-	textProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("text"));
+	spriteProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("text"));
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
-	auto assetM = engine->GetSystem<AssetManager>().lock();
-	auto font = assetM->Get<FontAsset>("nasalization-rg");
 	fpsDtor = engine->AddObject(&fpsID);
 
 	if(dt.Seconds() > 0) {
@@ -106,8 +105,12 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	if(showFPS) {
 		std::ostringstream oss;
 		oss << (int)fps << " fps";
-		engine->AddComponent<Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1.0f, 1.0f, 1.0f, 0.2f));
-		engine->GetComponent<Text>(fpsID)->scale *= 0.125f;
+
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		auto font = assetM->Get<FontAsset>("nasalization-rg");
+
+		engine->AddComponentAs<Sprite, Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1.0f, 1.0f, 1.0f, 0.4f));
+		engine->GetComponent<Sprite>(fpsID)->scale *= 0.125f;
 	}
 
 	SDL_Event event;
@@ -231,22 +234,22 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		}
 	}
 
-	// text
+	// sprites
 	{
-		GL(glUseProgram(textProgram));
-		UploadUniform(textProgram, "u_texture", 0);
+		GL(glUseProgram(spriteProgram));
+		UploadUniform(spriteProgram, "u_texture", 0);
 		GL(glActiveTexture(GL_TEXTURE0));
 		GL(glBindVertexArray(viewportVAO));
 
-		auto pairRight = engine->objects.right.equal_range(&typeid(Text));
+		auto pairRight = engine->objects.right.equal_range(&typeid(Sprite));
 		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-			auto text = static_cast<Text *>(itRight->info.get());
-			auto property = text->Get<GL32TextProperty>().lock();
+			auto sprite = static_cast<Sprite *>(itRight->info.get());
+			auto property = sprite->Get<GL32SpriteProperty>().lock();
 			if(property) {
 				auto viewport = Point2(this->width, this->height);
 				Mat4 transform;
 
-				switch(text->origin) {
+				switch(sprite->origin) {
 				case Origin::BottomLeft:
 					transform = glm::translate(transform, Point3(-1, -1, 0));
 					break;
@@ -265,27 +268,27 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 				transform = glm::scale(transform, Point3(Decimal(1) / viewport, 1));
 
-				switch(text->origin) {
+				switch(sprite->origin) {
 				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3(text->position * Point2( 2,  2), 0));
+					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  2), 0));
 					break;
 				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3(text->position * Point2(-2,  2), 0));
+					transform = glm::translate(transform, Point3(sprite->position * Point2(-2,  2), 0));
 					break;
 				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3(text->position * Point2( 2, -2), 0));
+					transform = glm::translate(transform, Point3(sprite->position * Point2( 2, -2), 0));
 					break;
 				case Origin::TopRight:
-					transform = glm::translate(transform, Point3(text->position * Point2(-2, -2), 0));
+					transform = glm::translate(transform, Point3(sprite->position * Point2(-2, -2), 0));
 					break;
 				case Origin::Center:
-					transform = glm::translate(transform, Point3(text->position * Point2( 2,  2), 0));
+					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  2), 0));
 					break;
 				}
 
-				transform = glm::scale(transform, Point3(text->scale, 1));
+				transform = glm::scale(transform, Point3(sprite->scale, 1));
 
-				switch(text->origin) {
+				switch(sprite->origin) {
 				case Origin::BottomLeft:
 					transform = glm::translate(transform, Point3( 1,  1, 0));
 					break;
@@ -302,8 +305,8 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 					break;
 				}
 
-				UploadUniform(textProgram, "u_transform", transform);
-				UploadUniform(textProgram, "u_color", text->color);
+				UploadUniform(spriteProgram, "u_transform", transform);
+				UploadUniform(spriteProgram, "u_color", sprite->color);
 
 				GL(glBindTexture(GL_TEXTURE_2D, property->texture));
 				GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));

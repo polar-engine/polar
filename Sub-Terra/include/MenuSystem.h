@@ -1,7 +1,8 @@
 #pragma once
 
-#include "System.h"
 #include <stdint.h>
+#include "System.h"
+#include "Text.h"
 
 namespace MenuControl {
 	class Base {
@@ -177,8 +178,8 @@ private:
 		} else {
 			itemDtors.emplace_back(engine->AddObject(&id));
 		}
-		engine->AddComponent<Text>(id, font, item.value, Point2(60, 50 + 60 * (m->size() - i - 1)));
-		auto t = engine->GetComponent<Text>(id);
+		engine->AddComponentAs<Sprite, Text>(id, font, item.value, Point2(60, 50 + 60 * (m->size() - i - 1)));
+		auto t = engine->GetComponent<Sprite>(id);
 		t->scale *= 0.375f;
 		if(i == current) {
 			t->color.b = selectionAlpha;

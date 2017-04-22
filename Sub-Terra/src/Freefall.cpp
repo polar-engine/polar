@@ -85,17 +85,16 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
 		st.dtors.emplace_back(engine->AddObject(&qID));
-		engine->AddComponent<Text>(qID, font, "Q", Point2(20), Origin::TopLeft, Point4(0.8902, 0.9647, 0.9922, 0));
-		engine->GetComponent<Text>(qID)->scale *= 0.5;
-
 		st.dtors.emplace_back(engine->AddObject(&eID));
-		engine->AddComponent<Text>(eID, font, "E", Point2(20), Origin::TopRight, Point4(0.8902, 0.9647, 0.9922, 0));
-		engine->GetComponent<Text>(eID)->scale *= 0.5;
+		engine->AddComponentAs<Sprite, Text>(qID, font, "Q", Point2(20), Origin::TopLeft,  Point4(0.8902, 0.9647, 0.9922, 0));
+		engine->AddComponentAs<Sprite, Text>(eID, font, "E", Point2(20), Origin::TopRight, Point4(0.8902, 0.9647, 0.9922, 0));
+		engine->GetComponent<Sprite>(qID)->scale *= 0.5;
+		engine->GetComponent<Sprite>(eID)->scale *= 0.5;
 
 		auto qIndex = (levelIndex - 1) % levels.size();
 		auto eIndex = (levelIndex + 1) % levels.size();
-		engine->GetComponent<Text>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-		engine->GetComponent<Text>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+		engine->GetComponent<Sprite>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+		engine->GetComponent<Sprite>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 	});
 
 	boost::shared_ptr<Destructor> soundDtor;;
@@ -116,8 +115,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 			auto qIndex = (levelIndex - 1) % levels.size();
 			auto eIndex = (levelIndex + 1) % levels.size();
-			engine->GetComponent<Text>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-			engine->GetComponent<Text>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 
 			IDType soundID;
 			soundDtor = engine->AddObject(&soundID);
@@ -132,8 +131,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 			auto qIndex = (levelIndex - 1) % levels.size();
 			auto eIndex = (levelIndex + 1) % levels.size();
-			engine->GetComponent<Text>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-			engine->GetComponent<Text>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 
 			IDType soundID;
 			soundDtor = engine->AddObject(&soundID);
@@ -143,8 +142,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		st.dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [&qID, &eID] (Polar *engine, const float &x) {
 			auto alpha = glm::pow(x, Decimal(0.75));
-			engine->GetComponent<Text>(qID)->color.a = alpha;
-			engine->GetComponent<Text>(eID)->color.a = alpha;
+			engine->GetComponent<Sprite>(qID)->color.a = alpha;
+			engine->GetComponent<Sprite>(eID)->color.a = alpha;
 		}));
 	});
 
@@ -256,8 +255,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
 
 		st.dtors.emplace_back(tweener->Tween(1, 0, 0.2, false, [&qID, &eID] (Polar *engine, const float &x) {
-			engine->GetComponent<Text>(qID)->color.a = x;
-			engine->GetComponent<Text>(eID)->color.a = x;
+			engine->GetComponent<Sprite>(qID)->color.a = x;
+			engine->GetComponent<Sprite>(eID)->color.a = x;
 		}));
 	});
 
@@ -284,14 +283,14 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		IDType textID;
 		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponent<Text>(textID, font, "Game Over", Point2(0), Origin::Center);
+		engine->AddComponentAs<Sprite, Text>(textID, font, "Game Over", Point2(0), Origin::Center);
 
 		std::ostringstream oss;
 		oss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << seconds << 's';
 
 		IDType timeID;
 		st.dtors.emplace_back(engine->AddObject(&timeID));
-		engine->AddComponent<Text>(timeID, font, oss.str(), Point2(0, -150), Origin::Center);
+		engine->AddComponentAs<Sprite, Text>(timeID, font, oss.str(), Point2(0, -150), Origin::Center);
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
