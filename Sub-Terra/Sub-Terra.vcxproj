@@ -163,6 +163,7 @@
     <ClInclude Include="include\BoxSprite.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Component.h" />
+    <ClInclude Include="include\CreditsSystem.h" />
     <ClInclude Include="include\DeltaTicks.h" />
     <ClInclude Include="include\EngineStack.h" />
     <ClInclude Include="include\EngineState.h" />
