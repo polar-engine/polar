@@ -35,11 +35,11 @@ namespace MenuControl {
 			return true;
 		}
 
-		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scaleF) override final {
+		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			auto dtor = engine->AddObject(&id);
 			auto pad = Point2(15);
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
-			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(scaleF) - pad * Decimal(2), origin + pad, color);
+			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(scale) - pad * Decimal(2), origin + pad, color);
 			return dtor;
 		}
 	};
@@ -62,8 +62,13 @@ namespace MenuControl {
 			return changed;
 		}
 
-		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 pos, float scale) override final {
-			return engine->AddObject(&id);
+		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
+			auto dtor = engine->AddObject(&id);
+			auto pad = Point2(15);
+			T alpha = (value - min) / (max - min);
+			auto pos = origin + pad + Point2(Decimal(alpha) * Decimal(100), 0);
+			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(scale) - pad * Decimal(2), pos, Point4(0.3, 0.8, 1, 1));
+			return dtor;
 		}
 	};
 }
