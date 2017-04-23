@@ -149,6 +149,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 	engine.AddState("title", [&playerID, &bloom, &fxaa] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
+		st.transitions.emplace("credits", Transition{ Pop(), Push("credits") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
 		st.AddSystem<TitlePlayerController>(playerID);
@@ -222,6 +223,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					}),
 				}),
 			}),
+			/*MenuItem("Credits", [engine] (Decimal) {
+				engine->transition = "credits";
+				return false;
+			}),*/
 			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
 				return false;
@@ -283,18 +288,28 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		IDType textID;
 		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponentAs<Sprite, Text>(textID, font, "Game Over", Point2(0), Origin::Center);
+		engine->AddComponentAs<Sprite, Text>(textID, font, "Game Over", Point2(0, 50), Origin::Center);
 
 		std::ostringstream oss;
-		oss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << seconds << 's';
+		oss << std::setiosflags(std::ios::fixed) << std::setprecision(2) << seconds << 's';
 
 		IDType timeID;
 		st.dtors.emplace_back(engine->AddObject(&timeID));
-		engine->AddComponentAs<Sprite, Text>(timeID, font, oss.str(), Point2(0, -150), Origin::Center);
+		engine->AddComponentAs<Sprite, Text>(timeID, font, oss.str(), Point2(0, -100), Origin::Center);
+		engine->GetComponent<Sprite>(timeID)->scale *= 0.75;
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
 		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("gameover"));
+	});
+	engine.AddState("credits", [] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("back", Transition{ Pop(), Push("title") });
+
+		auto inputM = engine->GetSystem<InputManager>().lock();
+
+		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
+			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
+		}
 	});
 
 	engine.Run("root");
