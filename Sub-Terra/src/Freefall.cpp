@@ -13,6 +13,7 @@
 #include "GL32Renderer.h"
 #include "World.h"
 #include "MenuSystem.h"
+#include "CreditsSystem.h"
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
 #include "Text.h"
@@ -310,6 +311,47 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
 			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
 		}
+
+		Credits credits = {
+			CreditsSection("Design, programming, and various sound effects", {
+				"David Farrell"
+			}),
+			CreditsSection("Music", {
+				"Alex \"aji\" Iadicicco"
+			}),
+			CreditsSection("Voice sound effects", {
+				"Christine Dodrill"
+			}),
+			CreditsSection("Alpha testing", {
+				//"a____ptr",
+				//"Aaron Dron?",
+				//"Aidan Dodds",
+				//"Assman",
+				"Cengizhan Sayin",
+				//"Justin Kaufman",
+				//"Mark Miller + brother?",
+				//"Meten",
+				"Peter Black",
+				//"Simon Brand",
+				"Sir Lad",
+				"Sornaensis",
+				//"Space Bread",
+				"Sparta",
+				//"TechnoCrunch",
+				"Tylor Froese",
+				//"Vic",
+				"Will Carroll",
+				//"Woffler",
+				//"Xan",
+			}),
+			CreditsSection("Special thanks", {
+				"darkf",
+				"Miles Kjeller",
+			}),
+			CreditsSection("and", {
+				"A big thanks to all my friends and family",
+			}),
+		};
 	});
 
 	engine.Run("root");
