@@ -204,18 +204,25 @@ private:
 			itemDtors.emplace_back(engine->AddObject(&id));
 		}
 
-		Point2 origin = Point2(60, 50 + 60 * (m->size() - i - 1));
+		/* max 6 items on screen at max scale of 0.375
+		 * 6 * 0.375 = 2.25 numerator
+		 */
+		Decimal scale = glm::min(Decimal(2.25) / Decimal(m->size()), Decimal(0.375));
+		Decimal spacing = 160 * scale;
+		Point2 origin = Point2(60, 50 + spacing * (m->size() - i - 1));
 
 		engine->AddComponentAs<Sprite, Text>(id, font, item.value, origin);
 		auto t = engine->GetComponent<Sprite>(id);
-		t->scale *= 0.375f;
+		t->scale *= scale;
+
 		if(i == current) {
 			t->color.b = selectionAlpha;
 		}
 
 		if(item.control) {
 			IDType controlID;
-			controlDtors[i] = item.control->Render(engine, controlID, origin + Point2(400, 0), engine->GetComponent<Sprite>(id)->scale.y);
+			auto offset = Point2(400 / 0.375 * scale, 0);
+			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, engine->GetComponent<Sprite>(id)->scale.y);
 		}
 	}
 protected:
