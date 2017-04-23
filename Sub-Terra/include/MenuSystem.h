@@ -12,9 +12,8 @@ namespace MenuControl {
 		virtual float Get() { return 0; }
 		virtual bool Activate() { return false; }
 		virtual bool Navigate(int) { return false; }
-		virtual boost::shared_ptr<Destructor> Render(Polar *, IDType &id) {
-			id = INVALID_ID();
-			return boost::shared_ptr<Destructor>();
+		virtual boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2, float) {
+			return engine->AddObject(&id);
 		}
 	};
 
@@ -36,10 +35,11 @@ namespace MenuControl {
 			return true;
 		}
 
-		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id) override final {
+		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scaleF) override final {
 			auto dtor = engine->AddObject(&id);
+			auto pad = Point2(15);
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
-			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(1), Point2(0), color);
+			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(scaleF) - pad * Decimal(2), origin + pad, color);
 			return dtor;
 		}
 	};
@@ -60,6 +60,10 @@ namespace MenuControl {
 			bool changed = newValue != value;
 			value = newValue;
 			return changed;
+		}
+
+		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 pos, float scale) override final {
+			return engine->AddObject(&id);
 		}
 	};
 }
@@ -195,10 +199,9 @@ private:
 			itemDtors.emplace_back(engine->AddObject(&id));
 		}
 
-		Point2 pos = Point2(60, 50 + 60 * (m->size() - i - 1));
-		Point2 pad = Point2(15);
+		Point2 origin = Point2(60, 50 + 60 * (m->size() - i - 1));
 
-		engine->AddComponentAs<Sprite, Text>(id, font, item.value, pos);
+		engine->AddComponentAs<Sprite, Text>(id, font, item.value, origin);
 		auto t = engine->GetComponent<Sprite>(id);
 		t->scale *= 0.375f;
 		if(i == current) {
@@ -207,14 +210,7 @@ private:
 
 		if(item.control) {
 			IDType controlID;
-			controlDtors[i] = item.control->Render(engine, controlID);
-
-			if(controlID != INVALID_ID()) {
-				auto sprite = engine->GetComponent<Sprite>(controlID);
-				auto scale = engine->GetComponent<Sprite>(id)->scale.y;
-				sprite->scale = Point2(scale) - pad * Decimal(2);
-				sprite->position = pos + Point2(400 + scale, 0) + pad;
-			}
+			controlDtors[i] = item.control->Render(engine, controlID, origin + Point2(400, 0), engine->GetComponent<Sprite>(id)->scale.y);
 		}
 	}
 protected:
