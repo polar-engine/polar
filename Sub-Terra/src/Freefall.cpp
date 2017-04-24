@@ -94,8 +94,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		auto qIndex = (levelIndex - 1) % levels.size();
 		auto eIndex = (levelIndex + 1) % levels.size();
-		engine->GetComponent<Sprite>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-		engine->GetComponent<Sprite>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+		engine->GetComponent<Sprite>(qID)->color.rgb() = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+		engine->GetComponent<Sprite>(eID)->color.rgb() = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 	});
 
 	boost::shared_ptr<Destructor> soundDtor;;
@@ -116,8 +116,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 			auto qIndex = (levelIndex - 1) % levels.size();
 			auto eIndex = (levelIndex + 1) % levels.size();
-			engine->GetComponent<Sprite>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-			engine->GetComponent<Sprite>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(qID)->color.rgb() = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(eID)->color.rgb() = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 
 			IDType soundID;
 			soundDtor = engine->AddObject(&soundID);
@@ -132,8 +132,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 			auto qIndex = (levelIndex - 1) % levels.size();
 			auto eIndex = (levelIndex + 1) % levels.size();
-			engine->GetComponent<Sprite>(qID)->color.rgb = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-			engine->GetComponent<Sprite>(eID)->color.rgb = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(qID)->color.rgb() = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
+			engine->GetComponent<Sprite>(eID)->color.rgb() = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
 
 			IDType soundID;
 			soundDtor = engine->AddObject(&soundID);
