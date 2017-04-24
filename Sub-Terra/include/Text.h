@@ -13,7 +13,18 @@ public:
 		: asset(asset), str(str), Sprite(pos, origin, color, scale) {}
 
 	void RenderMe() override final {
-		SDL(surface = TTF_RenderUTF8_Blended(asset->font, str.data(), { 255, 255, 255, 255 }));
+		// we render the outline first to make a drop-shadow effect
+
+		SDL(TTF_SetFontOutline(asset->font, 2));
+		SDL(surface = TTF_RenderUTF8_Blended(asset->font, str.data(), { 0, 0, 0, 255 }));
+
+		// then we render the foreground and blit it on top of the outline
+
+		SDL(TTF_SetFontOutline(asset->font, 0));
+		SDL_Surface *fg;
+		SDL(fg = TTF_RenderUTF8_Blended(asset->font, str.data(), { 255, 255, 255, 255 }));
+		SDL(SDL_BlitSurface(fg, NULL, surface, NULL));
+		SDL(SDL_FreeSurface(fg));
 	}
 
 	void SetText(const std::string str) {
