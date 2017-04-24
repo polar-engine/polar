@@ -262,6 +262,18 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				case Origin::TopRight:
 					transform = glm::translate(transform, Point3( 1,  1, 0));
 					break;
+				case Origin::Left:
+					transform = glm::translate(transform, Point3(-1,  0, 0));
+					break;
+				case Origin::Right:
+					transform = glm::translate(transform, Point3( 1,  0, 0));
+					break;
+				case Origin::Bottom:
+					transform = glm::translate(transform, Point3( 0, -1, 0));
+					break;
+				case Origin::Top:
+					transform = glm::translate(transform, Point3( 0,  1, 0));
+					break;
 				case Origin::Center:
 					break;
 				}
@@ -280,6 +292,18 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 					break;
 				case Origin::TopRight:
 					transform = glm::translate(transform, Point3(sprite->position * Point2(-2, -2), 0));
+					break;
+				case Origin::Left:
+					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  0), 0));
+					break;
+				case Origin::Right:
+					transform = glm::translate(transform, Point3(sprite->position * Point2(-2,  0), 0));
+					break;
+				case Origin::Bottom:
+					transform = glm::translate(transform, Point3(sprite->position * Point2( 0,  2), 0));
+					break;
+				case Origin::Top:
+					transform = glm::translate(transform, Point3(sprite->position * Point2( 0, -2), 0));
 					break;
 				case Origin::Center:
 					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  2), 0));
@@ -300,6 +324,18 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 					break;
 				case Origin::TopRight:
 					transform = glm::translate(transform, Point3(-1, -1, 0));
+					break;
+				case Origin::Left:
+					transform = glm::translate(transform, Point3( 1,  0, 0));
+					break;
+				case Origin::Right:
+					transform = glm::translate(transform, Point3(-1,  0, 0));
+					break;
+				case Origin::Bottom:
+					transform = glm::translate(transform, Point3( 0,  1, 0));
+					break;
+				case Origin::Top:
+					transform = glm::translate(transform, Point3( 0, -1, 0));
 					break;
 				case Origin::Center:
 					break;

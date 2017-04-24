@@ -8,6 +8,10 @@ enum class Origin {
 	BottomRight,
 	TopLeft,
 	TopRight,
+	Left,
+	Right,
+	Bottom,
+	Top,
 	Center
 };
 
