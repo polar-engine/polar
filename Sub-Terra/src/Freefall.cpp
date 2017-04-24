@@ -299,9 +299,13 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponentAs<Sprite, Text>(timeID, font, oss.str(), Point2(0, -100), Origin::Center);
 		engine->GetComponent<Sprite>(timeID)->scale *= 0.75;
 
-		IDType beepID;
-		st.dtors.emplace_back(engine->AddObject(&beepID));
-		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("gameover"));
+		IDType crashID;
+		st.dtors.emplace_back(engine->AddObject(&crashID));
+		engine->AddComponent<AudioSource>(crashID, assetM->Get<AudioAsset>("crash1"));
+
+		IDType gameoverID;
+		st.dtors.emplace_back(engine->AddObject(&gameoverID));
+		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"));
 	});
 	engine.AddState("credits", [&qID, &eID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("back", Transition{ Pop(), Push("notplaying"), Push("title") });
