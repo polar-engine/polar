@@ -31,10 +31,13 @@ public:
 	template<typename T> std::vector<std::string> List() {
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::List requires typename of type Asset");
 		auto ls = FileSystem::ListDir(GetDir<T>());
-		std::transform(ls.begin(), ls.end(), ls.begin(), [] (std::string s) {
-			return s.substr(0, s.size() - 6);
-		});
-		return ls;
+		std::vector<std::string> filtered;
+		for(auto &l : ls) {
+			if(l.size() >= 6 && l.substr(l.size() - 6) == ".asset") {
+				filtered.emplace_back(l.substr(0, l.size() - 6));
+			}
+		}
+		return filtered;
 	}
 
 	static bool IsSupported() { return true; }
