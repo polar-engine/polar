@@ -71,8 +71,8 @@ public:
 	float Threshold() const {
 		auto kf = level.GetNow();
 
-		float s = glm::sin(Decimal(level.ticks) / kf.beatTicks);
-		float f = 1.0 - glm::pow(glm::abs(s), Decimal(1.0) / kf.beatPower);
+		Decimal s = glm::sin(Decimal(level.ticks) / kf.beatTicks);
+		Decimal f = Decimal(1) - glm::pow(glm::abs(s), Decimal(1) / kf.beatPower);
 		return kf.baseThreshold + f * kf.beatStrength;
 	}
 
@@ -84,7 +84,7 @@ public:
 		Point3 finalCoord = coord / kf.worldScale;
 
 		if(voxelFactor > 1) {
-			float factor2 = glm::max(renderer->GetWidth(), renderer->GetHeight()) / glm::pow(voxelFactor + 1, Decimal(1.5));
+			Decimal factor2 = glm::max(renderer->GetWidth(), renderer->GetHeight()) / glm::pow(voxelFactor + 1, Decimal(1.5));
 			finalCoord = glm::floor(finalCoord * factor2) / factor2;
 		}
 

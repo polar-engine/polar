@@ -108,7 +108,7 @@ private:
 	inline void UploadModel(boost::shared_ptr<ModelComponent> model) {
 		auto normals = model->CalculateNormals();
 		auto numVertices = normals.size();
-		auto dataSize = sizeof(Point3) * numVertices;
+		auto dataSize = sizeof(ModelComponent::PointType) * numVertices;
 		auto prop = GetPooledModelProperty(numVertices);
 
 		if(numVertices > 0) {
@@ -205,7 +205,8 @@ public:
 	void MakePipeline(const boost::container::vector<std::string> &) override final;
 
 	inline void SetClearColor(const Point4 &color) override final {
-		GL(glClearColor(float(color.x), float(color.y), float(color.z), float(color.w)));
+		auto color2 = glm::vec4(color);
+		GL(glClearColor(color.r, color.g, color.b, color.a));
 	}
 
 	Decimal GetUniformDecimal(const std::string &name, const Decimal def) override final {
@@ -278,7 +279,8 @@ public:
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		GL(glUniform1f(loc, float(x)));
+		auto x2 = float(x);
+		GL(glUniform1f(loc, x2));
 		return true;
 	}
 
@@ -286,7 +288,8 @@ public:
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		GL(glUniform2f(loc, float(p.x), float(p.y)));
+		auto p2 = glm::vec2(p);
+		GL(glUniform2f(loc, p2.x, p2.y));
 		return true;
 	}
 
@@ -294,7 +297,8 @@ public:
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		GL(glUniform3f(loc, float(p.x), float(p.y), float(p.z)));
+		auto p2 = glm::vec3(p);
+		GL(glUniform3f(loc, p2.x, p2.y, p2.z));
 		return true;
 	}
 
@@ -302,7 +306,8 @@ public:
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		GL(glUniform4f(loc, float(p.x), float(p.y), float(p.z), float(p.w)));
+		auto p2 = glm::vec4(p);
+		GL(glUniform4f(loc, p2.x, p2.y, p2.z, p2.w));
 		return true;
 	}
 

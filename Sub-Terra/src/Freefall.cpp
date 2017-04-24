@@ -142,7 +142,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		st.dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [&qID, &eID] (Polar *engine, const float &x) {
-			auto alpha = glm::pow(x, Decimal(0.75));
+			auto alpha = glm::pow(Decimal(x), Decimal(0.75));
 			engine->GetComponent<Sprite>(qID)->color.a = alpha;
 			engine->GetComponent<Sprite>(eID)->color.a = alpha;
 		}));
@@ -347,7 +347,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 				"Tylor Froese",
 				"Victor Fernandes",
 				"Will Carroll",
-				//"Woffler",
+				"Woffler",
 				//"Xan",
 			}),
 			CreditsSection("Special thanks to", {
