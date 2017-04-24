@@ -109,8 +109,8 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
-		engine->AddComponentAs<Sprite, Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1.0f, 1.0f, 1.0f, 0.4f));
-		engine->GetComponent<Sprite>(fpsID)->scale *= 0.125f;
+		engine->AddComponentAs<Sprite, Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1, 1, 1, 0.8));
+		engine->GetComponent<Sprite>(fpsID)->scale *= Decimal(0.125);
 	}
 
 	SDL_Event event;
