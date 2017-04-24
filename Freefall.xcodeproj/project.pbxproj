@@ -71,6 +71,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7F07F3FD1EAD970E00320493 /* types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.h; path = include/types.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6271A25D86E00623543 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = include/AppDelegate.h; sourceTree = "<group>"; };
 		7F0CB6281A25D86E00623543 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = include/AssetManager.h; sourceTree = "<group>"; };
 		7F0CB6291A25D86E00623543 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = common.h; path = include/common.h; sourceTree = "<group>"; };
@@ -266,6 +267,7 @@
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
 				7F0CB6391A25D86E00623543 /* Freefall.h */,
 				7F0CB63A1A25D86E00623543 /* System.h */,
+				7F07F3FD1EAD970E00320493 /* types.h */,
 				7F949DF61AC7B2CE004F875F /* World.h */,
 				7F0CB63C1A25D86E00623543 /* Worker.h */,
 			);
