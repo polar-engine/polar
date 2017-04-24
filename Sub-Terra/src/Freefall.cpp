@@ -150,7 +150,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 	engine.AddState("title", [&playerID, &bloom, &fxaa] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
-		st.transitions.emplace("credits", Transition{ Pop(), Push("credits") });
+		st.transitions.emplace("credits", Transition{ Pop(), Pop(), Push("credits") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
 		st.AddSystem<TitlePlayerController>(playerID);
@@ -224,10 +224,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					}),
 				}),
 			}),
-			/*MenuItem("Credits", [engine] (Decimal) {
+			MenuItem("Credits", [engine] (Decimal) {
 				engine->transition = "credits";
 				return false;
-			}),*/
+			}),
 			MenuItem("Quit Game", [engine] (Decimal) {
 				engine->Quit();
 				return false;
@@ -303,48 +303,50 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&beepID));
 		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("gameover"));
 	});
-	engine.AddState("credits", [] (Polar *engine, EngineState &st) {
-		st.transitions.emplace("back", Transition{ Pop(), Push("title") });
-
-		auto inputM = engine->GetSystem<InputManager>().lock();
-
-		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
-			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
-		}
+	engine.AddState("credits", [&qID, &eID] (Polar *engine, EngineState &st) {
+		st.transitions.emplace("back", Transition{ Pop(), Push("notplaying"), Push("title") });
 
 		Credits credits = {
-			CreditsSection("Design, programming, and various sound effects", {
-				"David Farrell"
+			CreditsSection("Design and programming by", {
+				"David Farrell",
 			}),
-			CreditsSection("Music", {
-				"Alex \"aji\" Iadicicco"
+			CreditsSection("Voice acting performed by",{
+				"Christine Dodrill",
 			}),
-			CreditsSection("Voice sound effects", {
-				"Christine Dodrill"
+			CreditsSection("Sound effects created by", {
+				"David Farrell",
 			}),
-			CreditsSection("Alpha testing", {
-				//"a____ptr",
+			CreditsSection("Credits music composed by", {
+				"David Farrell",
+			}),
+			CreditsSection("All other music written by", {
+				"Alex \"aji\" Iadicicco",
+			}),
+			CreditsSection("Alpha testing volunteered by", {
 				//"Aaron Dron?",
 				//"Aidan Dodds",
 				//"Assman",
 				"Cengizhan Sayin",
+				"Fangs124",
 				//"Justin Kaufman",
+				"Kitsune Curator",
+				"Liquid Fear",
 				//"Mark Miller + brother?",
-				//"Meten",
 				"Peter Black",
+				"Shane Huberdeau",
 				//"Simon Brand",
 				"Sir Lad",
 				"Sornaensis",
 				//"Space Bread",
-				"Sparta",
-				//"TechnoCrunch",
+				"TechnoCrunch",
 				"Tylor Froese",
-				//"Vic",
+				"Victor Fernandes",
 				"Will Carroll",
 				//"Woffler",
 				//"Xan",
 			}),
-			CreditsSection("Special thanks", {
+			CreditsSection("Special thanks to", {
+				"Bright",
 				"darkf",
 				"Miles Kjeller",
 			}),
@@ -352,6 +354,19 @@ void Freefall::Run(const std::vector<std::string> &args) {
 				"A big thanks to all my friends and family",
 			}),
 		};
+
+		st.AddSystem<CreditsSystem>(credits);
+
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		IDType musicID;
+		st.dtors.emplace_back(engine->AddObject(&musicID));
+		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("convergence"), true);
+
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		st.dtors.emplace_back(tweener->Tween(1, 0, 0.2, false, [&qID, &eID] (Polar *engine, const float &x) {
+			engine->GetComponent<Sprite>(qID)->color.a = x;
+			engine->GetComponent<Sprite>(eID)->color.a = x;
+		}));
 	});
 
 	engine.Run("root");
