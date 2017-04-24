@@ -484,6 +484,11 @@ int main(int argc, char **argv) {
 			std::string prepend;
 			prepend += "#version 150\n";
 			prepend += "#extension GL_ARB_explicit_attrib_location: enable\n";
+			prepend += "#define Decimal float\n";
+			prepend += "#define Point2 vec2\n";
+			prepend += "#define Point3 vec3\n";
+			prepend += "#define Point4 vec4\n";
+			prepend += "#define Mat4 mat4\n";
 			prepend += "precision highp float;\n";
 			for(auto &uniform : uniforms) {
 				prepend += "uniform " + std::get<0>(uniform) + ' ' + std::get<1>(uniform) + ";\n";

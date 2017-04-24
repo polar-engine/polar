@@ -5,8 +5,10 @@
 
 class ModelComponent : public Component {
 public:
-	typedef boost::container::vector<Point3> PointsType;
-	typedef boost::container::vector<Triangle> TrianglesType;
+	typedef glm::vec3 PointType;
+	typedef std::tuple<PointType, PointType, PointType> TriangleType;
+	typedef boost::container::vector<PointType> PointsType;
+	typedef boost::container::vector<TriangleType> TrianglesType;
 
 	GeometryType type;
 	PointsType points;
@@ -36,14 +38,14 @@ public:
 		return normals;
 	}
 
-	static Point3 CalculateNormal(const Triangle &triangle) {
+	static PointType CalculateNormal(const TriangleType &triangle) {
 		return CalculateNormal(std::get<0>(triangle), std::get<1>(triangle), std::get<2>(triangle));
 	}
-	static Point3 CalculateNormal(const Point3 &p1, const Point3 &p2, const Point3 &p3) {
-		Point3 deltaPos1 = p2 - p1;
-		Point3 deltaPos2 = p3 - p1;
+	static PointType CalculateNormal(const PointType &p1, const PointType &p2, const PointType &p3) {
+		PointType deltaPos1 = p2 - p1;
+		PointType deltaPos2 = p3 - p1;
 
-		Point3 normal;
+		PointType normal;
 		normal.x = deltaPos1.y * deltaPos2.z - deltaPos1.z * deltaPos2.y;
 		normal.y = deltaPos1.z * deltaPos2.x - deltaPos1.x * deltaPos2.z;
 		normal.z = deltaPos1.x * deltaPos2.y - deltaPos1.y * deltaPos2.x;

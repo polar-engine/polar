@@ -54,6 +54,10 @@ inline Serializer & operator<<(Serializer &s, const std::float_t f) {
 	return s << *reinterpret_cast<const std::uint32_t *>(&f);
 }
 
+inline Serializer & operator<<(Serializer &s, const std::double_t f) {
+	return s << *reinterpret_cast<const std::uint64_t *>(&f);
+}
+
 inline Serializer & operator<<(Serializer &s, const std::string &str) {
 	s << static_cast<const std::uint32_t>(str.length());
 	return s.write(str.data(), str.length());
@@ -137,6 +141,10 @@ inline Deserializer & operator>>(Deserializer &s, std::uint64_t &i) {
 
 inline Deserializer & operator>>(Deserializer &s, std::float_t &f) {
 	return s >> *reinterpret_cast<std::uint32_t *>(&f);
+}
+
+inline Deserializer & operator >> (Deserializer &s, std::double_t &f) {
+	return s >> *reinterpret_cast<std::uint64_t *>(&f);
 }
 
 inline Deserializer & operator>>(Deserializer &s, std::string &str) {

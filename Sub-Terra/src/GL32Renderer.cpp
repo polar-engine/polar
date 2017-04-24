@@ -76,15 +76,15 @@ void GL32Renderer::Init() {
 	GLuint vbo;
 	GL(glGenBuffers(1, &vbo));
 
-	std::vector<Point2> points = {
+	std::vector<glm::vec2> points = {
 		Point2(-1, -1),
-		Point2(1, -1),
+		Point2( 1, -1),
 		Point2(-1,  1),
-		Point2(1,  1)
+		Point2( 1,  1)
 	};
 
 	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GL(glBufferData(GL_ARRAY_BUFFER, sizeof(Point2) * 4, points.data(), GL_STATIC_DRAW));
+	GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 4, points.data(), GL_STATIC_DRAW));
 	GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
 
 	GL(glEnableVertexAttribArray(0));
