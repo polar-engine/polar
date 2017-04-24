@@ -35,6 +35,12 @@ namespace MenuControl {
 			return true;
 		}
 
+		bool Navigate(int delta) override {
+			// flip state delta times
+			state ^= delta & 1;
+			return true;
+		}
+
 		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			auto dtor = engine->AddObject(&id);
 			auto pad = Point2(15);
@@ -53,9 +59,9 @@ namespace MenuControl {
 	public:
 		Slider(T min, T max, T initial = 0, T step = 1) : min(min), max(max), value(initial), step(step) {}
 		float Get() override final { return value; }
-		bool Activate() { return Navigate(1); }
+		bool Activate() override final { return Navigate(1); }
 
-		bool Navigate(int delta) {
+		bool Navigate(int delta) override final {
 			T newValue = glm::clamp(value + T(delta) * step, min, max);
 			bool changed = newValue != value;
 			value = newValue;
@@ -130,18 +136,21 @@ private:
 					engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
 				}
 			}
-		} else if(!item.children.empty()) { Navigate(0, 1); }
+		} else if(!item.children.empty()) { Navigate(0, 1, true); }
 	}
 
 	void Navigate(int down, int right = 0, bool force = false) {
 		auto m = GetCurrentMenu();
 		auto &item = m->at(current);
 
+		bool playBeep = false;
+
 		bool newForce = force;
 		if(!force && right && item.control && item.control->Navigate(right)) {
 			item.fn(item.control->Get());
 			Render(current, true);
-		} else { newForce = true; }
+			playBeep = true;
+		} else { newForce = force; }
 
 		if(newForce) {
 			while(right > 0) {
@@ -151,19 +160,22 @@ private:
 					stack.emplace_back(current);
 					current = 0;
 					--right;
+					playBeep = true;
 				} else {
 					Activate();
-					return;
 				}
 			}
 			while(right < 0) {
 				if(stack.empty()) {
-					if(force) { engine->transition = "back"; }
-					return;
+					if(force) {
+						engine->transition = "back";
+						return;
+					}
 				} else {
 					current = stack.back();
 					stack.pop_back();
 					++right;
+					playBeep = true;
 				}
 			}
 			RenderAll();
@@ -174,13 +186,16 @@ private:
 			current += down;
 			if(current < 0) { current += m->size(); } else { current %= m->size(); }
 			Render(previous, true);
+			playBeep = true;
 		}
 
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		IDType soundID;
-		soundDtors[soundIndex++] = engine->AddObject(&soundID);
-		soundIndex %= soundDtors.size();
-		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+		if(playBeep) {
+			auto assetM = engine->GetSystem<AssetManager>().lock();
+			IDType soundID;
+			soundDtors[soundIndex++] = engine->AddObject(&soundID);
+			soundIndex %= soundDtors.size();
+			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+		}
 	}
 
 	void RenderAll() {
