@@ -14,8 +14,8 @@
 @uniform Decimal u_waveTime
 @uniform Decimal u_wavePowRecip
 @uniform Decimal u_waveStrength
-@uniform vec3  u_worldScale
-@uniform vec3  u_color
+@uniform vec3    u_worldScale
+@uniform vec3    u_color
 
 @attrib vec2 a_vertex
 
