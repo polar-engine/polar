@@ -106,7 +106,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		IDType laserID;
 		st.dtors.emplace_back(engine->AddObject(&laserID));
-		engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
+		//engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
 
 		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &levels, &levelIndex, &qID, &eID, &soundDtor] (Key) {
 			auto assetM = engine->GetSystem<AssetManager>().lock();
@@ -328,11 +328,11 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			}),
 			CreditsSection("Alpha testing volunteered by", {
 				//"Aaron Dron?",
-				//"Aidan Dodds",
+				"Aidan Dodds",
+				"AkariTakai",
 				//"Assman",
 				"Cengizhan Sayin",
 				"Fangs124",
-				//"Justin Kaufman",
 				"Kitsune Curator",
 				"Liquid Fear",
 				"Mark M. Miller",
