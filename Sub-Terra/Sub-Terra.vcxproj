@@ -72,7 +72,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;portaudio.lib;opengl32.lib;SDL2.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;portaudio.lib;opengl32.lib;SDL2.lib;SDL2_ttf.lib;steam_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -80,7 +80,8 @@
     </PostBuildEvent>
     <CustomBuildStep>
       <Inputs>$(SolutionDir)assets</Inputs>
-      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets" "$(TargetDir)assets"</Command>
+      <Command>xcopy /y /d "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"
+"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets" "$(TargetDir)assets"</Command>
       <Outputs>_</Outputs>
       <TreatOutputAsContent>true</TreatOutputAsContent>
     </CustomBuildStep>
@@ -109,7 +110,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;portaudio.lib;opengl32.lib;SDL2.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;portaudio.lib;opengl32.lib;SDL2.lib;SDL2_ttf.lib;steam_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
     </Link>
@@ -119,7 +120,8 @@
     </PostBuildEvent>
     <CustomBuildStep>
       <Inputs>$(SolutionDir)assets</Inputs>
-      <Command>"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets" "$(TargetDir)assets"</Command>
+      <Command>xcopy /y /d "$(SolutionDir)lib\win32\*.dll" "$(TargetDir)"
+"$(TargetDir)AssetBuilder.exe" "$(SolutionDir)assets" "$(TargetDir)assets"</Command>
       <Outputs>_</Outputs>
       <TreatOutputAsContent>true</TreatOutputAsContent>
     </CustomBuildStep>
