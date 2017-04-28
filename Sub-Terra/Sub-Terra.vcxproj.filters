@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Assets">
       <UniqueIdentifier>{657fa1bc-8551-4408-b4a2-5a2a514953e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{f0b90e6c-cfda-42e9-b08e-346e7e5a1db9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{e4888805-d5ef-4e08-adb2-f8e88cdca06d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp">
@@ -56,28 +62,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\EventManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\gl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\GL32Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Job.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\JobManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Polar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\System.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Worker.h">
@@ -92,15 +80,6 @@
     <ClInclude Include="include\ScaleComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EntityBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\FileSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Asset.h">
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
@@ -110,13 +89,7 @@
     <ClInclude Include="..\include\endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Property.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OrientationComponent.h">
@@ -125,28 +98,7 @@
     <ClInclude Include="include\PlayerCameraComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="include\InputManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\DeltaTicks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Chunk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\OpenSimplexNoise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Atomic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AssetManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Integrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Integrable.h">
@@ -155,46 +107,19 @@
     <ClInclude Include="include\IntegrableProperty.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="include\HumanPlayerController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\ShaderProgramAsset.h">
       <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SpatialIndex.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\BoundingComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Destructor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\PhysicalComponent.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Serializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EngineState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AudioManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Oscillator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\WaveShape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\TitlePlayerController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Tweener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EngineStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Freefall.h">
@@ -218,9 +143,6 @@
     <ClInclude Include="..\include\Key.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\MenuSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Level.h">
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
@@ -233,8 +155,95 @@
     <ClInclude Include="include\BoxSprite.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="include\AssetManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AudioManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="include\CreditsSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EventManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GL32Renderer.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HumanPlayerController.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Integrator.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\JobManager.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MenuSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Renderer.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TitlePlayerController.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Chunk.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpatialIndex.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Tweener.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\World.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Atomic.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\common.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DeltaTicks.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Destructor.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EngineStack.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EngineState.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EntityBase.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FileSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\System.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Polar.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Property.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Serializer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LevelSwitcher.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

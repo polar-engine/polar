@@ -14,6 +14,7 @@
 #include "World.h"
 #include "MenuSystem.h"
 #include "CreditsSystem.h"
+#include "LevelSwitcher.h"
 #include "TitlePlayerController.h"
 #include "HumanPlayerController.h"
 #include "Text.h"
@@ -23,17 +24,14 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
 
 	Polar engine;
-
-	IDType playerID, qID, eID;
-	std::vector<std::string> levels;
-	size_t levelIndex = 0;
+	IDType playerID;
 	bool bloom = false;
 	bool fxaa = false;
 
 	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
 
-	engine.AddState("root", [&levels, &levelIndex] (Polar *engine, EngineState &st) {
+	engine.AddState("root", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		//st.AddSystem<JobManager>();
@@ -44,6 +42,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<Tweener<float>>();
 		st.AddSystem<AudioManager>();
 		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
+		st.AddSystem<LevelSwitcher>();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");
@@ -66,13 +65,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		assetM->Get<AudioAsset>("fifty");
 		assetM->Get<AudioAsset>("freefall");
 
-		levels = assetM->List<Level>();
-		levelIndex = 0;
-
 		engine->transition = "forward";
 	});
 
-	engine.AddState("world", [&playerID, &levels, &levelIndex, &qID, &eID] (Polar *engine, EngineState &st) {
+	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 
 		st.dtors.emplace_back(engine->AddObject(&playerID));
@@ -81,26 +77,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 
-		st.AddSystem<World>(assetM->Get<Level>(levels[levelIndex]), false);
-
-		auto font = assetM->Get<FontAsset>("nasalization-rg");
-
-		st.dtors.emplace_back(engine->AddObject(&qID));
-		st.dtors.emplace_back(engine->AddObject(&eID));
-		engine->AddComponentAs<Sprite, Text>(qID, font, "Q", Point2(20), Origin::TopLeft,  Point4(0.8902, 0.9647, 0.9922, 0));
-		engine->AddComponentAs<Sprite, Text>(eID, font, "E", Point2(20), Origin::TopRight, Point4(0.8902, 0.9647, 0.9922, 0));
-		engine->GetComponent<Sprite>(qID)->scale *= 0.5;
-		engine->GetComponent<Sprite>(eID)->scale *= 0.5;
-
-		auto qIndex = (levelIndex - 1) % levels.size();
-		auto eIndex = (levelIndex + 1) % levels.size();
-		engine->GetComponent<Sprite>(qID)->color.rgb() = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-		engine->GetComponent<Sprite>(eID)->color.rgb() = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
+		st.AddSystem<World>(engine->GetSystem<LevelSwitcher>().lock()->GetLevel(), false);
 	});
 
-	boost::shared_ptr<Destructor> soundDtor;;
+	boost::shared_ptr<Destructor> soundDtor;
 
-	engine.AddState("notplaying", [&levels, &levelIndex, &qID, &eID, &soundDtor] (Polar *engine, EngineState &st) {
+	engine.AddState("notplaying", [&soundDtor] (Polar *engine, EngineState &st) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();
 
@@ -108,44 +90,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&laserID));
 		//engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
 
-		st.dtors.emplace_back(inputM->On(Key::Q, [engine, &levels, &levelIndex, &qID, &eID, &soundDtor] (Key) {
-			auto assetM = engine->GetSystem<AssetManager>().lock();
-			auto world = engine->GetSystem<World>().lock();
-			levelIndex = (levelIndex - 1) % levels.size();
-			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
-
-			auto qIndex = (levelIndex - 1) % levels.size();
-			auto eIndex = (levelIndex + 1) % levels.size();
-			engine->GetComponent<Sprite>(qID)->color.rgb() = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-			engine->GetComponent<Sprite>(eID)->color.rgb() = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
-
-			IDType soundID;
-			soundDtor = engine->AddObject(&soundID);
-			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
-		}));
-
-		st.dtors.emplace_back(inputM->On(Key::E, [engine, &levels, &levelIndex, &qID, &eID, &soundDtor] (Key) {
-			auto assetM = engine->GetSystem<AssetManager>().lock();
-			auto world = engine->GetSystem<World>().lock();
-			levelIndex = (levelIndex + 1) % levels.size();
-			world->SetLevel(assetM->Get<Level>(levels[levelIndex]));
-
-			auto qIndex = (levelIndex - 1) % levels.size();
-			auto eIndex = (levelIndex + 1) % levels.size();
-			engine->GetComponent<Sprite>(qID)->color.rgb() = assetM->Get<Level>(levels[qIndex])->keyframes.begin()->colors[0];
-			engine->GetComponent<Sprite>(eID)->color.rgb() = assetM->Get<Level>(levels[eIndex])->keyframes.begin()->colors[0];
-
-			IDType soundID;
-			soundDtor = engine->AddObject(&soundID);
-			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
-		}));
-
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [&qID, &eID] (Polar *engine, const float &x) {
-			auto alpha = glm::pow(Decimal(x), Decimal(0.75));
-			engine->GetComponent<Sprite>(qID)->color.a = alpha;
-			engine->GetComponent<Sprite>(eID)->color.a = alpha;
-		}));
+		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(true);
 	});
 
 	engine.AddState("title", [&playerID, &bloom, &fxaa] (Polar *engine, EngineState &st) {
@@ -236,7 +181,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<MenuSystem>(menu);
 	});
 
-	engine.AddState("playing", [secsPerBeat, &playerID, &qID, &eID] (Polar *engine, EngineState &st) {
+	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("notplaying"), Push("title")});
 		st.transitions.emplace("gameover", Transition{Pop(), Push("notplaying"), Push("gameover")});
 
@@ -246,7 +191,9 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
+
 		engine->GetSystem<World>().lock()->active = true;
+		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(false);
 
 		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
 			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
@@ -259,11 +206,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
-
-		st.dtors.emplace_back(tweener->Tween(1, 0, 0.2, false, [&qID, &eID] (Polar *engine, const float &x) {
-			engine->GetComponent<Sprite>(qID)->color.a = x;
-			engine->GetComponent<Sprite>(eID)->color.a = x;
-		}));
 	});
 
 	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
@@ -307,7 +249,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.dtors.emplace_back(engine->AddObject(&gameoverID));
 		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"));
 	});
-	engine.AddState("credits", [&qID, &eID] (Polar *engine, EngineState &st) {
+	engine.AddState("credits", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("back", Transition{ Pop(), Push("notplaying"), Push("title") });
 
 		Credits credits = {
@@ -363,16 +305,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		st.AddSystem<CreditsSystem>(credits);
 
+		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(false);
+
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("convergence"), true);
-
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(1, 0, 0.2, false, [&qID, &eID] (Polar *engine, const float &x) {
-			engine->GetComponent<Sprite>(qID)->color.a = x;
-			engine->GetComponent<Sprite>(eID)->color.a = x;
-		}));
 	});
 
 	engine.Run("root");
