@@ -274,6 +274,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 				"AkariTakai",
 				//"Assman",
 				"Cengizhan Sayin",
+				"DropTheBeat",
 				"Fangs124",
 				"Kitsune Curator",
 				"Liquid Fear",
