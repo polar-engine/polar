@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{e4888805-d5ef-4e08-adb2-f8e88cdca06d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{f7f64792-ec82-45f2-9623-e63b4261ec2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp">
@@ -62,9 +65,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\gl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Job.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -85,12 +85,6 @@
     </ClInclude>
     <ClInclude Include="..\include\TextAsset.h">
       <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\endian.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\debug.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OrientationComponent.h">
       <Filter>Header Files\Components</Filter>
@@ -137,17 +131,11 @@
     <ClInclude Include="..\include\AudioAsset.h">
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\sdl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Key.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Level.h">
       <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Sprite.h">
       <Filter>Header Files\Components</Filter>
@@ -206,9 +194,6 @@
     <ClInclude Include="include\Atomic.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="include\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\DeltaTicks.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -247,6 +232,24 @@
     </ClInclude>
     <ClInclude Include="include\ConfigManager.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\debug.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\endian.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sdl.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gl.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\common.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
