@@ -32,7 +32,7 @@ enum class ConfigFloat {
 
 enum class ConfigBool {
 	Bloom,
-	FXAA,
+	Cel,
 	Mute
 };
 
@@ -70,7 +70,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
 			boost::container::vector<std::string> names = { "perlin" };
 			if(configBoolM->Get(ConfigBool::Bloom)) { names.emplace_back("bloom"); }
-			if(configBoolM->Get(ConfigBool::FXAA)) { names.emplace_back("fxaa"); }
+			if(configBoolM->Get(ConfigBool::Cel)) { names.emplace_back("fxaa"); }
 			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
 		};
 
@@ -93,7 +93,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_farFocus", x);
 		});
 		configBoolM->On(ConfigBool::Bloom, [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
-		configBoolM->On(ConfigBool::FXAA,  [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
+		configBoolM->On(ConfigBool::Cel,   [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
 		configBoolM->On(ConfigBool::Mute, [] (Polar *engine, ConfigBool, bool mute) {
 			engine->GetSystem<AudioManager>().lock()->muted = mute;
 		});
@@ -179,8 +179,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Bloom, state);
 						return true;
 					}),
-					MenuItem("FXAA", MenuControl::Checkbox(configBoolM->Get(ConfigBool::FXAA)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::FXAA, state);
+					MenuItem("Cel", MenuControl::Checkbox(configBoolM->Get(ConfigBool::Cel)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Cel, state);
 						return true;
 					}),
 					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, configFloatM->Get(ConfigFloat::Grain), 0.01), [engine] (Decimal x) {
