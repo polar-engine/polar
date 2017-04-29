@@ -23,6 +23,7 @@
 
 enum class ConfigFloat {
 	BaseDetail,
+	Grain,
 	PixelFactor,
 	VoxelFactor,
 	FarLimiter,
@@ -75,6 +76,9 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		configFloatM->On(ConfigFloat::BaseDetail, [] (Polar *engine, ConfigFloat, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_baseDetail", x);
+		});
+		configFloatM->On(ConfigFloat::Grain, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_grain", x);
 		});
 		configFloatM->On(ConfigFloat::PixelFactor, [] (Polar *engine, ConfigFloat, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
@@ -167,7 +171,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			}),
 			MenuItem("Options", {
 				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 40, configFloatM->Get(ConfigFloat::BaseDetail)), [engine] (Decimal x) {
+					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, configFloatM->Get(ConfigFloat::BaseDetail)), [engine] (Decimal x) {
 						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat ::BaseDetail, x);
 						return true;
 					}),
@@ -177,6 +181,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					}),
 					MenuItem("FXAA", MenuControl::Checkbox(configBoolM->Get(ConfigBool::FXAA)), [engine] (Decimal state) {
 						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::FXAA, state);
+						return true;
+					}),
+					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, configFloatM->Get(ConfigFloat::Grain), 0.01), [engine] (Decimal x) {
+						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::Grain, x);
 						return true;
 					}),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
