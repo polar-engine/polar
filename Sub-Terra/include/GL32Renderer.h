@@ -47,6 +47,8 @@ template<typename T> struct SharedPtrLess : public std::binary_function<boost::s
 
 class GL32Renderer : public Renderer {
 private:
+	bool inited = false;
+
 	SDL_Window *window;
 	SDL_GLContext context;
 	boost::container::vector<std::string> pipelineNames;
@@ -195,6 +197,7 @@ private:
 
 	void InitGL();
 	void HandleSDL(SDL_Event &);
+	void MakePipeline(const boost::container::vector<std::string> &) override final;
 	GLuint MakeProgram(std::shared_ptr<ShaderProgramAsset>);
 public:
 	Decimal fps = 60.0;
@@ -202,7 +205,11 @@ public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine, const boost::container::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();
-	void MakePipeline(const boost::container::vector<std::string> &) override final;
+
+	void SetPipeline(const boost::container::vector<std::string> &names) override final {
+		pipelineNames = names;
+		if(inited) { MakePipeline(names); }
+	}
 
 	inline void SetClearColor(const Point4 &color) override final {
 		auto color2 = glm::vec4(color);

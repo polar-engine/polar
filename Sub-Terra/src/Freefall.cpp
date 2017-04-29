@@ -1,12 +1,13 @@
 #include "common.h"
 #include <iomanip>
-#include "Freefall.h"
 #include <glm/gtc/random.hpp>
+#include "Freefall.h"
 #include "Polar.h"
 #include "JobManager.h"
 #include "EventManager.h"
 #include "AssetManager.h"
 #include "InputManager.h"
+#include "ConfigManager.h"
 #include "Integrator.h"
 #include "Tweener.h"
 #include "AudioManager.h"
@@ -20,13 +21,28 @@
 #include "Text.h"
 #include "Level.h"
 
+enum class ConfigFloat {
+	BaseDetail,
+	PixelFactor,
+	VoxelFactor,
+	FarLimiter,
+	FarFocus
+};
+
+enum class ConfigBool {
+	Bloom,
+	FXAA,
+	Mute
+};
+
+using ConfigFloatM = ConfigManager<ConfigFloat, float>;
+using ConfigBoolM = ConfigManager<ConfigBool, bool>;
+
 void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
 
 	Polar engine;
 	IDType playerID;
-	bool bloom = false;
-	bool fxaa = false;
 
 	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
@@ -36,6 +52,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
+		st.AddSystem<ConfigFloatM>(0);
+		st.AddSystem<ConfigBoolM>(false);
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
@@ -43,6 +61,42 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<AudioManager>();
 		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
 		st.AddSystem<LevelSwitcher>();
+
+		auto configFloatM = engine->GetSystem<ConfigFloatM>().lock();
+		auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
+
+		auto SetPipeline = [] (Polar *engine) {
+			auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
+			boost::container::vector<std::string> names = { "perlin" };
+			if(configBoolM->Get(ConfigBool::Bloom)) { names.emplace_back("bloom"); }
+			if(configBoolM->Get(ConfigBool::FXAA)) { names.emplace_back("fxaa"); }
+			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
+		};
+
+		configFloatM->On(ConfigFloat::BaseDetail, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_baseDetail", x);
+		});
+		configFloatM->On(ConfigFloat::PixelFactor, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
+		});
+		configFloatM->On(ConfigFloat::VoxelFactor, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_voxelFactor", x);
+		});
+		configFloatM->On(ConfigFloat::FarLimiter, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_farLimiter", x);
+		});
+		configFloatM->On(ConfigFloat::FarFocus, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_farFocus", x);
+		});
+		configBoolM->On(ConfigBool::Bloom, [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
+		configBoolM->On(ConfigBool::FXAA,  [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
+		configBoolM->On(ConfigBool::Mute, [] (Polar *engine, ConfigBool, bool mute) {
+			engine->GetSystem<AudioManager>().lock()->muted = mute;
+		});
+
+		configFloatM->Set(ConfigFloat::BaseDetail, 10);
+		configFloatM->Set(ConfigFloat::FarLimiter, 2);
+		configFloatM->Set(ConfigFloat::FarFocus, 1);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");
@@ -93,16 +147,18 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(true);
 	});
 
-	engine.AddState("title", [&playerID, &bloom, &fxaa] (Polar *engine, EngineState &st) {
+	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
 		st.transitions.emplace("credits", Transition{ Pop(), Pop(), Push("credits") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
 		st.AddSystem<TitlePlayerController>(playerID);
 
+		auto configFloatM = engine->GetSystem<ConfigFloatM>().lock();
+		auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
 		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto renderer = engine->GetSystem<Renderer>().lock();
 		auto audioM = engine->GetSystem<AudioManager>().lock();
+		auto renderer = engine->GetSystem<Renderer>().lock();
 
 		Menu menu = {
 			MenuItem("Solo Play", [engine] (Decimal) {
@@ -111,48 +167,29 @@ void Freefall::Run(const std::vector<std::string> &args) {
 			}),
 			MenuItem("Options", {
 				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 40, renderer->GetUniformDecimal("u_baseDetail", 10)), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_baseDetail", x);
+					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 40, configFloatM->Get(ConfigFloat::BaseDetail)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat ::BaseDetail, x);
 						return true;
 					}),
-					MenuItem("Bloom", MenuControl::Checkbox(bloom), [engine, &bloom, &fxaa] (Decimal state) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						bloom = state;
-						boost::container::vector<std::string> names = { "perlin" };
-						if(bloom) { names.emplace_back("bloom"); }
-						if(fxaa) { names.emplace_back("fxaa"); }
-						renderer->MakePipeline(names);
+					MenuItem("Bloom", MenuControl::Checkbox(configBoolM->Get(ConfigBool::Bloom)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Bloom, state);
 						return true;
 					}),
-					MenuItem("FXAA", MenuControl::Checkbox(fxaa), [engine, &bloom, &fxaa] (Decimal state) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						fxaa = state;
-						boost::container::vector<std::string> names = { "perlin" };
-						if(bloom) { names.emplace_back("bloom"); }
-						if(fxaa) { names.emplace_back("fxaa"); }
-						renderer->MakePipeline(names);
+					MenuItem("FXAA", MenuControl::Checkbox(configBoolM->Get(ConfigBool::FXAA)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::FXAA, state);
 						return true;
 					}),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_pixelFactor", 0)), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_pixelFactor", x);
+					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, configFloatM->Get(ConfigFloat::PixelFactor)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::PixelFactor, x);
 						return true;
 					}),
-					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, renderer->GetUniformDecimal("u_voxelFactor", 0)), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_voxelFactor", x);
+					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, configFloatM->Get(ConfigFloat::VoxelFactor)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::VoxelFactor, x);
 						return true;
 					}),
-					MenuItem("Far Limiter", MenuControl::Slider<Decimal>(0, 3, renderer->GetUniformDecimal("u_farLimiter", 2), Decimal(0.1)), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_farLimiter", x);
-						return true;
-					}),
-					MenuItem("Far Focus", MenuControl::Slider<Decimal>(0.5, 1.5, renderer->GetUniformDecimal("u_farFocus", 1), Decimal(0.1)), [engine] (Decimal x) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
-						renderer->SetUniform("u_farFocus", x);
+					MenuItem("Far Limiter", MenuControl::Slider<Decimal>(0, 3, configFloatM->Get(ConfigFloat::FarLimiter), Decimal(0.1)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::FarLimiter, x);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
@@ -162,9 +199,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					}),
 				}),
 				MenuItem("Audio", {
-					MenuItem("Mute", MenuControl::Checkbox(audioM->muted), [engine] (Decimal state) {
-						auto audioM = engine->GetSystem<AudioManager>().lock();
-						audioM->muted = state;
+					MenuItem("Mute", MenuControl::Checkbox(configBoolM->Get(ConfigBool::Mute)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Mute, state);
 						return true;
 					}),
 				}),
