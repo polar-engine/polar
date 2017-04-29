@@ -11,6 +11,7 @@
 
 class World : public System {
 private:
+	uint64_t globalTicks;
 	Level oldLevel;
 	Level level;
 	float alpha = 1;
@@ -27,7 +28,8 @@ private:
 		size_t iColor = kf.ticks / kf.colorTicks % kf.colors.size();
 		auto color = kf.colors[iColor];
 		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
-
+#
+		renderer->SetUniform("u_period",        float(double(globalTicks % ENGINE_TICKS_PER_SECOND) / double(ENGINE_TICKS_PER_SECOND)));
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
 		renderer->SetUniform("u_threshold",     Threshold());
 		renderer->SetUniform("u_waveTime",      Decimal(kf.ticks) / kf.waveTicks);
@@ -42,6 +44,7 @@ protected:
 	}
 
 	void Update(DeltaTicks &dt) override final {
+		globalTicks += dt.Ticks();
 		if(active) {
 			level.ticks += dt.Ticks();
 		}
