@@ -233,9 +233,6 @@
     <ClInclude Include="include\ConfigManager.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\types.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\debug.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
@@ -249,6 +246,9 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="include\common.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>

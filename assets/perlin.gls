@@ -3,8 +3,10 @@
 @uniform Mat4 u_projection
 @uniform Mat4 u_invViewProj
 @uniform uint u_time
+@uniform float u_period
 
 @uniform Decimal u_baseDetail
+@uniform Decimal u_grain
 @uniform Decimal u_farFocus
 @uniform Decimal u_farLimiter
 @uniform Decimal u_pixelFactor
@@ -180,7 +182,16 @@ bool Eval(in Point3 coord, in Decimal z, out Decimal result) {
 	return result > u_threshold + Threshold2(z);
 }
 
+float rand(vec2 p) {
+	return fract(sin(dot(p.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main(void) {
+	if(rand(v_vertex + u_period) < u_grain) {
+		discard;
+		return;
+	}
+
 	vec3 color = vec3(0.0);
 
 	Decimal len = length(v_vertex);
