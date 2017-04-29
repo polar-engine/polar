@@ -93,6 +93,8 @@ void GL32Renderer::Init() {
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	spriteProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("sprite"));
+
+	inited = true;
 }
 
 void GL32Renderer::Update(DeltaTicks &dt) {
