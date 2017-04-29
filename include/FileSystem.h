@@ -29,23 +29,20 @@ public:
 	static std::string GetDirOf(std::string &&path) { return GetDirOf(path); }
 
 	static std::string GetApp() {
-#ifdef _WIN32
+#if defined(_WIN32)
 		char sz[MAX_PATH];
 		GetModuleFileNameA(NULL, sz, MAX_PATH);
 		return std::string(sz);
-#endif
-#ifdef __APPLE__
-//#error "FileSystem::GetApp: not implemented"
+#else
 		ENGINE_THROW("FileSystem::GetApp: not implemented");
 		return "";
 #endif
 	}
 
 	static std::string GetAppDir() {
-#ifdef _WIN32
+#if defined(_WIN32)
 		return GetDirOf(GetApp());
-#endif
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
 		CFStringRef path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
 		char sz[1024];
@@ -53,20 +50,21 @@ public:
 		CFRelease(url);
 		CFRelease(path);
 		return std::string(sz);
+#else
+		ENGINE_THROW("FileSystem::GetAppDir: not implemented");
 #endif
 	}
 
 	static std::string GetSavedGamesDir() {
-#ifdef _WIN32
+#if defined(_WIN32)
 		char szPath[MAX_PATH];
 		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, szPath);
 		if(FAILED(result)) { ENGINE_THROW("CSIDL_PERSONAL: failed to retrieve path"); }
 		PathAppendA(szPath, "My Games");
 		PathAppendA(szPath, "Freefall");
 		return std::string(szPath);
-#endif
-#ifdef __APPLE__
-		ENGINE_THROW("FileSystem::GetSavedGamesDir:: not implemented");
+#else
+		ENGINE_THROW("FileSystem::GetSavedGamesDir: not implemented");
 #endif
 	}
 	
@@ -113,7 +111,7 @@ public:
 	}
 
 	static uint64_t GetModifiedTime(const std::string &path) {
-#ifdef _WIN32
+#if defined(_WIN32)
 		struct _stat st;
 		if(_stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
 #else
@@ -133,7 +131,7 @@ public:
 
 	static std::vector<std::string> ListDir(std::string path) {
 		std::vector<std::string> files;
-#ifdef _WIN32
+#if defined(_WIN32)
 		/* append "\*" to path and create wstring */
 		path += "\\*";
 		std::wstring wPath(path.begin(), path.end());
@@ -156,8 +154,7 @@ public:
 		}
 
 		FindClose(handle);
-#endif
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 		DIR *dp = opendir(path.c_str());
 		if(dp == nullptr) { ENGINE_THROW(path + ": failed to open directory"); }
 
@@ -170,20 +167,23 @@ public:
 			}
 		}
 		closedir(dp);
+#else
+		ENGINE_THROW("FileSystem::ListDir: not implemented");
 #endif
 		return files;
 	}
 
 	static void CreateDirImpl(const std::string &path) {
-#ifdef _WIN32
+#if defined(_WIN32)
 		std::wstring wPath(path.begin(), path.end());
 		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
 			if(dwError != ERROR_ALREADY_EXISTS) { ENGINE_THROW(path + ": failed to create directory"); }
 		}
-#endif
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { ENGINE_THROW(path + ": failed to create directory"); }
+#else
+		ENGINE_THROW("FileSystem::CreateDirImpl: not implemented");
 #endif
 	}
 
