@@ -21,7 +21,7 @@
 #include "Text.h"
 #include "Level.h"
 
-enum class ConfigFloat {
+enum class ConfigFloat : int {
 	BaseDetail,
 	Grain,
 	PixelFactor,
@@ -30,11 +30,33 @@ enum class ConfigFloat {
 	FarFocus
 };
 
-enum class ConfigBool {
+enum class ConfigBool : int {
 	Bloom,
 	Cel,
 	Mute
 };
+
+std::istream & operator>>(std::istream &s, ConfigFloat &x) {
+	int y;
+	s >> y;
+	x = ConfigFloat(y);
+	return s;
+}
+
+std::istream & operator>>(std::istream &s, ConfigBool &x) {
+	int y;
+	s >> y;
+	x = ConfigBool(y);
+	return s;
+}
+
+std::ostream & operator<<(std::ostream &s, const ConfigFloat x) {
+	return s << int(x);
+}
+
+std::ostream & operator<<(std::ostream &s, const ConfigBool x) {
+	return s << int(x);
+}
 
 using ConfigFloatM = ConfigManager<ConfigFloat, float>;
 using ConfigBoolM = ConfigManager<ConfigBool, bool>;
@@ -53,8 +75,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
-		st.AddSystem<ConfigFloatM>(0);
-		st.AddSystem<ConfigBoolM>(false);
+		st.AddSystem<ConfigFloatM>("float.cfg", 0);
+		st.AddSystem<ConfigBoolM>("bool.cfg", false);
 		st.AddSystem<InputManager>();
 		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
@@ -101,6 +123,9 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		configFloatM->Set(ConfigFloat::BaseDetail, 10);
 		configFloatM->Set(ConfigFloat::FarLimiter, 2);
 		configFloatM->Set(ConfigFloat::FarFocus, 1);
+
+		configFloatM->Load();
+		configBoolM->Load();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");

@@ -35,11 +35,20 @@ public:
 	IDType nextID = 1;
 	std::string transition;
 
+	Polar() {
+		if(!SteamAPI_Init()) {
+			ENGINE_THROW("failed to initialize Steam API");
+		}
+		INFOS("Welcome, " << SteamFriends()->GetPersonaName());
+	}
+
 	~Polar() {
 		/* release stack in reverse order */
 		while(!stack.empty()) {
 			stack.pop_back();
 		}
+
+		SteamAPI_Shutdown();
 	}
 
 	inline void AddState(const std::string &name,
@@ -50,11 +59,6 @@ public:
 
 	inline void Run(const std::string &initialState) {
 		running = true;
-
-		if(!SteamAPI_Init()) {
-			ENGINE_THROW("failed to initialize Steam API");
-		}
-		INFOS("Welcome, " << SteamFriends()->GetPersonaName());
 
 		stack.emplace_back(initialState, this);
 		states[initialState].first(this, stack.back());
@@ -93,8 +97,6 @@ public:
 				}
 			}
 		}
-
-		SteamAPI_Shutdown();
 	}
 
 
