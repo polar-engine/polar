@@ -10,6 +10,7 @@
 #include <boost/bimap/set_of.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
+#include <steam/steam_api.h>
 #include "Component.h"
 #include "System.h"
 #include "EngineStack.h"
@@ -50,6 +51,11 @@ public:
 	inline void Run(const std::string &initialState) {
 		running = true;
 
+		if(!SteamAPI_Init()) {
+			ENGINE_THROW("failed to initialize Steam API");
+		}
+		INFOS("Welcome, " << SteamFriends()->GetPersonaName());
+
 		stack.emplace_back(initialState, this);
 		states[initialState].first(this, stack.back());
 		stack.back().Init();
@@ -87,6 +93,8 @@ public:
 				}
 			}
 		}
+
+		SteamAPI_Shutdown();
 	}
 
 
