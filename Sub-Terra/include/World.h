@@ -29,7 +29,7 @@ private:
 		auto color = kf.colors[iColor];
 		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
 #
-		renderer->SetUniform("u_period",        float(double(globalTicks % ENGINE_TICKS_PER_SECOND) / double(ENGINE_TICKS_PER_SECOND)));
+		renderer->SetUniform("u_period",        float(double(globalTicks % (ENGINE_TICKS_PER_SECOND * 100)) / double(ENGINE_TICKS_PER_SECOND * 100)));
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
 		renderer->SetUniform("u_threshold",     Threshold());
 		renderer->SetUniform("u_waveTime",      Decimal(kf.ticks) / kf.waveTicks);

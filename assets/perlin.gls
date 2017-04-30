@@ -11,6 +11,7 @@
 @uniform Decimal u_farLimiter
 @uniform Decimal u_pixelFactor
 @uniform Decimal u_voxelFactor
+@uniform Decimal u_scanIntensity
 
 @uniform Decimal u_threshold
 @uniform Decimal u_waveTime
@@ -231,4 +232,11 @@ void main(void) {
 	}
 
 	o_color = vec4(color, 1.0);
+
+	Decimal m = sin(u_period * 10000.0 * PI_2) * 0.3 + 0.5;
+	Decimal y = mod(v_vertex.y * 0.5 + 0.5, m);
+	Decimal scanY = mod(1.0 - mod(u_period * 10.0, 1.0), m);
+	Decimal scanDelta = min(abs(scanY - y) / 0.001, 1.0);
+	Decimal scanAlpha = (1.0 - scanDelta) * u_scanIntensity;
+	o_color.rgb = mix(o_color.rgb, vec3(1.0), scanAlpha);
 }
