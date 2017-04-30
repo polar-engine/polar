@@ -27,7 +27,8 @@ enum class ConfigFloat : int {
 	PixelFactor,
 	VoxelFactor,
 	FarLimiter,
-	FarFocus
+	FarFocus,
+	ScanIntesity
 };
 
 enum class ConfigBool : int {
@@ -101,6 +102,9 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		});
 		configFloatM->On(ConfigFloat::Grain, [] (Polar *engine, ConfigFloat, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_grain", x);
+		});
+		configFloatM->On(ConfigFloat::ScanIntesity, [] (Polar *engine, ConfigFloat, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_scanIntensity", x);
 		});
 		configFloatM->On(ConfigFloat::PixelFactor, [] (Polar *engine, ConfigFloat, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
@@ -210,6 +214,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 					}),
 					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, configFloatM->Get(ConfigFloat::Grain), 0.01), [engine] (Decimal x) {
 						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::Grain, x);
+						return true;
+					}),
+					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, 0.2, configFloatM->Get(ConfigFloat::ScanIntesity), 0.01), [engine] (Decimal x) {
+						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::ScanIntesity, x);
 						return true;
 					}),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
