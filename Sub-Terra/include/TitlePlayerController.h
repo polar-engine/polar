@@ -28,7 +28,7 @@ protected:
 		while(accum >= timestep) {
 			accum -= timestep;
 
-			orientVel *= static_cast<Decimal>(glm::pow(0.998, timestep * 1000.0));
+			orientVel *= static_cast<Decimal>(glm::pow(0.999, timestep * 1000.0));
 
 			unsigned int i = 0;
 			auto average = Point2(0);
@@ -67,8 +67,8 @@ protected:
 		pos->position.Derivative()->z = abs.z;
 	}
 public:
-	const Decimal fieldOfView = 3;
-	const Decimal viewDistance = 40.0f;
+	const Decimal fieldOfView = 2;
+	const Decimal viewDistance = 10.0f;
 	const Decimal velocity = 300.0f;
 
 	static bool IsSupported() { return true; }
