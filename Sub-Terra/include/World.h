@@ -32,9 +32,7 @@ private:
 		renderer->SetUniform("u_period",        float(double(globalTicks % (ENGINE_TICKS_PER_SECOND * 100)) / double(ENGINE_TICKS_PER_SECOND * 100)));
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
 		renderer->SetUniform("u_threshold",     Threshold());
-		renderer->SetUniform("u_waveTime",      Decimal(kf.ticks) / kf.waveTicks);
-		renderer->SetUniform("u_wavePowRecip",  Decimal(1) / kf.wavePower);
-		renderer->SetUniform("u_waveStrength",  kf.waveStrength);
+		renderer->SetUniform("u_waveParams",    Point3(Decimal(kf.ticks) / kf.waveTicks, Decimal(1) / kf.wavePower, kf.waveStrength));
 		renderer->SetUniform("u_worldScale",    kf.worldScale);
 		renderer->SetUniform("u_color",         color);
 	}
