@@ -132,8 +132,8 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		configBoolM->Load();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
-		/*assetM->Get<AudioAsset>("nexus");
-		assetM->Get<AudioAsset>("laser");
+		assetM->Get<AudioAsset>("nexus");
+		/*assetM->Get<AudioAsset>("laser");
 		assetM->Get<AudioAsset>("beep1");
 		assetM->Get<AudioAsset>("menu1");
 		assetM->Get<AudioAsset>("30");
