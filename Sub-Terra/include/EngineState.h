@@ -57,13 +57,17 @@ public:
 	template<typename B, typename T, typename ...Ts> inline void AddSystemAs(Ts && ...args) {
 		static_assert(std::is_base_of<B, T>::value, "AddSystemAs requires base class and sub class");
 
-		if(T::IsSupported()) {
-			systems.AddAs<B, T>(engine, std::forward<Ts>(args)...);
-			orderedSystems.emplace_back(systems.Get<B>());
-		} else {
+#ifdef _DEBUG
+		if(!T::IsSupported()) {
 			std::string msg = typeid(T).name() + std::string(": unsupported");
 			ENGINE_THROW(msg);
+		} else {
+#endif
+			systems.AddAs<B, T>(engine, std::forward<Ts>(args)...);
+			orderedSystems.emplace_back(systems.Get<B>());
+#ifdef _DEBUG
 		}
+#endif
 	}
 
 	template<typename T> inline void RemoveSystem() {
