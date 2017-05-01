@@ -569,11 +569,14 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 		UploadUniform(node.program, "u_resolution", Point2(width, height));
 	}
 
+	for(auto uniform : uniformsU32) {
+		SetUniform(uniform.first, uniform.second, true);
+	}
 	for(auto uniform : uniformsFloat) {
-		SetUniform(uniform.first, uniform.second);
+		SetUniform(uniform.first, uniform.second, true);
 	}
 	for(auto uniform : uniformsPoint3) {
-		SetUniform(uniform.first, uniform.second);
+		SetUniform(uniform.first, uniform.second, true);
 	}
 }
 
