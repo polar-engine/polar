@@ -132,7 +132,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		configBoolM->Load();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
-		assetM->Get<AudioAsset>("nexus");
+		/*assetM->Get<AudioAsset>("nexus");
 		assetM->Get<AudioAsset>("laser");
 		assetM->Get<AudioAsset>("beep1");
 		assetM->Get<AudioAsset>("menu1");
@@ -150,7 +150,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		assetM->Get<AudioAsset>("seconds");
 		assetM->Get<AudioAsset>("hundred");
 		assetM->Get<AudioAsset>("fifty");
-		assetM->Get<AudioAsset>("freefall");
+		assetM->Get<AudioAsset>("freefall");*/
 
 		engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(1));
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
