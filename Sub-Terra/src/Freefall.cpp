@@ -152,6 +152,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		assetM->Get<AudioAsset>("fifty");
 		assetM->Get<AudioAsset>("freefall");
 
+		engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(1));
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		st.dtors.emplace_back(tweener->Tween(1.0f, 0.0f, 2.0f, false, [] (Polar *engine, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(x));
+		}));
+
 		engine->transition = "forward";
 	});
 

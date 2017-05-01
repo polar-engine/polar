@@ -4,6 +4,7 @@
 @uniform Mat4 u_invViewProj
 @uniform uint u_time
 @uniform float u_period
+@uniform Point3 u_exposure
 
 @uniform Decimal u_baseDetail
 @uniform Decimal u_grain
@@ -239,4 +240,6 @@ void main(void) {
 	Decimal scanDelta = min(abs(scanY - y) / 0.001, 1.0);
 	Decimal scanAlpha = (1.0 - scanDelta) * u_scanIntensity;
 	o_color.rgb = mix(o_color.rgb, vec3(1.0), scanAlpha);
+
+	o_color.rgb = mix(o_color.rgb, u_exposure, length(u_exposure));
 }
