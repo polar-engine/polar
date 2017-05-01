@@ -15,9 +15,7 @@
 @uniform Decimal u_scanIntensity
 
 @uniform Decimal u_threshold
-@uniform Decimal u_waveTime
-@uniform Decimal u_wavePowRecip
-@uniform Decimal u_waveStrength
+@uniform vec3    u_waveParams
 @uniform vec3    u_worldScale
 @uniform vec3    u_color
 
@@ -167,9 +165,12 @@ Decimal snoise(vec3 v) {
 #define PI_2 (3.14159 * 2.0)
 
 Decimal Threshold2(in Decimal z) {
-	Decimal s = sin(z * PI_2 - u_waveTime) - 0.9;
-	Decimal f = 1.0 - pow(abs(s), u_wavePowRecip);
-	return f * u_waveStrength;
+	Decimal waveTime     = u_waveParams.x;
+	Decimal wavePowRecip = u_waveParams.y;
+	Decimal waveStrength = u_waveParams.z;
+	Decimal s = sin(z * PI_2 - waveTime) - 0.9;
+	Decimal f = 1.0 - pow(abs(s), wavePowRecip);
+	return f * waveStrength;
 }
 
 bool Eval(in Point3 coord, in Decimal z, out Decimal result) {
