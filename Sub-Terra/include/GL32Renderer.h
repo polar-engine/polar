@@ -237,6 +237,7 @@ public:
 	}
 
 	void SetUniform(const std::string &name, glm::uint32 x) override final {
+		if(uniformsU32[name] == x) { return; }
 		uniformsU32[name] = x;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
@@ -247,6 +248,7 @@ public:
 	}
 
 	void SetUniform(const std::string &name, Decimal x) override final {
+		if(uniformsFloat[name] == x) { return; }
 		uniformsFloat[name] = x;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
@@ -257,6 +259,7 @@ public:
 	}
 
 	void SetUniform(const std::string &name, Point3 p) override final {
+		if(uniformsPoint3[name] == p) { return; }
 		uniformsPoint3[name] = p;
 		for(auto &node : nodes) {
 			if(node.uniforms.find(name) != node.uniforms.end()) {
