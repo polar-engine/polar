@@ -1,0 +1,64 @@
+"In Game Actions"
+{
+	"actions"
+	{
+		"InGameControls"
+		{
+			"title" "#Set_Ingame"
+			"StickPadGyro"
+			{
+				"ingame_camera"
+				{
+					"title"      "#Action_Camera"
+					"input_mode" "absolute_mouse"
+				}
+			}
+			"AnalogTrigger"
+			{
+			}
+			"Button"
+			{
+				"ingame_return"    "#Action_Return"
+			}
+		}
+		"MenuControls"
+		{
+			"title" "#Set_Menu"
+			"StickPadGyro"
+			{
+			}
+			"AnalogTrigger"
+			{
+			}
+			"Button"
+			{
+				"menu_up"       "#Menu_Up"
+				"menu_down"     "#Menu_Down"
+				"menu_left"     "#Menu_Left"
+				"menu_right"    "#Menu_Right"
+				"menu_previous" "#Menu_Previous"
+				"menu_next"     "#Menu_Next"
+				"menu_confirm"  "#Menu_Confirm"
+				"menu_back"     "#Menu_Back"
+			}
+		}
+	}
+	"localization"
+	{
+		"english"
+		{
+			"Set_Ingame"    "In-Game Controls"
+			"Set_Menu"      "Menu Controls"
+			"Action_Camera" "Camera"
+			"Action_Return" "Return to Menu"
+			"Menu_Up"       "Menu Up"
+			"Menu_Down"     "Menu Down"
+			"Menu_Left"     "Menu Left"
+			"Menu_Right"    "Menu Right"
+			"Menu_Previous" "Menu Previous"
+			"Menu_Next"     "Menu Next"
+			"Menu_Confirm"  "Confirm"
+			"Menu_Back"     "Back"
+		}
+	}
+}
