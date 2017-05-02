@@ -18,6 +18,7 @@ typedef std::function<void(const Point2 &)> MouseMoveHandler;
 typedef std::function<void(const Point2 &)> MouseWheelHandler;
 typedef std::function<void(const Point2 &)> ControllerAxesHandler;
 typedef std::function<void()> OnDigitalHandler;
+typedef std::function<void(const Point2 &)> OnAnalogHandler;
 
 class InputManager : public System {
 public:
@@ -38,7 +39,15 @@ public:
 		boost::bimaps::set_of_relation<>,
 		boost::bimaps::with_info<_Handler>
 	>;
+	template<typename _Handler> using AnalogHandlerBimap = boost::bimap<
+		boost::bimaps::multiset_of<ControllerAnalogActionHandle_t>,
+		boost::bimaps::unordered_set_of<IDType>,
+		boost::bimaps::set_of_relation<>,
+		boost::bimaps::with_info<_Handler>
+	>;
 private:
+	IDType nextID = 1;
+
 	boost::container::set<Key> keys;
 	KeyHandlerBimap<OnKeyHandler> onKeyHandlers;
 	KeyHandlerBimap<AfterKeyHandler> afterKeyHandlers;
@@ -46,12 +55,14 @@ private:
 	IDMap<MouseMoveHandler> mouseMoveHandlers;
 	IDMap<MouseWheelHandler> mouseWheelHandlers;
 	IDMap<ControllerAxesHandler> controllerAxesHandlers;
+
+	ControllerActionSetHandle_t currentActionSet;
+	Decimal currentSetAccum;
 	boost::container::set<ControllerDigitalActionHandle_t> trackedDigitals;
 	boost::container::set<ControllerDigitalActionHandle_t> digitals;
 	DigitalHandlerBimap<OnDigitalHandler> onDigitalHandlers;
-	ControllerActionSetHandle_t currentActionSet;
-	Decimal currentSetAccum;
-	IDType nextID = 1;
+	boost::container::set<ControllerAnalogActionHandle_t> trackedAnalogs;
+	AnalogHandlerBimap<OnAnalogHandler> onAnalogHandlers;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
@@ -110,6 +121,11 @@ public:
 		});
 	}
 
+	inline void SetActiveSet(std::string name) {
+		currentSetAccum = 0.1;
+		currentActionSet = SteamController()->GetActionSetHandle(name.data());
+	}
+
 	inline boost::shared_ptr<Destructor> OnDigital(std::string name, const OnDigitalHandler &handler) {
 		auto id = nextID++;
 		ControllerDigitalActionHandle_t digital = SteamController()->GetDigitalActionHandle(name.data());
@@ -120,8 +136,13 @@ public:
 		});
 	}
 
-	inline void SetActiveSet(std::string name) {
-		currentSetAccum = 0.1;
-		currentActionSet = SteamController()->GetActionSetHandle(name.data());
+	inline boost::shared_ptr<Destructor> OnAnalog(std::string name, const OnAnalogHandler &handler) {
+		auto id = nextID++;
+		ControllerAnalogActionHandle_t analog = SteamController()->GetAnalogActionHandle(name.data());
+		trackedAnalogs.emplace(analog);
+		onAnalogHandlers.insert(AnalogHandlerBimap<OnAnalogHandler>::value_type(analog, id, handler));
+		return boost::make_shared<Destructor>([this, id] () {
+			onAnalogHandlers.right.erase(id);
+		});
 	}
 };

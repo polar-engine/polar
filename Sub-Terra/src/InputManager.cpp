@@ -81,10 +81,13 @@ void InputManager::Update(DeltaTicks &dt) {
 		}
 	}*/
 
+	for(int i = 0; i < numControllers; ++i) {
+		SteamController()->ActivateActionSet(cs[i], currentActionSet);
+	}
+
 	for(auto digital : trackedDigitals) {
 		bool active = false;
 		for(int i = 0; i < numControllers; ++i) {
-			SteamController()->ActivateActionSet(cs[i], currentActionSet);
 			ControllerDigitalActionData_t data = SteamController()->GetDigitalActionData(cs[i], digital);
 			active |= data.bActive && data.bState;
 		}
@@ -99,6 +102,21 @@ void InputManager::Update(DeltaTicks &dt) {
 			digitals.emplace(digital);
 		} else {
 			digitals.erase(digital);
+		}
+	}
+
+	for(auto analog : trackedAnalogs) {
+		Point2 delta(0);
+		for(int i = 0; i < numControllers; ++i) {
+			ControllerAnalogActionData_t data = SteamController()->GetAnalogActionData(cs[i], analog);
+			delta.x += data.x;
+			delta.y += data.y;
+		}
+		if(currentSetAccum <= 0) {
+			auto range = onAnalogHandlers.left.equal_range(analog);
+			for(auto it = range.first; it != range.second; ++it) {
+				it->info(delta);
+			}
 		}
 	}
 }

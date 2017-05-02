@@ -35,6 +35,11 @@ void HumanPlayerController::Init() {
 		orientVel.y += glm::radians(mouseSpeed) * delta.x * 30.0f;
 		orientVel.x += glm::radians(mouseSpeed) * delta.y * 30.0f;
 	}));
+	dtors.emplace_back(inputM->OnAnalog("ingame_camera", [this, mouseSpeed] (const Point2 &delta) {
+		orientVel.y += glm::radians(mouseSpeed) * delta.x;
+		orientVel.x += glm::radians(mouseSpeed) * delta.y;
+	}));
+
 	//dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
 	//dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
 	//dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
