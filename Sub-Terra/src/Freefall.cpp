@@ -176,13 +176,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	boost::shared_ptr<Destructor> soundDtor;
 
 	engine.AddState("notplaying", [&soundDtor] (Polar *engine, EngineState &st) {
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto inputM = engine->GetSystem<InputManager>().lock();
-
-		IDType laserID;
-		st.dtors.emplace_back(engine->AddObject(&laserID));
-		//engine->AddComponent<AudioSource>(laserID, assetM->Get<AudioAsset>("laser"), true);
-
+		engine->GetSystem<InputManager>().lock()->SetActiveSet("MenuControls");
 		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(true);
 	});
 
@@ -275,12 +269,16 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
 
+		inputM->SetActiveSet("InGameControls");
+
 		engine->GetSystem<World>().lock()->active = true;
 		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(false);
 
 		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
 			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
 		}
+
+		st.dtors.emplace_back(inputM->OnDigital("ingame_return", [engine] () { engine->transition = "back"; }));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
@@ -306,6 +304,9 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
 			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
 		}
+
+		st.dtors.emplace_back(inputM->OnDigital("menu_confirm", [engine] () { engine->transition = "forward"; }));
+		st.dtors.emplace_back(inputM->OnDigital("menu_back",    [engine] () { engine->transition = "back"; }));
 
 		world->active = false;
 		auto seconds = Decimal(world->GetTicks()) / ENGINE_TICKS_PER_SECOND;

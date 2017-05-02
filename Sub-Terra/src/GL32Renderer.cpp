@@ -44,9 +44,9 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_SetRelativeMouseMode(SDL_TRUE))) { ENGINE_THROW("failed to set relative mouse mode"); }
 
 	/* set up joystick */
-	SDL_GameController *controller;
-	SDL(controller = SDL_GameControllerOpen(0));
-	SDL(SDL_GameControllerEventState(SDL_ENABLE));
+	//SDL_GameController *controller;
+	//SDL(controller = SDL_GameControllerOpen(0));
+	//SDL(SDL_GameControllerEventState(SDL_ENABLE));
 
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();

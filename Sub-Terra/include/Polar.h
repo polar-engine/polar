@@ -40,6 +40,7 @@ public:
 			ENGINE_THROW("failed to initialize Steam API");
 		}
 		INFOS("Welcome, " << SteamFriends()->GetPersonaName());
+		SteamController()->Init();
 	}
 
 	~Polar() {
@@ -48,6 +49,7 @@ public:
 			stack.pop_back();
 		}
 
+		SteamController()->Shutdown();
 		SteamAPI_Shutdown();
 	}
 
@@ -66,9 +68,12 @@ public:
 
 		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
 		while(running) {
+			SteamAPI_RunCallbacks();
+
 			then = now;
 			now = std::chrono::high_resolution_clock::now();
 			DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
+
 			for(auto &state : stack) {
 				state.Update(dt);
 			}

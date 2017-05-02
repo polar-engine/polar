@@ -274,6 +274,13 @@ protected:
 
 		dtors.emplace_back(inputM->OnMouseWheel([this] (const Point2 &delta) { Navigate(-delta.y, delta.x); }));
 
+		dtors.emplace_back(inputM->OnDigital("menu_up",      [this] () { Navigate(-1); }));
+		dtors.emplace_back(inputM->OnDigital("menu_down",    [this] () { Navigate( 1); }));
+		dtors.emplace_back(inputM->OnDigital("menu_left",    [this] () { Navigate( 0, -1); }));
+		dtors.emplace_back(inputM->OnDigital("menu_right",   [this] () { Navigate( 0,  1); }));
+		dtors.emplace_back(inputM->OnDigital("menu_confirm", [this] () { Activate(); }));
+		dtors.emplace_back(inputM->OnDigital("menu_back",    [this] () { Navigate(0, -1, true); }));
+
 		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
 			selectionAlpha = x;
 		}));
