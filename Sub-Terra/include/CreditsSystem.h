@@ -56,6 +56,8 @@ protected:
 			dtors.emplace_back(inputM->On(k, [this] (Key) { engine->transition = "back"; }));
 		}
 
+		dtors.emplace_back(inputM->OnDigital("menu_back", [this] () { engine->transition = "back"; }));
+
 		font = assetM->Get<FontAsset>("nasalization-rg");
 
 		RenderAll();
