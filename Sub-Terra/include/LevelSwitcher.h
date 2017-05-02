@@ -55,6 +55,8 @@ protected:
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		dtors.emplace_back(inputM->On(Key::Q, [this] (Key) { UpdateIndex(-1); }));
 		dtors.emplace_back(inputM->On(Key::E, [this] (Key) { UpdateIndex( 1); }));
+		dtors.emplace_back(inputM->OnDigital("menu_previous", [this] () { UpdateIndex(-1); }));
+		dtors.emplace_back(inputM->OnDigital("menu_next",     [this] () { UpdateIndex( 1); }));
 
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [this] (Polar *engine, const float &x) {
