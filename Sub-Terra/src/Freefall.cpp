@@ -158,12 +158,6 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		assetM->Get<AudioAsset>("fifty");
 		assetM->Get<AudioAsset>("freefall");*/
 
-		engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(1));
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(1.0f, 0.0f, 2.0f, false, [] (Polar *engine, float x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(x));
-		}));
-
 		engine->transition = "forward";
 	});
 
@@ -177,6 +171,12 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<OrientationComponent>(playerID);
 
 		st.AddSystem<World>(engine->GetSystem<LevelSwitcher>().lock()->GetLevel(), false);
+
+		engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(1));
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		st.dtors.emplace_back(tweener->Tween(1.0f, 0.0f, 1.0f, false, [] (Polar *engine, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(-glm::pow(x, 2.0f)));
+		}));
 	});
 
 	boost::shared_ptr<Destructor> soundDtor;
@@ -281,10 +281,10 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(false);
 
 		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
-			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
+			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "gameover"; }));
 		}
 
-		st.dtors.emplace_back(inputM->OnDigital("ingame_return", [engine] () { engine->transition = "back"; }));
+		st.dtors.emplace_back(inputM->OnDigital("ingame_return", [engine] () { engine->transition = "gameover"; }));
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
@@ -338,6 +338,11 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		IDType gameoverID;
 		st.dtors.emplace_back(engine->AddObject(&gameoverID));
 		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"));
+
+		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+		st.dtors.emplace_back(tweener->Tween(0.0f, -1.0f, 1.0f, false, [] (Polar *engine, float x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(x));
+		}));
 	});
 	engine.AddState("credits", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("back", Transition{ Pop(), Push("notplaying"), Push("title") });
