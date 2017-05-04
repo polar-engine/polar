@@ -445,7 +445,7 @@ void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &nam
 	nodes.clear();
 
 	for(auto &name : names) {
-		INFOS("loading shader asset `" << name << '`');
+		engine->dm.Verbose("loading shader asset `", name, '`');
 		auto asset = assetM->Get<ShaderProgramAsset>(name);
 		assets.emplace_back(asset);
 		nodes.emplace_back(MakeProgram(asset));

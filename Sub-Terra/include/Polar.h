@@ -11,6 +11,7 @@
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
 #include <steam/steam_api.h>
+#include "DebugManager.h"
 #include "Component.h"
 #include "System.h"
 #include "EngineStack.h"
@@ -31,15 +32,16 @@ private:
 	boost::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
 	boost::container::vector<EngineState> stack;
 public:
+	DebugManager dm;
 	Bimap objects;
 	IDType nextID = 1;
 	std::string transition;
 
-	Polar() {
+	Polar(DebugManager::Priority priority = DebugManager::Priority::Info) : dm(priority) {
 		if(!SteamAPI_Init()) {
 			ENGINE_THROW("failed to initialize Steam API");
 		}
-		INFOS("Welcome, " << SteamFriends()->GetPersonaName());
+		dm.Info("Welcome, ", SteamFriends()->GetPersonaName());
 		SteamController()->Init();
 	}
 
