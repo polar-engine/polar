@@ -32,16 +32,15 @@ private:
 	boost::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
 	boost::container::vector<EngineState> stack;
 public:
-	DebugManager dm;
 	Bimap objects;
 	IDType nextID = 1;
 	std::string transition;
 
-	Polar(DebugManager::Priority priority = DebugManager::Priority::Info) : dm(priority) {
+	Polar() {
 		if(!SteamAPI_Init()) {
-			ENGINE_THROW("failed to initialize Steam API");
+			DebugManager()->Fatal("failed to initialize Steam API");
 		}
-		dm.Info("Welcome, ", SteamFriends()->GetPersonaName());
+		DebugManager()->Info("Welcome, ", SteamFriends()->GetPersonaName());
 		SteamController()->Init();
 	}
 

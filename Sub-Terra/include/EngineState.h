@@ -50,7 +50,7 @@ public:
 			orderedSystems.emplace_back(systems.Get<T>());
 		} else {
 			std::string msg = typeid(T).name() + std::string(": unsupported");
-			ENGINE_THROW(msg);
+			DebugManager()->Fatal(msg);
 		}
 	}
 

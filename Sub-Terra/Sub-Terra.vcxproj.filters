@@ -63,6 +63,9 @@
     <ClCompile Include="src\Freefall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\DebugManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Job.h">
@@ -248,10 +251,10 @@
     <ClInclude Include="..\include\types.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="include\DebugManager.h">
+    <ClInclude Include="..\include\FileSystem.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\FileSystem.h">
+    <ClInclude Include="..\include\DebugManager.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>

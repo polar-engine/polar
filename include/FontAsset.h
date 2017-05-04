@@ -23,7 +23,7 @@ inline Deserializer & operator>>(Deserializer &s, FontAsset &asset) {
 	s >> data;
 	char *buffer = static_cast<char *>(malloc(data.size()));
 	if(buffer == NULL) {
-		ENGINE_THROW("failed to allocate memory for font data");
+		DebugManager()->Fatal("failed to allocate memory for font data");
 	} else {
 		memcpy(buffer, data.data(), data.size());
 	}

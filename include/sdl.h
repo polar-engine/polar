@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DebugManager.h"
 #include "SDL/SDL.h"
 #include "Key.h"
 
@@ -12,9 +13,9 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	SDL_ClearError();
 	if(err[0] != '\0') {
-		ENGINE_DEBUGERROR("SDL: " << err,
-						  "    " << file << ' ' << line << '\n' <<
-						  "    " << code);
+		DebugManager()->Warning("SDL: ", err);
+		DebugManager()->Debug(file, ' ', line);
+		DebugManager()->Trace(code);
 	}
 	return err[0] == '\0';
 }

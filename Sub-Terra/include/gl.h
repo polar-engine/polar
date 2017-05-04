@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DebugManager.h"
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
 #endif
@@ -8,9 +9,9 @@
 inline bool _GL_real(const char *file, const long line, const char *code) {
 	GLenum err = glGetError();
 	if(err != GL_NO_ERROR) {
-		ENGINE_DEBUGERROR("OpenGL: 0x" << std::hex << err,
-						  "    " << file << ' ' << line << '\n' <<
-						  "    " << code);
+		DebugManager()->Warning("OpenGL: ", err);
+		DebugManager()->Debug(file, ' ', line);
+		DebugManager()->Trace(code);
 	}
 	return err == GL_NO_ERROR;
 }

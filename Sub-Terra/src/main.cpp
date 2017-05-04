@@ -8,6 +8,5 @@ int main(int argc, char **argv) {
 	}
 
 	Freefall().Run(args);
-	ENGINE_CONTINUE;
 	return 0;
 }
