@@ -65,7 +65,12 @@ using ConfigBoolM = ConfigManager<ConfigBool, bool>;
 void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
 
-	Polar engine;
+	auto p = DebugManager::Priority::Info;
+	for(auto &arg : args) {
+		if(arg == "-debug") { p = DebugManager::Priority::Debug; }
+	}
+	Polar engine(p);
+
 	IDType playerID;
 
 	srand((unsigned int)time(0));

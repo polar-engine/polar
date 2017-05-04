@@ -169,6 +169,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\ConfigManager.h" />
     <ClInclude Include="include\CreditsSystem.h" />
+    <ClInclude Include="include\DebugManager.h" />
     <ClInclude Include="include\DeltaTicks.h" />
     <ClInclude Include="include\EngineStack.h" />
     <ClInclude Include="include\EngineState.h" />

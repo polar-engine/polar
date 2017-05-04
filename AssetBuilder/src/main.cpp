@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
 					inflateStream.next_in = &compressedBytes[0];
 
 					zResult = inflate(&inflateStream, Z_NO_FLUSH);
-					if(zResult != Z_OK && zResult != Z_STREAM_END) { INFO(zResult); ENGINE_THROW("inflate failed"); }
+					if(zResult != Z_OK && zResult != Z_STREAM_END) { LOG(zResult); ENGINE_THROW("inflate failed"); }
 
 					iss.ignore(4);
 				} else if(chunkType == "IEND") {
@@ -565,13 +565,13 @@ int main(int argc, char **argv) {
 	};
 
 	for(auto &file : files) {
-		INFOS("processing `" << file << '`');
+		LOGS("processing `" << file << '`');
 		auto pos = file.find_last_of('.');
 		if(pos != file.npos && pos < file.length() - 1) {
 			std::string ext = file.substr(pos + 1);
 			auto converter = converters.find(ext);
 			if(converter != converters.end()) {
-				INFOS("found converter for `" << ext << '`');
+				LOGS("found converter for `" << ext << '`');
 
 				std::string data = FileSystem::ReadFile(path + '/' + file);
 				std::stringstream ss;
