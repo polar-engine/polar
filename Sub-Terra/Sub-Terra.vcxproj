@@ -133,6 +133,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\DebugManager.cpp" />
     <ClCompile Include="src\AudioManager.cpp" />
     <ClCompile Include="src\Freefall.cpp" />
     <ClCompile Include="src\GL32Renderer.cpp" />
@@ -149,6 +150,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="..\include\Asset.h" />
     <ClInclude Include="..\include\AudioAsset.h" />
     <ClInclude Include="..\include\debug.h" />
+    <ClInclude Include="..\include\DebugManager.h" />
     <ClInclude Include="..\include\Destructor.h" />
     <ClInclude Include="..\include\endian.h" />
     <ClInclude Include="..\include\FileSystem.h" />
@@ -169,7 +171,6 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\ConfigManager.h" />
     <ClInclude Include="include\CreditsSystem.h" />
-    <ClInclude Include="include\DebugManager.h" />
     <ClInclude Include="include\DeltaTicks.h" />
     <ClInclude Include="include\EngineStack.h" />
     <ClInclude Include="include\EngineState.h" />

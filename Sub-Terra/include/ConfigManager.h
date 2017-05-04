@@ -45,11 +45,11 @@ public:
 
 	void Load() {
 		if(!SteamRemoteStorage()->FileExists(path.data())) {
-			engine->dm.Verbose("loading ", path, "... not found");
+			DebugManager()->Verbose("loading ", path, "... not found");
 			return;
 		}
 
-		engine->dm.Verbose("loading ", path, "... success");
+		DebugManager()->Verbose("loading ", path, "... success");
 
 		int32_t size = SteamRemoteStorage()->GetFileSize(path.data());
 		char *sz = new char[size];
@@ -75,6 +75,6 @@ public:
 		}
 		auto s = oss.str();
 		auto result = SteamRemoteStorage()->FileWrite(path.data(), s.data(), s.size());
-		engine->dm.Verbose("saving ", path, "... ", (result ? "success" : "failed"));
+		DebugManager()->Verbose("saving ", path, "... ", (result ? "success" : "failed"));
 	}
 };

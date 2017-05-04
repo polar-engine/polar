@@ -34,7 +34,7 @@ public:
 		GetModuleFileNameA(NULL, sz, MAX_PATH);
 		return std::string(sz);
 #else
-		ENGINE_THROW("FileSystem::GetApp: not implemented");
+		DebugManager()->Fatal("FileSystem::GetApp: not implemented");
 		return "";
 #endif
 	}
@@ -51,7 +51,7 @@ public:
 		CFRelease(path);
 		return std::string(sz);
 #else
-		ENGINE_THROW("FileSystem::GetAppDir: not implemented");
+		DebugManager()->Fatal("FileSystem::GetAppDir: not implemented");
 #endif
 	}
 
@@ -59,33 +59,33 @@ public:
 #if defined(_WIN32)
 		char szPath[MAX_PATH];
 		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, szPath);
-		if(FAILED(result)) { ENGINE_THROW("CSIDL_PERSONAL: failed to retrieve path"); }
+		if(FAILED(result)) { DebugManager()->Fatal("CSIDL_PERSONAL: failed to retrieve path"); }
 		PathAppendA(szPath, "My Games");
 		PathAppendA(szPath, "Freefall");
 		return std::string(szPath);
 #else
-		ENGINE_THROW("FileSystem::GetSavedGamesDir: not implemented");
+		DebugManager()->Fatal("FileSystem::GetSavedGamesDir: not implemented");
 #endif
 	}
 	
 	static std::string ReadFile(const std::string &name) {
 		std::ifstream file(name, std::ios::in | std::ios::binary | std::ios::ate);
-		if(file.fail()) { ENGINE_THROW(name + ": open"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": open"); }
 
 		auto len = static_cast<std::string::size_type>(file.tellg());
-		if(file.fail()) { ENGINE_THROW(name + ": tellg"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": tellg"); }
 
 		file.seekg(0, std::ios::beg);
-		if(file.fail()) { ENGINE_THROW(name + ": seekg"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": seekg"); }
 
 		char *sz = new char[static_cast<unsigned int>(len + 1)];
 		sz[len] = '\0';
 
 		file.read(sz, static_cast<unsigned int>(len));
-		if(file.fail()) { ENGINE_THROW(name + ": read"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": read"); }
 
 		file.close();
-		if(file.fail()) { ENGINE_THROW(name + ": close"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": close"); }
 
 		std::string s(sz, len);
 		delete[] sz;
@@ -96,13 +96,13 @@ public:
 		CreateDir(GetDirOf(name));
 
 		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);
-		if(file.fail()) { ENGINE_THROW(name + ": open"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": open"); }
 
 		file << is.rdbuf();
-		if(file.fail()) { ENGINE_THROW(name + ": write"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": write"); }
 
 		file.close();
-		if(file.fail()) { ENGINE_THROW(name + ": close"); }
+		if(file.fail()) { DebugManager()->Fatal(name + ": close"); }
 	}
 
 	static bool FileExists(const std::string &path) {
@@ -113,16 +113,16 @@ public:
 	static uint64_t GetModifiedTime(const std::string &path) {
 #if defined(_WIN32)
 		struct _stat st;
-		if(_stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
+		if(_stat(path.c_str(), &st) != 0) { DebugManager()->Fatal(path + ": failed to stat"); }
 #else
 		struct stat st;
-		if(stat(path.c_str(), &st) != 0) { ENGINE_THROW(path + ": failed to stat"); }
+		if(stat(path.c_str(), &st) != 0) { DebugManager()->Fatal(path + ": failed to stat"); }
 #endif
 		return st.st_mtime;
 	}
 
 	static void Rename(const std::string &oldPath, const std::string &newPath) {
-		if(rename(oldPath.c_str(), newPath.c_str()) != 0) { ENGINE_THROW("failed to rename `" + oldPath + "` to `" + newPath + '`'); }
+		if(rename(oldPath.c_str(), newPath.c_str()) != 0) { DebugManager()->Fatal("failed to rename `" + oldPath + "` to `" + newPath + '`'); }
 	}
 
 	static void RemoveFile(const std::string &path) {
@@ -138,7 +138,7 @@ public:
 
 		WIN32_FIND_DATAW fdd;
 		HANDLE handle = FindFirstFileW(wPath.c_str(), &fdd);
-		if(handle == INVALID_HANDLE_VALUE) { ENGINE_THROW(path + ": failed to find first file"); }
+		if(handle == INVALID_HANDLE_VALUE) { DebugManager()->Fatal(path + ": failed to find first file"); }
 		do {
 			if(!(fdd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				std::wstring wFile = fdd.cFileName;
@@ -150,13 +150,13 @@ public:
 		DWORD dwError = GetLastError();
 		if(dwError != ERROR_NO_MORE_FILES) {
 			FindClose(handle);
-			ENGINE_THROW("failed to find next file");
+			DebugManager()->Fatal("failed to find next file");
 		}
 
 		FindClose(handle);
 #elif defined(__APPLE__)
 		DIR *dp = opendir(path.c_str());
-		if(dp == nullptr) { ENGINE_THROW(path + ": failed to open directory"); }
+		if(dp == nullptr) { DebugManager()->Fatal(path + ": failed to open directory"); }
 
 		struct dirent *ep;
 		while((ep = readdir(dp))) {
@@ -168,7 +168,7 @@ public:
 		}
 		closedir(dp);
 #else
-		ENGINE_THROW("FileSystem::ListDir: not implemented");
+		DebugManager()->Fatal("FileSystem::ListDir: not implemented");
 #endif
 		return files;
 	}
@@ -178,12 +178,12 @@ public:
 		std::wstring wPath(path.begin(), path.end());
 		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
-			if(dwError != ERROR_ALREADY_EXISTS) { ENGINE_THROW(path + ": failed to create directory"); }
+			if(dwError != ERROR_ALREADY_EXISTS) { DebugManager()->Fatal(path + ": failed to create directory"); }
 		}
 #elif defined(__APPLE__)
-		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { ENGINE_THROW(path + ": failed to create directory"); }
+		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { DebugManager()->Fatal(path + ": failed to create directory"); }
 #else
-		ENGINE_THROW("FileSystem::CreateDirImpl: not implemented");
+		DebugManager()->Fatal("FileSystem::CreateDirImpl: not implemented");
 #endif
 	}
 

@@ -19,7 +19,7 @@ JobManager::~JobManager() {
 		delete worker;
 	}
 
-	engine->dm.Verbose("all workers joined and destructed");
+	DebugManager()->Verbose("all workers joined and destructed");
 }
 
 void JobManager::Init() {

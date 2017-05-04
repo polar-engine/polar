@@ -17,6 +17,7 @@ void Worker::Start() {
 					job.fn();
 					break;
 				case JobType::Stop:
+					DebugManager()->Verbose("worker received stop command");
 					return;
 				}
 			}
