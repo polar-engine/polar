@@ -58,6 +58,7 @@ void GL32Renderer::InitGL() {
 		bool isGameCon;
 		SDL(isGameCon = SDL_IsGameController(i));
 		if(isGameCon) {
+			DebugManager()->Verbose("SDL detected controller #", i);
 			SDL(controller = SDL_GameControllerOpen(i));
 		}
 	}
