@@ -9,6 +9,11 @@
 #include "PlayerCameraComponent.h"
 #include "Text.h"
 
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"
+#endif
+
 bool GL32Renderer::IsSupported() {
 	GL32Renderer renderer(nullptr, {});
 	try {
@@ -29,6 +34,9 @@ bool GL32Renderer::IsSupported() {
 }
 
 void GL32Renderer::InitGL() {
+#if defined(_WIN32)
+	ShowWindow(GetConsoleWindow(), console ? SW_SHOW : SW_HIDE);
+#endif
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { DebugManager()->Fatal("failed to init SDL"); }
 	if(!SDL(TTF_Init())) { DebugManager()->Fatal("failed to init TTF"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { DebugManager()->Fatal("failed to set major version attribute"); }
@@ -36,9 +44,10 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { DebugManager()->Fatal("failed to set profile mask attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { DebugManager()->Fatal("failed to set double buffer attribute"); }
 	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE))) {
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP))) {
 		DebugManager()->Fatal("failed to create window");
 	}
+	//if(!SDL(SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP))) { DebugManager()->Fatal("failed to set fullscreen mode"); }
 	if(!SDL(context = SDL_GL_CreateContext(window))) { DebugManager()->Fatal("failed to create OpenGL context"); }
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { DebugManager()->Fatal("failed to set swap interval"); }
 	if(!SDL(SDL_SetRelativeMouseMode(SDL_TRUE))) { DebugManager()->Fatal("failed to set relative mouse mode"); }

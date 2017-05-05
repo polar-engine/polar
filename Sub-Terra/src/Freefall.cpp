@@ -65,7 +65,9 @@ using ConfigBoolM = ConfigManager<ConfigBool, bool>;
 void Freefall::Run(const std::vector<std::string> &args) {
 	const double secsPerBeat = 1.2631578947368421;
 
+	bool console = false;
 	for(auto &arg : args) {
+		if(arg == "-console") { console = true; }
 		if(arg == "-trace")   { DebugManager()->priority = DebugPriority::Trace; }
 		if(arg == "-debug")   { DebugManager()->priority = DebugPriority::Debug; }
 		if(arg == "-verbose") { DebugManager()->priority = DebugPriority::Verbose; }
@@ -77,7 +79,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	srand((unsigned int)time(0));
 	std::mt19937_64 rng(time(0));
 
-	engine.AddState("root", [] (Polar *engine, EngineState &st) {
+	engine.AddState("root", [console] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		//st.AddSystem<JobManager>();
@@ -89,7 +91,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
 		st.AddSystem<AudioManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
+		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ }, console);
 		st.AddSystem<LevelSwitcher>();
 
 		auto configFloatM = engine->GetSystem<ConfigFloatM>().lock();
