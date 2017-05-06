@@ -70,7 +70,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;portaudio.lib;opengl32.lib;SDL2.lib;SDL2_ttf.lib;steam_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -107,7 +107,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>

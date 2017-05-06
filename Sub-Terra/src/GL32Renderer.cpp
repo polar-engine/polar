@@ -34,9 +34,6 @@ bool GL32Renderer::IsSupported() {
 }
 
 void GL32Renderer::InitGL() {
-#if defined(_WIN32)
-	ShowWindow(GetConsoleWindow(), console ? SW_SHOW : SW_HIDE);
-#endif
 	if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { DebugManager()->Fatal("failed to init SDL"); }
 	if(!SDL(TTF_Init())) { DebugManager()->Fatal("failed to init TTF"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) { DebugManager()->Fatal("failed to set major version attribute"); }
