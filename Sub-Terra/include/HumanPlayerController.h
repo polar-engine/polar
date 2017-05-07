@@ -12,7 +12,6 @@ private:
 	IDType object;
 	Point2 orientVel;
 	Point2 orientRot;
-	long double accum = 0.0;
 	Decimal velocity = 10.0;
 	bool moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 protected:
