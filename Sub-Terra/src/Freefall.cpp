@@ -82,16 +82,16 @@ void Freefall::Run(const std::vector<std::string> &args) {
 	engine.AddState("root", [console] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
+		st.AddSystem<AssetManager>();
+		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ }, console);
+		st.AddSystem<AudioManager>();
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
-		st.AddSystem<ConfigFloatM>("float.cfg", 0);
-		st.AddSystem<ConfigBoolM>("bool.cfg", false);
 		st.AddSystem<InputManager>();
-		st.AddSystem<AssetManager>();
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
-		st.AddSystem<AudioManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ }, console);
+		st.AddSystem<ConfigFloatM>("float.cfg", 0);
+		st.AddSystem<ConfigBoolM>("bool.cfg", false);
 		st.AddSystem<LevelSwitcher>();
 
 		auto configFloatM = engine->GetSystem<ConfigFloatM>().lock();
