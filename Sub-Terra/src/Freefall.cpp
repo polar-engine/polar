@@ -176,7 +176,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 
 		engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(1));
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(1.0f, 0.0f, 1.0f, false, [] (Polar *engine, float x) {
+		st.dtors.emplace_back(tweener->Tween(1.0f, 0.0f, 0.5f, false, [] (Polar *engine, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(-glm::pow(x, 2.0f)));
 		}));
 	});
@@ -342,7 +342,7 @@ void Freefall::Run(const std::vector<std::string> &args) {
 		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"));
 
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(0.0f, -1.0f, 1.0f, false, [] (Polar *engine, float x) {
+		st.dtors.emplace_back(tweener->Tween(0.0f, -1.0f, 0.5f, false, [] (Polar *engine, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(x));
 		}));
 	});
