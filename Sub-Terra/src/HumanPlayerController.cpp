@@ -40,15 +40,6 @@ void HumanPlayerController::Init() {
 		orientVel.x += glm::radians(mouseSpeed) * delta.y;
 	}));
 
-	//dtors.emplace_back(inputM->On(Key::W, [this] (Key) { moveForward = true; }));
-	//dtors.emplace_back(inputM->On(Key::S, [this] (Key) { moveBackward = true; }));
-	//dtors.emplace_back(inputM->On(Key::A, [this] (Key) { moveLeft = true; }));
-	//dtors.emplace_back(inputM->On(Key::D, [this] (Key) { moveRight = true; }));
-	//dtors.emplace_back(inputM->After(Key::W, [this] (Key) { moveForward = false; }));
-	//dtors.emplace_back(inputM->After(Key::S, [this] (Key) { moveBackward = false; }));
-	//dtors.emplace_back(inputM->After(Key::A, [this] (Key) { moveLeft = false; }));
-	//dtors.emplace_back(inputM->After(Key::D, [this] (Key) { moveRight = false; }));
-
 	/* collision detection and response */
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
 		auto world = engine->GetSystem<World>().lock();
@@ -143,15 +134,13 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	orientVel *= static_cast<float>(glm::pow(0.995, dt.Seconds() * 1000.0));
 	orient->orientation = Quat(Point3(orientVel.x, 0.0, 0.0)) * Quat(Point3(0.0, orientVel.y, 0.0)) * orient->orientation;
 
+	Decimal seconds = engine->GetSystem<World>().lock()->GetTicks() / Decimal(ENGINE_TICKS_PER_SECOND);
 	const Decimal a(1.32499);
 	const Decimal r(1.01146);
 	const Decimal k(1.66377);
-	accum += dt.Seconds();
-	velocity = 10.0 + 40.0 * a * (1.0 - glm::pow(r, k * -static_cast<Decimal>(accum)));
+	velocity = 10.0 + 40.0 * a * (1.0 - glm::pow(r, k * -static_cast<Decimal>(seconds)));
 
 	auto forward = glm::normalize(Point4(0, 0, -1, 1));
-	//const float moveSpeed = 10.0f;
-	//auto forward = glm::normalize(Point4(moveRight - moveLeft, 0, moveBackward - moveForward, 1)) * moveSpeed;
 	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * velocity;
 
 	*ownPos->position.Derivative() = Point3(abs);
