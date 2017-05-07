@@ -68,12 +68,16 @@ public:
 		stack.back().Init();
 
 		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
-		while(running) {
-			SteamAPI_RunCallbacks();
 
+		uint64_t frameID = 0;
+		while(running) {
 			then = now;
 			now = std::chrono::high_resolution_clock::now();
 			DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
+
+			DebugManager()->Trace("frame #", frameID++, " (", dt.Ticks(), ')');
+
+			SteamAPI_RunCallbacks();
 
 			for(auto &state : stack) {
 				state.Update(dt);
