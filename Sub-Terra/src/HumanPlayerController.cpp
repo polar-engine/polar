@@ -40,6 +40,13 @@ void HumanPlayerController::Init() {
 		orientVel.x += glm::radians(mouseSpeed) * delta.y;
 	}));
 
+	dtors.emplace_back(inputM->On(Key::Space, [this] (Key) {
+		engine->GetSystem<World>().lock()->turbo = true;
+	}));
+	dtors.emplace_back(inputM->After(Key::Space, [this] (Key) {
+		engine->GetSystem<World>().lock()->turbo = false;
+	}));
+
 	/* collision detection and response */
 	dtors.emplace_back(engine->GetSystem<EventManager>().lock()->ListenFor("integrator", "ticked", [this, ownPos, ownBounds] (Arg delta) {
 		auto world = engine->GetSystem<World>().lock();
@@ -62,9 +69,10 @@ void HumanPlayerController::Init() {
 
 void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto assetM = engine->GetSystem<AssetManager>().lock();
+	auto inputM = engine->GetSystem<InputManager>().lock();
+	auto world = engine->GetSystem<World>().lock();
 
-	auto oldTime = time;
-	time += dt.Seconds();
+	auto time = world->GetTicks() / Decimal(ENGINE_TICKS_PER_SECOND);
 
 	IDType soundID;
 	TIMEDSOUND(  30.0f, "30");
@@ -140,8 +148,15 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	const Decimal k(1.66377);
 	velocity = 10.0 + 40.0 * a * (1.0 - glm::pow(r, k * -static_cast<Decimal>(seconds)));
 
+	if(world->turbo) {
+		DebugManager()->Debug(world->turboFactor);
+		velocity *= Decimal(world->turboFactor);
+	}
+
 	auto forward = glm::normalize(Point4(0, 0, -1, 1));
 	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * velocity;
 
 	*ownPos->position.Derivative() = Point3(abs);
+
+	oldTime = time;
 }

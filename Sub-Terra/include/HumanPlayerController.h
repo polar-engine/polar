@@ -13,12 +13,11 @@ private:
 	Point2 orientVel;
 	Point2 orientRot;
 	Decimal velocity = 10.0;
-	bool moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 protected:
 	virtual void Init() override;
 	virtual void Update(DeltaTicks &) override;
 public:
-	Decimal time = 0.0;
+	Decimal oldTime = 0;
 
 	static bool IsSupported() { return true; }
 	HumanPlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}
