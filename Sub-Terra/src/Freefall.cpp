@@ -62,28 +62,16 @@ std::ostream & operator<<(std::ostream &s, const ConfigBool x) {
 using ConfigFloatM = ConfigManager<ConfigFloat, float>;
 using ConfigBoolM = ConfigManager<ConfigBool, bool>;
 
-void Freefall::Run(const std::vector<std::string> &args) {
+Freefall::Freefall(Polar &engine) {
 	const double secsPerBeat = 1.2631578947368421;
-
-	bool console = false;
-	for(auto &arg : args) {
-		if(arg == "-console") { console = true; }
-		if(arg == "-trace")   { DebugManager()->priority = DebugPriority::Trace; }
-		if(arg == "-debug")   { DebugManager()->priority = DebugPriority::Debug; }
-		if(arg == "-verbose") { DebugManager()->priority = DebugPriority::Verbose; }
-	}
-	Polar engine;
 
 	IDType playerID;
 
-	srand((unsigned int)time(0));
-	std::mt19937_64 rng(time(0));
-
-	engine.AddState("root", [console] (Polar *engine, EngineState &st) {
+	engine.AddState("root", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		st.AddSystem<AssetManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ }, console);
+		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
 		st.AddSystem<AudioManager>();
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();

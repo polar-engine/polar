@@ -37,6 +37,9 @@ public:
 	std::string transition;
 
 	Polar() {
+		srand((unsigned int)time(0));
+		std::mt19937_64 rng(time(0));
+
 		if(!SteamAPI_Init()) {
 			DebugManager()->Fatal("failed to initialize Steam API");
 		}
