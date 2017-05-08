@@ -42,9 +42,12 @@ protected:
 	}
 
 	void Update(DeltaTicks &dt) override final {
-		globalTicks += dt.Ticks();
+		auto deltaTicks = dt.Ticks();
+		if(turbo) { deltaTicks *= turboFactor; }
+
+		globalTicks += deltaTicks;
 		if(active) {
-			level.ticks += dt.Ticks();
+			level.ticks += deltaTicks;
 		}
 
 		if(alpha < 1) {
@@ -55,6 +58,8 @@ protected:
 	}
 public:
 	bool active;
+	bool turbo = false;
+	const Decimal turboFactor = Decimal(1.5);
 
 	static bool IsSupported() { return true; }
 
