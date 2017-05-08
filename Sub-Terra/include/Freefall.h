@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Polar.h"
+
 class Freefall {
 public:
-	Freefall() {}
-	virtual ~Freefall() {}
-	void Run(const std::vector<std::string> &);
+	Freefall(Polar &);
 };

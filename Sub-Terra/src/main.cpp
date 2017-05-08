@@ -16,9 +16,9 @@ int main(int argc, char **argv) {
 		args.emplace_back(std::string(argv[i]));
 	}
 
-#if defined(_WIN32)
 	for(auto &arg : args) {
 		if(arg == "-console") {
+#if defined(_WIN32)
 			AllocConsole();
 			freopen("CONIN$", "r", stdin);
 			freopen("CONOUT$", "w", stdout);
@@ -30,10 +30,17 @@ int main(int argc, char **argv) {
 			std::wcin.clear();
 			std::cin.clear();
 			break;
+#endif
+		} else if(arg == "-trace") {
+			DebugManager()->priority = DebugPriority::Trace;
+		} else if(arg == "-debug") {
+			DebugManager()->priority = DebugPriority::Debug;
+		} else if(arg == "-verbose") {
+			DebugManager()->priority = DebugPriority::Verbose;
 		}
 	}
-#endif
 
-	Freefall().Run(args);
+	Polar engine;
+	auto app = Freefall(engine);
 	return 0;
 }

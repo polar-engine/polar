@@ -48,7 +48,6 @@ template<typename T> struct SharedPtrLess : public std::binary_function<boost::s
 class GL32Renderer : public Renderer {
 private:
 	bool inited = false;
-	bool console = false;
 
 	SDL_Window *window;
 	SDL_GLContext context;
@@ -204,7 +203,7 @@ public:
 	Decimal fps = 60.0;
 
 	static bool IsSupported();
-	GL32Renderer(Polar *engine, const boost::container::vector<std::string> &names, bool console = false) : Renderer(engine), pipelineNames(names), console(console) {}
+	GL32Renderer(Polar *engine, const boost::container::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();
 
 	void SetPipeline(const boost::container::vector<std::string> &names) override final {
