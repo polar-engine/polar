@@ -1,5 +1,10 @@
 #pragma once
 
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"
+#endif
+
 #include <boost/weak_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -36,9 +41,32 @@ public:
 	IDType nextID = 1;
 	std::string transition;
 
-	Polar() {
+	Polar(std::vector<std::string> args) {
 		srand((unsigned int)time(0));
 		std::mt19937_64 rng(time(0));
+
+		for(auto &arg : args) {
+			if(arg == "-console") {
+#if defined(_WIN32)
+				AllocConsole();
+				freopen("CONIN$", "r", stdin);
+				freopen("CONOUT$", "w", stdout);
+				freopen("CONOUT$", "w", stderr);
+				std::wcout.clear();
+				std::cout.clear();
+				std::wcerr.clear();
+				std::cerr.clear();
+				std::wcin.clear();
+				std::cin.clear();
+#endif
+			} else if(arg == "-trace") {
+				DebugManager()->priority = DebugPriority::Trace;
+			} else if(arg == "-debug") {
+				DebugManager()->priority = DebugPriority::Debug;
+			} else if(arg == "-verbose") {
+				DebugManager()->priority = DebugPriority::Verbose;
+			}
+		}
 
 		if(!SteamAPI_Init()) {
 			DebugManager()->Fatal("failed to initialize Steam API");
