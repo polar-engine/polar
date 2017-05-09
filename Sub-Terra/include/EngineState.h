@@ -32,7 +32,9 @@ public:
 
 	inline void Init() {
 		for(auto &system : orderedSystems) {
+			DebugManager()->Trace("initing system: ", typeid(*system).name());
 			system->Init();
+			DebugManager()->Trace("inited system");
 		}
 	}
 
@@ -40,7 +42,9 @@ public:
 		/* copy ordered systems vector to avoid invalidation */
 		auto tmpSystems = orderedSystems;
 		for(auto &system : tmpSystems) {
+			DebugManager()->Trace("updating system: ", typeid(*system).name());
 			system->Update(dt);
+			DebugManager()->Trace("updated system");
 		}
 	}
 
