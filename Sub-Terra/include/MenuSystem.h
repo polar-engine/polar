@@ -237,7 +237,7 @@ private:
 		if(item.control) {
 			IDType controlID;
 			auto offset = Point2(400 / 0.375 * scale, 0);
-			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, engine->GetComponent<Sprite>(id)->scale.y);
+			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, t->scale.y);
 		}
 	}
 protected:
@@ -279,7 +279,7 @@ protected:
 		dtors.emplace_back(inputM->OnDigital("menu_left",    [this] () { Navigate( 0, -1); }));
 		dtors.emplace_back(inputM->OnDigital("menu_right",   [this] () { Navigate( 0,  1); }));
 		dtors.emplace_back(inputM->OnDigital("menu_confirm", [this] () { Activate(); }));
-		dtors.emplace_back(inputM->OnDigital("menu_back",    [this] () { Navigate(0, -1, true); }));
+		dtors.emplace_back(inputM->OnDigital("menu_back",    [this] () { Navigate( 0, -1, true); }));
 
 		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
 			selectionAlpha = x;
