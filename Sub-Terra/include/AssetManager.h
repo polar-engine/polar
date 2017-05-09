@@ -10,10 +10,9 @@ private:
 	boost::unordered_map<std::string, std::shared_ptr<Asset>> cache;
 public:
 	static std::string GetAssetsDir() {
-#ifdef _WIN32
+#if defined(_WIN32)
 		return FileSystem::GetAppDir() + "/assets";
-#endif
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 		return FileSystem::GetAppDir() + "/Contents/Resources";
 #endif
 	}
