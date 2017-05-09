@@ -192,10 +192,12 @@ public:
 
 	template<typename T> inline void InsertComponent(IDType id, boost::shared_ptr<T> component) {
 		auto ti = &typeid(T);
+		DebugManager()->Trace("inserting component: ", ti->name());
 		objects.insert(Bimap::value_type(id, ti, component));
 		for(auto &state : stack) {
 			state.ComponentAdded(id, ti, component);
 		}
+		DebugManager()->Trace("inserted component");
 	}
 
 	template<typename T> inline T * GetComponent(IDType id) {
