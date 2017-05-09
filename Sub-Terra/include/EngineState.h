@@ -88,13 +88,19 @@ public:
 
 	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::shared_ptr<Component> ptr) {
 		for(auto &pairSystem : *systems.Get()) {
-			pairSystem.second->ComponentAdded(id, ti, ptr);
+			auto &system = pairSystem.second;
+			DebugManager()->Trace("notifying system of component added: ", typeid(*system).name(), ", ", ti->name());
+			system->ComponentAdded(id, ti, ptr);
+			DebugManager()->Trace("notified system of component added");
 		}
 	}
 
 	inline void ComponentRemoved(IDType id, const std::type_info *ti) {
 		for(auto &pairSystem : *systems.Get()) {
-			pairSystem.second->ComponentRemoved(id, ti);
+			auto &system = pairSystem.second;
+			DebugManager()->Trace("notifying system of component removed: ", typeid(*system).name(), ", ", ti->name());
+			system->ComponentRemoved(id, ti);
+			DebugManager()->Trace("notified system of component removed");
 		}
 	}
 };

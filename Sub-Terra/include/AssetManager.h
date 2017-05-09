@@ -46,11 +46,13 @@ public:
 		static_assert(std::is_base_of<Asset, T>::value, "AssetManager::Get requires typename of type Asset");
 		auto path = GetPath<T>(name);
 		if(cache.find(path) == cache.end()) {
+			DebugManager()->Verbose("loading asset ", AssetName<T>(), "/", name);
 			auto asset = std::make_shared<T>(std::forward<Ts>(args)...);
 			std::istringstream ss(FileSystem::ReadFile(path));
 			Deserializer deserializer(ss);
 			deserializer >> *asset;
 			cache.emplace(path, std::static_pointer_cast<Asset>(asset));
+			DebugManager()->Verbose("loaded asset");
 		}
 		return std::static_pointer_cast<T>(cache.at(path));
 	}
