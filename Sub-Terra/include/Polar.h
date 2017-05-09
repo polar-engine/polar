@@ -108,7 +108,9 @@ public:
 
 			DebugManager()->Trace("frame #", frameID++, " (", dt.Ticks(), ')');
 
+			DebugManager()->Trace("SteamAPI_RunCallbacks before");
 			SteamAPI_RunCallbacks();
+			DebugManager()->Trace("SteamAPI_RunCallbacks after");
 
 			for(auto &state : stack) {
 				state.Update(dt);
@@ -121,14 +123,18 @@ public:
 				for(auto &action : actions) {
 					switch(action.type) {
 					case StackActionType::Push:
+						DebugManager()->Trace("pushing state: ", action.name);
 						stack.emplace_back(action.name, this);
 						states[action.name].first(this, stack.back());
+						DebugManager()->Trace("pushed state");
 						stack.back().Init();
 						break;
 					case StackActionType::Pop: {
 						auto &state = stack.back();
+						DebugManager()->Trace("popping state: ", state.name);
 						states[state.name].second(this, state);
 						stack.pop_back();
+						DebugManager()->Trace("popped state");
 						break;
 					}
 					case StackActionType::Quit:

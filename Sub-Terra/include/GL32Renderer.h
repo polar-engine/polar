@@ -208,7 +208,11 @@ public:
 
 	void SetPipeline(const boost::container::vector<std::string> &names) override final {
 		pipelineNames = names;
-		if(inited) { MakePipeline(names); }
+		if(inited) {
+			DebugManager()->Trace("MakePipeline from SetPipeline");
+			MakePipeline(names);
+			DebugManager()->Trace("MakePipeline done");
+		}
 	}
 
 	inline void SetClearColor(const Point4 &color) override final {

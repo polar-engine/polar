@@ -62,7 +62,9 @@ void InputManager::Update(DeltaTicks &dt) {
 	}
 
 	ControllerHandle_t cs[STEAM_CONTROLLER_MAX_COUNT];
+	DebugManager()->Trace("GetConnectedControllers before");
 	int numControllers = SteamController()->GetConnectedControllers(cs);
+	DebugManager()->Trace("GetConnectedControllers after");
 
 	/*auto con = SteamController();
 	ControllerActionSetHandle_t setHandle = con->GetActionSetHandle("MenuControls");
@@ -82,13 +84,17 @@ void InputManager::Update(DeltaTicks &dt) {
 	}*/
 
 	for(int i = 0; i < numControllers; ++i) {
+		DebugManager()->Trace("ActivateActionSet before");
 		SteamController()->ActivateActionSet(cs[i], currentActionSet);
+		DebugManager()->Trace("ActivateActionSet after");
 	}
 
 	for(auto digital : trackedDigitals) {
 		bool active = false;
 		for(int i = 0; i < numControllers; ++i) {
+			DebugManager()->Trace("GetDigitalActionData before");
 			ControllerDigitalActionData_t data = SteamController()->GetDigitalActionData(cs[i], digital);
+			DebugManager()->Trace("GetDigitalActionData after");
 			active |= data.bActive && data.bState;
 		}
 		if(active) {
@@ -108,7 +114,9 @@ void InputManager::Update(DeltaTicks &dt) {
 	for(auto analog : trackedAnalogs) {
 		Point2 delta(0);
 		for(int i = 0; i < numControllers; ++i) {
+			DebugManager()->Trace("GetAnalogActionData before");
 			ControllerAnalogActionData_t data = SteamController()->GetAnalogActionData(cs[i], analog);
+			DebugManager()->Trace("GetAnalogActionData after");
 			delta.x += data.x;
 			delta.y += data.y;
 		}

@@ -102,7 +102,9 @@ void GL32Renderer::Init() {
 
 	GL(glEnableVertexAttribArray(0));
 
+	DebugManager()->Trace("MakePipeline from Init");
 	MakePipeline(pipelineNames);
+	DebugManager()->Trace("MakePipeline done");
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();
 	spriteProgram = MakeProgram(assetM->Get<ShaderProgramAsset>("sprite"));
@@ -389,7 +391,12 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 			width = event.window.data1;
 			height = event.window.data2;
 			GL(glViewport(0, 0, width, height));
+			DebugManager()->Trace("MakePipeline from SDL_WINDOWEVENT");
 			MakePipeline(pipelineNames);
+			DebugManager()->Trace("MakePipeline done");
+			DebugManager()->Trace("SteamAPI_RunCallbacks before");
+			SteamAPI_RunCallbacks();
+			DebugManager()->Trace("SteamAPI_RunCallbacks after");
 			break;
 		}
 		break;
