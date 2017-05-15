@@ -232,7 +232,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				GL(glActiveTexture(GL_TEXTURE0 + b));
 				GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-				UploadUniform(node.program, pair.second.c_str(), b);
+				UploadUniform(node.program, pair.second.c_str(), glm::int32(b));
 				++b;
 			}
 			for(auto &pair : node.globalIns) { /* for each global input*/
@@ -240,7 +240,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				GL(glActiveTexture(GL_TEXTURE0 + b));
 				GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-				UploadUniform(node.program, pair.second.c_str(), b);
+				UploadUniform(node.program, pair.second.c_str(), glm::int32(b));
 				++b;
 			}
 
