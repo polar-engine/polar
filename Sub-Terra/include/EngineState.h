@@ -49,13 +49,7 @@ public:
 	}
 
 	template<typename T, typename ...Ts> inline void AddSystem(Ts && ...args) {
-		if(T::IsSupported()) {
-			systems.Add<T>(engine, std::forward<Ts>(args)...);
-			orderedSystems.emplace_back(systems.Get<T>());
-		} else {
-			std::string msg = typeid(T).name() + std::string(": unsupported");
-			DebugManager()->Fatal(msg);
-		}
+		AddSystemAs<T, T>(std::forward<Ts>(args)...);
 	}
 
 	template<typename B, typename T, typename ...Ts> inline void AddSystemAs(Ts && ...args) {
@@ -63,8 +57,7 @@ public:
 
 #ifdef _DEBUG
 		if(!T::IsSupported()) {
-			std::string msg = typeid(T).name() + std::string(": unsupported");
-			ENGINE_THROW(msg);
+			DebugManager()->Fatal("unsupported system: ", typeid(T).name());
 		} else {
 #endif
 			systems.AddAs<B, T>(engine, std::forward<Ts>(args)...);
