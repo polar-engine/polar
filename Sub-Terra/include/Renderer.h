@@ -25,6 +25,7 @@ public:
 	virtual void SetClearColor(const Point4 &) = 0;
 	virtual Decimal GetUniformDecimal(const std::string &, const Decimal = 0) = 0;
 	virtual Point3 GetUniformPoint3(const std::string &, const Point3 = Point3(0)) = 0;
+	virtual void SetUniform(const std::string &, glm::uint32, bool = false) = 0;
 	virtual void SetUniform(const std::string &, Decimal, bool = false) = 0;
 	virtual void SetUniform(const std::string &, Point3, bool = false) = 0;
 };
