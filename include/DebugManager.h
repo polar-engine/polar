@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 enum class DebugPriority : uint_fast8_t {
 	Trace,
@@ -20,6 +21,7 @@ enum class DebugPriority : uint_fast8_t {
 class DebugManagerClass {
 private:
 	static std::shared_ptr<DebugManagerClass> instance;
+	std::ofstream file;
 public:
 	DebugPriority priority;
 
@@ -28,18 +30,19 @@ public:
 		return instance;
 	}
 
-	DebugManagerClass(DebugPriority priority = DebugPriority::Info) : priority(priority) {}
+	DebugManagerClass(DebugPriority priority = DebugPriority::Info);
 
 	void MsgBox(std::string, std::string);
 
 	template<typename T> void Write(T arg) {
 		std::cout << arg;
+		file << arg;
 	}
 
 	void LogBase(DebugPriority) {}
 
 	template<typename T, typename ...Ts> void LogBase(DebugPriority p, T arg, Ts && ...args) {
-		std::cout << arg;
+		Write(arg);
 		LogBase(p, std::forward<Ts>(args)...);
 	}
 
@@ -61,6 +64,9 @@ public:
 			Write(uppers[uint_fast8_t(p)]);
 			Write("] ");
 			LogBase(p, std::forward<Ts>(args)...);
+#if defined(_WIN32)
+			Write('\r');
+#endif
 			Write('\n');
 		}
 
