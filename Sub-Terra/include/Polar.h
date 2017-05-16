@@ -68,6 +68,8 @@ public:
 			}
 		}
 
+		DebugManager()->Verbose("built on " __DATE__ " at " __TIME__);
+
 		if(!SteamAPI_Init()) {
 			DebugManager()->Fatal("failed to initialize Steam API");
 		}
