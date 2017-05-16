@@ -240,6 +240,19 @@ public:
 		}
 	}
 
+	void SetUniform(const std::string &name, glm::uint32 x, bool force = false) override final {
+		auto it = uniformsU32.find(name);
+		if(!force && it != uniformsU32.cend() && it->second == x) { return; }
+
+		uniformsU32[name] = x;
+		for(auto &node : nodes) {
+			if(node.uniforms.find(name) != node.uniforms.end()) {
+				GL(glUseProgram(node.program));
+				UploadUniform(node.program, name, x);
+			}
+		}
+	}
+
 	void SetUniform(const std::string &name, Decimal x, bool force = false) override final {
 		auto it = uniformsFloat.find(name);
 		if(!force && it != uniformsFloat.cend() && it->second == x) { return; }
@@ -271,6 +284,14 @@ public:
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		GL(glUniform1i(loc, x));
+		return true;
+	}
+
+	bool UploadUniform(GLuint program, const std::string &name, glm::uint32 x) {
+		GLint loc;
+		GL(loc = glGetUniformLocation(program, name.c_str()));
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
+		GL(glUniform1ui(loc, x));
 		return true;
 	}
 
