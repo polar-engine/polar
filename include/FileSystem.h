@@ -65,6 +65,7 @@ public:
 		return std::string(szPath);
 #else
 		DebugManager()->Fatal("FileSystem::GetSavedGamesDir: not implemented");
+		return "";
 #endif
 	}
 	

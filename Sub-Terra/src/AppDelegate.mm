@@ -11,8 +11,14 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	const std::vector<std::string> args;
-	Freefall().Run(args);
+	std::vector<std::string> args;
+	/*for(int i = 0; i < argc; ++i) {
+		args.emplace_back(argv[i]);
+	}*/
+
+	Polar engine(args);
+	auto app = Freefall(engine);
+	
 	[NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
 }
 

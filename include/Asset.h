@@ -10,6 +10,6 @@ struct Asset {
 };
 
 template<typename T> inline std::string AssetName() {
-	ENGINE_THROW("AssetName not specialized");
+	static_assert(true, "AssetName not specialized");
 	return "";
 }

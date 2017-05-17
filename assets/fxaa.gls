@@ -65,6 +65,10 @@ void main() {
     #define FXAA_PC_CONSOLE 0
 #endif
 /*--------------------------------------------------------------------------*/
+#ifndef FXAA_GLSL_100
+    #define FXAA_GLSL_100 0
+#endif
+/*--------------------------------------------------------------------------*/
 #ifndef FXAA_GLSL_120
     #define FXAA_GLSL_120 0
 #endif
