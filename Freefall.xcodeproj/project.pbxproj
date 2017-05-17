@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7F018A2C1EB910F6009EF150 /* steam_appid.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7F018A2B1EB910F6009EF150 /* steam_appid.txt */; };
+		7F018A2F1EB94251009EF150 /* libsteam_api.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F018A2E1EB94251009EF150 /* libsteam_api.dylib */; };
+		7F018A301EB9426E009EF150 /* libsteam_api.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7F018A2E1EB94251009EF150 /* libsteam_api.dylib */; };
 		7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64B1A25D90B00623543 /* AppDelegate.mm */; };
 		7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */; };
 		7F0CB6551A25D90B00623543 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 7F0CB64D1A25D90B00623543 /* glew.c */; };
@@ -27,6 +30,8 @@
 		7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499261AC175EC0001DCFF /* InputManager.cpp */; };
 		7F64992E1AC175EC0001DCFF /* Integrator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F6499271AC175EC0001DCFF /* Integrator.cpp */; };
 		7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */; };
+		7F65AAF61ECC4FA00041C886 /* DebugManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F65AAF51ECC4FA00041C886 /* DebugManager.cpp */; };
+		7F65AAF71ECC4FA00041C886 /* DebugManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F65AAF51ECC4FA00041C886 /* DebugManager.cpp */; };
 		7F79221B1ACF9019005665E7 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		7F977E4E1BE71CEE006CF366 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F977E4C1BE71CC5006CF366 /* libz.a */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
@@ -47,6 +52,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		7F018A251EB9102A009EF150 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				7F018A301EB9426E009EF150 /* libsteam_api.dylib in CopyFiles */,
+				7F018A2C1EB910F6009EF150 /* steam_appid.txt in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7F558EAF1A25CB6F006622FA /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -71,6 +87,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7F018A1E1EB90BDB009EF150 /* ConfigManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConfigManager.h; path = include/ConfigManager.h; sourceTree = "<group>"; };
+		7F018A1F1EB90BDB009EF150 /* CreditsSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CreditsSystem.h; path = include/CreditsSystem.h; sourceTree = "<group>"; };
+		7F018A2B1EB910F6009EF150 /* steam_appid.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = steam_appid.txt; path = ../resources/steam_appid.txt; sourceTree = "<group>"; };
+		7F018A2E1EB94251009EF150 /* libsteam_api.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsteam_api.dylib; path = lib/osx/libsteam_api.dylib; sourceTree = "<group>"; };
 		7F07F3FD1EAD970E00320493 /* types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.h; path = include/types.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6271A25D86E00623543 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = include/AppDelegate.h; sourceTree = "<group>"; };
 		7F0CB6281A25D86E00623543 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = include/AssetManager.h; sourceTree = "<group>"; };
@@ -131,10 +151,12 @@
 		7F6499261AC175EC0001DCFF /* InputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputManager.cpp; path = src/InputManager.cpp; sourceTree = "<group>"; };
 		7F6499271AC175EC0001DCFF /* Integrator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Integrator.cpp; path = src/Integrator.cpp; sourceTree = "<group>"; };
 		7F64992A1AC175EC0001DCFF /* SpatialIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpatialIndex.cpp; path = src/SpatialIndex.cpp; sourceTree = "<group>"; };
+		7F65AAF51ECC4FA00041C886 /* DebugManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugManager.cpp; path = src/DebugManager.cpp; sourceTree = SOURCE_ROOT; };
+		7F65AAF81ECC4FAD0041C886 /* DebugManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugManager.cpp; path = src/DebugManager.cpp; sourceTree = SOURCE_ROOT; };
 		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
 		7F949DF61AC7B2CE004F875F /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = World.h; path = include/World.h; sourceTree = "<group>"; };
 		7F977E4C1BE71CC5006CF366 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../lib/osx/libz.a; sourceTree = "<group>"; };
-		7FF31F181A1AA90D0008999E /* Sub-Terra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Sub-Terra.app"; path = Freefall.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FF31F181A1AA90D0008999E /* Freefall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Freefall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FFE534A1BE72A1200F39CF1 /* libportaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libportaudio.a; path = ../lib/osx/libportaudio.a; sourceTree = "<group>"; };
 		7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -163,12 +185,38 @@
 				7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */,
 				7F1F40641E9D3ECF00DDC932 /* SDL2_ttf.framework in Frameworks */,
 				7FFE534B1BE72A1200F39CF1 /* libportaudio.a in Frameworks */,
+				7F018A2F1EB94251009EF150 /* libsteam_api.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7F018A1D1EB90B88009EF150 /* Systems */ = {
+			isa = PBXGroup;
+			children = (
+				7F018A1E1EB90BDB009EF150 /* ConfigManager.h */,
+				7F018A1F1EB90BDB009EF150 /* CreditsSystem.h */,
+				7F0CB62D1A25D86E00623543 /* EventManager.h */,
+				7F0CB64A1A25D8E300623543 /* FileSystem.h */,
+				7F0CB62F1A25D86E00623543 /* GL32Renderer.h */,
+				7F0CB6311A25D86E00623543 /* JobManager.h */,
+				7F1F40661EA6166A00DDC932 /* MenuSystem.h */,
+				7F0CB6361A25D86E00623543 /* Renderer.h */,
+				7F0CB63A1A25D86E00623543 /* System.h */,
+				7F949DF61AC7B2CE004F875F /* World.h */,
+			);
+			name = Systems;
+			sourceTree = "<group>";
+		};
+		7F018A271EB9108D009EF150 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7F018A2E1EB94251009EF150 /* libsteam_api.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7F0CB6421A25D8B200623543 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -212,6 +260,7 @@
 		7F0CB65D1A25DACC00623543 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				7F65AAF81ECC4FAD0041C886 /* DebugManager.cpp */,
 				7F0CB65E1A25DC7500623543 /* main.cpp */,
 			);
 			name = "Source Files";
@@ -230,6 +279,7 @@
 			children = (
 				7F0CB64B1A25D90B00623543 /* AppDelegate.mm */,
 				7F41DBDE1BE7188100B36981 /* AudioManager.cpp */,
+				7F65AAF51ECC4FA00041C886 /* DebugManager.cpp */,
 				7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */,
 				7F0CB64D1A25D90B00623543 /* glew.c */,
 				7F6499251AC175EC0001DCFF /* HumanPlayerController.cpp */,
@@ -249,26 +299,19 @@
 			children = (
 				7F0CB6431A25D8B700623543 /* Assets */,
 				7F0CB6421A25D8B200623543 /* Components */,
+				7F018A1D1EB90B88009EF150 /* Systems */,
 				7F0CB6271A25D86E00623543 /* AppDelegate.h */,
 				7F0CB6291A25D86E00623543 /* common.h */,
 				7F0CB6481A25D8E300623543 /* debug.h */,
 				7F0CB6491A25D8E300623543 /* endian.h */,
 				7F0CB62C1A25D86E00623543 /* EntityBase.h */,
-				7F0CB62D1A25D86E00623543 /* EventManager.h */,
-				7F0CB64A1A25D8E300623543 /* FileSystem.h */,
 				7F0CB62E1A25D86E00623543 /* gl.h */,
-				7F0CB62F1A25D86E00623543 /* GL32Renderer.h */,
 				7F0CB6301A25D86E00623543 /* Job.h */,
-				7F0CB6311A25D86E00623543 /* JobManager.h */,
 				7F1F40681EA75E2200DDC932 /* Level.h */,
-				7F1F40661EA6166A00DDC932 /* MenuSystem.h */,
 				7F0CB6341A25D86E00623543 /* Polar.h */,
 				7F3F886F1A2C92A30078F5F9 /* Property.h */,
-				7F0CB6361A25D86E00623543 /* Renderer.h */,
 				7F0CB6391A25D86E00623543 /* Freefall.h */,
-				7F0CB63A1A25D86E00623543 /* System.h */,
 				7F07F3FD1EAD970E00320493 /* types.h */,
-				7F949DF61AC7B2CE004F875F /* World.h */,
 				7F0CB63C1A25D86E00623543 /* Worker.h */,
 			);
 			name = "Header Files";
@@ -277,6 +320,7 @@
 		7F54073B1A1AABD600B55B7A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7F018A2B1EB910F6009EF150 /* steam_appid.txt */,
 				7F0CB63F1A25D8A500623543 /* MainMenu.xib */,
 				7F0CB63D1A25D88C00623543 /* Info.plist */,
 				7F54073E1A1AAC4100B55B7A /* Images.xcassets */,
@@ -316,13 +360,14 @@
 				7F558EB21A25CB6F006622FA /* AssetBuilder */,
 				7FF31F1A1A1AA90D0008999E /* Freefall */,
 				7FF31F191A1AA90D0008999E /* Products */,
+				7F018A271EB9108D009EF150 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		7FF31F191A1AA90D0008999E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7FF31F181A1AA90D0008999E /* Sub-Terra.app */,
+				7FF31F181A1AA90D0008999E /* Freefall.app */,
 				7F558EB11A25CB6F006622FA /* AssetBuilder */,
 			);
 			name = Products;
@@ -369,6 +414,7 @@
 				7FF31F151A1AA90D0008999E /* Frameworks */,
 				7FF31F161A1AA90D0008999E /* Resources */,
 				7F79221C1ACF9019005665E7 /* Embed Frameworks */,
+				7F018A251EB9102A009EF150 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -377,7 +423,7 @@
 			);
 			name = Freefall;
 			productName = "Sub-Terra";
-			productReference = 7FF31F181A1AA90D0008999E /* Sub-Terra.app */;
+			productReference = 7FF31F181A1AA90D0008999E /* Freefall.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -452,6 +498,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F0CB65F1A25DC7500623543 /* main.cpp in Sources */,
+				7F65AAF71ECC4FA00041C886 /* DebugManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +513,7 @@
 				7F0CB6541A25D90B00623543 /* GL32Renderer.cpp in Sources */,
 				7F64992D1AC175EC0001DCFF /* InputManager.cpp in Sources */,
 				7F0CB6561A25D90B00623543 /* JobManager.cpp in Sources */,
+				7F65AAF61ECC4FA00041C886 /* DebugManager.cpp in Sources */,
 				7F0CB65A1A25D90B00623543 /* Worker.cpp in Sources */,
 				7F64992C1AC175EC0001DCFF /* HumanPlayerController.cpp in Sources */,
 				7F0CB6531A25D90B00623543 /* AppDelegate.mm in Sources */,
