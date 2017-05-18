@@ -24,8 +24,8 @@ private:
 		auto qIndex = GetIndex(-1);
 		auto eIndex = GetIndex( 1);
 
-		engine->GetComponent<Sprite>(qID)->color.rgb = GetLevel(qIndex)->keyframes.begin()->colors[0];
-		engine->GetComponent<Sprite>(eID)->color.rgb = GetLevel(eIndex)->keyframes.begin()->colors[0];
+		engine->GetComponent<Sprite>(qID)->color = Point4(GetLevel(qIndex)->keyframes.begin()->colors[0], 1);
+		engine->GetComponent<Sprite>(eID)->color = Point4(GetLevel(eIndex)->keyframes.begin()->colors[0], 1);
 	}
 
 	void UpdateIndex(int delta) {
