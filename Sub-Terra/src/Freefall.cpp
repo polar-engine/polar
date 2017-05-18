@@ -108,12 +108,6 @@ Freefall::Freefall(Polar &engine) {
 		configFloatM->On(ConfigFloat::VoxelFactor, [] (Polar *engine, ConfigFloat, float x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_voxelFactor", x);
 		});
-		configFloatM->On(ConfigFloat::FarLimiter, [] (Polar *engine, ConfigFloat, float x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_farLimiter", x);
-		});
-		configFloatM->On(ConfigFloat::FarFocus, [] (Polar *engine, ConfigFloat, float x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_farFocus", x);
-		});
 		configBoolM->On(ConfigBool::Bloom, [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
 		configBoolM->On(ConfigBool::Cel,   [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
 		configBoolM->On(ConfigBool::Mute, [] (Polar *engine, ConfigBool, bool mute) {
@@ -121,8 +115,6 @@ Freefall::Freefall(Polar &engine) {
 		});
 
 		configFloatM->Set(ConfigFloat::BaseDetail, 10);
-		configFloatM->Set(ConfigFloat::FarLimiter, 2);
-		configFloatM->Set(ConfigFloat::FarFocus, 1);
 
 		configFloatM->Load();
 		configBoolM->Load();
@@ -223,10 +215,6 @@ Freefall::Freefall(Polar &engine) {
 					}),
 					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, configFloatM->Get(ConfigFloat::VoxelFactor)), [engine] (Decimal x) {
 						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::VoxelFactor, x);
-						return true;
-					}),
-					MenuItem("Far Limiter", MenuControl::Slider<Decimal>(0, 3, configFloatM->Get(ConfigFloat::FarLimiter), Decimal(0.1)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::FarLimiter, x);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
