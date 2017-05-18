@@ -5,14 +5,23 @@
 #include "System.h"
 #include "getline.h"
 
+struct EnumClassHash
+{
+	template <typename T>
+	std::size_t operator()(T t) const
+	{
+		return static_cast<std::size_t>(t);
+	}
+};
+
 template<typename K, typename V> class ConfigManager : public System {
 public:
 	using HandlerTy = std::function<void(Polar *, K, V)>;
 private:
 	const std::string path;
 	const V def;
-	std::unordered_map<K, V> values;
-	std::unordered_map<K, HandlerTy> handlers;
+	std::unordered_map<K, V, EnumClassHash> values;
+	std::unordered_map<K, HandlerTy, EnumClassHash> handlers;
 protected:
 	void Init() override final {
 

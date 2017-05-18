@@ -35,6 +35,7 @@ public:
 
 #include <mutex>
 #include <condition_variable>
+#include "DebugManager.h"
 
 template<typename T> class Atomic {
 public:
@@ -51,7 +52,7 @@ public:
 	}
 
 	inline void Wait(const std::function<bool(T &)> &pred, const std::function<void(T &)> &fn) {
-		ENGINE_THROW("Atomic::Wait: not implemented");
+		DebugManager()->Fatal("Atomic::Wait: not implemented");
 		/*std::unique_lock<std::mutex> lock(mutex);
 		while(!pred(value)) {
 			cv.wait(lock);
