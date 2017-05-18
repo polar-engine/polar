@@ -210,8 +210,8 @@ void main(void) {
 		coord.xy = floor(coord.xy * factor) / factor;
 	}
 
-	Decimal farLimiter = pow(10, -u_farLimiter);
-	Decimal farFocus = pow(2.718281828, -u_farFocus);
+	Decimal farLimiter = pow(10, -1.0);
+	Decimal farFocus = pow(2.718281828, -1.0);
 
 	for(Decimal sample = 0.0; sample < numSamples;) {
 		Decimal z = sample / numSamples;
