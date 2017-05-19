@@ -114,7 +114,7 @@ Freefall::Freefall(Polar &engine) {
 			engine->GetSystem<AudioManager>().lock()->muted = mute;
 		});
 
-		configFloatM->Set(ConfigFloat::BaseDetail, 10);
+		configFloatM->Set(ConfigFloat::BaseDetail, 8);
 
 		configFloatM->Load();
 		configBoolM->Load();
