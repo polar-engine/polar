@@ -197,9 +197,6 @@
     <ClInclude Include="include\Atomic.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="include\DeltaTicks.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Destructor.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -245,9 +242,6 @@
     <ClInclude Include="include\gl.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="include\common.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\types.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
@@ -256,6 +250,12 @@
     </ClInclude>
     <ClInclude Include="..\include\DebugManager.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DeltaTicks.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\common.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
