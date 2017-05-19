@@ -292,6 +292,7 @@ public:
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		GL(glUniform1ui(loc, x));
+		DebugManager()->Trace("uniform ", name, " = ", x);
 		return true;
 	}
 
@@ -301,6 +302,7 @@ public:
 		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		auto x2 = float(x);
 		GL(glUniform1f(loc, x2));
+		DebugManager()->Trace("uniform ", name, " = ", x);
 		return true;
 	}
 
