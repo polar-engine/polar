@@ -14,42 +14,40 @@ struct EnumClassHash
 	}
 };
 
-template<typename K, typename V> class ConfigManager : public System {
+template<typename K> class ConfigManager : public System {
 public:
-	using HandlerTy = std::function<void(Polar *, K, V)>;
+	using KeyTy = K;
+	using ValueTy = Decimal;
+	using HandlerTy = std::function<void(Polar *, KeyTy, ValueTy)>;
 private:
 	const std::string path;
-	const V def;
-	std::unordered_map<K, V, EnumClassHash> values;
-	std::unordered_map<K, HandlerTy, EnumClassHash> handlers;
-protected:
-	void Init() override final {
-
-	}
+	std::unordered_map<KeyTy, ValueTy, EnumClassHash> values;
+	std::unordered_map<KeyTy, HandlerTy, EnumClassHash> handlers;
 public:
 	static bool IsSupported() { return true; }
-	ConfigManager(Polar *engine, std::string path, V def) : System(engine), path(path), def(def) {}
+	ConfigManager(Polar *engine, std::string path) : System(engine), path(path) {}
 
 	~ConfigManager() {
 		Save();
 	}
 
-	void On(K k, HandlerTy h) {
+	void On(KeyTy k, HandlerTy h) {
 		handlers[k] = h;
 	}
-
-	V Get(K k) {
+	
+	template<typename T> T Get(KeyTy k) {
 		auto it = values.find(k);
-		return it != values.cend() ? it->second : Set(k, def);
+		auto ret = it != values.cend() ? T(it->second) : Set<T>(k, T(0));
+		return ret;
 	}
 
-	V Set(K k, V v) {
-		values[k] = v;
+	template<typename T> T Set(KeyTy k, T v) {
+		values[k] = ValueTy(v);
 		auto it = handlers.find(k);
 		if(it != handlers.cend()) {
 			it->second(engine, k, v);
 		}
-		return v;
+		return T(v);
 	}
 
 	void Load() {
@@ -69,18 +67,20 @@ public:
 		std::istringstream iss(s);
 		std::string line;
 		while(getline(iss, line)) {
+			if(line == "") { continue; }
+
 			std::istringstream issLine(line);
-			K k = K(0);
-			V v;
+			KeyTy k = KeyTy(0);
+			ValueTy v;
 			issLine >> k >> v;
-			Set(k, v);
+			Set<ValueTy>(k, v);
 		}
 	}
 
 	void Save() {
 		std::ostringstream oss;
 		for(auto &pair : values) {
-			oss << pair.first << ' ' << pair.second << std::endl;
+			oss << pair.first << ' ' << pair.second << "\r\n";
 		}
 		auto s = oss.str();
 		auto result = SteamRemoteStorage()->FileWrite(path.data(), s.data(), s.size());
