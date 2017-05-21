@@ -42,9 +42,9 @@ public:
 		/* copy ordered systems vector to avoid invalidation */
 		auto tmpSystems = orderedSystems;
 		for(auto &system : tmpSystems) {
-			DebugManager()->Debug("updating system: ", typeid(*system).name());
+			DebugManager()->Trace("updating system: ", typeid(*system).name());
 			system->Update(dt);
-			DebugManager()->Debug("updated system");
+			DebugManager()->Trace("updated system");
 		}
 	}
 
