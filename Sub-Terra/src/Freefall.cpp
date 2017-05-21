@@ -21,46 +21,55 @@
 #include "Text.h"
 #include "Level.h"
 
-enum class ConfigFloat : int {
+enum class ConfigOption {
 	BaseDetail,
 	Grain,
+	ScanIntensity,
 	PixelFactor,
 	VoxelFactor,
-	FarLimiter,
-	FarFocus,
-	ScanIntesity
-};
-
-enum class ConfigBool : int {
 	Bloom,
 	Cel,
 	Mute
 };
 
-std::istream & operator>>(std::istream &s, ConfigFloat &x) {
-	int y;
-	s >> y;
-	x = ConfigFloat(y);
+std::istream & operator>>(std::istream &s, ConfigOption &x) {
+	std::string word;
+	s >> word;
+
+#define CASE(X) (word == #X) { x = ConfigOption::X; }
+	if CASE(BaseDetail)
+	else if CASE(Grain)
+	else if CASE(ScanIntensity)
+	else if CASE(PixelFactor)
+	else if CASE(VoxelFactor)
+	else if CASE(Bloom)
+	else if CASE(Cel)
+	else if CASE(Mute)
+	else { assert(false, "unhandled ConfigOption"); }
+#undef CASE
+
 	return s;
 }
 
-std::istream & operator>>(std::istream &s, ConfigBool &x) {
-	int y;
-	s >> y;
-	x = ConfigBool(y);
+std::ostream & operator<<(std::ostream &s, const ConfigOption &x) {
+#define CASE(X) case ConfigOption::X: s << #X; break;
+	switch(x) {
+	CASE(BaseDetail)
+	CASE(Grain)
+	CASE(ScanIntensity)
+	CASE(PixelFactor)
+	CASE(VoxelFactor)
+	CASE(Bloom)
+	CASE(Cel)
+	CASE(Mute)
+	default: assert(false, "unhandled ConfigOption");
+	}
+#undef CASE
+
 	return s;
 }
 
-std::ostream & operator<<(std::ostream &s, const ConfigFloat x) {
-	return s << int(x);
-}
-
-std::ostream & operator<<(std::ostream &s, const ConfigBool x) {
-	return s << int(x);
-}
-
-using ConfigFloatM = ConfigManager<ConfigFloat, float>;
-using ConfigBoolM = ConfigManager<ConfigBool, bool>;
+using ConfigM = ConfigManager<ConfigOption>;
 
 Freefall::Freefall(Polar &engine) {
 	const double secsPerBeat = 1.2631578947368421;
@@ -78,46 +87,43 @@ Freefall::Freefall(Polar &engine) {
 		st.AddSystem<InputManager>();
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
-		st.AddSystem<ConfigFloatM>("float.cfg", 0);
-		st.AddSystem<ConfigBoolM>("bool.cfg", false);
+		st.AddSystem<ConfigM>("options.cfg");
 		st.AddSystem<LevelSwitcher>();
 
-		auto configFloatM = engine->GetSystem<ConfigFloatM>().lock();
-		auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
+		auto configM = engine->GetSystem<ConfigM>().lock();
 
 		auto SetPipeline = [] (Polar *engine) {
-			auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
+			auto configM = engine->GetSystem<ConfigM>().lock();
 			boost::container::vector<std::string> names = { "perlin" };
-			if(configBoolM->Get(ConfigBool::Bloom)) { names.emplace_back("bloom"); }
-			if(configBoolM->Get(ConfigBool::Cel)) { names.emplace_back("fxaa"); }
+			if(configM->Get<bool>(ConfigOption::Bloom)) { names.emplace_back("bloom"); }
+			if(configM->Get<bool>(ConfigOption::Cel)) { names.emplace_back("fxaa"); }
 			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
 		};
 
-		configFloatM->On(ConfigFloat::BaseDetail, [] (Polar *engine, ConfigFloat, float x) {
+		configM->On(ConfigOption::BaseDetail, [] (Polar *engine, ConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_baseDetail", x);
 		});
-		configFloatM->On(ConfigFloat::Grain, [] (Polar *engine, ConfigFloat, float x) {
+		configM->On(ConfigOption::Grain, [] (Polar *engine, ConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_grain", x);
 		});
-		configFloatM->On(ConfigFloat::ScanIntesity, [] (Polar *engine, ConfigFloat, float x) {
+		configM->On(ConfigOption::ScanIntensity, [] (Polar *engine, ConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_scanIntensity", x);
 		});
-		configFloatM->On(ConfigFloat::PixelFactor, [] (Polar *engine, ConfigFloat, float x) {
+		configM->On(ConfigOption::PixelFactor, [] (Polar *engine, ConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
 		});
-		configFloatM->On(ConfigFloat::VoxelFactor, [] (Polar *engine, ConfigFloat, float x) {
+		configM->On(ConfigOption::VoxelFactor, [] (Polar *engine, ConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_voxelFactor", x);
 		});
-		configBoolM->On(ConfigBool::Bloom, [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
-		configBoolM->On(ConfigBool::Cel,   [SetPipeline] (Polar *engine, ConfigBool, bool bloom) { SetPipeline(engine); });
-		configBoolM->On(ConfigBool::Mute, [] (Polar *engine, ConfigBool, bool mute) {
+		configM->On(ConfigOption::Bloom, [SetPipeline] (Polar *engine, ConfigOption, bool bloom) { SetPipeline(engine); });
+		configM->On(ConfigOption::Cel,   [SetPipeline] (Polar *engine, ConfigOption, bool bloom) { SetPipeline(engine); });
+		configM->On(ConfigOption::Mute, [] (Polar *engine, ConfigOption, bool mute) {
 			engine->GetSystem<AudioManager>().lock()->muted = mute;
 		});
 
-		configFloatM->Set(ConfigFloat::BaseDetail, 8);
+		configM->Set<Decimal>(ConfigOption::BaseDetail, 8);
 
-		configFloatM->Load();
-		configBoolM->Load();
+		configM->Load();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");
@@ -175,8 +181,7 @@ Freefall::Freefall(Polar &engine) {
 
 		st.AddSystem<TitlePlayerController>(playerID);
 
-		auto configFloatM = engine->GetSystem<ConfigFloatM>().lock();
-		auto configBoolM = engine->GetSystem<ConfigBoolM>().lock();
+		auto configM = engine->GetSystem<ConfigM>().lock();
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto audioM = engine->GetSystem<AudioManager>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
@@ -188,33 +193,33 @@ Freefall::Freefall(Polar &engine) {
 			}),
 			MenuItem("Options", {
 				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, configFloatM->Get(ConfigFloat::BaseDetail)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat ::BaseDetail, x);
+					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, configM->Get<Decimal>(ConfigOption::BaseDetail)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::BaseDetail, x);
 						return true;
 					}),
-					MenuItem("Bloom", MenuControl::Checkbox(configBoolM->Get(ConfigBool::Bloom)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Bloom, state);
+					MenuItem("Bloom", MenuControl::Checkbox(configM->Get<bool>(ConfigOption::Bloom)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigM>().lock()->Set<bool>(ConfigOption::Bloom, state);
 						return true;
 					}),
-					MenuItem("Cel", MenuControl::Checkbox(configBoolM->Get(ConfigBool::Cel)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Cel, state);
+					MenuItem("Cel", MenuControl::Checkbox(configM->Get<bool>(ConfigOption::Cel)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigM>().lock()->Set<bool>(ConfigOption::Cel, state);
 						return true;
 					}),
-					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, configFloatM->Get(ConfigFloat::Grain), 0.01), [engine] (Decimal x) {
-						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::Grain, x);
+					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, configM->Get<Decimal>(ConfigOption::Grain), 0.01), [engine] (Decimal x) {
+						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::Grain, x);
 						return true;
 					}),
-					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, 0.2, configFloatM->Get(ConfigFloat::ScanIntesity), 0.01), [engine] (Decimal x) {
-						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::ScanIntesity, x);
+					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, 0.2, configM->Get<Decimal>(ConfigOption::ScanIntensity), 0.01), [engine] (Decimal x) {
+						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::ScanIntensity, x);
 						return true;
 					}),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, configFloatM->Get(ConfigFloat::PixelFactor)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::PixelFactor, x);
+					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, configM->Get<Decimal>(ConfigOption::PixelFactor)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::PixelFactor, x);
 						return true;
 					}),
-					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, configFloatM->Get(ConfigFloat::VoxelFactor)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigFloatM>().lock()->Set(ConfigFloat::VoxelFactor, x);
+					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, configM->Get<Decimal>(ConfigOption::VoxelFactor)), [engine] (Decimal x) {
+						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::VoxelFactor, x);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
@@ -224,8 +229,8 @@ Freefall::Freefall(Polar &engine) {
 					}),
 				}),
 				MenuItem("Audio", {
-					MenuItem("Mute", MenuControl::Checkbox(configBoolM->Get(ConfigBool::Mute)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigBoolM>().lock()->Set(ConfigBool::Mute, state);
+					MenuItem("Mute", MenuControl::Checkbox(configM->Get<bool>(ConfigOption::Mute)), [engine] (Decimal state) {
+						engine->GetSystem<ConfigM>().lock()->Set<bool>(ConfigOption::Mute, state);
 						return true;
 					}),
 				}),
