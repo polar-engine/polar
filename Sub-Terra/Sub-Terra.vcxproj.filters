@@ -257,5 +257,8 @@
     <ClInclude Include="include\common.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="include\SteamFS.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

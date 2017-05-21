@@ -20,6 +20,7 @@
 #include "HumanPlayerController.h"
 #include "Text.h"
 #include "Level.h"
+#include "SteamFS.h"
 
 enum class ConfigOption {
 	BaseDetail,
@@ -69,7 +70,7 @@ std::ostream & operator<<(std::ostream &s, const ConfigOption &x) {
 	return s;
 }
 
-using ConfigM = ConfigManager<ConfigOption>;
+using ConfigM = ConfigManager<ConfigOption, SteamFS>;
 
 Freefall::Freefall(Polar &engine) {
 	const double secsPerBeat = 1.2631578947368421;

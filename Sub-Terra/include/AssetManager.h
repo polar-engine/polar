@@ -11,9 +11,9 @@ private:
 public:
 	static std::string GetAssetsDir() {
 #if defined(_WIN32)
-		return FileSystem::GetAppDir() + "/assets";
+		return FileSystem::AppDir() + "/assets";
 #elif defined(__APPLE__)
-		return FileSystem::GetAppDir() + "/Contents/Resources";
+		return FileSystem::AppDir() + "/Contents/Resources";
 #endif
 	}
 
@@ -48,7 +48,7 @@ public:
 		if(cache.find(path) == cache.end()) {
 			DebugManager()->Verbose("loading asset ", AssetName<T>(), "/", name);
 			auto asset = std::make_shared<T>(std::forward<Ts>(args)...);
-			std::istringstream ss(FileSystem::ReadFile(path));
+			std::istringstream ss(FileSystem::Read(path));
 			Deserializer deserializer(ss);
 			deserializer >> *asset;
 			cache.emplace(path, std::static_pointer_cast<Asset>(asset));

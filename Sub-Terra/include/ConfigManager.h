@@ -14,7 +14,7 @@ struct EnumClassHash
 	}
 };
 
-template<typename K> class ConfigManager : public System {
+template<typename K, typename FS> class ConfigManager : public System {
 public:
 	using KeyTy = K;
 	using ValueTy = Decimal;
@@ -26,10 +26,7 @@ private:
 public:
 	static bool IsSupported() { return true; }
 	ConfigManager(Polar *engine, std::string path) : System(engine), path(path) {}
-
-	~ConfigManager() {
-		Save();
-	}
+	~ConfigManager() { Save(); }
 
 	void On(KeyTy k, HandlerTy h) {
 		handlers[k] = h;
@@ -37,8 +34,7 @@ public:
 	
 	template<typename T> T Get(KeyTy k) {
 		auto it = values.find(k);
-		auto ret = it != values.cend() ? T(it->second) : Set<T>(k, T(0));
-		return ret;
+		return it != values.cend() ? T(it->second) : Set<T>(k, T(0));
 	}
 
 	template<typename T> T Set(KeyTy k, T v) {
@@ -51,18 +47,13 @@ public:
 	}
 
 	void Load() {
-		if(!SteamRemoteStorage()->FileExists(path.data())) {
+		if(!FS::Exists(path)) {
 			DebugManager()->Verbose("loading ", path, "... not found");
 			return;
 		}
-
 		DebugManager()->Verbose("loading ", path, "... success");
 
-		int32_t size = SteamRemoteStorage()->GetFileSize(path.data());
-		char *sz = new char[size];
-		SteamRemoteStorage()->FileRead(path.data(), sz, size);
-		std::string s(sz, size);
-		delete[] sz;
+		std::string s = FS::Read(path);
 
 		std::istringstream iss(s);
 		std::string line;
@@ -77,13 +68,12 @@ public:
 		}
 	}
 
-	void Save() {
+	void Save() const {
 		std::ostringstream oss;
 		for(auto &pair : values) {
 			oss << pair.first << ' ' << pair.second << "\r\n";
 		}
-		auto s = oss.str();
-		auto result = SteamRemoteStorage()->FileWrite(path.data(), s.data(), s.size());
+		auto result = FS::Write(path, oss.str());
 		DebugManager()->Verbose("saving ", path, "... ", (result ? "success" : "failed"));
 	}
 };

@@ -23,7 +23,7 @@
 #include "Level.h"
 
 int main(int argc, char **argv) {
-	std::string path = (argc >= 2) ? argv[1] : FileSystem::GetAppDir() + "/assets";
+	std::string path = (argc >= 2) ? argv[1] : FileSystem::AppDir() + "/assets";
 	std::string buildPath = (argc >= 3) ? argv[2] : path + "/build";
 	auto files = FileSystem::ListDir(path);
 
@@ -577,14 +577,14 @@ int main(int argc, char **argv) {
 			if(converter != converters.end()) {
 				DebugManager()->Info("found converter for `", ext, '`');
 
-				std::string data = FileSystem::ReadFile(path + '/' + file);
+				std::string data = FileSystem::Read(path + "/" + file);
 				std::stringstream ss;
 				Serializer serializer(ss);
 				std::string type = converter->second(data, serializer);
 
 				std::string name = file.substr(0, pos);
 				FileSystem::CreateDir(buildPath + '/' + type);
-				FileSystem::WriteFile(buildPath + '/' + type + '/' + name + ".asset", ss);
+				FileSystem::Write(buildPath + "/" + type + "/" + name + ".asset", ss);
 			} else { DebugManager()->Warning(file, ": no appropriate converter found"); }
 		}
 	}
