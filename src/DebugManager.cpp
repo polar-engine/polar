@@ -13,4 +13,4 @@ void DebugManagerClass::MsgBox(std::string title, std::string msg) {
 
 DebugManagerClass::DebugManagerClass(DebugPriority priority) :
 	priority(priority),
-	file(FileSystem::GetAppDir() + "/log.txt", std::ios::out | std::ios::binary | std::ios::trunc) {}
+	file(FileSystem::AppDir() + "/log.txt", std::ios::out | std::ios::binary | std::ios::trunc) {}

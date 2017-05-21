@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <string>
+#include <sstream>
 #include <fstream>
 #include <vector>
 #include "debug.h"
@@ -22,13 +23,12 @@ class FileSystem {
 private:
 	FileSystem() {}
 public:
-	static std::string GetDirOf(const std::string &path) {
+	static std::string DirOf(std::string path) {
 		std::string::size_type pos = path.find_last_of("\\/");
 		return path.substr(0, pos);
 	}
-	static std::string GetDirOf(std::string &&path) { return GetDirOf(path); }
 
-	static std::string GetApp() {
+	static std::string App() {
 #if defined(_WIN32)
 		char sz[MAX_PATH];
 		GetModuleFileNameA(NULL, sz, MAX_PATH);
@@ -39,9 +39,9 @@ public:
 #endif
 	}
 
-	static std::string GetAppDir() {
+	static std::string AppDir() {
 #if defined(_WIN32)
-		return GetDirOf(GetApp());
+		return DirOf(App());
 #elif defined(__APPLE__)
 		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
 		CFStringRef path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
@@ -55,7 +55,7 @@ public:
 #endif
 	}
 
-	static std::string GetSavedGamesDir() {
+	static std::string SavedGamesDir() {
 #if defined(_WIN32)
 		char szPath[MAX_PATH];
 		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, szPath);
@@ -69,49 +69,54 @@ public:
 #endif
 	}
 	
-	static std::string ReadFile(const std::string &name) {
-		std::ifstream file(name, std::ios::in | std::ios::binary | std::ios::ate);
-		if(file.fail()) { DebugManager()->Fatal(name + ": open"); }
+	static std::string Read(std::string path) {
+		std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
+		if(file.fail()) { DebugManager()->Fatal(path + ": open"); }
 
 		auto len = static_cast<std::string::size_type>(file.tellg());
-		if(file.fail()) { DebugManager()->Fatal(name + ": tellg"); }
+		if(file.fail()) { DebugManager()->Fatal(path + ": tellg"); }
 
 		file.seekg(0, std::ios::beg);
-		if(file.fail()) { DebugManager()->Fatal(name + ": seekg"); }
+		if(file.fail()) { DebugManager()->Fatal(path + ": seekg"); }
 
 		char *sz = new char[static_cast<unsigned int>(len + 1)];
 		sz[len] = '\0';
 
 		file.read(sz, static_cast<unsigned int>(len));
-		if(file.fail()) { DebugManager()->Fatal(name + ": read"); }
+		if(file.fail()) { DebugManager()->Fatal(path + ": read"); }
 
 		file.close();
-		if(file.fail()) { DebugManager()->Fatal(name + ": close"); }
+		if(file.fail()) { DebugManager()->Fatal(path + ": close"); }
 
 		std::string s(sz, len);
 		delete[] sz;
 		return s;
 	}
 
-	static void WriteFile(const std::string &name, std::istream &is) {
-		CreateDir(GetDirOf(name));
+	static void Write(std::string path, std::istream &is) {
+		CreateDir(DirOf(path));
 
-		std::ofstream file(name, std::ios::out | std::ios::binary | std::ios::trunc);
-		if(file.fail()) { DebugManager()->Fatal(name + ": open"); }
+		std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::trunc);
+		if(file.fail()) { DebugManager()->Fatal(path + ": open"); }
 
 		file << is.rdbuf();
-		if(file.fail()) { DebugManager()->Fatal(name + ": write"); }
+		if(file.fail()) { DebugManager()->Fatal(path + ": write"); }
 
 		file.close();
-		if(file.fail()) { DebugManager()->Fatal(name + ": close"); }
+		if(file.fail()) { DebugManager()->Fatal(path + ": close"); }
 	}
 
-	static bool FileExists(const std::string &path) {
+	static void Write(std::string path, std::string s) {
+		std::istringstream iss(s);
+		Write(path, iss);
+	}
+
+	static bool Exists(std::string path) {
 		std::ifstream file(path);
 		return file.good();
 	}
 
-	static uint64_t GetModifiedTime(const std::string &path) {
+	static uint64_t ModifiedTime(std::string path) {
 #if defined(_WIN32)
 		struct _stat st;
 		if(_stat(path.c_str(), &st) != 0) { DebugManager()->Fatal(path + ": failed to stat"); }
@@ -122,7 +127,7 @@ public:
 		return st.st_mtime;
 	}
 
-	static void Rename(const std::string &oldPath, const std::string &newPath) {
+	static void Rename(std::string oldPath, std::string newPath) {
 		if(rename(oldPath.c_str(), newPath.c_str()) != 0) { DebugManager()->Fatal("failed to rename `" + oldPath + "` to `" + newPath + '`'); }
 	}
 
@@ -174,7 +179,7 @@ public:
 		return files;
 	}
 
-	static void CreateDirImpl(const std::string &path) {
+	static void CreateDirImpl(std::string path) {
 #if defined(_WIN32)
 		std::wstring wPath(path.begin(), path.end());
 		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
@@ -188,12 +193,11 @@ public:
 #endif
 	}
 
-	static void CreateDir(const std::string &path) {
+	static void CreateDir(std::string path) {
 		size_t pos = 0;
 		do {
 			pos = path.find_first_of("/\\", pos + 1);
 			CreateDirImpl(path.substr(0, pos));
 		} while(pos != path.npos);
 	}
-	static void CreateDir(std::string &&path) { CreateDir(path); }
 };
