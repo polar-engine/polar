@@ -93,22 +93,33 @@ public:
 		return s;
 	}
 
-	static void Write(std::string path, std::istream &is) {
+	static bool Write(std::string path, std::istream &is) {
 		CreateDir(DirOf(path));
 
 		std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::trunc);
-		if(file.fail()) { DebugManager()->Fatal(path + ": open"); }
+		if(file.fail()) {
+			DebugManager()->Error(path + ": open");
+			return false;
+		}
 
 		file << is.rdbuf();
-		if(file.fail()) { DebugManager()->Fatal(path + ": write"); }
+		if(file.fail()) {
+			DebugManager()->Error(path + ": write");
+			return false;
+		}
 
 		file.close();
-		if(file.fail()) { DebugManager()->Fatal(path + ": close"); }
+		if(file.fail()) {
+			DebugManager()->Error(path + ": close");
+			return false;
+		}
+
+		return true;
 	}
 
-	static void Write(std::string path, std::string s) {
+	static bool Write(std::string path, std::string s) {
 		std::istringstream iss(s);
-		Write(path, iss);
+		return Write(path, iss);
 	}
 
 	static bool Exists(std::string path) {
