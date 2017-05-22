@@ -178,6 +178,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="include\EntityBase.h" />
     <ClInclude Include="include\EventManager.h" />
     <ClInclude Include="include\Freefall.h" />
+    <ClInclude Include="include\FreefallConfig.h" />
     <ClInclude Include="include\gl.h" />
     <ClInclude Include="include\GL32Renderer.h" />
     <ClInclude Include="include\HumanPlayerController.h" />
