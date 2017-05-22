@@ -60,7 +60,7 @@ protected:
 		orient->orientation = Quat(Point3(orientVel.x, 0, 0)) * Quat(Point3(0, orientVel.y, 0)) * orient->orientation;
 
 		const auto forward = glm::normalize(Point4(0, 0, -1, 1));
-		auto abs = (glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward) * velocity * dt.Seconds();
+		auto abs = (glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward) * velocity;
 
 		pos->position.Derivative()->x = abs.x;
 		pos->position.Derivative()->y = abs.y;
@@ -69,7 +69,7 @@ protected:
 public:
 	const Decimal fieldOfView = 2;
 	const Decimal viewDistance = 10.0f;
-	const Decimal velocity = 300.0f;
+	const Decimal velocity = 5.0f;
 
 	static bool IsSupported() { return true; }
 	TitlePlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}
