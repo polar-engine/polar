@@ -28,6 +28,9 @@
     <Filter Include="Header Files\Utility">
       <UniqueIdentifier>{f7f64792-ec82-45f2-9623-e63b4261ec2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Freefall">
+      <UniqueIdentifier>{2c447d83-3b17-42f7-a5f1-487d838d1992}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GL32Renderer.cpp">
@@ -117,9 +120,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\WaveShape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Freefall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\FontAsset.h">
@@ -259,6 +259,12 @@
     </ClInclude>
     <ClInclude Include="include\SteamFS.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Freefall.h">
+      <Filter>Header Files\Freefall</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FreefallConfig.h">
+      <Filter>Header Files\Freefall</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

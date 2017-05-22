@@ -21,56 +21,10 @@
 #include "Text.h"
 #include "Level.h"
 #include "SteamFS.h"
+#include "FreefallConfig.h"
 
-enum class ConfigOption {
-	BaseDetail,
-	Grain,
-	ScanIntensity,
-	PixelFactor,
-	VoxelFactor,
-	Bloom,
-	Cel,
-	Mute
-};
-
-std::istream & operator>>(std::istream &s, ConfigOption &x) {
-	std::string word;
-	s >> word;
-
-#define CASE(X) (word == #X) { x = ConfigOption::X; }
-	if CASE(BaseDetail)
-	else if CASE(Grain)
-	else if CASE(ScanIntensity)
-	else if CASE(PixelFactor)
-	else if CASE(VoxelFactor)
-	else if CASE(Bloom)
-	else if CASE(Cel)
-	else if CASE(Mute)
-	else { assert(false, "unhandled ConfigOption"); }
-#undef CASE
-
-	return s;
-}
-
-std::ostream & operator<<(std::ostream &s, const ConfigOption &x) {
-#define CASE(X) case ConfigOption::X: s << #X; break;
-	switch(x) {
-	CASE(BaseDetail)
-	CASE(Grain)
-	CASE(ScanIntensity)
-	CASE(PixelFactor)
-	CASE(VoxelFactor)
-	CASE(Bloom)
-	CASE(Cel)
-	CASE(Mute)
-	default: assert(false, "unhandled ConfigOption");
-	}
-#undef CASE
-
-	return s;
-}
-
-using ConfigM = ConfigManager<ConfigOption, SteamFS>;
+using SteamConfigM = ConfigManager<SteamConfigOption, SteamFS>;
+using LocalConfigM = ConfigManager<LocalConfigOption, FileSystem>;
 
 Freefall::Freefall(Polar &engine) {
 	const double secsPerBeat = 1.2631578947368421;
@@ -88,43 +42,46 @@ Freefall::Freefall(Polar &engine) {
 		st.AddSystem<InputManager>();
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
-		st.AddSystem<ConfigM>("options.cfg");
+		st.AddSystem<SteamConfigM>("options.cfg");
+		st.AddSystem<LocalConfigM>(FileSystem::SavedGamesDir() + "/local.cfg");
 		st.AddSystem<LevelSwitcher>();
 
-		auto configM = engine->GetSystem<ConfigM>().lock();
+		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
+		auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
 
 		auto SetPipeline = [] (Polar *engine) {
-			auto configM = engine->GetSystem<ConfigM>().lock();
+			auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
 			boost::container::vector<std::string> names = { "perlin" };
-			if(configM->Get<bool>(ConfigOption::Bloom)) { names.emplace_back("bloom"); }
-			if(configM->Get<bool>(ConfigOption::Cel)) { names.emplace_back("fxaa"); }
+			if(localConfigM->Get<bool>(LocalConfigOption::Bloom)) { names.emplace_back("bloom"); }
+			if(localConfigM->Get<bool>(LocalConfigOption::Cel)) { names.emplace_back("fxaa"); }
 			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
 		};
 
-		configM->On(ConfigOption::BaseDetail, [] (Polar *engine, ConfigOption, Decimal x) {
+		localConfigM->On(LocalConfigOption::BaseDetail, [] (Polar *engine, LocalConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_baseDetail", x);
 		});
-		configM->On(ConfigOption::Grain, [] (Polar *engine, ConfigOption, Decimal x) {
+		steamConfigM->On(SteamConfigOption::Grain, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_grain", x);
 		});
-		configM->On(ConfigOption::ScanIntensity, [] (Polar *engine, ConfigOption, Decimal x) {
+		steamConfigM->On(SteamConfigOption::ScanIntensity, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_scanIntensity", x);
 		});
-		configM->On(ConfigOption::PixelFactor, [] (Polar *engine, ConfigOption, Decimal x) {
+		steamConfigM->On(SteamConfigOption::PixelFactor, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
 		});
-		configM->On(ConfigOption::VoxelFactor, [] (Polar *engine, ConfigOption, Decimal x) {
+		steamConfigM->On(SteamConfigOption::VoxelFactor, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_voxelFactor", x);
 		});
-		configM->On(ConfigOption::Bloom, [SetPipeline] (Polar *engine, ConfigOption, bool bloom) { SetPipeline(engine); });
-		configM->On(ConfigOption::Cel,   [SetPipeline] (Polar *engine, ConfigOption, bool bloom) { SetPipeline(engine); });
-		configM->On(ConfigOption::Mute, [] (Polar *engine, ConfigOption, bool mute) {
+		localConfigM->On(LocalConfigOption::Bloom, [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
+		localConfigM->On(LocalConfigOption::Cel,   [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
+		steamConfigM->On(SteamConfigOption::Mute, [] (Polar *engine, SteamConfigOption, bool mute) {
 			engine->GetSystem<AudioManager>().lock()->muted = mute;
 		});
 
-		configM->Set<Decimal>(ConfigOption::BaseDetail, 8);
+		localConfigM->Set<Decimal>(LocalConfigOption::BaseDetail, 8);
 
-		configM->Load();
+		steamConfigM->Load();
+		localConfigM->Load();
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		assetM->Get<AudioAsset>("nexus");
@@ -182,7 +139,8 @@ Freefall::Freefall(Polar &engine) {
 
 		st.AddSystem<TitlePlayerController>(playerID);
 
-		auto configM = engine->GetSystem<ConfigM>().lock();
+		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
+		auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto audioM = engine->GetSystem<AudioManager>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
@@ -194,33 +152,33 @@ Freefall::Freefall(Polar &engine) {
 			}),
 			MenuItem("Options", {
 				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, configM->Get<Decimal>(ConfigOption::BaseDetail)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::BaseDetail, x);
+					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, localConfigM->Get<Decimal>(LocalConfigOption::BaseDetail)), [engine] (Decimal x) {
+						engine->GetSystem<LocalConfigM>().lock()->Set<Decimal>(LocalConfigOption::BaseDetail, x);
 						return true;
 					}),
-					MenuItem("Bloom", MenuControl::Checkbox(configM->Get<bool>(ConfigOption::Bloom)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigM>().lock()->Set<bool>(ConfigOption::Bloom, state);
+					MenuItem("Bloom", MenuControl::Checkbox(localConfigM->Get<bool>(LocalConfigOption::Bloom)), [engine] (Decimal state) {
+						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Bloom, state);
 						return true;
 					}),
-					MenuItem("Cel", MenuControl::Checkbox(configM->Get<bool>(ConfigOption::Cel)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigM>().lock()->Set<bool>(ConfigOption::Cel, state);
+					MenuItem("Cel", MenuControl::Checkbox(localConfigM->Get<bool>(LocalConfigOption::Cel)), [engine] (Decimal state) {
+						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Cel, state);
 						return true;
 					}),
-					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, configM->Get<Decimal>(ConfigOption::Grain), 0.01), [engine] (Decimal x) {
-						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::Grain, x);
+					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, steamConfigM->Get<Decimal>(SteamConfigOption::Grain), 0.01), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::Grain, x);
 						return true;
 					}),
-					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, 0.2, configM->Get<Decimal>(ConfigOption::ScanIntensity), 0.01), [engine] (Decimal x) {
-						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::ScanIntensity, x);
+					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, 0.2, steamConfigM->Get<Decimal>(SteamConfigOption::ScanIntensity), 0.01), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::ScanIntensity, x);
 						return true;
 					}),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, configM->Get<Decimal>(ConfigOption::PixelFactor)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::PixelFactor, x);
+					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, steamConfigM->Get<Decimal>(SteamConfigOption::PixelFactor)), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::PixelFactor, x);
 						return true;
 					}),
-					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, configM->Get<Decimal>(ConfigOption::VoxelFactor)), [engine] (Decimal x) {
-						engine->GetSystem<ConfigM>().lock()->Set<Decimal>(ConfigOption::VoxelFactor, x);
+					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, steamConfigM->Get<Decimal>(SteamConfigOption::VoxelFactor)), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::VoxelFactor, x);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
@@ -230,8 +188,8 @@ Freefall::Freefall(Polar &engine) {
 					}),
 				}),
 				MenuItem("Audio", {
-					MenuItem("Mute", MenuControl::Checkbox(configM->Get<bool>(ConfigOption::Mute)), [engine] (Decimal state) {
-						engine->GetSystem<ConfigM>().lock()->Set<bool>(ConfigOption::Mute, state);
+					MenuItem("Mute", MenuControl::Checkbox(steamConfigM->Get<bool>(SteamConfigOption::Mute)), [engine] (Decimal state) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<bool>(SteamConfigOption::Mute, state);
 						return true;
 					}),
 				}),
