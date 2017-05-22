@@ -186,7 +186,7 @@ private:
 		auto heightF = static_cast<Decimal>(height);
 		auto fovy = 2.0f * glm::atan(heightF, Decimal(2) * pixelDistanceFromScreen) + fovPlus;
 		auto projection = glm::perspective(fovy, static_cast<Decimal>(width) / heightF, zNear, zFar);
-		//auto projection = glm::infinitePerspective(fovy, static_cast<Decimal>(width) / h, zNear);
+		//auto projection = glm::infinitePerspective(fovy, static_cast<Decimal>(width) / heightF, zNear);
 		return projection;
 	}
 

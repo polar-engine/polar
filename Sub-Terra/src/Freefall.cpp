@@ -112,7 +112,7 @@ Freefall::Freefall(Polar &engine) {
 
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
-		Point3 seed = glm::ballRand(Decimal(1000.0));
+		Point3 seed = glm::ballRand(WORLD_DECIMAL(100000.0));
 		engine->AddComponent<PositionComponent>(playerID, seed);
 		engine->AddComponent<OrientationComponent>(playerID);
 

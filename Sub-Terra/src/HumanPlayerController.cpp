@@ -154,7 +154,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	}
 
 	auto forward = glm::normalize(Point4(0, 0, -1, 1));
-	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * velocity;
+	auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * forward * WORLD_DECIMAL(velocity);
 
 	*ownPos->position.Derivative() = Point3(abs);
 
