@@ -69,7 +69,7 @@ protected:
 public:
 	const Decimal fieldOfView = 2;
 	const Decimal viewDistance = 10.0f;
-	const Decimal velocity = 5.0f;
+	const Decimal velocity = WORLD_DECIMAL(5.0);
 
 	static bool IsSupported() { return true; }
 	TitlePlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}

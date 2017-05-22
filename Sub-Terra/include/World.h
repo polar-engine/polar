@@ -9,6 +9,9 @@
 #include "Renderer.h"
 #include "Level.h"
 
+#define WORLD_SCALE 100000.0
+#define WORLD_DECIMAL(X) (Decimal(X / WORLD_SCALE))
+
 class World : public System {
 private:
 	uint64_t globalTicks;
@@ -33,7 +36,7 @@ private:
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
 		renderer->SetUniform("u_threshold",     Threshold());
 		renderer->SetUniform("u_waveParams",    Point3(Decimal(kf.ticks) / kf.waveTicks, Decimal(1) / kf.wavePower, kf.waveStrength));
-		renderer->SetUniform("u_worldScale",    kf.worldScale);
+		renderer->SetUniform("u_worldScale",    kf.worldScale / Decimal(WORLD_SCALE));
 		renderer->SetUniform("u_color",         color);
 	}
 protected:
@@ -87,7 +90,7 @@ public:
 		auto renderer = engine->GetSystem<Renderer>().lock();
 		auto voxelFactor = renderer->GetUniformDecimal("u_voxelFactor");
 
-		Point3 finalCoord = coord / kf.worldScale;
+		Point3 finalCoord = coord / (kf.worldScale / Decimal(WORLD_SCALE));
 
 		if(voxelFactor > 1) {
 			Decimal factor2 = glm::max(renderer->GetWidth(), renderer->GetHeight()) / glm::pow(voxelFactor + 1, Decimal(1.5));

@@ -8,8 +8,8 @@ protected:
 	uint16_t width = 1280;
 	uint16_t height = 720;
 	Decimal fovPlus = glm::radians(10.0f);
-	Decimal zNear = 0.05f;
-	Decimal zFar = 48.0f;
+	Decimal zNear = 47.0 / 100000.0;
+	Decimal zFar  = 48.0 / 100000.0;
 	Decimal pixelDistanceFromScreen = 1000.0f;
 	virtual void MakePipeline(const boost::container::vector<std::string> &) = 0;
 public:
