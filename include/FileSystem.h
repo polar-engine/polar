@@ -17,6 +17,7 @@
 #endif
 #ifdef __APPLE__
 #include <dirent.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 class FileSystem {
@@ -63,6 +64,8 @@ public:
 		PathAppendA(szPath, "My Games");
 		PathAppendA(szPath, "Freefall");
 		return std::string(szPath);
+#elif defined(__APPLE__)
+		return "~/Documents/My Games/Freefall";
 #else
 		DebugManager()->Fatal("FileSystem::GetSavedGamesDir: not implemented");
 		return "";
