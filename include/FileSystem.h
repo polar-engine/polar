@@ -16,6 +16,8 @@
 #include <Shlwapi.h>
 #endif
 #ifdef __APPLE__
+#include <pwd.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -65,7 +67,8 @@ public:
 		PathAppendA(szPath, "Freefall");
 		return std::string(szPath);
 #elif defined(__APPLE__)
-		return "~/Documents/My Games/Freefall";
+		struct passwd *pwd = getpwuid(getuid());
+		return std::string(pwd->pw_dir) + "/Documents/My Games/Freefall";
 #else
 		DebugManager()->Fatal("FileSystem::GetSavedGamesDir: not implemented");
 		return "";
