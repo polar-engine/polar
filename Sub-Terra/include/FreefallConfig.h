@@ -1,5 +1,6 @@
 #pragma once
 
+#include <assert.h>
 #include <iostream>
 #include <string>
 
@@ -21,7 +22,7 @@ std::istream & operator>>(std::istream &s, SteamConfigOption &x) {
 	else if CASE(PixelFactor)
 	else if CASE(VoxelFactor)
 	else if CASE(Mute)
-	else { assert(false, "unhandled ConfigOption"); }
+	else { assert(false && "unhandled ConfigOption"); }
 #undef CASE
 
 	return s;
@@ -35,7 +36,7 @@ std::ostream & operator<<(std::ostream &s, const SteamConfigOption &x) {
 	CASE(PixelFactor)
 	CASE(VoxelFactor)
 	CASE(Mute)
-	default: assert(false, "unhandled ConfigOption");
+	default: assert(false && "unhandled ConfigOption");
 	}
 #undef CASE
 
@@ -56,7 +57,7 @@ std::istream & operator>>(std::istream &s, LocalConfigOption &x) {
 	if CASE(BaseDetail)
 	else if CASE(Bloom)
 	else if CASE(Cel)
-	else { assert(false, "unhandled ConfigOption"); }
+	else { assert(false && "unhandled ConfigOption"); }
 #undef CASE
 
 	return s;
@@ -68,7 +69,7 @@ std::ostream & operator<<(std::ostream &s, const LocalConfigOption &x) {
 	CASE(BaseDetail)
 	CASE(Bloom)
 	CASE(Cel)
-	default: assert(false, "unhandled ConfigOption");
+	default: assert(false && "unhandled ConfigOption");
 	}
 #undef CASE
 
