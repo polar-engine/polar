@@ -36,8 +36,9 @@ protected:
 				for(Decimal x = -fieldOfView; x < fieldOfView; x += 0.5f) {
 					for(Decimal y = -fieldOfView; y < fieldOfView; y += 0.5f) {
 						for(Decimal d = 1; d < viewDistance; d += 0.5f) {
-							auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * Point4(x, y, -d, 1);
-							auto eval = world->Eval(pos->position.Get() + Point3(abs));
+							auto p = Point4(x, y, -d, 1);
+							auto abs = glm::inverse(orient->orientation) * glm::inverse(camera->orientation) * p;
+							auto eval = world->Eval(pos->position.Get() + Point3(abs) / Decimal(WORLD_SCALE));
 							if(eval) {
 								average.x += Decimal(0.0005) * ((y >= 0) ? 1 : -1) / (glm::max(Decimal(1), d - 2) * 2 / viewDistance);
 								average.y += Decimal(0.0005) * ((x <= 0) ? 1 : -1) / (glm::max(Decimal(1), d - 2) * 2 / viewDistance);
