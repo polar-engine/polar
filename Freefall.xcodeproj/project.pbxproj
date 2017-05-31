@@ -91,6 +91,8 @@
 		7F018A1F1EB90BDB009EF150 /* CreditsSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CreditsSystem.h; path = include/CreditsSystem.h; sourceTree = "<group>"; };
 		7F018A2B1EB910F6009EF150 /* steam_appid.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = steam_appid.txt; path = ../resources/steam_appid.txt; sourceTree = "<group>"; };
 		7F018A2E1EB94251009EF150 /* libsteam_api.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsteam_api.dylib; path = lib/osx/libsteam_api.dylib; sourceTree = "<group>"; };
+		7F0765F41ED589C70091F2B9 /* SteamFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SteamFS.h; path = include/SteamFS.h; sourceTree = "<group>"; };
+		7F0765F51ED82BE70091F2B9 /* TitlePlayerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TitlePlayerController.h; path = include/TitlePlayerController.h; sourceTree = "<group>"; };
 		7F07F3FD1EAD970E00320493 /* types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.h; path = include/types.h; sourceTree = SOURCE_ROOT; };
 		7F0CB6271A25D86E00623543 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = include/AppDelegate.h; sourceTree = "<group>"; };
 		7F0CB6281A25D86E00623543 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = include/AssetManager.h; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 		7F018A1D1EB90B88009EF150 /* Systems */ = {
 			isa = PBXGroup;
 			children = (
+				7F0765F41ED589C70091F2B9 /* SteamFS.h */,
 				7F018A1E1EB90BDB009EF150 /* ConfigManager.h */,
 				7F018A1F1EB90BDB009EF150 /* CreditsSystem.h */,
 				7F0CB62D1A25D86E00623543 /* EventManager.h */,
@@ -204,6 +207,7 @@
 				7F1F40661EA6166A00DDC932 /* MenuSystem.h */,
 				7F0CB6361A25D86E00623543 /* Renderer.h */,
 				7F0CB63A1A25D86E00623543 /* System.h */,
+				7F0765F51ED82BE70091F2B9 /* TitlePlayerController.h */,
 				7F949DF61AC7B2CE004F875F /* World.h */,
 			);
 			name = Systems;
