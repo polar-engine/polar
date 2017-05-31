@@ -71,6 +71,8 @@ public:
 		}
 
 		switch(p) {
+		default:
+			break;
 		case DebugPriority::Fatal:
 			MsgBox("Fatal", "A fatal error has occurred. Please refer to the engine log for details.");
 			exit(1);
