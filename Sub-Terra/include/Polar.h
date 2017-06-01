@@ -75,6 +75,7 @@ public:
 		}
 		DebugManager()->Info("Welcome, ", SteamFriends()->GetPersonaName());
 		SteamController()->Init();
+		SteamUserStats()->RequestCurrentStats();
 	}
 
 	~Polar() {

@@ -259,6 +259,40 @@ Freefall::Freefall(Polar &engine) {
 		world->active = false;
 		auto seconds = Decimal(world->GetTicks()) / ENGINE_TICKS_PER_SECOND;
 
+		int32 totalSeconds;
+		if(!SteamUserStats()->GetStat("time", &totalSeconds)) {
+			DebugManager()->Critical("failed to get current value of time stat");
+		} else {
+			DebugManager()->Verbose("current value of time stat is ", totalSeconds);
+		}
+
+		totalSeconds += lround(seconds);
+
+		DebugManager()->Verbose("setting new value of time stat to ", totalSeconds);
+		if(!SteamUserStats()->SetStat("time", totalSeconds)) {
+			DebugManager()->Critical("failed to set new value of time stat");
+		}
+		if(!SteamUserStats()->StoreStats()) {
+			DebugManager()->Critical("failed to upload new value of time stat");
+		}
+
+		auto IndicateAchievement = [totalSeconds] (const char *sz, uint32 min, uint32 max) {
+			if(totalSeconds <= min || totalSeconds >= max) { return; }
+			SteamUserStats()->IndicateAchievementProgress(sz, totalSeconds, max);
+		};
+		IndicateAchievement("time_minutes_1",       0,       60);
+		IndicateAchievement("time_minutes_2",      60,      120);
+		IndicateAchievement("time_minutes_5",     120,      300);
+		IndicateAchievement("time_minutes_15",    300,      900);
+		IndicateAchievement("time_minutes_30",    900,     1800);
+		IndicateAchievement("time_hours_1",      1800,     3600);
+		IndicateAchievement("time_hours_2",      3600,     7200);
+		IndicateAchievement("time_hours_6",      7200,    21600);
+		IndicateAchievement("time_hours_12",    21600,    43200);
+		IndicateAchievement("time_days_1",      43200,    86400);
+		IndicateAchievement("time_weeks_1",     86400,   604800);
+		IndicateAchievement("time_years_1",    604800, 31536000);
+
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
 		IDType textID;
