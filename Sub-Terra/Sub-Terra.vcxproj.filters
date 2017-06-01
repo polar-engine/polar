@@ -266,5 +266,8 @@
     <ClInclude Include="include\FreefallConfig.h">
       <Filter>Header Files\Freefall</Filter>
     </ClInclude>
+    <ClInclude Include="include\SliderSprite.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

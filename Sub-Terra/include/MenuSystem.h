@@ -4,6 +4,7 @@
 #include "System.h"
 #include "Text.h"
 #include "BoxSprite.h"
+#include "SliderSprite.h"
 
 namespace MenuControl {
 	class Base {
@@ -69,11 +70,13 @@ namespace MenuControl {
 		}
 
 		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
+			scale *= 0.375;
+
 			auto dtor = engine->AddObject(&id);
 			auto pad = Point2(15);
 			T alpha = (value - min) / (max - min);
-			auto pos = origin + pad + Point2(Decimal(alpha) * Decimal(100), 0);
-			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(scale) - pad * Decimal(2), pos, Point4(0.3, 0.8, 1, 1));
+			auto pos = origin + pad;
+			engine->AddComponentAs<Sprite, SliderSprite>(id, pos, scale * 8, scale, alpha);
 			return dtor;
 		}
 	};
