@@ -41,7 +41,7 @@ void GL32Renderer::InitGL() {
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) { DebugManager()->Fatal("failed to set profile mask attribute"); }
 	if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) { DebugManager()->Fatal("failed to set double buffer attribute"); }
 	if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP))) {
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE/* | SDL_WINDOW_FULLSCREEN_DESKTOP*/))) {
 		DebugManager()->Fatal("failed to create window");
 	}
 	//if(!SDL(SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP))) { DebugManager()->Fatal("failed to set fullscreen mode"); }
