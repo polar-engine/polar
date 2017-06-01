@@ -202,6 +202,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\ScaleComponent.h" />
+    <ClInclude Include="include\SliderSprite.h" />
     <ClInclude Include="include\SpatialIndex.h" />
     <ClInclude Include="include\Sprite.h" />
     <ClInclude Include="include\SteamFS.h" />
