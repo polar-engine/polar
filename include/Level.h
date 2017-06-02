@@ -103,7 +103,8 @@ struct Level : Asset {
 
 		if(next.ticks == current.ticks) { return current; }
 
-		auto alpha = Decimal(ticks - current.ticks) / Decimal(next.ticks - current.ticks);
+		auto diff = Decimal(next.ticks - current.ticks);
+		auto alpha = diff > 0 ? Decimal(ticks - current.ticks) / diff : 1;
 		auto kf = next * alpha + current * (1 - alpha);
 		kf.ticks = ticks;
 		return kf;

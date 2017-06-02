@@ -28,14 +28,17 @@ private:
 
 		auto renderer = engine->GetSystem<Renderer>().lock();
 
-		size_t iColor = kf.ticks / kf.colorTicks % kf.colors.size();
+		size_t iColor = 0;
+		if(kf.colorTicks > 0) {
+			iColor = kf.ticks / kf.colorTicks % kf.colors.size();
+		}
 		auto color = kf.colors[iColor];
 		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
 #
 		renderer->SetUniform("u_period",        float(double(globalTicks % (ENGINE_TICKS_PER_SECOND * 100)) / double(ENGINE_TICKS_PER_SECOND * 100)));
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
 		renderer->SetUniform("u_threshold",     Threshold());
-		renderer->SetUniform("u_waveParams",    Point3(Decimal(kf.ticks) / kf.waveTicks, Decimal(1) / kf.wavePower, kf.waveStrength));
+		renderer->SetUniform("u_waveParams",    Point3(Decimal(kf.ticks) / glm::max(kf.waveTicks, Decimal(1)), Decimal(1) / glm::max(kf.wavePower, Decimal(1)), kf.waveStrength));
 		renderer->SetUniform("u_worldScale",    kf.worldScale / Decimal(WORLD_SCALE));
 		renderer->SetUniform("u_color",         color);
 	}
