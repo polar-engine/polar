@@ -43,6 +43,7 @@ Freefall::Freefall(Polar &engine) {
 		st.AddSystem<Integrator>();
 		st.AddSystem<Tweener<float>>();
 		st.AddSystem<SteamConfigM>("options.cfg");
+		DebugManager()->Verbose("saved games directory is ", FileSystem::SavedGamesDir());
 		st.AddSystem<LocalConfigM>(FileSystem::SavedGamesDir() + "/local.cfg");
 		st.AddSystem<LevelSwitcher>();
 

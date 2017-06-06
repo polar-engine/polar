@@ -199,12 +199,13 @@ public:
 	static void CreateDirImpl(std::string path) {
 #if defined(_WIN32)
 		std::wstring wPath(path.begin(), path.end());
+		SetLastError(ERROR_SUCCESS);
 		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
-			if(dwError != ERROR_ALREADY_EXISTS) { DebugManager()->Fatal(path + ": failed to create directory"); }
+			if(dwError != ERROR_ALREADY_EXISTS) { DebugManager()->Fatal("failed to create directory ", path); }
 		}
 #elif defined(__APPLE__)
-		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { DebugManager()->Fatal(path + ": failed to create directory"); }
+		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { DebugManager()->Fatal("failed to create directory ", path); }
 #else
 		DebugManager()->Fatal("FileSystem::CreateDirImpl: not implemented");
 #endif
