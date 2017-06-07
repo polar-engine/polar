@@ -202,7 +202,7 @@ public:
 		SetLastError(ERROR_SUCCESS);
 		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
-			if(dwError != ERROR_ALREADY_EXISTS) { DebugManager()->Fatal("failed to create directory ", path); }
+			if(dwError != ERROR_ALREADY_EXISTS) { DebugManager()->Fatal("failed to create directory ", path, " (error ", dwError, ')'); }
 		}
 #elif defined(__APPLE__)
 		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { DebugManager()->Fatal("failed to create directory ", path); }
@@ -215,7 +215,10 @@ public:
 		size_t pos = 0;
 		do {
 			pos = path.find_first_of("/\\", pos + 1);
-			CreateDirImpl(path.substr(0, pos));
+			auto subpath = path.substr(0, pos);
+
+			// work around Windows failing to create C:, E:, etc
+			if(subpath[1] != ':') { CreateDirImpl(subpath); }
 		} while(pos != path.npos);
 	}
 };
