@@ -218,7 +218,10 @@ public:
 			auto subpath = path.substr(0, pos);
 
 			// work around Windows failing to create C:, E:, etc
-			if(subpath[1] != ':') { CreateDirImpl(subpath); }
+			if(subpath[1] != ':' || subpath.size() > 3) {
+				DebugManager()->Verbose("creating directory ", path);
+				CreateDirImpl(subpath);
+			}
 		} while(pos != path.npos);
 	}
 };

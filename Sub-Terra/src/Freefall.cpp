@@ -35,7 +35,7 @@ Freefall::Freefall(Polar &engine) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		st.AddSystem<AssetManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const boost::container::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
+		st.AddSystemAs<Renderer, GL32Renderer, const std::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
 		st.AddSystem<AudioManager>();
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
@@ -52,7 +52,7 @@ Freefall::Freefall(Polar &engine) {
 
 		auto SetPipeline = [] (Polar *engine) {
 			auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
-			boost::container::vector<std::string> names = { "perlin" };
+			std::vector<std::string> names = { "perlin" };
 			if(localConfigM->Get<bool>(LocalConfigOption::Bloom)) { names.emplace_back("bloom"); }
 			if(localConfigM->Get<bool>(LocalConfigOption::Cel)) { names.emplace_back("fxaa"); }
 			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
@@ -126,7 +126,7 @@ Freefall::Freefall(Polar &engine) {
 		}));
 	});
 
-	boost::shared_ptr<Destructor> soundDtor;
+	std::shared_ptr<Destructor> soundDtor;
 
 	engine.AddState("notplaying", [&soundDtor] (Polar *engine, EngineState &st) {
 		engine->GetSystem<InputManager>().lock()->SetActiveSet("MenuControls");

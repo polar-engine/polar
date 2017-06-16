@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/container/vector.hpp>
+#include <vector>
 #include "ModelComponent.h"
 #include "Serializer.h"
 
@@ -25,7 +25,7 @@ public:
 	unsigned char width;
 	unsigned char height;
 	unsigned char depth;
-	boost::container::vector<Block> blocks;
+	std::vector<Block> blocks;
 
 	Chunk(const unsigned char &width, const unsigned char &height, const unsigned char &depth) : width(width), height(height), depth(depth) {}
 

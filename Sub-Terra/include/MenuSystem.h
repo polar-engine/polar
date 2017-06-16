@@ -13,7 +13,7 @@ namespace MenuControl {
 		virtual float Get() { return 0; }
 		virtual bool Activate() { return false; }
 		virtual bool Navigate(int) { return false; }
-		virtual boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2, float) {
+		virtual std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2, float) {
 			return engine->AddObject(&id);
 		}
 	};
@@ -42,7 +42,7 @@ namespace MenuControl {
 			return true;
 		}
 
-		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
+		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			auto dtor = engine->AddObject(&id);
 			auto pad = Point2(15);
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
@@ -69,7 +69,7 @@ namespace MenuControl {
 			return changed;
 		}
 
-		boost::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
+		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			scale *= 0.375;
 
 			auto dtor = engine->AddObject(&id);
@@ -108,12 +108,12 @@ private:
 	int current = 0;
 
 	std::shared_ptr<FontAsset> font;
-	std::vector<boost::shared_ptr<Destructor>> itemDtors;
-	std::unordered_map<int, boost::shared_ptr<Destructor>> controlDtors;
+	std::vector<std::shared_ptr<Destructor>> itemDtors;
+	std::unordered_map<int, std::shared_ptr<Destructor>> controlDtors;
 	float selectionAlpha = 0.0f;
 
 	// the size of the array determines how many concurrent sounds we can play at once
-	std::array<boost::shared_ptr<Destructor>, 4> soundDtors;
+	std::array<std::shared_ptr<Destructor>, 4> soundDtors;
 	size_t soundIndex = 0;
 
 	Menu * GetCurrentMenu() {

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include "Asset.h"
 #include "FileSystem.h"
 #include "Serializer.h"
 
 class AssetManager : public System {
 private:
-	boost::unordered_map<std::string, std::shared_ptr<Asset>> cache;
+	std::unordered_map<std::string, std::shared_ptr<Asset>> cache;
 public:
 	static std::string GetAssetsDir() {
 #if defined(_WIN32)

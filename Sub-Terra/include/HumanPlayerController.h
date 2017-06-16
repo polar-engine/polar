@@ -2,11 +2,11 @@
 
 class HumanPlayerController : public System {
 private:
-	boost::shared_ptr<Destructor> timeDtor;
+	std::shared_ptr<Destructor> timeDtor;
 	IDType timeID = 0;
 
 	// the size of the array determines how many concurrent sounds we can play at once
-	std::array<boost::shared_ptr<Destructor>, 4> soundDtors;
+	std::array<std::shared_ptr<Destructor>, 4> soundDtors;
 	size_t soundIndex = 0;
 
 	IDType object;

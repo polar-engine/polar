@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
-#include <boost/container/vector.hpp>
+#include <vector>
+#include <unordered_map>
 #include "Destructor.h"
 #include "EngineStack.h"
 
@@ -9,11 +9,11 @@ class EngineState {
 private:
 	Polar *engine;
 	EntityBase<System> systems;
-	boost::container::vector<boost::shared_ptr<System>> orderedSystems;
+	std::vector<std::shared_ptr<System>> orderedSystems;
 public:
 	const std::string name;
-	boost::container::vector<boost::shared_ptr<Destructor>> dtors;
-	boost::unordered_map<std::string, Transition> transitions;
+	std::vector<std::shared_ptr<Destructor>> dtors;
+	std::unordered_map<std::string, Transition> transitions;
 
 	EngineState(const std::string &name, Polar *engine) : name(name), engine(engine) {}
 
@@ -24,7 +24,7 @@ public:
 		/* explicitly release shared_ptrs in unordered_map
 		 * and then pop_back to destruct in reverse order
 		 */
-		systems.~EntityBase();
+		systems.Clear();
 		while(!orderedSystems.empty()) {
 			orderedSystems.pop_back();
 		}
@@ -68,18 +68,18 @@ public:
 	}
 
 	template<typename T> inline void RemoveSystem() {
-		auto sys = boost::static_pointer_cast<System>(systems.Get<T>().lock());
+		auto sys = std::static_pointer_cast<System>(systems.Get<T>().lock());
 		if(sys) {
 			orderedSystems.erase(std::remove(orderedSystems.begin(), orderedSystems.end(), sys));
 			systems.Remove<T>();
 		}
 	}
 
-	template<typename T> inline boost::weak_ptr<T> GetSystem() {
+	template<typename T> inline std::weak_ptr<T> GetSystem() {
 		return systems.Get<T>();
 	}
 
-	inline void ComponentAdded(IDType id, const std::type_info *ti, boost::shared_ptr<Component> ptr) {
+	inline void ComponentAdded(IDType id, const std::type_info *ti, std::shared_ptr<Component> ptr) {
 		for(auto &pairSystem : *systems.Get()) {
 			auto &system = pairSystem.second;
 			DebugManager()->Trace("notifying system of component added: ", typeid(*system).name(), ", ", ti->name());

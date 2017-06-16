@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <boost/container/vector.hpp>
+#include <vector>
 
 enum class StackActionType {
 	Push,
@@ -18,4 +18,4 @@ inline StackAction Push(std::string name) { return StackAction{ StackActionType:
 inline StackAction Pop() { return StackAction{ StackActionType::Pop }; }
 inline StackAction QuitAction() { return StackAction{ StackActionType::Quit }; }
 
-typedef boost::container::vector<StackAction> Transition;
+typedef std::vector<StackAction> Transition;

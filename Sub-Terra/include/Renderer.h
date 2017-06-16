@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/container/vector.hpp>
+#include <vector>
 #include "System.h"
 
 class Renderer : public System {
@@ -11,7 +11,7 @@ protected:
 	Decimal zNear = 47.0 / 100000.0;
 	Decimal zFar  = 48.0 / 100000.0;
 	Decimal pixelDistanceFromScreen = 1000.0f;
-	virtual void MakePipeline(const boost::container::vector<std::string> &) = 0;
+	virtual void MakePipeline(const std::vector<std::string> &) = 0;
 public:
 	bool showFPS = false;
 
@@ -21,7 +21,7 @@ public:
 	inline uint16_t GetWidth() { return width; }
 	inline uint16_t GetHeight() { return height; }
 
-	virtual void SetPipeline(const boost::container::vector<std::string> &) = 0;
+	virtual void SetPipeline(const std::vector<std::string> &) = 0;
 	virtual void SetClearColor(const Point4 &) = 0;
 	virtual Decimal GetUniformDecimal(const std::string &, const Decimal = 0) = 0;
 	virtual Point3 GetUniformPoint3(const std::string &, const Point3 = Point3(0)) = 0;

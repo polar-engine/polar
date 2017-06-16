@@ -1,12 +1,12 @@
 #pragma once
 
-#include <boost/array.hpp>
+#include <array>
 
 class WaveShape {
 public:
 	static const unsigned int granularity = 12;
 	static const int16_t size = 1 << granularity;
-	boost::array<int16_t, size> table = { 0 };
+	std::array<int16_t, size> table = { 0 };
 };
 
 inline WaveShape MkSineWaveShape() {

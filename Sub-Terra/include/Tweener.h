@@ -1,9 +1,7 @@
 #pragma once
 
-#include <boost/container/vector.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+#include <vector>
+#include <unordered_map>
 #include "System.h"
 
 template<typename T> class Tweener : public System {
@@ -22,11 +20,11 @@ public:
 			: from(from), to(to), in(in), pause(pause), loop(loop), fn(fn), accumulator(acc) {}
 	};
 private:
-	boost::unordered_map<IDType, TweenDescriptor> tweens;
+	std::unordered_map<IDType, TweenDescriptor> tweens;
 	IDType nextID = 1;
 protected:
 	void Update(DeltaTicks &dt) override final {
-		boost::container::vector<IDType> toRemove;
+		std::vector<IDType> toRemove;
 		for(auto &tween : tweens) {
 			tween.second.accumulator += dt.Seconds();
 			if(tween.second.accumulator > tween.second.in + tween.second.pause) {
@@ -53,15 +51,15 @@ public:
 	static bool IsSupported() { return true; }
 	Tweener(Polar *engine) : System(engine) {}
 
-	inline boost::shared_ptr<Destructor> Tween(T from, T to, double in, bool loop, TweenHandler fn, double pause = 0.0) {
+	inline std::shared_ptr<Destructor> Tween(T from, T to, double in, bool loop, TweenHandler fn, double pause = 0.0) {
 		return Tween(from, to, in, loop, fn, pause, from);
 	}
 
-	inline boost::shared_ptr<Destructor> Tween(T from, T to, double in, bool loop, TweenHandler fn, double pause, T initial) {
+	inline std::shared_ptr<Destructor> Tween(T from, T to, double in, bool loop, TweenHandler fn, double pause, T initial) {
 		auto id = nextID++;
 		double acc = (initial - from) / (to - from) * in;
 		tweens.emplace(id, TweenDescriptor(from, to, in, pause, loop, fn, acc));
-		return boost::make_shared<Destructor>([this, id] () {
+		return std::make_shared<Destructor>([this, id] () {
 			tweens.erase(id);
 		});
 	}
