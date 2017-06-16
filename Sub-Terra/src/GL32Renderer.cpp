@@ -1,5 +1,4 @@
 #include "common.h"
-#include <boost/container/flat_map.hpp>
 #include "GL32Renderer.h"
 #include "EventManager.h"
 #include "AssetManager.h"
@@ -451,7 +450,7 @@ void GL32Renderer::HandleSDL(SDL_Event &event) {
 	}
 }
 
-void GL32Renderer::MakePipeline(const boost::container::vector<std::string> &names) {
+void GL32Renderer::MakePipeline(const std::vector<std::string> &names) {
 	pipelineNames = names;
 
 	auto assetM = engine->GetSystem<AssetManager>().lock();

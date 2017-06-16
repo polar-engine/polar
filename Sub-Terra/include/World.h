@@ -1,9 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include <boost/container/vector.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
+//#include <boost/asio.hpp>
 #include <glm/gtc/noise.hpp>
 #include "System.h"
 #include "Renderer.h"

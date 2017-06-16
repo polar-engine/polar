@@ -1,8 +1,6 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
@@ -30,30 +28,30 @@ public:
 		boost::bimaps::with_info<Listener>
 	> ListenersBimap;
 private:
-	boost::unordered_multimap<IDType, GlobalListener> globalListeners;
+	std::unordered_multimap<IDType, GlobalListener> globalListeners;
 	ListenersBimap listeners;
 	IDType nextID = 1;
 public:
 	static bool IsSupported() { return true; }
 	EventManager(Polar *engine) : System(engine) {}
 
-	inline boost::shared_ptr<Destructor> Listen(const GlobalListener &fn) {
+	inline std::shared_ptr<Destructor> Listen(const GlobalListener &fn) {
 		auto id = nextID++;
 		globalListeners.emplace(id, fn);
-		return boost::make_shared<Destructor>([this, id] () {
+		return std::make_shared<Destructor>([this, id] () {
 			globalListeners.erase(id);
 		});
 	}
 
-	inline boost::shared_ptr<Destructor> ListenFor(const std::string &msg, const Listener &fn) {
+	inline std::shared_ptr<Destructor> ListenFor(const std::string &msg, const Listener &fn) {
 		return ListenFor("", msg, fn);
 	}
 
-	inline boost::shared_ptr<Destructor> ListenFor(const std::string &ns, const std::string &msg, const Listener &fn) {
+	inline std::shared_ptr<Destructor> ListenFor(const std::string &ns, const std::string &msg, const Listener &fn) {
 		auto m = ns + '.' + msg;
 		auto id = nextID++;
 		listeners.insert(ListenersBimap::value_type(m, id, fn));
-		return boost::make_shared<Destructor>([this, id] () {
+		return std::make_shared<Destructor>([this, id] () {
 			listeners.right.erase(id);
 		});
 	}

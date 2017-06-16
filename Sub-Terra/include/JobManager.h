@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/container/vector.hpp>
+#include <vector>
 #include "System.h"
 #include "Job.h"
 #include "Worker.h"
@@ -10,8 +10,8 @@ typedef std::priority_queue<Job> JobsType;
 class JobManager : public System {
 private:
 	Atomic<JobsType> jobs;
-	boost::container::vector<Worker *> _workers;
-	boost::container::vector<Worker *>::size_type nextWorker = 0;
+	std::vector<Worker *> _workers;
+	std::vector<Worker *>::size_type nextWorker = 0;
 protected:
 	void Init() override final;
 	void Update(DeltaTicks &) override final;

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <boost/container/vector.hpp>
+#include <vector>
 #include "Component.h"
 
 class ModelComponent : public Component {
 public:
 	typedef glm::vec3 PointType;
 	typedef std::tuple<PointType, PointType, PointType> TriangleType;
-	typedef boost::container::vector<PointType> PointsType;
-	typedef boost::container::vector<TriangleType> TrianglesType;
+	typedef std::vector<PointType> PointsType;
+	typedef std::vector<TriangleType> TrianglesType;
 
 	GeometryType type;
 	PointsType points;

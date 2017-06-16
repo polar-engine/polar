@@ -5,12 +5,9 @@
 #include "Windows.h"
 #endif
 
-#include <boost/weak_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/container/vector.hpp>
-#include <boost/container/deque.hpp>
-#include <boost/unordered_map.hpp>
+#include <vector>
+#include <deque>
+#include <unordered_map>
 #include <boost/bimap.hpp>
 #include <boost/bimap/set_of.hpp>
 #include <boost/bimap/multiset_of.hpp>
@@ -29,13 +26,13 @@ public:
 		boost::bimaps::multiset_of<IDType>,
 		boost::bimaps::unordered_multiset_of<const std::type_info *>,
 		boost::bimaps::set_of_relation<>,
-		boost::bimaps::with_info<boost::shared_ptr<Component>>
+		boost::bimaps::with_info<std::shared_ptr<Component>>
 	> Bimap;
 private:
 	bool initDone = false;
 	bool running = false;
-	boost::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
-	boost::container::vector<EngineState> stack;
+	std::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
+	std::vector<EngineState> stack;
 public:
 	Bimap objects;
 	IDType nextID = 1;
@@ -128,7 +125,12 @@ public:
 					case StackActionType::Push:
 						DebugManager()->Debug("pushing state: ", action.name);
 						stack.emplace_back(action.name, this);
-						states[action.name].first(this, stack.back());
+						{
+							DebugManager()->Debug("calling state initializer");
+							EngineState &st = stack.back();
+							DebugManager()->Debug("calling state initializer");
+							states[action.name].first(this, st);
+						}
 						DebugManager()->Debug("pushed state");
 						stack.back().Init();
 						break;
@@ -154,18 +156,18 @@ public:
 		running = false;
 	}
 
-	template<typename T> inline boost::weak_ptr<T> GetSystem() {
+	template<typename T> inline std::weak_ptr<T> GetSystem() {
 		for(auto &state : stack) {
 			auto ptr = state.GetSystem<T>();
 			if(!ptr.expired()) { return ptr; }
 		}
-		return boost::weak_ptr<T>();
+		return std::weak_ptr<T>();
 	}
 
-	inline boost::shared_ptr<Destructor> AddObject(IDType *inputID) {
+	inline std::shared_ptr<Destructor> AddObject(IDType *inputID) {
 		auto id = nextID++;
 		*inputID = id;
-		return boost::make_shared<Destructor>([this, id] () {
+		return std::make_shared<Destructor>([this, id] () {
 			RemoveObject(id);
 		});
 	}
@@ -190,10 +192,10 @@ public:
 	}
 
 	template<typename T> inline void InsertComponent(IDType id, T *component) {
-		InsertComponent(id, boost::shared_ptr<T>(component));
+		InsertComponent(id, std::shared_ptr<T>(component));
 	}
 
-	template<typename T> inline void InsertComponent(IDType id, boost::shared_ptr<T> component) {
+	template<typename T> inline void InsertComponent(IDType id, std::shared_ptr<T> component) {
 		auto ti = &typeid(T);
 		DebugManager()->Trace("inserting component: ", ti->name());
 		objects.insert(Bimap::value_type(id, ti, component));
