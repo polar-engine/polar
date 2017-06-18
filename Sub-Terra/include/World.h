@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-//#include <boost/asio.hpp>
+#include <boost/asio.hpp>
 #include <glm/gtc/noise.hpp>
 #include "System.h"
 #include "Renderer.h"
@@ -18,20 +18,10 @@ private:
 	float alpha = 1;
 
 	void SetUniforms() {
-		auto kf = level.GetNow();
-		if(alpha < 1) {
-			auto oldKf = oldLevel.GetNow();
-			kf = kf * alpha + oldKf * (1 - alpha);
-		}
+		auto kf = GetKF();
+		auto color = GetColor(kf);
 
 		auto renderer = engine->GetSystem<Renderer>().lock();
-
-		size_t iColor = 0;
-		if(kf.colorTicks > 0) {
-			iColor = kf.ticks / kf.colorTicks % kf.colors.size();
-		}
-		auto color = kf.colors[iColor];
-		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
 #
 		renderer->SetUniform("u_period",        float(double(globalTicks % (ENGINE_TICKS_PER_SECOND * 100)) / double(ENGINE_TICKS_PER_SECOND * 100)));
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
@@ -40,7 +30,109 @@ private:
 		renderer->SetUniform("u_worldScale",    kf.worldScale / Decimal(WORLD_SCALE));
 		renderer->SetUniform("u_color",         color);
 	}
+
+	Keyframe GetKF() {
+		auto kf = level.GetNow();
+		if(alpha < 1) {
+			auto oldKf = oldLevel.GetNow();
+			kf = kf * alpha + oldKf * (1 - alpha);
+		}
+		return kf;
+	}
+
+	Point3 GetColor() {
+		return GetColor(GetKF());
+	}
+
+	Point3 GetColor(Keyframe &kf) {
+		size_t iColor = 0;
+		if(kf.colorTicks > 0) {
+			iColor = kf.ticks / kf.colorTicks % kf.colors.size();
+		}
+		auto color = kf.colors[iColor];
+		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
+		return color;
+	}
+
+	void Hue() {
+		/*auto color = GetColor();
+		auto min = glm::min(glm::min(color.r, color.g), color.b);
+		auto max = glm::max(glm::max(color.r, color.g), color.b);
+
+		Decimal bri = (max + min) / Decimal(2);
+
+		Decimal sat;
+		if(bri < 0.5) {
+			sat = (max - min) / (max + min);
+		} else {
+			sat = (max - min) / (2 - max - min);
+		}
+
+		Decimal hue;
+		if(max == color.r) {
+			hue = (color.g - color.b) / (max - min);
+		} else if(max == color.g) {
+			hue = 2 + (color.b - color.r) / (max - min);
+		} else {
+			hue = 4 + (color.r - color.g) / (max - min);
+		}
+		hue *= 60;
+		if(hue < 0) { hue += 360; }
+		hue /= 360;
+
+		std::ostringstream oss;
+		oss << "{\"sat\":" << int(sat * 255) << ",\"bri\":" << int(bri * 255) << ",\"hue\":" << int(hue * 65535) << '}';
+		std::string data = oss.str();
+
+		boost::asio::io_service io_service;
+		boost::asio::ip::tcp::resolver resolver(io_service);
+		boost::asio::ip::tcp::resolver::query query("192.168.1.168", "http");
+		boost::asio::ip::tcp::resolver::iterator endpoint_it = resolver.resolve(query);
+
+		for(auto light : { "7", "8", "9" }) {
+			boost::asio::ip::tcp::socket socket(io_service);
+			boost::asio::connect(socket, endpoint_it);
+
+			boost::asio::streambuf request;
+			std::ostream request_s(&request);
+			request_s << "PUT /api/PaugQhX2KUHA6krplR06PYFk5k8PMBqlkZtmBT4k/lights/" << light << "/state HTTP/1.1\r\n";
+			request_s << "Connection: close\r\n";
+			request_s << "Content-Length: " << data.size() << "\r\n";
+			request_s << "Content-Type: text/plain\r\n";
+			request_s << "\r\n";
+			request_s << data;
+
+			boost::asio::write(socket, request);
+		}*/
+
+		/*boost::asio::streambuf response;
+		boost::asio::read_until(socket, response, "\r\n");
+
+		std::istream response_s(&response);
+		std::string http_version;
+		response_s >> http_version;
+		unsigned int status_code;
+		response_s >> status_code;
+		std::string status_msg;
+		std::getline(response_s, status_msg);
+
+		DebugManager()->Debug(http_version, ' ', status_code, ' ', status_msg);
+
+		boost::asio::read_until(socket, response, "\r\n\r\n");
+
+		std::string header;
+		while(std::getline(response_s, header) && header != "\r") {
+			DebugManager()->Debug(header);
+		}
+
+		boost::system::error_code err;
+		while(boost::asio::read(socket, response, boost::asio::transfer_at_least(1), err)) {
+			DebugManager()->Debug(&response);
+		}*/
+	}
 protected:
+	DeltaTicks accumulator;
+
 	void Init() override final {
 		SetUniforms();
 	}
@@ -59,6 +151,12 @@ protected:
 		}
 
 		SetUniforms();
+
+		accumulator += dt;
+		if(accumulator.Seconds() > 0.25) {
+			Hue();
+			accumulator = 0;
+		}
 	}
 public:
 	bool active;
