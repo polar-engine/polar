@@ -73,6 +73,9 @@ Freefall::Freefall(Polar &engine) {
 		steamConfigM->On(SteamConfigOption::VoxelFactor, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_voxelFactor", x);
 		});
+		localConfigM->On(LocalConfigOption::Fullscreen, [] (Polar *engine, LocalConfigOption, bool fullscreen) {
+			engine->GetSystem<Renderer>().lock()->SetFullscreen(fullscreen);
+		});
 		localConfigM->On(LocalConfigOption::Bloom, [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
 		localConfigM->On(LocalConfigOption::Cel,   [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
 		steamConfigM->On(SteamConfigOption::Mute, [] (Polar *engine, SteamConfigOption, bool mute) {
@@ -180,6 +183,10 @@ Freefall::Freefall(Polar &engine) {
 					}),
 					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, steamConfigM->Get<Decimal>(SteamConfigOption::VoxelFactor)), [engine] (Decimal x) {
 						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::VoxelFactor, x);
+						return true;
+					}),
+					MenuItem("Fullscreen", MenuControl::Checkbox(localConfigM->Get<bool>(LocalConfigOption::Fullscreen)), [engine] (Decimal state) {
+						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Fullscreen, state);
 						return true;
 					}),
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
