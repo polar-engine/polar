@@ -55,30 +55,34 @@ private:
 	}
 
 	void Hue() {
-		/*auto color = GetColor();
+		return;
+
+		auto color = GetColor();
 		auto min = glm::min(glm::min(color.r, color.g), color.b);
 		auto max = glm::max(glm::max(color.r, color.g), color.b);
 
-		Decimal bri = (max + min) / Decimal(2);
+		Decimal bri = 0, sat = 0, hue = 0;
 
-		Decimal sat;
-		if(bri < 0.5) {
-			sat = (max - min) / (max + min);
-		} else {
-			sat = (max - min) / (2 - max - min);
-		}
+		if(active) {
+			bri = (max + min) / Decimal(2);
 
-		Decimal hue;
-		if(max == color.r) {
-			hue = (color.g - color.b) / (max - min);
-		} else if(max == color.g) {
-			hue = 2 + (color.b - color.r) / (max - min);
-		} else {
-			hue = 4 + (color.r - color.g) / (max - min);
+			if(bri < 0.5) {
+				sat = (max - min) / (max + min);
+			} else {
+				sat = (max - min) / (2 - max - min);
+			}
+
+			if(max == color.r) {
+				hue = (color.g - color.b) / (max - min);
+			} else if(max == color.g) {
+				hue = 2 + (color.b - color.r) / (max - min);
+			} else {
+				hue = 4 + (color.r - color.g) / (max - min);
+			}
+			hue *= 60;
+			if(hue < 0) { hue += 360; }
+			hue /= 360;
 		}
-		hue *= 60;
-		if(hue < 0) { hue += 360; }
-		hue /= 360;
 
 		std::ostringstream oss;
 		oss << "{\"sat\":" << int(sat * 255) << ",\"bri\":" << int(bri * 255) << ",\"hue\":" << int(hue * 65535) << '}';
@@ -103,7 +107,7 @@ private:
 			request_s << data;
 
 			boost::asio::write(socket, request);
-		}*/
+		}
 
 		/*boost::asio::streambuf response;
 		boost::asio::read_until(socket, response, "\r\n");

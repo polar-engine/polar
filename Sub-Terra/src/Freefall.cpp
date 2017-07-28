@@ -277,22 +277,23 @@ Freefall::Freefall(Polar &engine) {
 			DebugManager()->Critical("failed to upload new value of time stat");
 		}
 
-		auto IndicateAchievement = [totalSeconds] (const char *sz, uint32 min, uint32 max) {
-			if(totalSeconds <= min || totalSeconds >= max) { return; }
-			SteamUserStats()->IndicateAchievementProgress(sz, totalSeconds, max);
-		};
-		IndicateAchievement("1000_time_minutes_1",       0,       60);
-		IndicateAchievement("1010_time_minutes_2",      60,      120);
-		IndicateAchievement("1020_time_minutes_5",     120,      300);
-		IndicateAchievement("1030_time_minutes_15",    300,      900);
-		IndicateAchievement("1040_time_minutes_30",    900,     1800);
-		IndicateAchievement("1050_time_hours_1",      1800,     3600);
-		IndicateAchievement("1060_time_hours_2",      3600,     7200);
-		IndicateAchievement("1070_time_hours_6",      7200,    21600);
-		IndicateAchievement("1080_time_hours_12",    21600,    43200);
-		IndicateAchievement("1090_time_days_1",      43200,    86400);
-		IndicateAchievement("1100_time_weeks_1",     86400,   604800);
-		IndicateAchievement("1110_time_years_1",    604800, 31536000);
+#define IndicateAchievement(SZ, MIN, MAX) \
+		if(totalSeconds > MIN && totalSeconds < MAX) { \
+			SteamUserStats()->IndicateAchievementProgress(SZ, totalSeconds, MAX); \
+		}
+
+		     IndicateAchievement("1000_time_minutes_1",       0,       60)
+		else IndicateAchievement("1010_time_minutes_2",      60,      120)
+		else IndicateAchievement("1020_time_minutes_5",     120,      300)
+		else IndicateAchievement("1030_time_minutes_15",    300,      900)
+		else IndicateAchievement("1040_time_minutes_30",    900,     1800)
+		else IndicateAchievement("1050_time_hours_1",      1800,     3600)
+		else IndicateAchievement("1060_time_hours_2",      3600,     7200)
+		else IndicateAchievement("1070_time_hours_6",      7200,    21600)
+		else IndicateAchievement("1080_time_hours_12",    21600,    43200)
+		else IndicateAchievement("1090_time_days_1",      43200,    86400)
+		else IndicateAchievement("1100_time_weeks_1",     86400,   604800)
+		else IndicateAchievement("1110_time_years_1",    604800, 31536000)
 
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
