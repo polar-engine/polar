@@ -253,6 +253,9 @@ Freefall::Freefall(Polar &engine) {
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
 		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
+
+		engine->GetSystem<Renderer>().lock()->SetMouseCapture(true);
+		st.dtors.emplace_back(std::make_shared<Destructor>([engine] () { engine->GetSystem<Renderer>().lock()->SetMouseCapture(false); }));
 	});
 
 	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
