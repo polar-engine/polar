@@ -48,6 +48,7 @@ template<typename T> struct SharedPtrLess : public std::binary_function<std::sha
 class GL32Renderer : public Renderer {
 private:
 	bool inited = false;
+	bool capture = false;
 	bool fullscreen = false;
 
 	SDL_Window *window;
@@ -206,6 +207,13 @@ public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine, const std::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();
+
+	void SetMouseCapture(bool capture) {
+		this->capture = capture;
+		if(inited) {
+			if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) { DebugManager()->Fatal("failed to set relative mouse mode"); }
+		}
+	}
 
 	void SetFullscreen(bool fullscreen) {
 		this->fullscreen = fullscreen;

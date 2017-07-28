@@ -21,6 +21,7 @@ public:
 	inline uint16_t GetWidth() { return width; }
 	inline uint16_t GetHeight() { return height; }
 
+	virtual void SetMouseCapture(bool) = 0;
 	virtual void SetFullscreen(bool) = 0;
 	virtual void SetPipeline(const std::vector<std::string> &) = 0;
 	virtual void SetClearColor(const Point4 &) = 0;

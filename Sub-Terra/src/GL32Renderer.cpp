@@ -45,7 +45,8 @@ void GL32Renderer::InitGL() {
 	}
 	if(!SDL(context = SDL_GL_CreateContext(window))) { DebugManager()->Fatal("failed to create OpenGL context"); }
 	if(!SDL(SDL_GL_SetSwapInterval(1))) { DebugManager()->Fatal("failed to set swap interval"); }
-	if(!SDL(SDL_SetRelativeMouseMode(SDL_TRUE))) { DebugManager()->Fatal("failed to set relative mouse mode"); }
+
+	if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) { DebugManager()->Fatal("failed to set relative mouse mode"); }
 
 	/* set up controller joysticks */
 	SDL_GameController *controller = nullptr;
