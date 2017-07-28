@@ -108,6 +108,16 @@ Freefall::Freefall(Polar &engine) {
 		assetM->Get<AudioAsset>("fifty");
 		assetM->Get<AudioAsset>("freefall");*/
 
+		auto inputM = engine->GetSystem<InputManager>().lock();
+		st.dtors.emplace_back(inputM->On(Key::F, [engine] (Key) {
+			auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
+			localConfigM->Set<bool>(LocalConfigOption::Fullscreen, !localConfigM->Get<bool>(LocalConfigOption::Fullscreen));
+		}));
+		st.dtors.emplace_back(inputM->On(Key::M, [engine] (Key) {
+			auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
+			steamConfigM->Set<bool>(SteamConfigOption::Mute, !steamConfigM->Get<bool>(SteamConfigOption::Mute));
+		}));
+
 		engine->transition = "forward";
 	});
 
