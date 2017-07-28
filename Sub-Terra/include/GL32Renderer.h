@@ -48,6 +48,7 @@ template<typename T> struct SharedPtrLess : public std::binary_function<std::sha
 class GL32Renderer : public Renderer {
 private:
 	bool inited = false;
+	bool fullscreen = false;
 
 	SDL_Window *window;
 	SDL_GLContext context;
@@ -205,6 +206,13 @@ public:
 	static bool IsSupported();
 	GL32Renderer(Polar *engine, const std::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
 	~GL32Renderer();
+
+	void SetFullscreen(bool fullscreen) {
+		this->fullscreen = fullscreen;
+		if(inited) {
+			if(!SDL(SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) { DebugManager()->Critical("failed to set fullscreen mode"); }
+		}
+	}
 
 	void SetPipeline(const std::vector<std::string> &names) override final {
 		pipelineNames = names;

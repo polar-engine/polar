@@ -46,7 +46,8 @@ std::ostream & operator<<(std::ostream &s, const SteamConfigOption &x) {
 enum class LocalConfigOption {
 	BaseDetail,
 	Bloom,
-	Cel
+	Cel,
+	Fullscreen
 };
 
 std::istream & operator>>(std::istream &s, LocalConfigOption &x) {
@@ -57,6 +58,7 @@ std::istream & operator>>(std::istream &s, LocalConfigOption &x) {
 	if CASE(BaseDetail)
 	else if CASE(Bloom)
 	else if CASE(Cel)
+	else if CASE(Fullscreen)
 	else { assert(false && "unhandled ConfigOption"); }
 #undef CASE
 
@@ -69,6 +71,7 @@ std::ostream & operator<<(std::ostream &s, const LocalConfigOption &x) {
 	CASE(BaseDetail)
 	CASE(Bloom)
 	CASE(Cel)
+	CASE(Fullscreen)
 	default: assert(false && "unhandled ConfigOption");
 	}
 #undef CASE
