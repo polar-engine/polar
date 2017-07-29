@@ -82,7 +82,13 @@ Freefall::Freefall(Polar &engine) {
 			engine->GetSystem<AudioManager>().lock()->muted = mute;
 		});
 
+		steamConfigM->On(SteamConfigOption::MouseSmoothing, [] (Polar *engine, SteamConfigOption, Decimal x) {
+			auto con = engine->GetSystem<HumanPlayerController>().lock();
+			if(con) { con->smoothing = x; }
+		});
+
 		localConfigM->Set<Decimal>(LocalConfigOption::BaseDetail, 8);
+		steamConfigM->Set<Decimal>(SteamConfigOption::MouseSmoothing, 0.995);
 
 		steamConfigM->Load();
 		localConfigM->Load();
@@ -211,6 +217,12 @@ Freefall::Freefall(Polar &engine) {
 						return true;
 					}),
 				}),
+				MenuItem("Controls", {
+					MenuItem("Mouse Smoothing", MenuControl::Slider<Decimal>(0.9, 0.995, steamConfigM->Get<Decimal>(SteamConfigOption::MouseSmoothing), 0.005), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::MouseSmoothing, x);
+						return true;
+					}),
+				}),
 			}),
 			MenuItem("Credits", [engine] (Decimal) {
 				engine->transition = "credits";
@@ -229,6 +241,9 @@ Freefall::Freefall(Polar &engine) {
 		st.transitions.emplace("gameover", Transition{Pop(), Push("notplaying"), Push("gameover")});
 
 		st.AddSystem<HumanPlayerController>(playerID);
+
+		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
+		engine->GetSystem<HumanPlayerController>().lock()->smoothing = steamConfigM->Get<Decimal>(SteamConfigOption::MouseSmoothing);
 
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto inputM = engine->GetSystem<InputManager>().lock();

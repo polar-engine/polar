@@ -18,6 +18,7 @@ protected:
 	virtual void Update(DeltaTicks &) override;
 public:
 	Decimal oldTime = 0;
+	Decimal smoothing = 0.995;
 
 	static bool IsSupported() { return true; }
 	HumanPlayerController(Polar *engine, const IDType object) : System(engine), object(object) {}
