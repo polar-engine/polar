@@ -28,16 +28,19 @@ void HumanPlayerController::Init() {
 	/* mouse look */
 	const float mouseSpeed = 0.015f;
 	dtors.emplace_back(inputM->OnMouseMove([this, mouseSpeed] (const Point2 &delta) {
-		orientVel.y += glm::radians(mouseSpeed) * delta.x;
-		orientVel.x += glm::radians(mouseSpeed) * delta.y;
+		Decimal smoothingVelFactor = glm::pow(Decimal(2) - smoothing, Decimal(40));
+		orientVel.y += glm::radians(mouseSpeed) * delta.x * smoothingVelFactor;
+		orientVel.x += glm::radians(mouseSpeed) * delta.y * smoothingVelFactor;
 	}));
 	dtors.emplace_back(inputM->OnControllerAxes([this, mouseSpeed] (const Point2 &delta) {
-		orientVel.y += glm::radians(mouseSpeed) * delta.x * 30.0f;
-		orientVel.x += glm::radians(mouseSpeed) * delta.y * 30.0f;
+		Decimal smoothingVelFactor = glm::pow(Decimal(2) - smoothing, Decimal(40));
+		orientVel.y += glm::radians(mouseSpeed) * delta.x * 30.0f * smoothingVelFactor;
+		orientVel.x += glm::radians(mouseSpeed) * delta.y * 30.0f * smoothingVelFactor;
 	}));
 	dtors.emplace_back(inputM->OnAnalog("ingame_camera", [this, mouseSpeed] (const Point2 &delta) {
-		orientVel.y += glm::radians(mouseSpeed) * delta.x;
-		orientVel.x += glm::radians(mouseSpeed) * delta.y;
+		Decimal smoothingVelFactor = glm::pow(Decimal(2) - smoothing, Decimal(40));
+		orientVel.y += glm::radians(mouseSpeed) * delta.x * smoothingVelFactor;
+		orientVel.x += glm::radians(mouseSpeed) * delta.y * smoothingVelFactor;
 	}));
 
 	dtors.emplace_back(inputM->On(Key::Space, [this] (Key) {
@@ -139,7 +142,7 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	auto orient = engine->GetComponent<OrientationComponent>(object);
 	auto camera = engine->GetComponent<PlayerCameraComponent>(object);
 
-	orientVel *= static_cast<float>(glm::pow(0.995, dt.Seconds() * 1000.0));
+	orientVel *= static_cast<float>(glm::pow(smoothing, dt.Seconds() * Decimal(1000)));
 	orient->orientation = Quat(Point3(orientVel.x, 0.0, 0.0)) * Quat(Point3(0.0, orientVel.y, 0.0)) * orient->orientation;
 
 	Decimal seconds = engine->GetSystem<World>().lock()->GetTicks() / Decimal(ENGINE_TICKS_PER_SECOND);
