@@ -239,7 +239,7 @@ private:
 
 		if(item.control) {
 			IDType controlID;
-			auto offset = Point2(400 / 0.375 * scale, 0);
+			auto offset = Point2(600 / 0.375 * scale, 0);
 			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, t->scale.y);
 		}
 	}
