@@ -34,15 +34,15 @@ private:
 			dtors.emplace_back(engine->AddObject(&section.id));
 			engine->AddComponentAs<Sprite, Text>(section.id, font, section.value, Point2(0, height), Origin::Top);
 			auto sectionSprite = engine->GetComponent<Sprite>(section.id);
-			sectionSprite->scale *= 0.3125;
-			height += sectionSprite->scale.y * 1.12;
+			sectionSprite->scale *= Decimal(0.3125);
+			height += sectionSprite->scale.y * Decimal(1.12);
 
 			for(size_t n = 0; n < section.names.size(); ++n) {
 				auto &name = section.names[n];
 				dtors.emplace_back(engine->AddObject(&section.nameIDs[n]));
 				engine->AddComponentAs<Sprite, Text>(section.nameIDs[n], font, name, Point2(0, height), Origin::Top);
 				auto nameSprite = engine->GetComponent<Sprite>(section.nameIDs[n]);
-				nameSprite->scale *= 0.1875;
+				nameSprite->scale *= Decimal(0.1875);
 				height += nameSprite->scale.y;
 			}
 		}

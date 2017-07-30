@@ -63,7 +63,7 @@ struct Keyframe {
 		kf.wavePower     = lhs.wavePower     * x;
 		kf.waveStrength  = lhs.waveStrength  * x;
 		kf.worldScale    = lhs.worldScale    * x;
-		kf.colorTicks    = lhs.colorTicks    * x;
+		kf.colorTicks    = uint64_t(lhs.colorTicks * x);
 		for(size_t i = 0; i < kf.colors.size(); ++i) {
 			kf.colors[i]  = lhs.colors[i]    * x;
 		}

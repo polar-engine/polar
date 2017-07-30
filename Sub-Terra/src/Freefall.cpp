@@ -88,7 +88,7 @@ Freefall::Freefall(Polar &engine) {
 		});
 
 		localConfigM->Set<Decimal>(LocalConfigOption::BaseDetail, 8);
-		steamConfigM->Set<Decimal>(SteamConfigOption::MouseSmoothing, 0.995);
+		steamConfigM->Set<Decimal>(SteamConfigOption::MouseSmoothing, Decimal(0.995));
 
 		steamConfigM->Load();
 		localConfigM->Load();
@@ -184,11 +184,11 @@ Freefall::Freefall(Polar &engine) {
 						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Cel, state);
 						return true;
 					}),
-					MenuItem("Grain", MenuControl::Slider<Decimal>(0, 0.2, steamConfigM->Get<Decimal>(SteamConfigOption::Grain), 0.01), [engine] (Decimal x) {
+					MenuItem("Grain", MenuControl::Slider<Decimal>(0, Decimal(0.2), steamConfigM->Get<Decimal>(SteamConfigOption::Grain), Decimal(0.01)), [engine] (Decimal x) {
 						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::Grain, x);
 						return true;
 					}),
-					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, 0.2, steamConfigM->Get<Decimal>(SteamConfigOption::ScanIntensity), 0.01), [engine] (Decimal x) {
+					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, Decimal(0.2), steamConfigM->Get<Decimal>(SteamConfigOption::ScanIntensity), Decimal(0.01)), [engine] (Decimal x) {
 						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::ScanIntensity, x);
 						return true;
 					}),
@@ -218,7 +218,7 @@ Freefall::Freefall(Polar &engine) {
 					}),
 				}),
 				MenuItem("Controls", {
-					MenuItem("Mouse Smoothing", MenuControl::Slider<Decimal>(0.9, 0.995, steamConfigM->Get<Decimal>(SteamConfigOption::MouseSmoothing), 0.005), [engine] (Decimal x) {
+					MenuItem("Mouse Smoothing", MenuControl::Slider<Decimal>(Decimal(0.9), Decimal(0.995), steamConfigM->Get<Decimal>(SteamConfigOption::MouseSmoothing), Decimal(0.005)), [engine] (Decimal x) {
 						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::MouseSmoothing, x);
 						return true;
 					}),

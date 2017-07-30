@@ -11,17 +11,18 @@ public:
 	SliderSprite(const Point2 pos, const float width, const float height, const float alpha) : Sprite(pos), width(width), height(height), alpha(alpha) {}
 
 	void RenderMe() override final {
-		const float edgeSize = 2;
-		const float edgePadding = 2;
-		const float boxSize = height;
+		const int edgeSize = 2;
+		const int edgePadding = 2;
+		const int boxSize = int(height);
+		const int w = int(width), h = int(height);
 
-		SDL(surface = SDL_CreateRGBSurface(0, width, height, 32, 0xff, 0xff00, 0xff0000, 0xff000000));
+		SDL(surface = SDL_CreateRGBSurface(0, w, h, 32, 0xff, 0xff00, 0xff0000, 0xff000000));
 
 		SDL_Rect rect;
 
 		// edges
 		rect.y = 0;
-		rect.h = height;
+		rect.h = h;
 
 		// left edge
 		rect.x = 0;
@@ -29,13 +30,13 @@ public:
 		SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 255, 255, 255)));
 
 		// right edge
-		rect.x = width - edgeSize;
+		rect.x = w - edgeSize;
 		rect.w = edgeSize;
 		SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 255, 255, 255)));
 
 		// box
-		float min = edgeSize + edgePadding;
-		float max = width - min - boxSize;
+		int min = edgeSize + edgePadding;
+		int max = w - min - boxSize;
 		rect.y = 0;
 		rect.h = boxSize;
 		rect.x = glm::mix(min, max, alpha);
