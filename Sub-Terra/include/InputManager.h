@@ -120,7 +120,7 @@ public:
 	}
 
 	inline void SetActiveSet(std::string name) {
-		currentSetAccum = 0.1;
+		currentSetAccum = Decimal(0.1);
 		currentActionSet = SteamController()->GetActionSetHandle(name.data());
 	}
 

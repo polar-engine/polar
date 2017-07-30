@@ -7,10 +7,10 @@ class Renderer : public System {
 protected:
 	uint16_t width = 1280;
 	uint16_t height = 720;
-	Decimal fovPlus = glm::radians(10.0f);
-	Decimal zNear = 47.0 / 100000.0;
-	Decimal zFar  = 48.0 / 100000.0;
-	Decimal pixelDistanceFromScreen = 1000.0f;
+	Decimal fovPlus = Decimal(glm::radians(10.0));
+	Decimal zNear = Decimal(47.0 / 100000.0);
+	Decimal zFar  = Decimal(48.0 / 100000.0);
+	Decimal pixelDistanceFromScreen = Decimal(1000.0);
 	virtual void MakePipeline(const std::vector<std::string> &) = 0;
 public:
 	bool showFPS = false;

@@ -10,7 +10,7 @@ private:
 	IDType object;
 	Point2 orientVel;
 	Decimal accum;
-	const Decimal timestep = 0.02;
+	const Decimal timestep = Decimal(0.02);
 protected:
 	inline void Init() override {
 		engine->AddComponent<PlayerCameraComponent>(object);

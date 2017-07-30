@@ -146,10 +146,10 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	orient->orientation = Quat(Point3(orientVel.x, 0.0, 0.0)) * Quat(Point3(0.0, orientVel.y, 0.0)) * orient->orientation;
 
 	Decimal seconds = engine->GetSystem<World>().lock()->GetTicks() / Decimal(ENGINE_TICKS_PER_SECOND);
-	const Decimal a(1.32499);
-	const Decimal r(1.01146);
-	const Decimal k(1.66377);
-	velocity = 10.0 + 40.0 * a * (1.0 - glm::pow(r, k * -static_cast<Decimal>(seconds)));
+	const Decimal a = Decimal(1.32499);
+	const Decimal r = Decimal(1.01146);
+	const Decimal k = Decimal(1.66377);
+	velocity = 10 + 40 * a * (1 - glm::pow(r, k * -seconds));
 
 	if(world->turbo) {
 		DebugManager()->Debug(world->turboFactor);

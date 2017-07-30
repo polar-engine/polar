@@ -275,7 +275,7 @@ protected:
 			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1, true); }));
 		}
 
-		dtors.emplace_back(inputM->OnMouseWheel([this] (const Point2 &delta) { Navigate(-delta.y, delta.x); }));
+		dtors.emplace_back(inputM->OnMouseWheel([this] (const Point2 &delta) { Navigate(int(-delta.y), int(delta.x)); }));
 
 		dtors.emplace_back(inputM->OnDigital("menu_up",      [this] () { Navigate(-1); }));
 		dtors.emplace_back(inputM->OnDigital("menu_down",    [this] () { Navigate( 1); }));

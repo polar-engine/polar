@@ -50,7 +50,7 @@ private:
 			iColor = kf.ticks / kf.colorTicks % kf.colors.size();
 		}
 		auto color = kf.colors[iColor];
-		if(glm::length(color) < Decimal(1)) { color = Point3(0.8); }
+		if(glm::length(color) < Decimal(1)) { color = Point3(Decimal(0.8)); }
 		return color;
 	}
 
@@ -143,7 +143,7 @@ protected:
 
 	void Update(DeltaTicks &dt) override final {
 		auto deltaTicks = dt.Ticks();
-		if(turbo) { deltaTicks *= turboFactor; }
+		if(turbo) { deltaTicks = uint64_t(deltaTicks * turboFactor); }
 
 		globalTicks += deltaTicks;
 		if(active) {
