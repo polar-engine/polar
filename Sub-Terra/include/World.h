@@ -22,7 +22,7 @@ private:
 		auto color = GetColor(kf);
 
 		auto renderer = engine->GetSystem<Renderer>().lock();
-#
+
 		renderer->SetUniform("u_period",        float(double(globalTicks % (ENGINE_TICKS_PER_SECOND * 100)) / double(ENGINE_TICKS_PER_SECOND * 100)));
 		renderer->SetUniform("u_time",          uint32_t(level.ticks));
 		renderer->SetUniform("u_threshold",     Threshold());

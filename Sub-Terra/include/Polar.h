@@ -18,6 +18,7 @@
 #include "System.h"
 #include "EngineStack.h"
 #include "EngineState.h"
+#include "buildinfo.h"
 
 class Polar {
 public:
@@ -65,7 +66,7 @@ public:
 			}
 		}
 
-		DebugManager()->Verbose("built on " __DATE__ " at " __TIME__);
+		DebugManager()->Verbose("built on ", buildinfo_date(), " at ", buildinfo_time());
 
 		if(!SteamAPI_Init()) {
 			DebugManager()->Fatal("failed to initialize Steam API");
