@@ -63,11 +63,11 @@ void HumanPlayerController::Init() {
 	}));
 }
 
-#define TIMEDSOUND(TIME, NAME)                                                     \
-	if(oldTime < TIME && time >= TIME) {                                           \
-		soundDtors[soundIndex++] = engine->AddObject(&soundID);                    \
-		soundIndex %= soundDtors.size();                                           \
-		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>(NAME)); \
+#define TIMEDSOUND(TIME, NAME)                                                                              \
+	if(oldTime < TIME && time >= TIME) {                                                                    \
+		soundDtors[soundIndex++] = engine->AddObject(&soundID);                                             \
+		soundIndex %= soundDtors.size();                                                                    \
+		engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>(NAME), AudioSourceType::Effect); \
 	}
 
 void HumanPlayerController::Update(DeltaTicks &dt) {

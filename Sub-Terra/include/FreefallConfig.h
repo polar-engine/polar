@@ -10,7 +10,10 @@ enum class SteamConfigOption {
 	PixelFactor,
 	VoxelFactor,
 	Mute,
-	MouseSmoothing
+	MouseSmoothing,
+	MasterVolume,
+	MusicVolume,
+	EffectVolume
 };
 
 std::istream & operator>>(std::istream &s, SteamConfigOption &x) {
@@ -24,6 +27,9 @@ std::istream & operator>>(std::istream &s, SteamConfigOption &x) {
 	else if CASE(VoxelFactor)
 	else if CASE(Mute)
 	else if CASE(MouseSmoothing)
+	else if CASE(MasterVolume)
+	else if CASE(MusicVolume)
+	else if CASE(EffectVolume)
 	else { assert(false && "unhandled ConfigOption"); }
 #undef CASE
 
@@ -39,6 +45,9 @@ std::ostream & operator<<(std::ostream &s, const SteamConfigOption &x) {
 	CASE(VoxelFactor)
 	CASE(Mute)
 	CASE(MouseSmoothing)
+	CASE(MasterVolume)
+	CASE(MusicVolume)
+	CASE(EffectVolume)
 	default: assert(false && "unhandled ConfigOption");
 	}
 #undef CASE
