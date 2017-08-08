@@ -62,6 +62,9 @@ public:
 	const unsigned long framesPerBuffer = 256;
 	std::atomic<bool> muted;
 
+	std::atomic<int> masterVolume = 100;
+	std::array<std::atomic<int>, static_cast<size_t>(AudioSourceType::_Size)> volumes = { 100, 100, 100 };
+
 	static bool IsSupported() { return true; }
 
 	AudioManager(Polar *engine) : System(engine), muted(false) {
@@ -91,18 +94,22 @@ public:
 		}
 
 		for(unsigned long frame = 0; frame < frameCount; ++frame) {
-			auto &left = buffer[frame * 2];
+			auto &left  = buffer[frame * 2];
 			auto &right = buffer[frame * 2 + 1];
-			left = 0;
+			left  = 0;
 			right = 0;
 
 			for(auto &source : sources) {
-				source.second->Tick(sampleRate, left, right);
+				double volume = volumes[static_cast<size_t>(source.second->type)] / 100.0;
+				source.second->Tick(sampleRate, volume, left, right);
 			}
 
 			if(muted) {
-				left = 0;
+				left  = 0;
 				right = 0;
+			} else {
+				left  *= masterVolume / 100.0;
+				right *= masterVolume / 100.0;
 			}
 		}
 		return paContinue;

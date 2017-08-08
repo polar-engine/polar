@@ -78,17 +78,30 @@ Freefall::Freefall(Polar &engine) {
 		});
 		localConfigM->On(LocalConfigOption::Bloom, [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
 		localConfigM->On(LocalConfigOption::Cel,   [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
-		steamConfigM->On(SteamConfigOption::Mute, [] (Polar *engine, SteamConfigOption, bool mute) {
-			engine->GetSystem<AudioManager>().lock()->muted = mute;
-		});
 
 		steamConfigM->On(SteamConfigOption::MouseSmoothing, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			auto con = engine->GetSystem<HumanPlayerController>().lock();
 			if(con) { con->smoothing = x; }
 		});
 
+		steamConfigM->On(SteamConfigOption::Mute, [] (Polar *engine, SteamConfigOption, bool mute) {
+			engine->GetSystem<AudioManager>().lock()->muted = mute;
+		});
+		steamConfigM->On(SteamConfigOption::MasterVolume, [] (Polar *engine, SteamConfigOption, int x) {
+			engine->GetSystem<AudioManager>().lock()->masterVolume = x;
+		});
+		steamConfigM->On(SteamConfigOption::MusicVolume, [] (Polar *engine, SteamConfigOption, int x) {
+			engine->GetSystem<AudioManager>().lock()->volumes[static_cast<size_t>(AudioSourceType::Music)] = x;
+		});
+		steamConfigM->On(SteamConfigOption::EffectVolume, [] (Polar *engine, SteamConfigOption, int x) {
+			engine->GetSystem<AudioManager>().lock()->volumes[static_cast<size_t>(AudioSourceType::Effect)] = x;
+		});
+
 		localConfigM->Set<Decimal>(LocalConfigOption::BaseDetail, 8);
 		steamConfigM->Set<Decimal>(SteamConfigOption::MouseSmoothing, Decimal(0.995));
+		steamConfigM->Set<int>(SteamConfigOption::MasterVolume, 100);
+		steamConfigM->Set<int>(SteamConfigOption::MusicVolume, 100);
+		steamConfigM->Set<int>(SteamConfigOption::EffectVolume, 100);
 
 		steamConfigM->Load();
 		localConfigM->Load();
@@ -212,6 +225,18 @@ Freefall::Freefall(Polar &engine) {
 					}),
 				}),
 				MenuItem("Audio", {
+					MenuItem("Master Volume", MenuControl::Slider<int>(0, 100, steamConfigM->Get<int>(SteamConfigOption::MasterVolume), 10), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<int>(SteamConfigOption::MasterVolume, x);
+						return true;
+					}),
+					MenuItem("Music Volume", MenuControl::Slider<int>(0, 100, steamConfigM->Get<int>(SteamConfigOption::MusicVolume), 10), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<int>(SteamConfigOption::MusicVolume, x);
+						return true;
+					}),
+					MenuItem("Effect Volume", MenuControl::Slider<int>(0, 100, steamConfigM->Get<int>(SteamConfigOption::EffectVolume), 10), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<int>(SteamConfigOption::EffectVolume, x);
+						return true;
+					}),
 					MenuItem("Mute", MenuControl::Checkbox(steamConfigM->Get<bool>(SteamConfigOption::Mute)), [engine] (Decimal state) {
 						engine->GetSystem<SteamConfigM>().lock()->Set<bool>(SteamConfigOption::Mute, state);
 						return true;
@@ -263,11 +288,11 @@ Freefall::Freefall(Polar &engine) {
 
 		IDType beepID;
 		st.dtors.emplace_back(engine->AddObject(&beepID));
-		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("begin"));
+		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("begin"), AudioSourceType::Effect);
 
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
-		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), LoopIn{3565397});
+		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), AudioSourceType::Music, LoopIn{3565397});
 
 		engine->GetSystem<Renderer>().lock()->SetMouseCapture(true);
 		st.dtors.emplace_back(std::make_shared<Destructor>([engine] () { engine->GetSystem<Renderer>().lock()->SetMouseCapture(false); }));
@@ -346,11 +371,11 @@ Freefall::Freefall(Polar &engine) {
 
 		IDType crashID;
 		st.dtors.emplace_back(engine->AddObject(&crashID));
-		engine->AddComponent<AudioSource>(crashID, assetM->Get<AudioAsset>("crash1"));
+		engine->AddComponent<AudioSource>(crashID, assetM->Get<AudioAsset>("crash1"), AudioSourceType::Effect);
 
 		IDType gameoverID;
 		st.dtors.emplace_back(engine->AddObject(&gameoverID));
-		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"));
+		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"), AudioSourceType::Effect);
 
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		st.dtors.emplace_back(tweener->Tween(0.0f, -1.0f, 0.5f, false, [] (Polar *engine, float x) {
@@ -419,7 +444,7 @@ Freefall::Freefall(Polar &engine) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		IDType musicID;
 		st.dtors.emplace_back(engine->AddObject(&musicID));
-		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("convergence"), true);
+		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("convergence"), AudioSourceType::Music, true);
 	});
 
 	engine.Run("root");

@@ -74,7 +74,7 @@ namespace MenuControl {
 
 			auto dtor = engine->AddObject(&id);
 			auto pad = Point2(15);
-			T alpha = (value - min) / (max - min);
+			float alpha = float(value - min) / float(max - min);
 			auto pos = origin + pad;
 			engine->AddComponentAs<Sprite, SliderSprite>(id, pos, scale * 8, scale, alpha);
 			return dtor;
@@ -136,7 +136,7 @@ private:
 					IDType soundID;
 					soundDtors[soundIndex++] = engine->AddObject(&soundID);
 					soundIndex %= soundDtors.size();
-					engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+					engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"), AudioSourceType::Effect);
 				}
 			}
 		} else if(!item.children.empty()) { Navigate(0, 1, true); }
@@ -197,7 +197,7 @@ private:
 			IDType soundID;
 			soundDtors[soundIndex++] = engine->AddObject(&soundID);
 			soundIndex %= soundDtors.size();
-			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"));
+			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"), AudioSourceType::Effect);
 		}
 	}
 
