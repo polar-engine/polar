@@ -10,14 +10,18 @@
 #include "types.h"
 #include "endian.h"
 
+#define swapendian swapbe
+
+template<typename T> class raw_vector : public std::vector<T> {};
+
 class Serializer {
 private:
 	std::ostream &stream;
 public:
 	Serializer(std::ostream &stream) : stream(stream) {}
 
-	inline Serializer & write(const char *buf, const std::streamsize count) {
-		stream.write(buf, count);
+	template<typename T> inline Serializer & write(const T *buf, const std::streamsize count) {
+		stream.write((const char *)buf, count * sizeof(T));
 		return *this;
 	}
 };
@@ -31,22 +35,22 @@ inline Serializer & operator<<(Serializer &s, const bool b) {
 }
 
 inline Serializer & operator<<(Serializer &s, const std::uint16_t i) {
-	std::uint16_t be = swapbe(i);
+	std::uint16_t be = swapendian(i);
 	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint16_t));
 }
 
 inline Serializer & operator<<(Serializer &s, const std::int16_t i) {
-	std::int16_t be = swapbe(i);
+	std::int16_t be = swapendian(i);
 	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::int16_t));
 }
 
 inline Serializer & operator<<(Serializer &s, const std::uint32_t i) {
-	std::uint32_t be = swapbe(i);
+	std::uint32_t be = swapendian(i);
 	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint32_t));
 }
 
 inline Serializer & operator<<(Serializer &s, const std::uint64_t i) {
-	std::uint64_t be = swapbe(i);
+	std::uint64_t be = swapendian(i);
 	return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint64_t));
 }
 
@@ -68,6 +72,12 @@ template<typename T, std::size_t N> inline Serializer & operator<<(Serializer &s
 	for(auto &elem : arr) {
 		s << elem;
 	}
+	return s;
+}
+
+template<typename T> inline Serializer & operator<<(Serializer &s, const raw_vector<T> &vec) {
+	s << static_cast<const std::uint32_t>(vec.size());
+	s.write(vec.data(), vec.size());
 	return s;
 }
 
@@ -97,8 +107,8 @@ private:
 public:
 	Deserializer(std::istream &stream) : stream(stream) {}
 
-	inline Deserializer & read(char *buf, const std::streamsize count) {
-		stream.read(buf, count);
+	template<typename T> inline Deserializer & read(T *buf, const std::streamsize count) {
+		stream.read((char *)buf, count * sizeof(T));
 		return *this;
 	}
 };
@@ -114,28 +124,28 @@ inline Deserializer & operator>>(Deserializer &s, bool &b) {
 inline Deserializer & operator>>(Deserializer &s, std::uint16_t &i) {
 	std::uint16_t be;
 	s.read(reinterpret_cast<char *>(&be), sizeof(std::uint16_t));
-	i = swapbe(be);
+	i = swapendian(be);
 	return s;
 }
 
 inline Deserializer & operator>>(Deserializer &s, std::int16_t &i) {
 	std::int16_t be;
 	s.read(reinterpret_cast<char *>(&be), sizeof(std::int16_t));
-	i = swapbe(be);
+	i = swapendian(be);
 	return s;
 }
 
 inline Deserializer & operator>>(Deserializer &s, std::uint32_t &i) {
 	std::uint32_t be;
 	s.read(reinterpret_cast<char *>(&be), sizeof(std::uint32_t));
-	i = swapbe(be);
+	i = swapendian(be);
 	return s;
 }
 
 inline Deserializer & operator>>(Deserializer &s, std::uint64_t &i) {
 	std::uint64_t be;
 	s.read(reinterpret_cast<char *>(&be), sizeof(std::uint64_t));
-	i = swapbe(be);
+	i = swapendian(be);
 	return s;
 }
 
@@ -161,6 +171,14 @@ template<typename T, std::size_t N> inline Deserializer & operator>>(Deserialize
 	for(auto &elem : arr) {
 		s >> elem;
 	}
+	return s;
+}
+
+template<typename T> inline Deserializer & operator>>(Deserializer &s, raw_vector<T> &vec) {
+	std::uint32_t len;
+	s >> len;
+	vec.resize(len);
+	s.read(vec.data(), len);
 	return s;
 }
 
