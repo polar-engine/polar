@@ -75,14 +75,21 @@ public:
 #endif
 	}
 	
-	static std::string Read(std::string path) {
+	static std::string Read(std::string path, size_t offset = 0, size_t len = 0,  bool *eof = nullptr) {
 		std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
 		if(file.fail()) { DebugManager()->Fatal(path + ": open"); }
 
-		auto len = static_cast<std::string::size_type>(file.tellg());
+		size_t filelen = file.tellg();
 		if(file.fail()) { DebugManager()->Fatal(path + ": tellg"); }
 
-		file.seekg(0, std::ios::beg);
+		if(len == 0 || len > filelen - offset) {
+			len = filelen - offset;
+			if(eof) {
+				*eof = true;
+			}
+		}
+
+		file.seekg(offset, std::ios::beg);
 		if(file.fail()) { DebugManager()->Fatal(path + ": seekg"); }
 
 		char *sz = new char[static_cast<unsigned int>(len + 1)];

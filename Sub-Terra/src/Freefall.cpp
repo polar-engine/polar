@@ -106,8 +106,6 @@ Freefall::Freefall(Polar &engine) {
 		steamConfigM->Load();
 		localConfigM->Load();
 
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		assetM->Get<AudioAsset>("nexus");
 		/*assetM->Get<AudioAsset>("laser");
 		assetM->Get<AudioAsset>("beep1");
 		assetM->Get<AudioAsset>("menu1");
@@ -141,8 +139,6 @@ Freefall::Freefall(Polar &engine) {
 	});
 
 	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-
 		st.dtors.emplace_back(engine->AddObject(&playerID));
 
 		Point3 seed = glm::ballRand(WORLD_DECIMAL(1000.0));
@@ -174,9 +170,12 @@ Freefall::Freefall(Polar &engine) {
 
 		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
 		auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto audioM = engine->GetSystem<AudioManager>().lock();
 		auto renderer = engine->GetSystem<Renderer>().lock();
+
+		auto assetM = engine->GetSystem<AssetManager>().lock();
+		assetM->Request<AudioAsset>("nexus");
+		assetM->Request<AudioAsset>("begin");
+		assetM->Request<AudioAsset>("convergence");
 
 		Menu menu = {
 			MenuItem("Solo Play", [engine] (Decimal) {

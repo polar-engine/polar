@@ -249,6 +249,8 @@ protected:
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 
+		assetM->Request<AudioAsset>("menu1");
+
 		font = assetM->Get<FontAsset>("nasalization-rg");
 
 		for(auto k : { Key::Down, Key::S }) {
