@@ -6,7 +6,7 @@
 struct AudioAsset : Asset {
 	bool stereo;
 	uint32_t sampleRate;
-	std::vector<int16_t> samples;
+	raw_vector<int16_t> samples;
 };
 
 inline Serializer & operator<<(Serializer &s, AudioAsset asset) {
