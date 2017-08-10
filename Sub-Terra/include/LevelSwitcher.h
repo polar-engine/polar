@@ -19,8 +19,6 @@ private:
 	}
 
 	void UpdateQE() {
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-
 		auto qIndex = GetIndex(-1);
 		auto eIndex = GetIndex( 1);
 
