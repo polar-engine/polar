@@ -79,6 +79,10 @@ private:
 	std::unordered_map<std::string, Decimal> uniformsFloat;
 	std::unordered_map<std::string, Point3> uniformsPoint3;
 
+	std::vector<std::string> changedUniformsU32;
+	std::vector<std::string> changedUniformsFloat;
+	std::vector<std::string> changedUniformsPoint3;
+
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
 	void RenderText(IDType);
@@ -298,12 +302,7 @@ public:
 		if(!force && it != uniformsU32.cend() && it->second == x) { return; }
 
 		uniformsU32[name] = x;
-		for(auto &node : nodes) {
-			if(node.uniforms.find(name) != node.uniforms.end()) {
-				GL(glUseProgram(node.program));
-				UploadUniform(node.program, name, x);
-			}
-		}
+		changedUniformsU32.emplace_back(name);
 	}
 
 	void SetUniform(const std::string &name, Decimal x, bool force = false) override final {
@@ -311,12 +310,7 @@ public:
 		if(!force && it != uniformsFloat.cend() && it->second == x) { return; }
 
 		uniformsFloat[name] = x;
-		for(auto &node : nodes) {
-			if(node.uniforms.find(name) != node.uniforms.end()) {
-				GL(glUseProgram(node.program));
-				UploadUniform(node.program, name, x);
-			}
-		}
+		changedUniformsFloat.emplace_back(name);
 	}
 
 	void SetUniform(const std::string &name, Point3 p, bool force = false) override final {
@@ -324,12 +318,7 @@ public:
 		if(!force && it != uniformsPoint3.cend() && it->second == p) { return; }
 
 		uniformsPoint3[name] = p;
-		for(auto &node : nodes) {
-			if(node.uniforms.find(name) != node.uniforms.end()) {
-				GL(glUseProgram(node.program));
-				UploadUniform(node.program, name, p);
-			}
-		}
+		changedUniformsPoint3.emplace_back(name);
 	}
 
 	bool UploadUniform(GLuint program, const std::string &name, glm::int32 x) {
