@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "System.h"
 #include "Text.h"
+#include "ScaleComponent.h"
+#include "ColorComponent.h"
 #include "BoxSprite.h"
 #include "SliderSprite.h"
 
@@ -229,18 +231,18 @@ private:
 		Decimal spacing = 160 * scale;
 		Point2 origin = Point2(60, 50 + spacing * (m->size() - i - 1));
 
-		engine->AddComponentAs<Sprite, Text>(id, font, item.value, origin);
-		auto t = engine->GetComponent<Sprite>(id);
-		t->scale *= scale;
+		engine->AddComponent<Text>(id, font, item.value);
+		engine->AddComponent<ScreenPositionComponent>(id, origin);
+		engine->AddComponent<ScaleComponent>(id, Point3(scale));
 
 		if(i == current) {
-			t->color.b = selectionAlpha;
+			engine->AddComponent<ColorComponent>(id, Point4(1, 1, selectionAlpha, 1));
 		}
 
 		if(item.control) {
 			IDType controlID;
 			auto offset = Point2(600 / 0.375 * scale, 0);
-			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, t->scale.y);
+			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, scale);
 		}
 	}
 protected:

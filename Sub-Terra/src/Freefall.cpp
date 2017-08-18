@@ -358,15 +358,17 @@ Freefall::Freefall(Polar &engine) {
 
 		IDType textID;
 		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponentAs<Sprite, Text>(textID, font, "Game Over", Point2(0, 50), Origin::Center);
+		engine->AddComponent<Text>(textID, font, "Game Over");
+		engine->AddComponent<ScreenPositionComponent>(textID, Point2(0, 50), Origin::Center);
 
 		std::ostringstream oss;
 		oss << std::setiosflags(std::ios::fixed) << std::setprecision(2) << seconds << 's';
 
 		IDType timeID;
 		st.dtors.emplace_back(engine->AddObject(&timeID));
-		engine->AddComponentAs<Sprite, Text>(timeID, font, oss.str(), Point2(0, -100), Origin::Center);
-		engine->GetComponent<Sprite>(timeID)->scale *= 0.75;
+		engine->AddComponent<Text>(timeID, font, oss.str());
+		engine->AddComponent<ScreenPositionComponent>(timeID, Point2(0, -100), Origin::Center);
+		engine->AddComponent<ScaleComponent>(timeID, Point3(0.75));
 
 		IDType crashID;
 		st.dtors.emplace_back(engine->AddObject(&crashID));

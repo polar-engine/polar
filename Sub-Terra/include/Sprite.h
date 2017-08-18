@@ -1,19 +1,8 @@
 #pragma once
 
 #include "Component.h"
+#include "ScreenPositionComponent.h"
 #include "sdl.h"
-
-enum class Origin {
-	BottomLeft,
-	BottomRight,
-	TopLeft,
-	TopRight,
-	Left,
-	Right,
-	Bottom,
-	Top,
-	Center
-};
 
 class Sprite : public Component {
 public:
@@ -22,12 +11,13 @@ public:
 	Point2 scale;
 	Point4 color;
 	SDL_Surface *surface = nullptr;
+	bool freeSurface = true;
 
 	Sprite(const Point2 pos = Point2(0), const Origin origin = Origin::BottomLeft, const Point4 color = Point4(1), const Point2 scale = Point2(-1))
 		: position(pos), origin(origin), color(color), scale(scale) {}
 
 	virtual ~Sprite() {
-		if(surface) { SDL(SDL_FreeSurface(surface)); }
+		if(surface && freeSurface) { SDL(SDL_FreeSurface(surface)); }
 	}
 
 	virtual void Render() final {

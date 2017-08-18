@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Component.h"
+#include "IntegrableProperty.h"
 
 class ScaleComponent : public Component {
 public:
-	Point3 scale;
-	ScaleComponent() : scale(1) {}
-	ScaleComponent(Point3 &scale) : scale(scale) {}
-	virtual ~ScaleComponent() override {}
+	Integrable<Point3> scale;
+
+	ScaleComponent(Point3 scale = Point3(1)) : scale(scale) {
+		Add<IntegrableProperty>();
+		Get<IntegrableProperty>().lock()->AddIntegrable(&this->scale);
+	}
 };

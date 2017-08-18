@@ -3,6 +3,8 @@
 #include <vector>
 #include "System.h"
 #include "Level.h"
+#include "ColorComponent.h"
+#include "ScaleComponent.h"
 
 class LevelSwitcher : public System {
 private:
@@ -22,8 +24,8 @@ private:
 		auto qIndex = GetIndex(-1);
 		auto eIndex = GetIndex( 1);
 
-		engine->GetComponent<Sprite>(qID)->color = Point4(GetLevel(qIndex)->keyframes.begin()->colors[0], 1);
-		engine->GetComponent<Sprite>(eID)->color = Point4(GetLevel(eIndex)->keyframes.begin()->colors[0], 1);
+		engine->GetComponent<ColorComponent>(qID)->color = Point4(GetLevel(qIndex)->keyframes.begin()->colors[0], 1);
+		engine->GetComponent<ColorComponent>(eID)->color = Point4(GetLevel(eIndex)->keyframes.begin()->colors[0], 1);
 	}
 
 	void UpdateIndex(int delta) {
@@ -44,11 +46,18 @@ protected:
 		dtors.emplace_back(engine->AddObject(&eID));
 
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
-		engine->AddComponentAs<Sprite, Text>(qID, font, "Q", Point2(20), Origin::TopLeft,  Point4(0.8902, 0.9647, 0.9922, 0));
-		engine->AddComponentAs<Sprite, Text>(eID, font, "E", Point2(20), Origin::TopRight, Point4(0.8902, 0.9647, 0.9922, 0));
 
-		engine->GetComponent<Sprite>(qID)->scale *= 0.5;
-		engine->GetComponent<Sprite>(eID)->scale *= 0.5;
+		engine->AddComponent<Text>(qID, font, "Q");
+		engine->AddComponent<Text>(eID, font, "E");
+
+		engine->AddComponent<ScreenPositionComponent>(qID, Point2(20), Origin::TopLeft);
+		engine->AddComponent<ScreenPositionComponent>(eID, Point2(20), Origin::TopRight);
+
+		engine->AddComponent<ColorComponent>(qID, Point4(0.8902, 0.9647, 0.9922, 0));
+		engine->AddComponent<ColorComponent>(eID, Point4(0.8902, 0.9647, 0.9922, 0));
+
+		engine->AddComponent<ScaleComponent>(qID, Point3(0.5));
+		engine->AddComponent<ScaleComponent>(eID, Point3(0.5));
 
 		auto inputM = engine->GetSystem<InputManager>().lock();
 		dtors.emplace_back(inputM->On(Key::Q, [this] (Key) { UpdateIndex(-1); }));
@@ -59,8 +68,8 @@ protected:
 		auto tweener = engine->GetSystem<Tweener<float>>().lock();
 		dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [this] (Polar *engine, const float &x) {
 			auto alpha = enabled ? glm::pow(Decimal(x), Decimal(0.75)) : 0;
-			engine->GetComponent<Sprite>(qID)->color.a = alpha;
-			engine->GetComponent<Sprite>(eID)->color.a = alpha;
+			engine->GetComponent<ColorComponent>(qID)->color->a = alpha;
+			engine->GetComponent<ColorComponent>(eID)->color->a = alpha;
 		}));
 
 		UpdateQE();

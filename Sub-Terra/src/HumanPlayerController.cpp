@@ -8,6 +8,8 @@
 #include "InputManager.h"
 #include "World.h"
 #include "PositionComponent.h"
+#include "ScreenPositionComponent.h"
+#include "ColorComponent.h"
 #include "OrientationComponent.h"
 #include "PlayerCameraComponent.h"
 #include "BoundingComponent.h"
@@ -136,7 +138,9 @@ void HumanPlayerController::Update(DeltaTicks &dt) {
 	}
 	float alpha = glm::mix(0.8f, 0.35f, 1.0f - glm::abs(glm::pow(glm::sin((time - 0.5) * glm::pi<Decimal>()), 8.0)));
 
-	engine->AddComponentAs<Sprite, Text>(timeID, font, oss.str(), Point2(20, 20), Origin::TopRight, Point4(color, alpha));
+	engine->AddComponent<Text>(timeID, font, oss.str());
+	engine->AddComponent<ScreenPositionComponent>(timeID, Point2(20, 20), Origin::TopRight);
+	engine->AddComponent<ColorComponent>(timeID, Point4(color, alpha));
 
 	auto ownPos = engine->GetComponent<PositionComponent>(object);
 	auto orient = engine->GetComponent<OrientationComponent>(object);

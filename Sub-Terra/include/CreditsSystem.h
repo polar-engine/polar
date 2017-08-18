@@ -32,18 +32,18 @@ private:
 		for(auto &section : credits) {
 			height += pad;
 			dtors.emplace_back(engine->AddObject(&section.id));
-			engine->AddComponentAs<Sprite, Text>(section.id, font, section.value, Point2(0, height), Origin::Top);
-			auto sectionSprite = engine->GetComponent<Sprite>(section.id);
-			sectionSprite->scale *= Decimal(0.3125);
-			height += sectionSprite->scale.y * Decimal(1.12);
+			engine->AddComponent<Text>(section.id, font, section.value);
+			engine->AddComponent<ScreenPositionComponent>(section.id, Point2(0, height), Origin::Top);
+			engine->AddComponent<ScaleComponent>(section.id, Point3(0.3125));
+			height += Decimal(0.3125 * 1.12) * font->lineSkip;
 
 			for(size_t n = 0; n < section.names.size(); ++n) {
 				auto &name = section.names[n];
 				dtors.emplace_back(engine->AddObject(&section.nameIDs[n]));
-				engine->AddComponentAs<Sprite, Text>(section.nameIDs[n], font, name, Point2(0, height), Origin::Top);
-				auto nameSprite = engine->GetComponent<Sprite>(section.nameIDs[n]);
-				nameSprite->scale *= Decimal(0.1875);
-				height += nameSprite->scale.y;
+				engine->AddComponent<Text>(section.nameIDs[n], font, name);
+				engine->AddComponent<ScreenPositionComponent>(section.nameIDs[n], Point2(0, height), Origin::Top);
+				engine->AddComponent<ScaleComponent>(section.nameIDs[n], Point3(0.1875));
+				height += Decimal(0.1875) * font->lineSkip;
 			}
 		}
 	}
@@ -67,12 +67,20 @@ protected:
 		Decimal delta = dt.Seconds() * 50;
 
 		for(auto &section : credits) {
-			auto sectionSprite = engine->GetComponent<Sprite>(section.id);
-			sectionSprite->position.y = glm::mod(sectionSprite->position.y - delta + sectionSprite->scale.y, height) - sectionSprite->scale.y;
+			auto sectionText = engine->GetComponent<Text>(section.id);
+			auto sectionPos = engine->GetComponent<ScreenPositionComponent>(section.id);
+			auto sectionScale = engine->GetComponent<ScaleComponent>(section.id);
+
+			auto sectionRealScale = sectionText->asset->lineSkip * sectionScale->scale.Get().y;
+			sectionPos->position->y = glm::mod(sectionPos->position->y - delta + sectionRealScale, height) - sectionRealScale;
 
 			for(auto nameID : section.nameIDs) {
-				auto nameSprite = engine->GetComponent<Sprite>(nameID);
-				nameSprite->position.y = glm::mod(nameSprite->position.y - delta + nameSprite->scale.y, height) - nameSprite->scale.y;
+				auto nameText = engine->GetComponent<Text>(nameID);
+				auto namePos = engine->GetComponent<ScreenPositionComponent>(nameID);
+				auto nameScale = engine->GetComponent<ScaleComponent>(nameID);
+
+				auto nameRealScale = nameText->asset->lineSkip * nameScale->scale.Get().y;
+				namePos->position->y = glm::mod(namePos->position->y - delta + nameRealScale, height) - nameRealScale;
 			}
 		}
 	}
