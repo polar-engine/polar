@@ -169,6 +169,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="include\BoundingComponent.h" />
     <ClInclude Include="include\BoxSprite.h" />
     <ClInclude Include="include\Chunk.h" />
+    <ClInclude Include="include\ColorComponent.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\ConfigManager.h" />
@@ -203,6 +204,7 @@ xcopy /y /d "$(SolutionDir)resources\steam_appid.txt" "$(TargetDir)"
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\ScaleComponent.h" />
+    <ClInclude Include="include\ScreenPositionComponent.h" />
     <ClInclude Include="include\SliderSprite.h" />
     <ClInclude Include="include\SpatialIndex.h" />
     <ClInclude Include="include\Sprite.h" />

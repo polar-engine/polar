@@ -6,6 +6,8 @@
 #include "PositionComponent.h"
 #include "OrientationComponent.h"
 #include "PlayerCameraComponent.h"
+#include "ScaleComponent.h"
+#include "ColorComponent.h"
 #include "Text.h"
 
 #if defined(_WIN32)
@@ -125,8 +127,10 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		auto assetM = engine->GetSystem<AssetManager>().lock();
 		auto font = assetM->Get<FontAsset>("nasalization-rg");
 
-		engine->AddComponentAs<Sprite, Text>(fpsID, font, oss.str(), Point2(5, 5), Origin::TopLeft, Point4(1, 1, 1, 0.8));
-		engine->GetComponent<Sprite>(fpsID)->scale *= Decimal(0.125);
+		engine->AddComponent<Text>(fpsID, font, oss.str());
+		engine->AddComponent<ScreenPositionComponent>(fpsID, Point2(5, 5), Origin::TopLeft);
+		engine->AddComponent<ColorComponent>(fpsID, Point4(1, 1, 1, 0.8));
+		engine->AddComponent<ScaleComponent>(fpsID, Point3(0.125));
 	}
 
 	SDL_Event event;
@@ -259,114 +263,165 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 		auto pairRight = engine->objects.right.equal_range(&typeid(Sprite));
 		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-			auto sprite = static_cast<Sprite *>(itRight->info.get());
-			auto property = sprite->Get<GL32SpriteProperty>().lock();
-			if(property) {
-				auto viewport = Point2(this->width, this->height);
-				Mat4 transform;
+			// XXX
+		}
 
-				switch(sprite->origin) {
-				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3(-1, -1, 0));
-					break;
-				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3( 1, -1, 0));
-					break;
-				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3(-1,  1, 0));
-					break;
-				case Origin::TopRight:
-					transform = glm::translate(transform, Point3( 1,  1, 0));
-					break;
-				case Origin::Left:
-					transform = glm::translate(transform, Point3(-1,  0, 0));
-					break;
-				case Origin::Right:
-					transform = glm::translate(transform, Point3( 1,  0, 0));
-					break;
-				case Origin::Bottom:
-					transform = glm::translate(transform, Point3( 0, -1, 0));
-					break;
-				case Origin::Top:
-					transform = glm::translate(transform, Point3( 0,  1, 0));
-					break;
-				case Origin::Center:
-					break;
-				}
-
-				transform = glm::scale(transform, Point3(Decimal(1) / viewport, 1));
-
-				switch(sprite->origin) {
-				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  2), 0));
-					break;
-				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3(sprite->position * Point2(-2,  2), 0));
-					break;
-				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3(sprite->position * Point2( 2, -2), 0));
-					break;
-				case Origin::TopRight:
-					transform = glm::translate(transform, Point3(sprite->position * Point2(-2, -2), 0));
-					break;
-				case Origin::Left:
-					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  0), 0));
-					break;
-				case Origin::Right:
-					transform = glm::translate(transform, Point3(sprite->position * Point2(-2,  0), 0));
-					break;
-				case Origin::Bottom:
-					transform = glm::translate(transform, Point3(sprite->position * Point2( 0,  2), 0));
-					break;
-				case Origin::Top:
-					transform = glm::translate(transform, Point3(sprite->position * Point2( 0, -2), 0));
-					break;
-				case Origin::Center:
-					transform = glm::translate(transform, Point3(sprite->position * Point2( 2,  2), 0));
-					break;
-				}
-
-				transform = glm::scale(transform, Point3(sprite->scale, 1));
-
-				switch(sprite->origin) {
-				case Origin::BottomLeft:
-					transform = glm::translate(transform, Point3( 1,  1, 0));
-					break;
-				case Origin::BottomRight:
-					transform = glm::translate(transform, Point3(-1,  1, 0));
-					break;
-				case Origin::TopLeft:
-					transform = glm::translate(transform, Point3( 1, -1, 0));
-					break;
-				case Origin::TopRight:
-					transform = glm::translate(transform, Point3(-1, -1, 0));
-					break;
-				case Origin::Left:
-					transform = glm::translate(transform, Point3( 1,  0, 0));
-					break;
-				case Origin::Right:
-					transform = glm::translate(transform, Point3(-1,  0, 0));
-					break;
-				case Origin::Bottom:
-					transform = glm::translate(transform, Point3( 0,  1, 0));
-					break;
-				case Origin::Top:
-					transform = glm::translate(transform, Point3( 0, -1, 0));
-					break;
-				case Origin::Center:
-					break;
-				}
-
-				UploadUniform(spriteProgram, "u_transform", transform);
-				UploadUniform(spriteProgram, "u_color", sprite->color);
-
-				GL(glBindTexture(GL_TEXTURE_2D, property->texture));
-				GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-			}
+		pairRight = engine->objects.right.equal_range(&typeid(Text));
+		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+			RenderText(itRight->get_left());
 		}
 	}
 
 	SDL(SDL_GL_SwapWindow(window));
+}
+
+void GL32Renderer::RenderText(IDType id) {
+	auto text = engine->GetComponent<Text>(id);
+	auto screenPos = engine->GetComponent<ScreenPositionComponent>(id);
+	auto scale = engine->GetComponent<ScaleComponent>(id);
+	auto color = engine->GetComponent<ColorComponent>(id);
+
+	// calculate intended width of string
+	Decimal stringWidth = 0;
+	for(auto c : text->str) {
+		stringWidth += text->asset->glyphs[c].advance;
+	}
+
+	// add required padding to string width
+	if(screenPos) {
+		auto &last = text->asset->glyphs[text->str.back()];
+		switch(screenPos->origin) {
+		case Origin::BottomRight:
+		case Origin::Right:
+		case Origin::TopRight:
+			stringWidth += last.max.x / 2;
+			break;
+		case Origin::Bottom:
+		case Origin::Top:
+		case Origin::Center:
+			stringWidth += last.max.x / 4;
+			break;
+		}
+	}
+
+	// scale string width by scale component
+	if(scale) {
+		stringWidth *= scale->scale.Get().x;
+	}
+
+	auto coord = Point2(0);
+
+	// anchor point + local position component - alignment offset
+	if(screenPos) {
+		auto p = screenPos->position.Get();
+		switch(screenPos->origin) {
+		case Origin::BottomLeft:
+			coord = Point2(0, 0);
+			coord += p * Point2(1, 1);
+			coord.x -= 0;
+			break;
+		case Origin::BottomRight:
+			coord = Point2(width, 0);
+			coord += p * Point2(-1, 1);
+			coord.x -= stringWidth;
+			break;
+		case Origin::TopLeft:
+			coord = Point2(0, height);
+			coord += p * Point2(1, -1);
+			coord.x -= 0;
+			break;
+		case Origin::TopRight:
+			coord = Point2(width, height);
+			coord += p * Point2(-1, -1);
+			coord.x -= stringWidth;
+			break;
+		case Origin::Left:
+			coord = Point2(0, height / 2);
+			coord += p * Point2(1, 0);
+			coord.x -= 0;
+			break;
+		case Origin::Right:
+			coord = Point2(width, height / 2);
+			coord += p * Point2(-1, 0);
+			coord.x -= stringWidth;
+			break;
+		case Origin::Bottom:
+			coord = Point2(width / 2, 0);
+			coord += p * Point2(0, 1);
+			coord.x -= stringWidth / 2;
+			break;
+		case Origin::Top:
+			coord = Point2(width / 2, height);
+			coord += p * Point2(0, -1);
+			coord.x -= stringWidth / 2;
+			break;
+		case Origin::Center:
+			coord = Point2(width / 2, height / 2);
+			coord += p * Point2(1, 1);
+			coord.x -= stringWidth / 2;
+			break;
+		}
+	}
+
+	// offset y coord away from anchor point
+	Decimal offsetY = 0;
+	if(screenPos) {
+		switch(screenPos->origin) {
+		case Origin::TopLeft:
+		case Origin::Top:
+		case Origin::TopRight:
+			offsetY = -1;
+			break;
+		case Origin::BottomLeft:
+		case Origin::Bottom:
+		case Origin::BottomRight:
+			offsetY = 1;
+			break;
+		}
+	}
+
+	Mat4 transform;
+
+	// translate to bottom left corner
+	transform = glm::translate(transform, Point3(-1, -1, 0));
+
+	// scale to one pixel
+	transform = glm::scale(transform, Decimal(2) / Point3(width, height, 1));
+
+	// translate to screen coord
+	transform = glm::translate(transform, Point3(coord, 0));
+
+	// scale by scale component
+	if(scale) {
+		transform = glm::scale(transform, scale->scale.Get());
+	}
+
+	UploadUniform(spriteProgram, "u_color", color ? color->color.Get() : Point4(1));
+
+	Decimal pen = 0;
+	for(auto c : text->str) {
+		Mat4 glyphTransform = transform;
+
+		// translate by glyph pen
+		glyphTransform = glm::translate(glyphTransform, Point3(pen, 0, 0));
+
+		// translate by glyph min x
+		glyphTransform = glm::translate(glyphTransform, Point3(text->asset->glyphs[c].min.x, 0, 0));
+
+		// scale to glyph size
+		auto sc = Point3(text->asset->glyphs[c].surface->w, text->asset->glyphs[c].surface->h, 1);
+		glyphTransform = glm::scale(glyphTransform, sc / Decimal(2));
+
+		// translate by one glyph size
+		glyphTransform = glm::translate(glyphTransform, Point3(1, offsetY, 0));
+
+		UploadUniform(spriteProgram, "u_transform", glyphTransform);
+
+		GL(glBindTexture(GL_TEXTURE_2D, fontCache[text->asset].entries[c].texture));
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+
+		pen += text->asset->glyphs[c].advance;
+	}
 }
 
 GL32Renderer::~GL32Renderer() {

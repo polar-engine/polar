@@ -12,6 +12,8 @@
 #include "ShaderProgramAsset.h"
 #include "ModelComponent.h"
 #include "Sprite.h"
+#include "FontAsset.h"
+#include "Text.h"
 
 struct PipelineNode {
 	GLuint program;
@@ -39,6 +41,15 @@ struct GL32SpriteProperty : public Property {
 	GLuint texture;
 };
 
+struct GL32FontCacheEntry {
+	bool active = false;
+	GLuint texture;
+};
+
+struct GL32FontCache {
+	std::array<GL32FontCacheEntry, 128> entries;
+};
+
 template<typename T> struct SharedPtrLess : public std::binary_function<std::shared_ptr<T>, std::shared_ptr<T>, bool> {
 	inline bool operator()(const std::shared_ptr<T> &left, const std::shared_ptr<T> &right) const {
 		return *left < *right;
@@ -56,6 +67,7 @@ private:
 	std::vector<std::string> pipelineNames;
 	std::vector<PipelineNode> nodes;
 	boost::container::flat_multiset<std::shared_ptr<GL32ModelProperty>, SharedPtrLess<GL32ModelProperty>> modelPropertyPool;
+	std::unordered_map<std::shared_ptr<FontAsset>, GL32FontCache> fontCache;
 
 	GLuint viewportVAO;
 	GLuint spriteProgram;
@@ -69,6 +81,7 @@ private:
 
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
+	void RenderText(IDType);
 
 	inline std::shared_ptr<GL32ModelProperty> GetPooledModelProperty(const GLsizei required) {
 		if(modelPropertyPool.empty()) {
@@ -161,6 +174,30 @@ private:
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
 			sprite->Add<GL32SpriteProperty>(prop);
+		} else if(ti == &typeid(Text)) {
+			auto text = std::static_pointer_cast<Text>(ptr.lock());
+			auto &cache = fontCache.emplace(text->asset, GL32FontCache()).first->second;
+
+			for(auto c : text->str) {
+				auto &entry = cache.entries[c];
+
+				if(!entry.active) {
+					auto &glyph = text->asset->glyphs[c];
+
+					GL(glGenTextures(1, &entry.texture));
+					GL(glBindTexture(GL_TEXTURE_2D, entry.texture));
+
+					GLint format = GL_RGBA;
+					GL(glTexImage2D(GL_TEXTURE_2D, 0, format, glyph.surface->w, glyph.surface->h, 0, format, GL_UNSIGNED_BYTE, glyph.surface->pixels));
+					GL(glGenerateMipmap(GL_TEXTURE_2D));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+
+					entry.active = true;
+				}
+			}
 		}
 	}
 
