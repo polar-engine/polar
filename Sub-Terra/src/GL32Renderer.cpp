@@ -115,20 +115,32 @@ void GL32Renderer::Init() {
 
 void GL32Renderer::Update(DeltaTicks &dt) {
 	// upload changed uniforms
+	bool usingProgram = false;
 	for(auto &node : nodes) {
-		GL(glUseProgram(node.program));
 		for(auto &name : changedUniformsU32) {
 			if(node.uniforms.find(name) != node.uniforms.cend()) {
+				if(!usingProgram) {
+					GL(glUseProgram(node.program));
+					usingProgram = true;
+				}
 				UploadUniform(node.program, name, uniformsU32[name]);
 			}
 		}
 		for(auto &name : changedUniformsFloat) {
 			if(node.uniforms.find(name) != node.uniforms.cend()) {
+				if(!usingProgram) {
+					GL(glUseProgram(node.program));
+					usingProgram = true;
+				}
 				UploadUniform(node.program, name, uniformsFloat[name]);
 			}
 		}
 		for(auto &name : changedUniformsPoint3) {
 			if(node.uniforms.find(name) != node.uniforms.cend()) {
+				if(!usingProgram) {
+					GL(glUseProgram(node.program));
+					usingProgram = true;
+				}
 				UploadUniform(node.program, name, uniformsPoint3[name]);
 			}
 		}
