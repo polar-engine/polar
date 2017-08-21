@@ -62,12 +62,15 @@ public:
 	const unsigned long framesPerBuffer = 256;
 	std::atomic<bool> muted;
 
-	std::atomic<int> masterVolume = 100;
-	std::array<std::atomic<int>, static_cast<size_t>(AudioSourceType::_Size)> volumes = { 100, 100, 100 };
+	std::atomic<int> masterVolume = {100};
+	std::array<std::atomic<int>, static_cast<size_t>(AudioSourceType::_Size)> volumes;
 
 	static bool IsSupported() { return true; }
 
 	AudioManager(Polar *engine) : System(engine), muted(false) {
+		for(auto &vol : volumes) {
+			std::atomic_init(&vol, 100);
+		}
 		Pa_Initialize();
 		Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate, framesPerBuffer, StreamCallback, this);
 	}

@@ -35,6 +35,7 @@
 		7F79221B1ACF9019005665E7 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		7F977E4E1BE71CEE006CF366 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F977E4C1BE71CC5006CF366 /* libz.a */; };
 		7FC8FC6C1A2362D700BBBB15 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F5407781A1AAF0100B55B7A /* SDL2.framework */; };
+		7FD61C191F4AD63700CC8EF1 /* buildinfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FD61C181F4AD63700CC8EF1 /* buildinfo.cpp */; };
 		7FFE534B1BE72A1200F39CF1 /* libportaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534A1BE72A1200F39CF1 /* libportaudio.a */; };
 		7FFE534D1BE72AA500F39CF1 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */; };
 		7FFE534F1BE72ACF00F39CF1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FFE534E1BE72ACF00F39CF1 /* CoreAudio.framework */; };
@@ -158,6 +159,7 @@
 		7F6865C61A9C857A00170F08 /* getline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = getline.h; path = include/getline.h; sourceTree = SOURCE_ROOT; };
 		7F949DF61AC7B2CE004F875F /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = World.h; path = include/World.h; sourceTree = "<group>"; };
 		7F977E4C1BE71CC5006CF366 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../lib/osx/libz.a; sourceTree = "<group>"; };
+		7FD61C181F4AD63700CC8EF1 /* buildinfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = buildinfo.cpp; path = src/buildinfo.cpp; sourceTree = SOURCE_ROOT; };
 		7FF31F181A1AA90D0008999E /* Freefall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Freefall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FFE534A1BE72A1200F39CF1 /* libportaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libportaudio.a; path = ../lib/osx/libportaudio.a; sourceTree = "<group>"; };
 		7FFE534C1BE72AA500F39CF1 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
@@ -283,6 +285,7 @@
 			children = (
 				7F0CB64B1A25D90B00623543 /* AppDelegate.mm */,
 				7F41DBDE1BE7188100B36981 /* AudioManager.cpp */,
+				7FD61C181F4AD63700CC8EF1 /* buildinfo.cpp */,
 				7F65AAF51ECC4FA00041C886 /* DebugManager.cpp */,
 				7F0CB64C1A25D90B00623543 /* GL32Renderer.cpp */,
 				7F0CB64D1A25D90B00623543 /* glew.c */,
@@ -413,6 +416,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7FF31F351A1AA90E0008999E /* Build configuration list for PBXNativeTarget "Freefall" */;
 			buildPhases = (
+				7FD61C1A1F4AD66100CC8EF1 /* ShellScript */,
 				7F0CB66B1A25E41700623543 /* ShellScript */,
 				7FF31F141A1AA90D0008999E /* Sources */,
 				7FF31F151A1AA90D0008999E /* Frameworks */,
@@ -494,6 +498,19 @@
 			shellPath = /bin/sh;
 			shellScript = "\"$TARGET_BUILD_DIR/AssetBuilder\" \"$SRCROOT/assets\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"";
 		};
+		7FD61C1A1F4AD66100CC8EF1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "touch $SRCROOT/src/buildinfo.cpp";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -510,6 +527,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7FD61C191F4AD63700CC8EF1 /* buildinfo.cpp in Sources */,
 				7F41DBDF1BE7188100B36981 /* AudioManager.cpp in Sources */,
 				7F0CB6591A25D90B00623543 /* Freefall.cpp in Sources */,
 				7F6499311AC175EC0001DCFF /* SpatialIndex.cpp in Sources */,
