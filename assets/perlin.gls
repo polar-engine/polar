@@ -183,7 +183,6 @@ float rand(vec2 p) {
 }
 
 void main(void) {
-
 	// grain
 	if(rand(v_vertex + u_period) < u_grain) {
 		discard;
@@ -203,8 +202,8 @@ void main(void) {
 		coord.xy = floor(coord.xy * factor) / factor;
 	}
 
-	Decimal farLimiter = pow(10, -1.0);
-	Decimal farFocus = pow(2.718281828, -1.0);
+	const Decimal farLimiter = pow(10, -1.0);
+	const Decimal farFocus = pow(2.718281828, -1.0);
 
 	for(Decimal sample = 0.0; sample < numSamples;) {
 		Decimal z = sample / numSamples;
