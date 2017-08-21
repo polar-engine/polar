@@ -1,7 +1,9 @@
 #pragma once
 
 #include <atomic>
+#if defined(_WIN32)
 #include <boost/asio.hpp>
+#endif-
 #include <glm/gtc/noise.hpp>
 #include "System.h"
 #include "Renderer.h"
@@ -54,9 +56,12 @@ private:
 		return color;
 	}
 
-	void Hue() {
-		return;
+	Point3 GetColor(Keyframe &&kf) {
+		return GetColor(kf);
+	}
 
+	void Hue() {
+#if defined(_WIN32)
 		auto color = GetColor();
 		auto min = glm::min(glm::min(color.r, color.g), color.b);
 		auto max = glm::max(glm::max(color.r, color.g), color.b);
@@ -133,6 +138,7 @@ private:
 		while(boost::asio::read(socket, response, boost::asio::transfer_at_least(1), err)) {
 			DebugManager()->Debug(&response);
 		}*/
+#endif
 	}
 protected:
 	DeltaTicks accumulator;
