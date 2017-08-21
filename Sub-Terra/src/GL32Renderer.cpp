@@ -116,7 +116,8 @@ void GL32Renderer::Init() {
 void GL32Renderer::Update(DeltaTicks &dt) {
 	// upload changed uniforms
 	bool usingProgram = false;
-	for(auto &node : nodes) {
+	for(size_t i = 0; i < nodes.size(); ++i) {
+		auto &node = nodes[nodes.size() - 1 - i];
 		for(auto &name : changedUniformsU32) {
 			if(node.uniforms.find(name) != node.uniforms.cend()) {
 				if(!usingProgram) {
@@ -144,10 +145,10 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 				UploadUniform(node.program, name, uniformsPoint3[name]);
 			}
 		}
-		changedUniformsU32.clear();
-		changedUniformsFloat.clear();
-		changedUniformsPoint3.clear();
 	}
+	changedUniformsU32.clear();
+	changedUniformsFloat.clear();
+	changedUniformsPoint3.clear();
 
 	fpsDtor = engine->AddObject(&fpsID);
 
