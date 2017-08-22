@@ -8,7 +8,7 @@ private:
 	const float height;
 	const float alpha;
 public:
-	SliderSprite(const Point2 pos, const float width, const float height, const float alpha) : Sprite(pos), width(width), height(height), alpha(alpha) {}
+	SliderSprite(const float width, const float height, const float alpha) : width(width), height(height), alpha(alpha) {}
 
 	void RenderMe() override final {
 		const int edgeSize = 2;

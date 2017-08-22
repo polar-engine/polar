@@ -46,9 +46,12 @@ namespace MenuControl {
 
 		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			auto dtor = engine->AddObject(&id);
-			auto pad = Point2(15);
+			Decimal pad = 15;
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
-			engine->AddComponentAs<Sprite, BoxSprite>(id, Point2(scale) - pad * Decimal(2), origin + pad, color);
+			engine->AddComponentAs<Sprite, BoxSprite>(id);
+			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
+			engine->AddComponent<ScaleComponent>(id, Point3(scale, scale, 1) - pad * 2);
+			engine->AddComponent<ColorComponent>(id, color);
 			return dtor;
 		}
 	};
@@ -75,10 +78,10 @@ namespace MenuControl {
 			scale *= 0.375;
 
 			auto dtor = engine->AddObject(&id);
-			auto pad = Point2(15);
+			Decimal pad = 15;
 			float alpha = float(value - min) / float(max - min);
-			auto pos = origin + pad;
-			engine->AddComponentAs<Sprite, SliderSprite>(id, pos, scale * 8, scale, alpha);
+			engine->AddComponentAs<Sprite, SliderSprite>(id, scale * 8, scale, alpha);
+			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
 			return dtor;
 		}
 	};
