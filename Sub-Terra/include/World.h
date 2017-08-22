@@ -61,6 +61,7 @@ private:
 	}
 
 	void Hue() {
+		return;
 #if defined(_WIN32)
 		auto color = GetColor();
 		auto min = glm::min(glm::min(color.r, color.g), color.b);
