@@ -4,9 +4,6 @@
 
 class BoxSprite : public Sprite {
 public:
-	BoxSprite(const Point2 scale = Point2(1), const Point2 pos = Point2(0), const Point4 color = Point4(1), const Origin origin = Origin::BottomLeft)
-		: Sprite(pos, origin, color, scale) {}
-
 	void RenderMe() override final {
 		const int width = 12;
 		const int height = 12;
