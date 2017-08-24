@@ -46,12 +46,16 @@ namespace MenuControl {
 
 		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			auto dtor = engine->AddObject(&id);
+
 			Decimal pad = 15;
+			Point2 offset = Point2(4 * scale, 0); // edgeOffset + edgePadding (SliderSprite)s
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
+
 			engine->AddComponentAs<Sprite, BoxSprite>(id);
-			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
+			engine->AddComponent<ScreenPositionComponent>(id, origin + pad + offset);
 			engine->AddComponent<ScaleComponent>(id, Point3(scale));
 			engine->AddComponent<ColorComponent>(id, color);
+
 			return dtor;
 		}
 	};
@@ -76,11 +80,14 @@ namespace MenuControl {
 
 		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
 			auto dtor = engine->AddObject(&id);
+
 			Decimal pad = 15;
 			float alpha = float(value - min) / float(max - min);
+
 			engine->AddComponentAs<Sprite, SliderSprite>(id, 12 * 8, 12, alpha);
 			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
 			engine->AddComponent<ScaleComponent>(id, Point3(scale));
+
 			return dtor;
 		}
 	};
@@ -226,11 +233,16 @@ private:
 			itemDtors.emplace_back(engine->AddObject(&id));
 		}
 
+		const Decimal uiHeight = 2.25;
+		const Decimal uiScale = 0.3125;
+		const Decimal uiTextHeight = 160;
+		const Decimal uiTextWidth = 500;
+
 		/* max 6 items on screen at max scale of 0.375
-		 * 6 * 0.375 = 2.25 numerator
-		 */
-		Decimal scale = glm::min(Decimal(2.25) / Decimal(m->size()), Decimal(0.375));
-		Decimal spacing = 160 * scale;
+		* 6 * 0.375 = 2.25 numerator
+		*/
+		Decimal scale = glm::min(Decimal(uiHeight) / Decimal(m->size()), Decimal(uiScale));
+		Decimal spacing = uiTextHeight * scale;
 		Point2 origin = Point2(60, 50 + spacing * (m->size() - i - 1));
 
 		engine->AddComponent<Text>(id, font, item.value);
@@ -245,7 +257,7 @@ private:
 
 		if(item.control) {
 			IDType controlID;
-			auto offset = Point2(600 / 0.375 * scale, 0);
+			auto offset = Point2(uiTextWidth / uiScale * scale, 0);
 			offset.y -= 12 * scale;
 			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, 8 * scale);
 		}
