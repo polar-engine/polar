@@ -50,7 +50,7 @@ namespace MenuControl {
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
 			engine->AddComponentAs<Sprite, BoxSprite>(id);
 			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
-			engine->AddComponent<ScaleComponent>(id, Point3(scale, scale, 1) - pad * 2);
+			engine->AddComponent<ScaleComponent>(id, Point3(scale));
 			engine->AddComponent<ColorComponent>(id, color);
 			return dtor;
 		}
@@ -75,13 +75,12 @@ namespace MenuControl {
 		}
 
 		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
-			scale *= 0.375;
-
 			auto dtor = engine->AddObject(&id);
 			Decimal pad = 15;
 			float alpha = float(value - min) / float(max - min);
-			engine->AddComponentAs<Sprite, SliderSprite>(id, scale * 8, scale, alpha);
+			engine->AddComponentAs<Sprite, SliderSprite>(id, 12 * 8, 12, alpha);
 			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
+			engine->AddComponent<ScaleComponent>(id, Point3(scale));
 			return dtor;
 		}
 	};
@@ -238,6 +237,8 @@ private:
 		engine->AddComponent<ScreenPositionComponent>(id, origin);
 		engine->AddComponent<ScaleComponent>(id, Point3(scale));
 
+		auto text = engine->GetComponent<Text>(id);
+
 		if(i == current) {
 			engine->AddComponent<ColorComponent>(id, Point4(1, 1, selectionAlpha, 1));
 		}
@@ -245,7 +246,8 @@ private:
 		if(item.control) {
 			IDType controlID;
 			auto offset = Point2(600 / 0.375 * scale, 0);
-			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, scale);
+			offset.y -= 12 * scale;
+			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, 8 * scale);
 		}
 	}
 protected:

@@ -299,7 +299,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 
 		auto pairRight = engine->objects.right.equal_range(&typeid(Sprite));
 		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-			// XXX
+			RenderSprite(itRight->get_left());
 		}
 
 		pairRight = engine->objects.right.equal_range(&typeid(Text));
@@ -309,6 +309,106 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 	}
 
 	SDL(SDL_GL_SwapWindow(window));
+}
+
+void GL32Renderer::RenderSprite(IDType id) {
+	auto sprite = engine->GetComponent<Sprite>(id);
+	auto prop = sprite->Get<GL32SpriteProperty>().lock();
+	auto screenPos = engine->GetComponent<ScreenPositionComponent>(id);
+	auto scale = engine->GetComponent<ScaleComponent>(id);
+	auto color = engine->GetComponent<ColorComponent>(id);
+
+	auto coord = Point2(0);
+
+	// anchor point + local position component - alignment offset
+	if(screenPos) {
+		auto p = screenPos->position.Get();
+		switch(screenPos->origin) {
+		case Origin::BottomLeft:
+			coord = Point2(0, 0);
+			coord += p * Point2(1, 1);
+			break;
+		case Origin::BottomRight:
+			coord = Point2(width, 0);
+			coord += p * Point2(-1, 1);
+			break;
+		case Origin::TopLeft:
+			coord = Point2(0, height);
+			coord += p * Point2(1, -1);
+			break;
+		case Origin::TopRight:
+			coord = Point2(width, height);
+			coord += p * Point2(-1, -1);
+			break;
+		case Origin::Left:
+			coord = Point2(0, height / 2);
+			coord += p * Point2(1, 0);
+			break;
+		case Origin::Right:
+			coord = Point2(width, height / 2);
+			coord += p * Point2(-1, 0);
+			break;
+		case Origin::Bottom:
+			coord = Point2(width / 2, 0);
+			coord += p * Point2(0, 1);
+			break;
+		case Origin::Top:
+			coord = Point2(width / 2, height);
+			coord += p * Point2(0, -1);
+			break;
+		case Origin::Center:
+			coord = Point2(width / 2, height / 2);
+			coord += p * Point2(1, 1);
+			break;
+		}
+	}
+
+	// offset y coord away from anchor point
+	Decimal offsetY = 0;
+	if(screenPos) {
+		switch(screenPos->origin) {
+		case Origin::TopLeft:
+		case Origin::Top:
+		case Origin::TopRight:
+			offsetY = -1;
+			break;
+		case Origin::BottomLeft:
+		case Origin::Bottom:
+		case Origin::BottomRight:
+			offsetY = 1;
+			break;
+		}
+	}
+
+	Mat4 transform;
+
+	// translate to bottom left corner
+	transform = glm::translate(transform, Point3(-1, -1, 0));
+
+	// scale to one pixel
+	transform = glm::scale(transform, Decimal(2) / Point3(width, height, 1));
+
+	// translate to screen coord
+	transform = glm::translate(transform, Point3(coord, 0));
+
+	// scale by scale component
+	if(scale) {
+		transform = glm::scale(transform, scale->scale.Get());
+	}
+
+	UploadUniform(spriteProgram, "u_color", color ? color->color.Get() : Point4(1));
+
+	// scale to sprite size
+	auto sc = Point3(sprite->surface->w, sprite->surface->h, 1);
+	transform = glm::scale(transform, sc / Decimal(2));
+
+	// translate by one sprite size
+	transform = glm::translate(transform, Point3(1, offsetY, 0));
+
+	UploadUniform(spriteProgram, "u_transform", transform);
+
+	GL(glBindTexture(GL_TEXTURE_2D, prop->texture));
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 }
 
 void GL32Renderer::RenderText(IDType id) {
