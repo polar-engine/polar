@@ -85,6 +85,7 @@ private:
 
 	void Init() override final;
 	void Update(DeltaTicks &) override final;
+	void RenderSprite(IDType);
 	void RenderText(IDType);
 
 	inline std::shared_ptr<GL32ModelProperty> GetPooledModelProperty(const GLsizei required) {

@@ -42,10 +42,10 @@ public:
 		rect.x = glm::mix(min, max, alpha);
 		rect.w = boxSize;
 		SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0, 0, 0)));
-		rect.y += 2;
-		rect.h -= 4;
-		rect.x += 2;
-		rect.w -= 4;
+		rect.y += 1;
+		rect.h -= 2;
+		rect.x += 1;
+		rect.w -= 2;
 		SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 77, 204, 255)));
 	}
 };
