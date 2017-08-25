@@ -1,0 +1,28 @@
+@uniform float u_aberration
+@attrib vec2 a_vertex
+@varying smooth vec2 v_vertex
+@in color u_colorBuffer
+@out rgba8 color o_color
+
+@shader vertex
+
+void main() {
+	gl_Position = vec4(a_vertex, 0.0, 1.0);
+	v_vertex = a_vertex * 0.5 + 0.5;
+}
+
+@shader fragment
+
+void main() {
+	vec2 texCoord = v_vertex;
+
+	// TODO: use aspectCorrect or u_resolution for pixel-correct aberration
+	//float aspect = u_resolution.x / u_resolution.y;
+	//vec2 aspectCorrect = vec2(1.0, aspect);
+
+	float factor = u_aberration;
+	o_color.r = texture(u_colorBuffer, texCoord + vec2(-factor,  factor * 5.0)).r;
+	o_color.g = texture(u_colorBuffer, texCoord + vec2( factor * 6.0,     0.0)).g;
+	o_color.b = texture(u_colorBuffer, texCoord + vec2(-factor, -factor * 5.0)).b;
+	o_color.a = 1.0;
+}

@@ -35,7 +35,7 @@ Freefall::Freefall(Polar &engine) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		st.AddSystem<AssetManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const std::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom"*/ });
+		st.AddSystemAs<Renderer, GL32Renderer, const std::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom", "chroma"*/ });
 		st.AddSystem<AudioManager>();
 		//st.AddSystem<JobManager>();
 		st.AddSystem<EventManager>();
@@ -51,8 +51,11 @@ Freefall::Freefall(Polar &engine) {
 		auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
 
 		auto SetPipeline = [] (Polar *engine) {
+			auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
 			auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
+
 			std::vector<std::string> names = { "perlin" };
+			if(steamConfigM->Get<Decimal>(SteamConfigOption::ChromaticAberration) > 0) { names.emplace_back("chroma"); }
 			if(localConfigM->Get<bool>(LocalConfigOption::Bloom)) { names.emplace_back("bloom"); }
 			if(localConfigM->Get<bool>(LocalConfigOption::Cel)) { names.emplace_back("fxaa"); }
 			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
@@ -66,6 +69,10 @@ Freefall::Freefall(Polar &engine) {
 		});
 		steamConfigM->On(SteamConfigOption::ScanIntensity, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_scanIntensity", x);
+		});
+		steamConfigM->On(SteamConfigOption::ChromaticAberration, [SetPipeline] (Polar *engine, SteamConfigOption, Decimal x) {
+			engine->GetSystem<Renderer>().lock()->SetUniform("u_aberration", x);
+			SetPipeline(engine);
 		});
 		steamConfigM->On(SteamConfigOption::PixelFactor, [] (Polar *engine, SteamConfigOption, Decimal x) {
 			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
@@ -202,6 +209,10 @@ Freefall::Freefall(Polar &engine) {
 					}),
 					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, Decimal(0.2), steamConfigM->Get<Decimal>(SteamConfigOption::ScanIntensity), Decimal(0.01)), [engine] (Decimal x) {
 						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::ScanIntensity, x);
+						return true;
+					}),
+					MenuItem("Chromatic Aberration", MenuControl::Slider<Decimal>(0, Decimal(0.001), steamConfigM->Get<Decimal>(SteamConfigOption::ChromaticAberration), Decimal(0.0001)), [engine] (Decimal x) {
+						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::ChromaticAberration, x);
 						return true;
 					}),
 					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
