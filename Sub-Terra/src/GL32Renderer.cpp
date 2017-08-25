@@ -115,8 +115,8 @@ void GL32Renderer::Init() {
 
 void GL32Renderer::Update(DeltaTicks &dt) {
 	// upload changed uniforms
-	bool usingProgram = false;
 	for(size_t i = 0; i < nodes.size(); ++i) {
+		bool usingProgram = false;
 		auto &node = nodes[nodes.size() - 1 - i];
 		for(auto &name : changedUniformsU32) {
 			if(node.uniforms.find(name) != node.uniforms.cend()) {
