@@ -236,7 +236,7 @@ private:
 		const Decimal uiHeight = 2.25;
 		const Decimal uiScale = 0.3125;
 		const Decimal uiTextHeight = 160;
-		const Decimal uiTextWidth = 500;
+		const Decimal uiTextWidth = 550;
 
 		/* max 6 items on screen at max scale of 0.375
 		* 6 * 0.375 = 2.25 numerator
