@@ -212,16 +212,6 @@ private:
 		}
 	}
 
-	void RenderAll() {
-		auto m = GetCurrentMenu();
-
-		itemDtors.clear();
-		controlDtors.clear();
-		for(size_t i = 0; i < m->size(); ++i) {
-			Render(i);
-		}
-	}
-
 	void Render(size_t i, bool replace = false) {
 		auto m = GetCurrentMenu();
 		auto &item = m->at(i);
@@ -234,7 +224,6 @@ private:
 		}
 
 		const Decimal uiHeight = 2.25;
-		const Decimal uiScale = 0.3125;
 		const Decimal uiTextHeight = 160;
 		const Decimal uiTextWidth = 550;
 
@@ -316,6 +305,18 @@ protected:
 		Render(current, true);
 	}
 public:
+	Decimal uiScale = 0.3125;
+
 	static bool IsSupported() { return true; }
-	MenuSystem(Polar *engine, Menu menu) : System(engine), menu(menu) {}
+	MenuSystem(Polar *engine, Decimal uiScale, Menu menu) : System(engine), uiScale(uiScale), menu(menu) {}
+
+	void RenderAll() {
+		auto m = GetCurrentMenu();
+
+		itemDtors.clear();
+		controlDtors.clear();
+		for(size_t i = 0; i < m->size(); ++i) {
+			Render(i);
+		}
+	}
 };

@@ -104,7 +104,15 @@ Freefall::Freefall(Polar &engine) {
 			engine->GetSystem<AudioManager>().lock()->volumes[static_cast<size_t>(AudioSourceType::Effect)] = x;
 		});
 
+		localConfigM->On(LocalConfigOption::UIScale, [] (Polar *engine, LocalConfigOption, Decimal uiScale) {
+			if(auto menuSystem = engine->GetSystem<MenuSystem>().lock()) {
+				menuSystem->uiScale = uiScale;
+				menuSystem->RenderAll();
+			}
+		});
+
 		localConfigM->Set<Decimal>(LocalConfigOption::BaseDetail, 8);
+		localConfigM->Set<Decimal>(LocalConfigOption::UIScale, Decimal(0.3125));
 		steamConfigM->Set<Decimal>(SteamConfigOption::MouseSmoothing, Decimal(0.995));
 		steamConfigM->Set<int>(SteamConfigOption::MasterVolume, 100);
 		steamConfigM->Set<int>(SteamConfigOption::MusicVolume, 100);
@@ -228,6 +236,11 @@ Freefall::Freefall(Polar &engine) {
 						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Fullscreen, state);
 						return true;
 					}),
+					// XXX: broken right now, fix me
+					/*MenuItem("UI Scale", MenuControl::Slider<Decimal>(Decimal(0.125), Decimal(0.5), localConfigM->Get<Decimal>(LocalConfigOption::UIScale), Decimal(0.03125)), [engine] (Decimal x) {
+						engine->GetSystem<LocalConfigM>().lock()->Set<Decimal>(LocalConfigOption::UIScale, x);
+						return true;
+					}),*/
 					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
 						auto renderer = engine->GetSystem<Renderer>().lock();
 						renderer->showFPS = state;
@@ -268,7 +281,8 @@ Freefall::Freefall(Polar &engine) {
 				return false;
 			}),
 		};
-		st.AddSystem<MenuSystem>(menu);
+		auto uiScale = localConfigM->Get<Decimal>(LocalConfigOption::UIScale);
+		st.AddSystem<MenuSystem>(uiScale, menu);
 	});
 
 	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
