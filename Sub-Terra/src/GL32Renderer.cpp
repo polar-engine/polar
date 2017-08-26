@@ -73,7 +73,7 @@ void GL32Renderer::InitGL() {
 	glGetError();
 
 	GL(glDisable(GL_DEPTH_TEST));
-	GL(glEnable(GL_BLEND));
+	GL(glDisable(GL_BLEND));
 	GL(glEnable(GL_CULL_FACE));
 	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	GL(glCullFace(GL_BACK));
@@ -290,7 +290,8 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 		}
 	}
 
-	// sprites
+	// render sprites and text
+	GL(glEnable(GL_BLEND));
 	{
 		GL(glUseProgram(spriteProgram));
 		UploadUniform(spriteProgram, "u_texture", 0);
@@ -307,6 +308,7 @@ void GL32Renderer::Update(DeltaTicks &dt) {
 			RenderText(itRight->get_left());
 		}
 	}
+	GL(glDisable(GL_BLEND));
 
 	SDL(SDL_GL_SwapWindow(window));
 }
