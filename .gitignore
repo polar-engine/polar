@@ -177,3 +177,6 @@ UserInterfaceState.xcuserstate
 /Sub-Terra.VC.db
 /Sub-Terra.VC.VC.opendb
 *.swp
+
+# build directory
+build
