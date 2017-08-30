@@ -24,18 +24,40 @@ set(POLAR_SOURCES
 
 if(APPLE)
 	find_library(CARBON_LIBRARY Carbon)
-	find_library(SDL2_LIBRARY SDL2)
-	find_library(SDL2_TTF_LIBRARY SDL2_ttf)
-	find_library(OPENGL_LIBRARY OpenGL)
-	set(EXTRA_LIBS
-		${CARBON_LIBRARY}
-		${SDL2_LIBRARY}
-		${SDL2_TTF_LIBRARY}
-		${OPENGL_LIBRARY}
-	)
+	find_library(AUDIOUNIT_LIBRARY AudioUnit)
+	find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
+	find_library(COREAUDIO_LIBRARY CoreAudio)
 endif(APPLE)
 
-add_executable(polar ${POLAR_SOURCES})
-target_link_libraries(polar ${EXTRA_LIBS})
+find_library(SDL2_LIBRARY SDL2)
+find_library(SDL2_TTF_LIBRARY SDL2_ttf)
+find_library(OPENGL_LIBRARY OpenGL)
+
+set(EXTRA_LIBS
+	${CARBON_LIBRARY}
+	${AUDIOTOOLBOX_LIBRARY}
+	${AUDIOUNIT_LIBRARY}
+	${COREAUDIO_LIBRARY}
+	${SDL2_LIBRARY}
+	${SDL2_TTF_LIBRARY}
+	${OPENGL_LIBRARY}
+)
+
+set(STEAM_APPID 0 CACHE STRING "Steam application ID")
+file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/steam_appid.txt CONTENT "${STEAM_APPID}")
+
+set(APP_RESOURCES
+	lib/libsteam_api.dylib
+	${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/steam_appid.txt
+)
+
+set(RESOURCES
+)
+
+set_source_files_properties(${APP_RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION MacOS)
+set_source_files_properties(${RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+add_executable(polar WIN32 MACOSX_BUNDLE ${POLAR_SOURCES} ${APP_RESOURCES} ${RESOURCES})
+target_link_libraries(polar ${EXTRA_LIBS} portaudio steam_api)
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
