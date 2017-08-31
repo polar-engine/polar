@@ -5,7 +5,7 @@
 #include "Serializer.h"
 #include "sdl.h"
 
-#include <SDL/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 /* SDL defines main to be SDL_main which is annoying */
 #ifdef main
