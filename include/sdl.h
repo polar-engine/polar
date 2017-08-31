@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DebugManager.h"
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 #include "Key.h"
 
 /* SDL defines main to be SDL_main which is annoying */
