@@ -4,7 +4,7 @@ project(polar)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-include_directories(include Sub-Terra/include)
+include_directories(include)
 link_directories(lib)
 
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS)
@@ -22,6 +22,12 @@ set(POLAR_SOURCES
 	Sub-Terra/src/Worker.cpp
 	Sub-Terra/src/glew.c
 	Sub-Terra/src/main.cpp
+)
+
+set(ASSETBUILDER_SOURCES
+	src/DebugManager.cpp
+	src/buildinfo.cpp
+	AssetBuilder/src/main.cpp
 )
 
 if(WIN32)
@@ -48,9 +54,9 @@ endif(APPLE)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
+find_library(Z_LIB z PATHS lib lib/win32)
 find_library(PORTAUDIO_LIB portaudio PATHS lib lib/win32)
 find_library(STEAM_API_LIB steam_api PATHS lib lib/win32)
-
 
 if(WIN32)
 	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES lib/win32 lib PATHS ${CMAKE_SOURCE_DIR})
@@ -81,14 +87,58 @@ set(APP_RESOURCES
 set(RESOURCES
 )
 
-if(WIN32)
-	file(INSTALL ${APP_RESOURCES} ${RESOURCES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif(WIN32)
+if(APPLE)
+	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/MacOS)
+	set(POLAR_RESOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Resources)
+else()
+	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR})
+	set(POLAR_RESOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
-set_source_files_properties(${APP_RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION MacOS)
-set_source_files_properties(${RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+# Asset Builder
 
-add_executable(polar WIN32 MACOSX_BUNDLE ${POLAR_SOURCES} ${APP_RESOURCES} ${RESOURCES})
+set(ASSETBUILDER_LIBS
+	${WIN32_LIBS}
+	${APPLE_LIBS}
+	${Z_LIB}
+)
+
+add_executable(assetbuilder ${ASSETBUILDER_SOURCES})
+target_include_directories(assetbuilder PUBLIC AssetBuilder/include)
+target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
+set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
+set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
+
+# Polar Engine
+
+add_executable(polar WIN32 MACOSX_BUNDLE ${POLAR_SOURCES})
+target_include_directories(polar PUBLIC Sub-Terra/include)
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
+
+# App Resources
+if(APP_RESOURCES)
+	add_custom_target(appresources ALL
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_RESOURCES} ${POLAR_EXECUTABLE_DIR}
+	)
+endif()
+
+# Resources
+if(RESOURCES)
+	add_custom_target(resources ALL
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCES} ${POLAR_RESOURCES_DIR}
+	)
+endif()
+
+# Assets
+
+add_custom_target(assets ALL
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/assets
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${POLAR_RESOURCES_DIR}/assets
+	COMMAND $<TARGET_FILE:assetbuilder> ${CMAKE_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/assets ${POLAR_RESOURCES_DIR}/assets
+)
+
+add_dependencies(assets polar)
+add_dependencies(assets assetbuilder)

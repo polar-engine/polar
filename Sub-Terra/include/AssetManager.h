@@ -19,7 +19,7 @@ public:
 #if defined(_WIN32)
 		return FileSystem::AppDir() + "/assets";
 #elif defined(__APPLE__)
-		return FileSystem::AppDir() + "/Contents/Resources";
+		return FileSystem::AppDir() + "/Contents/Resources/assets";
 #endif
 	}
 
