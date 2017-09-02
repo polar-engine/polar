@@ -73,7 +73,11 @@ set(POLAR_LIBS
 	${STEAM_API_LIB}
 )
 
+
 set(STEAM_APPID 0 CACHE STRING "Steam application ID")
+if(NOT STEAM_APPID GREATER "0")
+	message(FATAL_ERROR "STEAM_APPID variable must be non-zero.")
+endif()
 
 set(STEAM_APPID_FILE ${CMAKE_CURRENT_BINARY_DIR}/steam_appid.txt)
 file(WRITE ${STEAM_APPID_FILE} "${STEAM_APPID}")
@@ -85,14 +89,6 @@ set(APP_RESOURCES
 
 set(RESOURCES
 )
-
-if(APPLE)
-	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/MacOS)
-	set(POLAR_RESOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Resources)
-else()
-	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR})
-	set(POLAR_RESOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR})
-endif()
 
 # Asset Builder
 
@@ -116,6 +112,15 @@ target_include_directories(polar PUBLIC Sub-Terra/include)
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
+
+if(APPLE)
+	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/MacOS)
+	set(POLAR_RESOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Resources)
+else()
+	set(POLAR_EXECUTABLE_FILE $<TARGET_FILE:polar> CACHE INTERNAL "")
+	set(POLAR_EXECUTABLE_DIR $<TARGET_FILE_DIR:polar> CACHE INTERNAL "")
+	set(POLAR_RESOURCES_DIR ${POLAR_EXECUTABLE_DIR} CACHE INTERNAL "")
+endif()
 
 # App Resources
 if(APP_RESOURCES)
