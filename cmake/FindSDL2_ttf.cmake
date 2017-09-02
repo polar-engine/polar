@@ -1,5 +1,5 @@
 find_path(TTF_INCLUDE_DIR "SDL_ttf.h" PATH_SUFFIXES include/SDL2 include PATHS ${CMAKE_SOURCE_DIR})
-find_library(TTF_LIBRARY_TEMP "SDL2_ttf" PATH_SUFFIXES lib/win32 lib PATHS ${CMAKE_SOURCE_DIR})
+find_library(TTF_LIBRARY_TEMP "SDL2_ttf" PATH_SUFFIXES lib/win32 lib/macos PATHS ${CMAKE_SOURCE_DIR})
 
 if(TTF_LIBRARY_TEMP)
 	set(TTF_LIBRARY ${TTF_LIBRARY_TEMP} CACHE STRING "Where the ttf library can be found")
