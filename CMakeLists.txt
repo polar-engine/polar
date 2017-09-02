@@ -5,7 +5,6 @@ project(polar)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 include_directories(include)
-link_directories(lib)
 
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS)
 
@@ -54,9 +53,9 @@ endif(APPLE)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
-find_library(Z_LIB NAMES z zlib PATHS lib lib/win32)
-find_library(PORTAUDIO_LIB portaudio PATHS lib lib/win32)
-find_library(STEAM_API_LIB steam_api PATHS lib lib/win32)
+find_library(Z_LIB NAMES z zlib      PATHS lib/win32 lib/macos)
+find_library(PORTAUDIO_LIB portaudio PATHS lib/win32 lib/macos)
+find_library(STEAM_API_LIB steam_api PATHS lib/win32 lib/macos)
 
 if(WIN32)
 	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES lib/win32 lib PATHS ${CMAKE_SOURCE_DIR})
@@ -100,6 +99,7 @@ endif()
 set(ASSETBUILDER_LIBS
 	${WIN32_LIBS}
 	${APPLE_LIBS}
+	${SDL2_LIBRARY}
 	${Z_LIB}
 )
 
