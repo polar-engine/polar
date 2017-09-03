@@ -9,23 +9,23 @@ include_directories(include)
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS)
 
 set(POLAR_SOURCES
-	src/DebugManager.cpp
-	src/buildinfo.cpp
-	src/AudioManager.cpp
-	src/Freefall.cpp
-	src/GL32Renderer.cpp
-	src/HumanPlayerController.cpp
-	src/InputManager.cpp
-	src/Integrator.cpp
-	src/JobManager.cpp
-	src/Worker.cpp
+	src/polar/core/debugmanager.cpp
+	src/polar/util/buildinfo.cpp
+	src/polar/system/audio.cpp
+	src/polar/system/renderer/gl32.cpp
+	src/polar/system/player/human.cpp
+	src/polar/system/input.cpp
+	src/polar/system/integrator.cpp
+	src/polar/system/work.cpp
+	src/polar/support/work/worker.cpp
 	src/glew.c
+	src/Freefall.cpp
 	src/main-freefall.cpp
 )
 
 set(ASSETBUILDER_SOURCES
-	src/DebugManager.cpp
-	src/buildinfo.cpp
+	src/polar/core/debugmanager.cpp
+	src/polar/util/buildinfo.cpp
 	src/main-assetbuilder.cpp
 )
 
