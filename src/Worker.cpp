@@ -1,5 +1,5 @@
-#include "common.h"
-#include "Worker.h"
+#include <polar/common.h>
+#include <polar/Worker.h>
 
 void Worker::Start() {
 	auto fn = [this] () {

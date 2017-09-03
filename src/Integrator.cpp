@@ -1,7 +1,7 @@
-#include "common.h"
-#include "Integrator.h"
-#include "IntegrableProperty.h"
-#include "EventManager.h"
+#include <polar/common.h>
+#include <polar/Integrator.h>
+#include <polar/IntegrableProperty.h>
+#include <polar/EventManager.h>
 
 void Integrator::Update(DeltaTicks &dt) {
 	accumulator += dt;

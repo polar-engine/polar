@@ -11,22 +11,22 @@ add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS)
 set(POLAR_SOURCES
 	src/DebugManager.cpp
 	src/buildinfo.cpp
-	Sub-Terra/src/AudioManager.cpp
-	Sub-Terra/src/Freefall.cpp
-	Sub-Terra/src/GL32Renderer.cpp
-	Sub-Terra/src/HumanPlayerController.cpp
-	Sub-Terra/src/InputManager.cpp
-	Sub-Terra/src/Integrator.cpp
-	Sub-Terra/src/JobManager.cpp
-	Sub-Terra/src/Worker.cpp
-	Sub-Terra/src/glew.c
-	Sub-Terra/src/main.cpp
+	src/AudioManager.cpp
+	src/Freefall.cpp
+	src/GL32Renderer.cpp
+	src/HumanPlayerController.cpp
+	src/InputManager.cpp
+	src/Integrator.cpp
+	src/JobManager.cpp
+	src/Worker.cpp
+	src/glew.c
+	src/main-freefall.cpp
 )
 
 set(ASSETBUILDER_SOURCES
 	src/DebugManager.cpp
 	src/buildinfo.cpp
-	AssetBuilder/src/main.cpp
+	src/main-assetbuilder.cpp
 )
 
 if(WIN32)
@@ -100,7 +100,6 @@ set(ASSETBUILDER_LIBS
 )
 
 add_executable(assetbuilder ${ASSETBUILDER_SOURCES})
-target_include_directories(assetbuilder PUBLIC AssetBuilder/include)
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -108,7 +107,6 @@ set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
 # Polar Engine
 
 add_executable(polar WIN32 MACOSX_BUNDLE ${POLAR_SOURCES})
-target_include_directories(polar PUBLIC Sub-Terra/include)
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
