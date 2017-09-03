@@ -1,14 +1,14 @@
-#include "common.h"
-#include "GL32Renderer.h"
-#include "EventManager.h"
-#include "AssetManager.h"
-#include "Integrator.h"
-#include "PositionComponent.h"
-#include "OrientationComponent.h"
-#include "PlayerCameraComponent.h"
-#include "ScaleComponent.h"
-#include "ColorComponent.h"
-#include "Text.h"
+#include <polar/common.h>
+#include <polar/GL32Renderer.h>
+#include <polar/EventManager.h>
+#include <polar/AssetManager.h>
+#include <polar/Integrator.h>
+#include <polar/PositionComponent.h>
+#include <polar/OrientationComponent.h>
+#include <polar/PlayerCameraComponent.h>
+#include <polar/ScaleComponent.h>
+#include <polar/ColorComponent.h>
+#include <polar/Text.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN

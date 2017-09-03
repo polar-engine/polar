@@ -10,17 +10,17 @@
 #endif
 
 #include <zlib.h>
-#include "debug.h"
-#include "getline.h"
-#include "endian.h"
-#include "DebugManager.h"
-#include "FileSystem.h"
-#include "TextAsset.h"
-#include "ImageAsset.h"
-#include "AudioAsset.h"
-#include "FontAsset.h"
-#include "ShaderProgramAsset.h"
-#include "Level.h"
+#include <polar/debug.h>
+#include <polar/getline.h>
+#include <polar/endian.h>
+#include <polar/DebugManager.h>
+#include <polar/FileSystem.h>
+#include <polar/TextAsset.h>
+#include <polar/ImageAsset.h>
+#include <polar/AudioAsset.h>
+#include <polar/FontAsset.h>
+#include <polar/ShaderProgramAsset.h>
+#include <polar/Level.h>
 
 int main(int argc, char **argv) {
 	std::string path = (argc >= 2) ? argv[1] : FileSystem::AppDir() + "/assets";

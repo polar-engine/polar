@@ -1,6 +1,6 @@
-#include "common.h"
-#include "InputManager.h"
-#include "EventManager.h"
+#include <polar/common.h>
+#include <polar/InputManager.h>
+#include <polar/EventManager.h>
 
 void InputManager::Init() {
 	auto eventM = engine->GetSystem<EventManager>().lock();
