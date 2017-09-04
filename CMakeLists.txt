@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 include_directories(include)
 
-add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS)
+add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_CRT_SECURE_NO_WARNINGS)
 
 set(POLAR_SOURCES
 	src/polar/core/debugmanager.cpp
