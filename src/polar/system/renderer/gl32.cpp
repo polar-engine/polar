@@ -1,14 +1,15 @@
-#include <polar/common.h>
-#include <polar/GL32Renderer.h>
-#include <polar/EventManager.h>
-#include <polar/AssetManager.h>
-#include <polar/Integrator.h>
-#include <polar/PositionComponent.h>
-#include <polar/OrientationComponent.h>
-#include <polar/PlayerCameraComponent.h>
-#include <polar/ScaleComponent.h>
-#include <polar/ColorComponent.h>
-#include <polar/Text.h>
+#include <polar/core/polar.h>
+#include <polar/system/renderer/gl32.h>
+#include <polar/system/event.h>
+#include <polar/system/asset.h>
+#include <polar/system/integrator.h>
+#include <polar/component/position.h>
+#include <polar/component/orientation.h>
+#include <polar/component/scale.h>
+#include <polar/component/color.h>
+#include <polar/component/text.h>
+#include <polar/component/playercamera.h>
+#include <polar/component/screenposition.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN

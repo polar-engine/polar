@@ -1,5 +1,4 @@
-#include <polar/common.h>
-#include <polar/AudioManager.h>
+#include <polar/system/audio.h>
 
 int StreamCallback(const void *input,
 				   void *output,

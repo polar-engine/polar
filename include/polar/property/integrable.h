@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Property.h"
-#include "Integrable.h"
+#include <polar/property/base.h>
+#include <polar/support/integrator/integrable.h>
 
 class IntegrableProperty : public Property {
 public:

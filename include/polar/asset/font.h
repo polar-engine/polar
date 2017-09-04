@@ -1,9 +1,7 @@
 #pragma once
 
-#include <string>
-#include "Asset.h"
-#include "Serializer.h"
-#include "sdl.h"
+#include <polar/asset/base.h>
+#include <polar/util/sdl.h>
 
 #include <SDL2/SDL_ttf.h>
 

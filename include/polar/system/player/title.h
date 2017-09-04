@@ -1,9 +1,10 @@
 #pragma once
 
-#include "PositionComponent.h"
-#include "OrientationComponent.h"
-#include "PlayerCameraComponent.h"
-#include "World.h"
+#include <polar/system/base.h>
+#include <polar/system/world.h>
+#include <polar/component/position.h>
+#include <polar/component/orientation.h>
+#include <polar/component/playercamera.h>
 
 class TitlePlayerController : public System {
 private:

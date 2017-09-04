@@ -7,8 +7,8 @@
 #include <set>
 #include <string>
 #include <iostream>
-#include "types.h"
-#include "endian.h"
+#include <polar/core/types.h>
+#include <polar/util/endian.h>
 
 #define swapendian swapbe
 

@@ -4,7 +4,10 @@
 #undef AddJob
 #endif
 
-#include "Job.h"
+#include <queue>
+#include <thread>
+#include <polar/support/work/job.h>
+#include <polar/util/atomic.h>
 
 typedef std::priority_queue<Job> JobsType;
 

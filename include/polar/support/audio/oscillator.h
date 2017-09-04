@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WaveShape.h"
+#include <polar/support/audio/waveshape.h>
 
 #define LIGHTSPEED_MILES_PER_SECOND (186282.3970512)
 #define SCIENTIFIC_A (sqrt(LIGHTSPEED_MILES_PER_SECOND))

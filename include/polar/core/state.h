@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <unordered_map>
-#include "Destructor.h"
-#include "EngineStack.h"
+#include <polar/core/destructor.h>
+#include <polar/core/stack.h>
 
 class EngineState {
 private:

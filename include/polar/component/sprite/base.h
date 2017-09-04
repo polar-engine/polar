@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Component.h"
-#include "ScreenPositionComponent.h"
-#include "sdl.h"
+#include <polar/component/base.h>
+#include <polar/util/sdl.h>
 
 class Sprite : public Component {
 public:

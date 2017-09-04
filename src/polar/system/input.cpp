@@ -1,6 +1,6 @@
-#include <polar/common.h>
-#include <polar/InputManager.h>
-#include <polar/EventManager.h>
+#include <polar/core/polar.h>
+#include <polar/system/input.h>
+#include <polar/system/event.h>
 
 void InputManager::Init() {
 	auto eventM = engine->GetSystem<EventManager>().lock();

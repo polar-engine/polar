@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
-#include "System.h"
+#include <polar/system/base.h>
 
 template<typename T> class Tweener : public System {
 public:

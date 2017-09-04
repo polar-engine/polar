@@ -1,7 +1,7 @@
 #pragma once
 
+#include <polar/component/base.h>
 #include <vector>
-#include "Component.h"
 
 struct BoundingBox {
 	Point3 position;

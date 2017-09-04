@@ -5,11 +5,11 @@
 #define GLM_FORCE_RADIANS
 #define GLM_SWIZZLE
 #define GLM_SIMD_ENABLE_XYZW_UNION
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtx/quaternion.hpp"
-#include "glm/gtx/simd_vec4.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/simd_vec4.hpp>
 
 typedef float Decimal;
 typedef glm::detail::tvec2<Decimal, glm::highp> EnginePoint2;
@@ -28,3 +28,13 @@ typedef glm::detail::tmat4x4<Decimal, glm::highp> Mat4;
 #define Point4i EnginePoint4i
 typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 #define Triangle EngineTriangle
+
+enum class GeometryType : uint8_t {
+	None,
+	Lines,
+	Triangles,
+	TriangleStrip
+};
+
+typedef std::uint_fast64_t IDType;
+#define INVALID_ID std::numeric_limits<IDType>::max

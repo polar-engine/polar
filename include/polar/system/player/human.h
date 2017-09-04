@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <polar/system/base.h>
+
 class HumanPlayerController : public System {
 private:
 	std::shared_ptr<Destructor> timeDtor;

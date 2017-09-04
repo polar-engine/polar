@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Serializer.h"
-#include "Asset.h"
+#include <polar/asset/base.h>
 
 struct ImagePixel : Asset {
 	uint8_t red;

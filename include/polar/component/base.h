@@ -1,7 +1,7 @@
 #pragma once
 
-#include "EntityBase.h"
-#include "Property.h"
+#include <polar/core/ecsbase.h>
+#include <polar/property/base.h>
 
 typedef EntityBase<Property> EngineComponent;
 #define Component EngineComponent

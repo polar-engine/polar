@@ -5,9 +5,8 @@
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
 #include <steam/steam_api.h>
-#include "Destructor.h"
-#include "System.h"
-#include "Key.h"
+#include <polar/system/base.h>
+#include <polar/support/input/key.h>
 
 typedef std::function<void(Key)> OnKeyHandler;
 typedef std::function<void(Key)> AfterKeyHandler;

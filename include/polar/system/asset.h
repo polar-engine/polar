@@ -1,9 +1,10 @@
 #pragma once
 
 #include <unordered_map>
-#include "Asset.h"
-#include "FileSystem.h"
-#include "Serializer.h"
+#include <polar/system/base.h>
+#include <polar/asset/base.h>
+#include <polar/fs/local.h>
+#include <polar/core/serializer.h>
 
 struct PartialAsset {
 	bool done = false;

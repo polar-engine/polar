@@ -1,8 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "System.h"
-#include "Text.h"
+#include <polar/system/base.h>
+#include <polar/component/text.h>
+#include <polar/component/screenposition.h>
 
 class CreditsSection {
 public:

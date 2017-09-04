@@ -1,4 +1,4 @@
-#include <polar/buildinfo.h>
+#include <polar/util/buildinfo.h>
 
 const char * buildinfo_date() {
 	return __DATE__;

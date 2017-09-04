@@ -4,8 +4,7 @@
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
-#include "Destructor.h"
-#include "System.h"
+#include <polar/system/base.h>
 
 union Arg {
 	Decimal float_;
