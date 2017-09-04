@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include <polar/component/base.h>
 
 class OrientationComponent : public Component {
 public:

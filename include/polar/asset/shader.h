@@ -1,10 +1,8 @@
 #pragma once
 
-#include <vector>
-#include "debug.h"
-#include "Asset.h"
-#include "TextAsset.h"
-#include "Serializer.h"
+#include <polar/asset/base.h>
+#include <polar/asset/text.h>
+#include <polar/util/debug.h>
 
 /******************** ShaderProgramInputAsset ********************
 * String   key name

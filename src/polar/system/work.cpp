@@ -1,5 +1,4 @@
-#include <polar/common.h>
-#include <polar/JobManager.h>
+#include <polar/system/work.h>
 
 JobManager::JobManager(Polar *engine) : System(engine) {
 	for(int i = 0; i < numWorkers; ++i) {

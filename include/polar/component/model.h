@@ -1,7 +1,7 @@
 #pragma once
 
+#include <polar/component/base.h>
 #include <vector>
-#include "Component.h"
 
 class ModelComponent : public Component {
 public:

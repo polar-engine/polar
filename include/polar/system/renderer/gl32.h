@@ -6,14 +6,14 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <boost/container/flat_set.hpp>
-#include "sdl.h"
-#include "gl.h"
-#include "Renderer.h"
-#include "ShaderProgramAsset.h"
-#include "ModelComponent.h"
-#include "Sprite.h"
-#include "FontAsset.h"
-#include "Text.h"
+#include <polar/system/renderer/base.h>
+#include <polar/asset/shader.h>
+#include <polar/asset/font.h>
+#include <polar/component/model.h>
+#include <polar/component/text.h>
+#include <polar/component/sprite/base.h>
+#include <polar/util/sdl.h>
+#include <polar/util/gl.h>
 
 struct PipelineNode {
 	GLuint program;

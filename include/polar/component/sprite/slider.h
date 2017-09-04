@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sprite.h"
+#include <polar/component/sprite/base.h>
 
 class SliderSprite : public Sprite {
 private:

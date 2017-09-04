@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Polar.h"
+#include <polar/core/polar.h>
 
 class Freefall {
 public:

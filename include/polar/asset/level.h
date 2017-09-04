@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <polar/asset/base.h>
 #include <set>
 
 struct Keyframe {

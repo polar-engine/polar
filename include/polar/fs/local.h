@@ -7,7 +7,8 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include "debug.h"
+#include <polar/core/debugmanager.h>
+#include <polar/util/debug.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

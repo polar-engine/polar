@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "System.h"
+#include <polar/system/base.h>
 
 class Renderer : public System {
 protected:

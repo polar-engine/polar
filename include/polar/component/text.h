@@ -1,6 +1,7 @@
 #pragma once
 
-#include "FontAsset.h"
+#include <polar/component/base.h>
+#include <polar/asset/font.h>
 
 class Text : public Component {
 public:

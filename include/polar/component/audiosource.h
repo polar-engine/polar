@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Component.h"
-#include "AudioAsset.h"
+#include <polar/component/base.h>
+#include <polar/asset/audio.h>
 
 struct LoopIn {
 	size_t value;

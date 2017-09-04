@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "System.h"
-#include "Job.h"
-#include "Worker.h"
+#include <polar/system/base.h>
+#include <polar/support/work/job.h>
+#include <polar/support/work/worker.h>
 
 typedef std::priority_queue<Job> JobsType;
 

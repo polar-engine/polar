@@ -1,7 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "Destructor.h"
+#include <memory>
+#include <polar/core/destructor.h>
+#include <polar/core/deltaticks.h>
+#include <polar/component/base.h>
 
 class Polar;
 

@@ -35,7 +35,7 @@ public:
 
 #include <mutex>
 #include <condition_variable>
-#include "DebugManager.h"
+#include <polar/core/debugmanager.h>
 
 template<typename T> class Atomic {
 public:

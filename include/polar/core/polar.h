@@ -1,24 +1,30 @@
 #pragma once
 
+#define POLAR_BASE_POLAR_H
+
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include "Windows.h"
 #endif
 
 #include <vector>
 #include <deque>
+#include <random>
+#include <chrono>
 #include <unordered_map>
 #include <boost/bimap.hpp>
 #include <boost/bimap/set_of.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
 #include <steam/steam_api.h>
-#include "DebugManager.h"
-#include "Component.h"
-#include "System.h"
-#include "EngineStack.h"
-#include "EngineState.h"
-#include "buildinfo.h"
+#include <polar/core/types.h>
+#include <polar/core/debugmanager.h>
+#include <polar/component/base.h>
+#include <polar/system/base.h>
+#include <polar/core/stack.h>
+#include <polar/core/state.h>
+#include <polar/util/buildinfo.h>
 
 class Polar {
 public:

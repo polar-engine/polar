@@ -1,5 +1,12 @@
 #pragma once
 
+#include <chrono>
+#include <polar/core/types.h>
+
+#define ENGINE_TICKS_PER_SECOND 10000
+
+typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>> DeltaTicksBase;
+
 class DeltaTicks {
 private:
 	DeltaTicksBase value;

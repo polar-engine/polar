@@ -2,7 +2,7 @@
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/index/rtree.hpp>
-#include "System.h"
+#include <polar/system/base.h>
 
 class SpatialIndex : public System {
 private:

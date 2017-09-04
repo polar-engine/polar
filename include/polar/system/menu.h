@@ -1,12 +1,13 @@
 #pragma once
 
 #include <stdint.h>
-#include "System.h"
-#include "Text.h"
-#include "ScaleComponent.h"
-#include "ColorComponent.h"
-#include "BoxSprite.h"
-#include "SliderSprite.h"
+#include <polar/system/base.h>
+#include <polar/component/scale.h>
+#include <polar/component/color.h>
+#include <polar/component/text.h>
+#include <polar/component/screenposition.h>
+#include <polar/component/sprite/box.h>
+#include <polar/component/sprite/slider.h>
 
 namespace MenuControl {
 	class Base {

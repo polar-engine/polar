@@ -1,2 +1,1 @@
-#include "common.h"
-#include "SpatialIndex.h"
+#include <polar/system/spatialindex.h>

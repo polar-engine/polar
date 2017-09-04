@@ -3,11 +3,11 @@
 #include <atomic>
 #if defined(_WIN32)
 #include <boost/asio.hpp>
-#endif-
+#endif
 #include <glm/gtc/noise.hpp>
-#include "System.h"
-#include "Renderer.h"
-#include "Level.h"
+#include <polar/system/base.h>
+#include <polar/system/renderer/base.h>
+#include <polar/asset/level.h>
 
 #define WORLD_SCALE 100000.0
 #define WORLD_DECIMAL(X) (Decimal(X / WORLD_SCALE))

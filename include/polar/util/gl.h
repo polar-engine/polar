@@ -1,10 +1,10 @@
 #pragma once
 
-#include "DebugManager.h"
+#include <polar/core/debugmanager.h>
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
 #endif
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 inline bool _GL_real(const char *file, const long line, const char *code) {
 	GLenum err = glGetError();

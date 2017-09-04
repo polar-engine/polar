@@ -4,9 +4,9 @@
 #include <array>
 #include <boost/container/flat_map.hpp>
 #include <portaudio.h>
-#include "System.h"
-#include "Oscillator.h"
-#include "AudioSource.h"
+#include <polar/system/base.h>
+#include <polar/component/audiosource.h>
+#include <polar/support/audio/oscillator.h>
 
 int StreamCallback(const void *, void *, unsigned long, const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags, void *);
 

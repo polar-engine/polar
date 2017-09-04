@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
-#include "System.h"
-#include "Level.h"
-#include "ColorComponent.h"
-#include "ScaleComponent.h"
+#include <polar/system/base.h>
+#include <polar/asset/level.h>
+#include <polar/component/scale.h>
+#include <polar/component/color.h>
+#include <polar/component/screenposition.h>
 
 class LevelSwitcher : public System {
 private:

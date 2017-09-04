@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Component.h"
-#include "IntegrableProperty.h"
-#include "Integrable.h"
+#include <polar/component/base.h>
+#include <polar/property/integrable.h>
 
 class PlayerCameraComponent : public Component {
 public:

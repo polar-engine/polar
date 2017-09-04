@@ -1,5 +1,5 @@
-#include <polar/common.h>
-#include <polar/Worker.h>
+#include <polar/support/work/worker.h>
+#include <polar/core/debugmanager.h>
 
 void Worker::Start() {
 	auto fn = [this] () {

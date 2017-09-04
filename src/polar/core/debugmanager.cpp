@@ -1,6 +1,6 @@
-#include <polar/DebugManager.h>
-#include <polar/FileSystem.h>
-#include <polar/sdl.h>
+#include <polar/core/debugmanager.h>
+#include <polar/fs/local.h>
+#include <polar/util/sdl.h>
 
 std::shared_ptr<DebugManagerClass> DebugManagerClass::instance;
 

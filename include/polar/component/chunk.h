@@ -1,8 +1,8 @@
 #pragma once
 
+#include <polar/component/model.h>
+#include <polar/core/serializer.h>
 #include <vector>
-#include "ModelComponent.h"
-#include "Serializer.h"
 
 struct Block {
 	bool state = false;

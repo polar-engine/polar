@@ -2,8 +2,10 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 #include <type_traits>
-#include "endian.h"
+#include <polar/core/serializer.h>
+#include <polar/util/endian.h>
 
 struct Asset {
 	virtual ~Asset() {}

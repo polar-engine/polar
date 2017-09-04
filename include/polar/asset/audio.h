@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Serializer.h"
-#include "Asset.h"
+#include <polar/asset/base.h>
 
 struct AudioAsset : Asset {
 	bool stereo;

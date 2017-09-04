@@ -1,21 +1,20 @@
-
-#include <polar/common.h>
 #include <iomanip>
 #include <glm/gtc/noise.hpp>
-#include <polar/HumanPlayerController.h>
-#include <polar/AssetManager.h>
-#include <polar/EventManager.h>
-#include <polar/InputManager.h>
-#include <polar/World.h>
-#include <polar/PositionComponent.h>
-#include <polar/ScreenPositionComponent.h>
-#include <polar/ColorComponent.h>
-#include <polar/OrientationComponent.h>
-#include <polar/PlayerCameraComponent.h>
-#include <polar/BoundingComponent.h>
-#include <polar/PhysicalComponent.h>
-#include <polar/Text.h>
-#include <polar/AudioSource.h>
+#include <polar/core/polar.h>
+#include <polar/system/player/human.h>
+#include <polar/system/asset.h>
+#include <polar/system/event.h>
+#include <polar/system/input.h>
+#include <polar/system/world.h>
+#include <polar/component/position.h>
+#include <polar/component/screenposition.h>
+#include <polar/component/color.h>
+#include <polar/component/orientation.h>
+#include <polar/component/playercamera.h>
+#include <polar/component/bounds.h>
+#include <polar/component/physical.h>
+#include <polar/component/text.h>
+#include <polar/component/audiosource.h>
 
 void HumanPlayerController::Init() {
 	engine->AddComponent<PlayerCameraComponent>(object);

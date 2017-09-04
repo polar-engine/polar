@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <atomic>
-#include "System.h"
-#include "Integrable.h"
+#include <polar/system/base.h>
+#include <polar/support/integrator/integrable.h>
 
 class Integrator : public System {
 private:
