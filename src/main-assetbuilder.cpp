@@ -19,7 +19,7 @@
 #include <polar/asset/image.h>
 #include <polar/asset/audio.h>
 #include <polar/asset/font.h>
-#include <polar/asset/shader.h>
+#include <polar/asset/shaderprogram.h>
 #include <polar/asset/level.h>
 
 int main(int argc, char **argv) {

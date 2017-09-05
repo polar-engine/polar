@@ -6,20 +6,25 @@
 #include <polar/core/deltaticks.h>
 #include <polar/component/base.h>
 
-class Polar;
+namespace polar { namespace core {
+	class polar;
+	class state;
+} }
 
-class System {
-	friend class EngineState;
-protected:
-	std::vector<std::shared_ptr<Destructor>> dtors;
-	Polar *engine;
+namespace polar { namespace system {
+	class base {
+		friend class core::state;
+	protected:
+		std::vector<std::shared_ptr<core::destructor>> dtors;
+		core::polar *engine;
 
-	virtual void Init() {}
-	virtual void Update(DeltaTicks &) {}
-	virtual void ComponentAdded(IDType, const std::type_info *, std::weak_ptr<Component>) {}
-	virtual void ComponentRemoved(IDType, const std::type_info *) {}
-public:
-	static bool IsSupported() { return false; }
-	System(Polar *engine) : engine(engine) {}
-	virtual ~System() {}
-};
+		virtual void init() {}
+		virtual void update(DeltaTicks &) {}
+		virtual void componentadded(IDType, const std::type_info *, std::weak_ptr<component::base>) {}
+		virtual void componentremoved(IDType, const std::type_info *) {}
+	public:
+		static bool supported() { return false; }
+		base(core::polar *engine) : engine(engine) {}
+		virtual ~base() {}
+	};
+} }

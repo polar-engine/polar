@@ -1,8 +1,8 @@
 #pragma once
 
-class EngineProperty {
-public:
-	virtual ~EngineProperty() {};
-};
-
-#define Property EngineProperty
+namespace polar { namespace property {
+	class base {
+	public:
+		virtual ~base() {};
+	};
+} }

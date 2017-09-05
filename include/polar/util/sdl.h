@@ -13,9 +13,9 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	SDL_ClearError();
 	if(err[0] != '\0') {
-		DebugManager()->Warning("SDL: ", err);
-		DebugManager()->Debug(file, ' ', line);
-		DebugManager()->Trace(code);
+		polar::debugmanager()->warning("SDL: ", err);
+		polar::debugmanager()->debug(file, ' ', line);
+		polar::debugmanager()->trace(code);
 	}
 	return err[0] == '\0';
 }
@@ -29,121 +29,127 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 #define IGNORE_SDL(CODE) (CODE)
 #endif
 
-inline Key mkKeyFromSDL(SDL_Keycode k) {
+inline polar::support::input::key mkKeyFromSDL(SDL_Keycode k) {
+	using key = polar::support::input::key;
+
 	switch(k) {
 	case SDLK_a:
-		return Key::A;
+		return key::A;
 	case SDLK_b:
-		return Key::B;
+		return key::B;
 	case SDLK_c:
-		return Key::C;
+		return key::C;
 	case SDLK_d:
-		return Key::D;
+		return key::D;
 	case SDLK_e:
-		return Key::E;
+		return key::E;
 	case SDLK_f:
-		return Key::F;
+		return key::F;
 	case SDLK_g:
-		return Key::G;
+		return key::G;
 	case SDLK_h:
-		return Key::H;
+		return key::H;
 	case SDLK_i:
-		return Key::I;
+		return key::I;
 	case SDLK_j:
-		return Key::J;
+		return key::J;
 	case SDLK_k:
-		return Key::K;
+		return key::K;
 	case SDLK_l:
-		return Key::L;
+		return key::L;
 	case SDLK_m:
-		return Key::M;
+		return key::M;
 	case SDLK_n:
-		return Key::N;
+		return key::N;
 	case SDLK_o:
-		return Key::O;
+		return key::O;
 	case SDLK_p:
-		return Key::P;
+		return key::P;
 	case SDLK_q:
-		return Key::Q;
+		return key::Q;
 	case SDLK_r:
-		return Key::R;
+		return key::R;
 	case SDLK_s:
-		return Key::S;
+		return key::S;
 	case SDLK_t:
-		return Key::T;
+		return key::T;
 	case SDLK_u:
-		return Key::U;
+		return key::U;
 	case SDLK_v:
-		return Key::V;
+		return key::V;
 	case SDLK_w:
-		return Key::W;
+		return key::W;
 	case SDLK_x:
-		return Key::X;
+		return key::X;
 	case SDLK_y:
-		return Key::Y;
+		return key::Y;
 	case SDLK_z:
-		return Key::Z;
+		return key::Z;
 	case SDLK_1:
-		return Key::Num1;
+		return key::Num1;
 	case SDLK_2:
-		return Key::Num2;
+		return key::Num2;
 	case SDLK_3:
-		return Key::Num3;
+		return key::Num3;
 	case SDLK_4:
-		return Key::Num4;
+		return key::Num4;
 	case SDLK_5:
-		return Key::Num5;
+		return key::Num5;
 	case SDLK_6:
-		return Key::Num6;
+		return key::Num6;
 	case SDLK_7:
-		return Key::Num7;
+		return key::Num7;
 	case SDLK_8:
-		return Key::Num8;
+		return key::Num8;
 	case SDLK_9:
-		return Key::Num9;
+		return key::Num9;
 	case SDLK_0:
-		return Key::Num0;
+		return key::Num0;
 	case SDLK_ESCAPE:
-		return Key::Escape;
+		return key::Escape;
 	case SDLK_SPACE:
-		return Key::Space;
+		return key::Space;
 	case SDLK_RETURN:
-		return Key::Enter;
+		return key::Enter;
 	case SDLK_BACKSPACE:
-		return Key::Backspace;
+		return key::Backspace;
 	case SDLK_UP:
-		return Key::Up;
+		return key::Up;
 	case SDLK_DOWN:
-		return Key::Down;
+		return key::Down;
 	case SDLK_LEFT:
-		return Key::Left;
+		return key::Left;
 	case SDLK_RIGHT:
-		return Key::Right;
+		return key::Right;
 	default:
-		return Key::None;
+		return key::None;
 	}
 }
 
-inline Key mkMouseButtonFromSDL(Uint8 mb) {
+inline polar::support::input::key mkMouseButtonFromSDL(Uint8 mb) {
+	using key = polar::support::input::key;
+
 	switch(mb) {
 	case SDL_BUTTON_LEFT:
-		return Key::MouseLeft;
+		return key::MouseLeft;
 	case SDL_BUTTON_MIDDLE:
-		return Key::MouseMiddle;
+		return key::MouseMiddle;
 	case SDL_BUTTON_RIGHT:
-		return Key::MouseRight;
+		return key::MouseRight;
 	default:
-		return Key::None;
+		return key::None;
 	}
 }
 
-inline Key mkButtonFromSDL(SDL_GameControllerButton b) {
+inline polar::support::input::key mkButtonFromSDL(SDL_GameControllerButton b) {
+	using key = polar::support::input::key;
+
 	switch(b) {
 	case SDL_CONTROLLER_BUTTON_A:
-		return Key::ControllerA;
+		return key::ControllerA;
 	case SDL_CONTROLLER_BUTTON_BACK:
-		return Key::ControllerBack;
+		return key::ControllerBack;
 	default:
-		return Key::None;
+		return key::None;
 	}
 }

@@ -2,4 +2,6 @@
 
 #include <polar/asset/base.h>
 
-template<> inline std::string AssetName<std::string>() { return "Text"; }
+namespace polar { namespace asset {
+	template<> inline std::string name<std::string>() { return "text"; }
+} }

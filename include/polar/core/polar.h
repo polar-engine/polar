@@ -26,196 +26,199 @@
 #include <polar/core/state.h>
 #include <polar/util/buildinfo.h>
 
-class Polar {
-public:
-	typedef std::function<void(Polar *, EngineState &)> StateInitializer;
-	typedef boost::bimap<
-		boost::bimaps::multiset_of<IDType>,
-		boost::bimaps::unordered_multiset_of<const std::type_info *>,
-		boost::bimaps::set_of_relation<>,
-		boost::bimaps::with_info<std::shared_ptr<Component>>
-	> Bimap;
-private:
-	bool initDone = false;
-	bool running = false;
-	std::unordered_map<std::string, std::pair<StateInitializer, StateInitializer>> states;
-	std::vector<EngineState> stack;
-public:
-	Bimap objects;
-	IDType nextID = 1;
-	std::string transition;
+namespace polar { namespace core {
+	class polar {
+	public:
+		using priority_t = support::debug::priority;
+		using state_initializer = std::function<void(polar *, state &)>;
+		using bimap = boost::bimap<
+			boost::bimaps::multiset_of<IDType>,
+			boost::bimaps::unordered_multiset_of<const std::type_info *>,
+			boost::bimaps::set_of_relation<>,
+			boost::bimaps::with_info<std::shared_ptr<component::base>>
+		>;
+	private:
+		bool initDone = false;
+		bool running = false;
+		std::unordered_map<std::string, std::pair<state_initializer, state_initializer>> states;
+		std::vector<state> stack;
+	public:
+		bimap objects;
+		IDType nextID = 1;
+		std::string transition;
 
-	Polar(std::vector<std::string> args) {
-		srand((unsigned int)time(0));
-		std::mt19937_64 rng(time(0));
+		polar(std::vector<std::string> args) {
+			srand((unsigned int)time(0));
+			std::mt19937_64 rng(time(0));
 
-		for(auto &arg : args) {
-			if(arg == "-console") {
-#if defined(_WIN32)
-				AllocConsole();
-				freopen("CONIN$", "r", stdin);
-				freopen("CONOUT$", "w", stdout);
-				freopen("CONOUT$", "w", stderr);
-				std::wcout.clear();
-				std::cout.clear();
-				std::wcerr.clear();
-				std::cerr.clear();
-				std::wcin.clear();
-				std::cin.clear();
-#endif
-			} else if(arg == "-trace") {
-				DebugManager()->priority = DebugPriority::Trace;
-			} else if(arg == "-debug") {
-				DebugManager()->priority = DebugPriority::Debug;
-			} else if(arg == "-verbose") {
-				DebugManager()->priority = DebugPriority::Verbose;
-			}
-		}
-
-		DebugManager()->Verbose("built on ", buildinfo_date(), " at ", buildinfo_time());
-
-		if(!SteamAPI_Init()) {
-			DebugManager()->Fatal("failed to initialize Steam API");
-		}
-		DebugManager()->Info("Welcome, ", SteamFriends()->GetPersonaName());
-		SteamController()->Init();
-		SteamUserStats()->RequestCurrentStats();
-	}
-
-	~Polar() {
-		/* release stack in reverse order */
-		while(!stack.empty()) {
-			stack.pop_back();
-		}
-
-		SteamController()->Shutdown();
-		SteamAPI_Shutdown();
-	}
-
-	inline void AddState(const std::string &name,
-						 const StateInitializer &init,
-						 const StateInitializer &destroy = [] (Polar *, EngineState &) {}) {
-		states.emplace(name, std::make_pair(init, destroy));
-	}
-
-	inline void Run(const std::string &initialState) {
-		running = true;
-
-		stack.emplace_back(initialState, this);
-		states[initialState].first(this, stack.back());
-		stack.back().Init();
-
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
-
-		uint64_t frameID = 0;
-		while(running) {
-			then = now;
-			now = std::chrono::high_resolution_clock::now();
-			DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
-
-			DebugManager()->Trace("frame #", frameID++, " (", dt.Ticks(), ')');
-
-			DebugManager()->Trace("SteamAPI_RunCallbacks before");
-			SteamAPI_RunCallbacks();
-			DebugManager()->Trace("SteamAPI_RunCallbacks after");
-
-			for(auto &state : stack) {
-				state.Update(dt);
+			for(auto &arg : args) {
+				if(arg == "-console") {
+	#if defined(_WIN32)
+					AllocConsole();
+					freopen("CONIN$", "r", stdin);
+					freopen("CONOUT$", "w", stdout);
+					freopen("CONOUT$", "w", stderr);
+					std::wcout.clear();
+					std::cout.clear();
+					std::wcerr.clear();
+					std::cerr.clear();
+					std::wcin.clear();
+					std::cin.clear();
+	#endif
+				} else if(arg == "-trace") {
+					debugmanager()->priority = priority_t::trace;
+				} else if(arg == "-debug") {
+					debugmanager()->priority = priority_t::debug;
+				} else if(arg == "-verbose") {
+					debugmanager()->priority = priority_t::verbose;
+				}
 			}
 
-			/* perform transition at end of iteration to avoid invalidation */
-			if(transition != "") {
-				auto actions = stack.back().transitions[transition];
-				transition = "";
-				for(auto &action : actions) {
-					switch(action.type) {
-					case StackActionType::Push:
-						DebugManager()->Debug("pushing state: ", action.name);
-						stack.emplace_back(action.name, this);
-						{
-							DebugManager()->Debug("calling state initializer");
-							EngineState &st = stack.back();
-							DebugManager()->Debug("calling state initializer");
-							states[action.name].first(this, st);
+			debugmanager()->verbose("built on ", buildinfo_date(), " at ", buildinfo_time());
+
+			if(!SteamAPI_Init()) {
+				debugmanager()->fatal("failed to initialize Steam API");
+			}
+			debugmanager()->info("Welcome, ", SteamFriends()->GetPersonaName());
+			SteamController()->Init();
+			SteamUserStats()->RequestCurrentStats();
+		}
+
+		~polar() {
+			/* release stack in reverse order */
+			while(!stack.empty()) {
+				stack.pop_back();
+			}
+
+			SteamController()->Shutdown();
+			SteamAPI_Shutdown();
+		}
+
+		inline void addstate(const std::string &name,
+							 const state_initializer &init,
+							 const state_initializer &destroy = [] (polar *, state &) {}) {
+			states.emplace(name, std::make_pair(init, destroy));
+		}
+
+		inline void run(const std::string &initialState) {
+			running = true;
+
+			stack.emplace_back(initialState, this);
+			states[initialState].first(this, stack.back());
+			stack.back().init();
+
+			std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(), then;
+
+			uint64_t frameID = 0;
+			while(running) {
+				then = now;
+				now = std::chrono::high_resolution_clock::now();
+				DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
+
+				debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
+
+				debugmanager()->trace("SteamAPI_RunCallbacks before");
+				SteamAPI_RunCallbacks();
+				debugmanager()->trace("SteamAPI_RunCallbacks after");
+
+				for(auto &state : stack) {
+					state.update(dt);
+				}
+
+				/* perform transition at end of iteration to avoid invalidation */
+				if(transition != "") {
+					auto actions = stack.back().transitions[transition];
+					transition = "";
+					for(auto &action : actions) {
+						switch(action.type) {
+						case StackActionType::Push:
+							debugmanager()->debug("pushing state: ", action.name);
+							stack.emplace_back(action.name, this);
+							{
+								debugmanager()->debug("calling state initializer");
+								state &st = stack.back();
+								debugmanager()->debug("calling state initializer");
+								states[action.name].first(this, st);
+							}
+							debugmanager()->debug("pushed state");
+							stack.back().init();
+							break;
+						case StackActionType::Pop: {
+							auto &state = stack.back();
+							debugmanager()->debug("popping state: ", state.name);
+							states[state.name].second(this, state);
+							stack.pop_back();
+							debugmanager()->debug("popped state");
+							break;
 						}
-						DebugManager()->Debug("pushed state");
-						stack.back().Init();
-						break;
-					case StackActionType::Pop: {
-						auto &state = stack.back();
-						DebugManager()->Debug("popping state: ", state.name);
-						states[state.name].second(this, state);
-						stack.pop_back();
-						DebugManager()->Debug("popped state");
-						break;
-					}
-					case StackActionType::Quit:
-						Quit();
-						break;
+						case StackActionType::Quit:
+							quit();
+							break;
+						}
 					}
 				}
 			}
 		}
-	}
 
 
-	inline void Quit() {
-		running = false;
-	}
-
-	template<typename T> inline std::weak_ptr<T> GetSystem() {
-		for(auto &state : stack) {
-			auto ptr = state.GetSystem<T>();
-			if(!ptr.expired()) { return ptr; }
+		inline void quit() {
+			running = false;
 		}
-		return std::weak_ptr<T>();
-	}
 
-	inline std::shared_ptr<Destructor> AddObject(IDType *inputID) {
-		auto id = nextID++;
-		*inputID = id;
-		return std::make_shared<Destructor>([this, id] () {
-			RemoveObject(id);
-		});
-	}
-
-	inline void RemoveObject(IDType id) {
-		auto pairLeft = objects.left.equal_range(id);
-		for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
+		template<typename T> inline std::weak_ptr<T> getsystem() {
 			for(auto &state : stack) {
-				state.ComponentRemoved(id, it->get_right());
+				auto ptr = state.getsystem<T>();
+				if(!ptr.expired()) { return ptr; }
 			}
+			return std::weak_ptr<T>();
 		}
-		objects.left.erase(id);
-	}
 
-	template<typename T, typename ...Ts> inline void AddComponent(IDType id, Ts && ...args) {
-		InsertComponent(id, new T(std::forward<Ts>(args)...));
-	}
-
-	template<typename B, typename T, typename ...Ts> inline void AddComponentAs(IDType id, Ts && ...args) {
-		static_assert(std::is_base_of<B, T>::value, "AddComponentAs requires base class and sub class");
-		InsertComponent<B>(id, new T(std::forward<Ts>(args)...));
-	}
-
-	template<typename T> inline void InsertComponent(IDType id, T *component) {
-		InsertComponent(id, std::shared_ptr<T>(component));
-	}
-
-	template<typename T> inline void InsertComponent(IDType id, std::shared_ptr<T> component) {
-		auto ti = &typeid(T);
-		DebugManager()->Trace("inserting component: ", ti->name());
-		objects.insert(Bimap::value_type(id, ti, component));
-		for(auto &state : stack) {
-			state.ComponentAdded(id, ti, component);
+		inline std::shared_ptr<destructor> addobject(IDType *inputID) {
+			auto id = nextID++;
+			*inputID = id;
+			return std::make_shared<destructor>([this, id] () {
+				removeobject(id);
+			});
 		}
-		DebugManager()->Trace("inserted component");
-	}
 
-	template<typename T> inline T * GetComponent(IDType id) {
-		auto it = objects.find(Bimap::relation(id, &typeid(T)));
-		if(it != objects.end()) {
-			return static_cast<T *>(it->info.get());
-		} else { return nullptr; }
-	}
-};
+		inline void removeobject(IDType id) {
+			auto pairLeft = objects.left.equal_range(id);
+			for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
+				for(auto &state : stack) {
+					state.componentremoved(id, it->get_right());
+				}
+			}
+			objects.left.erase(id);
+		}
+
+		template<typename T, typename ...Ts> inline void addcomponent(IDType id, Ts && ...args) {
+			insertcomponent(id, new T(std::forward<Ts>(args)...));
+		}
+
+		template<typename B, typename T, typename ...Ts> inline void addcomponent_as(IDType id, Ts && ...args) {
+			static_assert(std::is_base_of<B, T>::value, "addcomponent_as requires base class and sub class");
+			insertcomponent<B>(id, new T(std::forward<Ts>(args)...));
+		}
+
+		template<typename T> inline void insertcomponent(IDType id, T *component) {
+			insertcomponent(id, std::shared_ptr<T>(component));
+		}
+
+		template<typename T> inline void insertcomponent(IDType id, std::shared_ptr<T> component) {
+			auto ti = &typeid(T);
+			debugmanager()->trace("inserting component: ", ti->name());
+			objects.insert(Bimap::value_type(id, ti, component));
+			for(auto &state : stack) {
+				state.componentadded(id, ti, component);
+			}
+			DebugManager()->Trace("inserted component");
+		}
+
+		template<typename T> inline T * getcomponent(IDType id) {
+			auto it = objects.find(Bimap::relation(id, &typeid(T)));
+			if(it != objects.end()) {
+				return static_cast<T *>(it->info.get());
+			} else { return nullptr; }
+		}
+	};
+} }
