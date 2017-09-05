@@ -3,15 +3,19 @@
 #include <polar/property/base.h>
 #include <polar/support/integrator/integrable.h>
 
-class IntegrableProperty : public Property {
-public:
-	typedef std::vector<IntegrableBase *> integrables_type;
-private:
-	integrables_type integrables;
-public:
-	template<typename _Integrable> inline void AddIntegrable(Integrable<_Integrable> *integrable) {
-		integrables.emplace_back(integrable);
-	}
+namespace polar { namespace property {
+	class integrable : public base {
+		using su_integrable_base = polar::support::integrator::integrable_base;
+		template<typename T> using su_integrable = polar::support::integrator::integrable<T>;
+	public:
+		typedef std::vector<su_integrable_base *> integrable_vector_t;
+	private:
+		integrable_vector_t integrables;
+	public:
+		template<typename _Integrable> inline void add(su_integrable<_Integrable> *i) {
+			integrables.emplace_back(i);
+		}
 
-	inline const integrables_type * const GetIntegrables() const { return &integrables; }
-};
+		inline const integrable_vector_t * const get() const { return &integrables; }
+	};
+} }

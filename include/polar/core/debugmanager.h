@@ -5,92 +5,85 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <polar/support/debug/priority.h>
 
-enum class DebugPriority : uint_fast8_t {
-	Trace,
-	Debug,
-	Verbose,
-	Info,
-	Notice,
-	Warning,
-	Error,
-	Critical,
-	Fatal
-};
+namespace polar { namespace core {
+	class debugmanager_class {
+		using priority_t = support::debug::priority;
+	private:
+		static std::shared_ptr<debugmanager_class> instance;
+		std::ofstream file;
+	public:
+		priority_t priority;
 
-class DebugManagerClass {
-private:
-	static std::shared_ptr<DebugManagerClass> instance;
-	std::ofstream file;
-public:
-	DebugPriority priority;
-
-	static std::shared_ptr<DebugManagerClass> Get() {
-		if(!instance) { instance = std::make_shared<DebugManagerClass>(); }
-		return instance;
-	}
-
-	DebugManagerClass(DebugPriority priority = DebugPriority::Info);
-
-	void MsgBox(std::string, std::string);
-
-	template<typename T> void Write(T arg) {
-		std::cout << arg;
-		file << arg;
-	}
-
-	void LogBase(DebugPriority) {}
-
-	template<typename T, typename ...Ts> void LogBase(DebugPriority p, T arg, Ts && ...args) {
-		Write(arg);
-		LogBase(p, std::forward<Ts>(args)...);
-	}
-
-	template<typename ...Ts> void Log(DebugPriority p, Ts && ...args) {
-		static const std::vector<std::string> uppers = {
-			"TRACE",
-			"DEBUG",
-			"VERBOSE",
-			"INFO",
-			"NOTICE",
-			"WARNING",
-			"ERROR",
-			"CRITICAL",
-			"FATAL"
-		};
-
-		if(p >= priority) {
-			Write('[');
-			Write(uppers[uint_fast8_t(p)]);
-			Write("] ");
-			LogBase(p, std::forward<Ts>(args)...);
-#if defined(_WIN32)
-			Write('\r');
-#endif
-			Write('\n');
+		static std::shared_ptr<debugmanager_class> get() {
+			if(!instance) { instance = std::make_shared<debugmanager_class>(); }
+			return instance;
 		}
 
-		switch(p) {
-		default:
-			break;
-		case DebugPriority::Fatal:
-			MsgBox("Fatal", "A fatal error has occurred. Please refer to the engine log for details.");
-			exit(1);
-			break;
+		debugmanager_class(priority_t priority = priority_t::info);
+
+		void msgbox(std::string, std::string);
+
+		template<typename T> void write(T arg) {
+			std::cout << arg;
+			file << arg;
 		}
+
+		void log_base(priority_t) {}
+		template<typename T, typename ...Ts> void log_base(priority_t p, T arg, Ts && ...args) {
+			write(arg);
+			log_base(p, std::forward<Ts>(args)...);
+		}
+
+		template<typename ...Ts> void log(priority_t p, Ts && ...args) {
+			static const std::vector<std::string> uppers = {
+				"TRACE",
+				"DEBUG",
+				"VERBOSE",
+				"INFO",
+				"NOTICE",
+				"WARNING",
+				"ERROR",
+				"CRITICAL",
+				"FATAL"
+			};
+
+			if(p >= priority) {
+				write('[');
+				write(uppers[uint_fast8_t(p)]);
+				write("] ");
+				log_base(p, std::forward<Ts>(args)...);
+	#if defined(_WIN32)
+				write('\r');
+	#endif
+				write('\n');
+			}
+
+			switch(p) {
+			default:
+				break;
+			case priority_t::fatal:
+				msgbox("Fatal", "A fatal error has occurred. Please refer to the engine log for details.");
+				exit(1);
+				break;
+			}
+		}
+
+		template<typename ...Ts> void trace   (Ts && ...args) { log(priority_t::trace,    std::forward<Ts>(args)...); }
+		template<typename ...Ts> void debug   (Ts && ...args) { log(priority_t::debug,    std::forward<Ts>(args)...); }
+		template<typename ...Ts> void verbose (Ts && ...args) { log(priority_t::verbose,  std::forward<Ts>(args)...); }
+		template<typename ...Ts> void info    (Ts && ...args) { log(priority_t::info,     std::forward<Ts>(args)...); }
+		template<typename ...Ts> void notice  (Ts && ...args) { log(priority_t::notice,   std::forward<Ts>(args)...); }
+		template<typename ...Ts> void warning (Ts && ...args) { log(priority_t::warning,  std::forward<Ts>(args)...); }
+		template<typename ...Ts> void error   (Ts && ...args) { log(priority_t::error,    std::forward<Ts>(args)...); }
+		template<typename ...Ts> void critical(Ts && ...args) { log(priority_t::critical, std::forward<Ts>(args)...); }
+		template<typename ...Ts> void fatal   (Ts && ...args) { log(priority_t::fatal,    std::forward<Ts>(args)...); }
+	};
+} }
+
+namespace polar {
+	inline std::shared_ptr<core::debugmanager_class> debugmanager() {
+		return core::debugmanager_class::get();
 	}
-
-	template<typename ...Ts> void Trace   (Ts && ...args) { Log(DebugPriority::Trace,    std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Debug   (Ts && ...args) { Log(DebugPriority::Debug,    std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Verbose (Ts && ...args) { Log(DebugPriority::Verbose,  std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Info    (Ts && ...args) { Log(DebugPriority::Info,     std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Notice  (Ts && ...args) { Log(DebugPriority::Notice,   std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Warning (Ts && ...args) { Log(DebugPriority::Warning,  std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Error   (Ts && ...args) { Log(DebugPriority::Error,    std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Critical(Ts && ...args) { Log(DebugPriority::Critical, std::forward<Ts>(args)...); }
-	template<typename ...Ts> void Fatal   (Ts && ...args) { Log(DebugPriority::Fatal,    std::forward<Ts>(args)...); }
-};
-
-inline std::shared_ptr<DebugManagerClass> DebugManager() {
-	return DebugManagerClass::Get();
 }

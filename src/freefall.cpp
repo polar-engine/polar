@@ -1,6 +1,5 @@
 #include <iomanip>
 #include <glm/gtc/random.hpp>
-#include <Freefall.h>
 #include <polar/system/config.h>
 #include <polar/system/asset.h>
 #include <polar/system/event.h>
@@ -20,17 +19,18 @@
 #include <polar/component/text.h>
 #include <polar/component/playercamera.h>
 #include <polar/fs/steam.h>
-#include <FreefallConfig.h>
+#include <freefall.h>
+#include <freefallconfig.h>
 
-using SteamConfigM = ConfigManager<SteamConfigOption, SteamFS>;
-using LocalConfigM = ConfigManager<LocalConfigOption, FileSystem>;
+using SteamConfigM = polar::system::config<SteamConfigOption, polar::fs::steam>;
+using LocalConfigM = polar::system::config<LocalConfigOption, polar::fs::local>;
 
-Freefall::Freefall(Polar &engine) {
+freefall::freefall(polar::core::polar &engine) {
 	const double secsPerBeat = 1.2631578947368421;
 
 	IDType playerID;
 
-	engine.AddState("root", [] (Polar *engine, EngineState &st) {
+	engine.addstate("root", [] (Polar *engine, EngineState &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
 		st.AddSystem<AssetManager>();

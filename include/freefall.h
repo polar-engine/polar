@@ -4,5 +4,5 @@
 
 class Freefall {
 public:
-	Freefall(Polar &);
+	Freefall(polar::core::polar &);
 };

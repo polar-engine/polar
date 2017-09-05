@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 		args.emplace_back(argv[i]);
 	}
 
-	Polar engine(args);
+	polar::core::polar engine(args);
 	auto app = Freefall(engine);
 	return 0;
 }

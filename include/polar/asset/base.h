@@ -7,11 +7,13 @@
 #include <polar/core/serializer.h>
 #include <polar/util/endian.h>
 
-struct Asset {
-	virtual ~Asset() {}
-};
+namespace polar { namespace asset {
+	using core::serializer;
+	using core::deserializer;
 
-template<typename T> inline std::string AssetName() {
-	static_assert(true, "AssetName not specialized");
-	return "";
-}
+	struct base {
+		virtual ~base() {}
+	};
+
+	template<typename T> inline std::string name() = delete;
+} }
