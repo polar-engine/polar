@@ -10,13 +10,16 @@
 #include <polar/core/debugmanager.h>
 #include <polar/util/debug.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <ShlObj.h>
 #include <Shlwapi.h>
-#endif
-#ifdef __APPLE__
+#elif defined(__linux__)
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/types.h>
+#elif defined(__APPLE__)
 #include <pwd.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -38,6 +41,10 @@ namespace polar { namespace fs {
 			char sz[MAX_PATH];
 			GetModuleFileNameA(NULL, sz, MAX_PATH);
 			return std::string(sz);
+	#elif defined(__linux__)
+			char sz[1024];
+			readlink("/proc/self/exe", sz, sizeof(sz) - 1);
+			return std::string(sz);
 	#else
 			debugmanager()->fatal("polar::fs::local::app: not implemented");
 			return "";
@@ -45,7 +52,7 @@ namespace polar { namespace fs {
 		}
 
 		static std::string appdir() {
-	#if defined(_WIN32)
+	#if defined(_WIN32) || defined(__linux__)
 			return dir_of(app());
 	#elif defined(__APPLE__)
 			CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
@@ -57,6 +64,7 @@ namespace polar { namespace fs {
 			return std::string(sz);
 	#else
 			debugmanager()->fatal("polar::fs::local::appdir: not implemented");
+			return "";
 	#endif
 		}
 
@@ -186,7 +194,7 @@ namespace polar { namespace fs {
 			}
 
 			FindClose(handle);
-	#elif defined(__APPLE__)
+	#elif defined(__APPLE__) || defined(__linux__)
 			DIR *dp = opendir(path.c_str());
 			if(dp == nullptr) { debugmanager()->fatal(path + ": failed to open directory"); }
 
@@ -213,7 +221,7 @@ namespace polar { namespace fs {
 				DWORD dwError = GetLastError();
 				if(dwError != ERROR_ALREADY_EXISTS) { debugmanager()->fatal("failed to create directory ", path, " (error ", dwError, ')'); }
 			}
-	#elif defined(__APPLE__)
+	#elif defined(__APPLE__) || defined(__linux__)
 			if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) { debugmanager()->fatal("failed to create directory ", path); }
 	#else
 			debugmanager()->fatal("FileSystem::CreateDirImpl: not implemented");

@@ -14,7 +14,7 @@ namespace polar { namespace system {
 		std::unordered_map<std::string, partial> partials;
 	public:
 		static std::string getassetsdir() {
-	#if defined(_WIN32)
+	#if defined(_WIN32) || defined(__linux__)
 			return fs::local::appdir() + "/assets";
 	#elif defined(__APPLE__)
 			return fs::local::appdir() + "/Contents/Resources/assets";

@@ -55,14 +55,12 @@ namespace polar { namespace system {
 		std::atomic<bool> muted;
 
 		std::atomic<int> masterVolume = {100};
-		std::array<std::atomic<int>, static_cast<size_t>(sourcetype::_size)> volumes;
+		std::array<std::atomic<int>, size_t(sourcetype::_size)> volumes;
 
 		static bool supported() { return true; }
 
 		audio(core::polar *engine) : base(engine), muted(false) {
-			for(auto &vol : volumes) {
-				std::atomic_init(&vol, 100);
-			}
+			for(auto &vol : volumes) { vol = 100; }
 			Pa_Initialize();
 			Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate, framesPerBuffer, audio_stream_cb, this);
 		}
