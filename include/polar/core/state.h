@@ -57,8 +57,8 @@ namespace polar { namespace core {
 			static_assert(std::is_base_of<B, T>::value, "addsystem_as requires base class and sub class");
 
 	#ifdef _DEBUG
-			if(!T::IsSupported()) {
-				DebugManager()->Fatal("unsupported system: ", typeid(T).name());
+			if(!T::supported()) {
+				debugmanager()->fatal("unsupported system: ", typeid(T).name());
 			} else {
 	#endif
 				systems.add_as<B, T>(engine, std::forward<Ts>(args)...);
