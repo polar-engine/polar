@@ -18,6 +18,8 @@
 #elif defined(__linux__)
 #include <unistd.h>
 #include <dirent.h>
+#include <pwd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #elif defined(__APPLE__)
 #include <pwd.h>
@@ -76,6 +78,9 @@ namespace polar { namespace fs {
 			PathAppendA(szPath, "My Games");
 			PathAppendA(szPath, "Freefall");
 			return std::string(szPath);
+	#elif defined(__linux__)
+			struct passwd *pwd = getpwuid(getuid());
+			return std::string(pwd->pw_dir) + "/mygames/Freefall";
 	#elif defined(__APPLE__)
 			struct passwd *pwd = getpwuid(getuid());
 			return std::string(pwd->pw_dir) + "/Documents/My Games/Freefall";
@@ -196,13 +201,18 @@ namespace polar { namespace fs {
 			FindClose(handle);
 	#elif defined(__APPLE__) || defined(__linux__)
 			DIR *dp = opendir(path.c_str());
-			if(dp == nullptr) { debugmanager()->fatal(path + ": failed to open directory"); }
+			if(dp == nullptr) { debugmanager()->fatal(path, ": failed to open directory"); }
 
 			struct dirent *ep;
 			while((ep = readdir(dp))) {
 				struct stat st;
-				lstat(ep->d_name, &st);
-				if(S_ISDIR(st.st_mode)) {
+				int result = fstatat(dirfd(dp), ep->d_name, &st, AT_SYMLINK_NOFOLLOW);
+				if(result < 0) {
+					debugmanager()->fatal(path, ": fstatat failed on ", ep->d_name);
+				}
+
+				if(!S_ISDIR(st.st_mode)) {
+					debugmanager()->warning(ep->d_name);
 					files.emplace_back(ep->d_name);
 				}
 			}

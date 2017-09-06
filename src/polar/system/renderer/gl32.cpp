@@ -49,7 +49,7 @@ namespace polar { namespace system { namespace renderer {
 			debugmanager()->fatal("failed to create window");
 		}
 		if(!SDL(context = SDL_GL_CreateContext(window))) { debugmanager()->fatal("failed to create OpenGL context"); }
-		if(!SDL(SDL_GL_SetSwapInterval(1))) { debugmanager()->fatal("failed to set swap interval"); }
+		if(!SDL(SDL_GL_SetSwapInterval(1))) { debugmanager()->critical("failed to set swap interval"); }
 
 		if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) { debugmanager()->fatal("failed to set relative mouse mode"); }
 
