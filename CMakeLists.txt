@@ -30,42 +30,50 @@ set(ASSETBUILDER_SOURCES
 )
 
 if(WIN32)
-	set(WIN32_LIBS
+	set(PLATFORM_LIBS
 		legacy_stdio_definitions.lib
 		shlwapi.lib
 	)
-endif(WIN32)
-
-if(APPLE)
+elseif(APPLE)
 	find_library(CARBON_LIB Carbon)
 	find_library(AUDIOTOOLBOX_LIB AudioToolbox)
 	find_library(AUDIOUNIT_LIB AudioUnit)
 	find_library(COREAUDIO_LIB CoreAudio)
 
-	set(APPLE_LIBS
+	set(PLATFORM_LIBS
 		${CARBON_LIB}
 		${AUDIOTOOLBOX_LIB}
 		${AUDIOUNIT_LIB}
 		${COREAUDIO_LIB}
 	)
-endif(APPLE)
+endif()
+
+if(UNIX)
+	find_library(PTHREAD_LIB pthread)
+
+	set(UNIX_LIBS
+		${PTHREAD_LIB}
+	)
+endif()
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 find_library(Z_LIB NAMES z zlib      PATHS lib/win32 lib/macos)
 find_library(PORTAUDIO_LIB portaudio PATHS lib/win32 lib/macos)
-find_library(STEAM_API_LIB steam_api PATHS lib/win32 lib/macos)
+find_library(STEAM_API_LIB steam_api PATHS lib/win32 lib/linux64 lib/macos)
 
 if(WIN32)
 	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES lib/win32 lib PATHS ${CMAKE_SOURCE_DIR})
+elseif(LINUX)
+	find_file(STEAM_API_DYLIB "steam_api.so" PATH_SUFFIXES lib/linux64 lib PATHS ${CMAKE_SOURCE_DIR})
 elseif(APPLE)
 	set(STEAM_API_DYLIB ${STEAM_API_LIB})
 endif()
 
 set(POLAR_LIBS
-	${WIN32_LIBS}
-	${APPLE_LIBS}
+	${PLATFORM_LIBS}
+	${UNIX_LIBS}
 	${PORTAUDIO_LIB}
 	${OPENGL_LIBRARIES}
 	${SDL2_LIBRARY}
