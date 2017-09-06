@@ -3,12 +3,15 @@
 #include <polar/component/base.h>
 #include <polar/property/integrable.h>
 
-class ScaleComponent : public Component {
-public:
-	Integrable<Point3> scale;
+namespace polar { namespace component {
+	class scale : public base {
+		template<typename T> using integrable = support::integrator::integrable<T>;
+	public:
+		integrable<Point3> sc;
 
-	ScaleComponent(Point3 scale = Point3(1)) : scale(scale) {
-		Add<IntegrableProperty>();
-		Get<IntegrableProperty>().lock()->AddIntegrable(&this->scale);
-	}
-};
+		scale(Point3 sc = Point3(1)) : sc(sc) {
+			add<property::integrable>();
+			get<property::integrable>().lock()->add(&this->sc);
+		}
+	};
+} }

@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <glm/gtc/random.hpp>
+#include <polar/core/polar.h>
 #include <polar/system/config.h>
 #include <polar/system/asset.h>
 #include <polar/system/event.h>
@@ -26,338 +27,347 @@ using SteamConfigM = polar::system::config<SteamConfigOption, polar::fs::steam>;
 using LocalConfigM = polar::system::config<LocalConfigOption, polar::fs::local>;
 
 freefall::freefall(polar::core::polar &engine) {
+	using namespace polar;
+	using key_t = support::input::key;
+
 	const double secsPerBeat = 1.2631578947368421;
 
 	IDType playerID;
 
-	engine.addstate("root", [] (Polar *engine, EngineState &st) {
+	engine.addstate("root", [] (core::polar *engine, core::state &st) {
 		st.transitions.emplace("forward", Transition{Push("world"), Push("notplaying"), Push("title")});
 
-		st.AddSystem<AssetManager>();
-		st.AddSystemAs<Renderer, GL32Renderer, const std::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom", "chroma"*/ });
-		st.AddSystem<AudioManager>();
-		//st.AddSystem<JobManager>();
-		st.AddSystem<EventManager>();
-		st.AddSystem<InputManager>();
-		st.AddSystem<Integrator>();
-		st.AddSystem<Tweener<float>>();
-		st.AddSystem<SteamConfigM>("options.cfg");
-		DebugManager()->Verbose("saved games directory is ", FileSystem::SavedGamesDir());
-		st.AddSystem<LocalConfigM>(FileSystem::SavedGamesDir() + "/local.cfg");
-		st.AddSystem<LevelSwitcher>();
+		st.addsystem<system::asset>();
+		st.addsystem_as<system::renderer::base, system::renderer::gl32, const std::vector<std::string> &>({ "perlin"/*, "fxaa", "bloom", "chroma"*/ });
+		st.addsystem<system::audio>();
+		//st.addsystem<system::work>();
+		st.addsystem<system::event>();
+		st.addsystem<system::input>();
+		st.addsystem<system::integrator>();
+		st.addsystem<system::tweener<float>>();
+		st.addsystem<SteamConfigM>("options.cfg");
+		debugmanager()->verbose("saved games directory is ", fs::local::savedgamesdir());
+		st.addsystem<LocalConfigM>(fs::local::savedgamesdir() + "/local.cfg");
+		st.addsystem<system::levelswitcher>();
 
-		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
-		auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
+		auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+		auto localConfigM = engine->getsystem<LocalConfigM>().lock();
 
-		auto SetPipeline = [] (Polar *engine) {
-			auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
-			auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
+		auto SetPipeline = [] (core::polar *engine) {
+			auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+			auto localConfigM = engine->getsystem<LocalConfigM>().lock();
 
 			std::vector<std::string> names = { "perlin" };
-			if(steamConfigM->Get<Decimal>(SteamConfigOption::ChromaticAberration) > 0) { names.emplace_back("chroma"); }
-			if(localConfigM->Get<bool>(LocalConfigOption::Bloom)) { names.emplace_back("bloom"); }
-			if(localConfigM->Get<bool>(LocalConfigOption::Cel)) { names.emplace_back("fxaa"); }
-			engine->GetSystem<Renderer>().lock()->SetPipeline(names);
+			if(steamConfigM->get<Decimal>(SteamConfigOption::ChromaticAberration) > 0) { names.emplace_back("chroma"); }
+			if(localConfigM->get<bool>(LocalConfigOption::Bloom)) { names.emplace_back("bloom"); }
+			if(localConfigM->get<bool>(LocalConfigOption::Cel)) { names.emplace_back("fxaa"); }
+			engine->getsystem<system::renderer::base>().lock()->setpipeline(names);
 		};
 
-		localConfigM->On(LocalConfigOption::BaseDetail, [] (Polar *engine, LocalConfigOption, Decimal x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_baseDetail", x);
+		localConfigM->on(LocalConfigOption::BaseDetail, [] (core::polar *engine, LocalConfigOption, Decimal x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_baseDetail", x);
 		});
-		steamConfigM->On(SteamConfigOption::Grain, [] (Polar *engine, SteamConfigOption, Decimal x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_grain", x);
+		steamConfigM->on(SteamConfigOption::Grain, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_grain", x);
 		});
-		steamConfigM->On(SteamConfigOption::ScanIntensity, [] (Polar *engine, SteamConfigOption, Decimal x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_scanIntensity", x);
+		steamConfigM->on(SteamConfigOption::ScanIntensity, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_scanIntensity", x);
 		});
-		steamConfigM->On(SteamConfigOption::ChromaticAberration, [SetPipeline] (Polar *engine, SteamConfigOption, Decimal x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_aberration", x);
+		steamConfigM->on(SteamConfigOption::ChromaticAberration, [SetPipeline] (core::polar *engine, SteamConfigOption, Decimal x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_aberration", x);
 			SetPipeline(engine);
 		});
-		steamConfigM->On(SteamConfigOption::PixelFactor, [] (Polar *engine, SteamConfigOption, Decimal x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_pixelFactor", x);
+		steamConfigM->on(SteamConfigOption::PixelFactor, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_pixelFactor", x);
 		});
-		steamConfigM->On(SteamConfigOption::VoxelFactor, [] (Polar *engine, SteamConfigOption, Decimal x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_voxelFactor", x);
+		steamConfigM->on(SteamConfigOption::VoxelFactor, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_voxelFactor", x);
 		});
-		localConfigM->On(LocalConfigOption::Fullscreen, [] (Polar *engine, LocalConfigOption, bool fullscreen) {
-			engine->GetSystem<Renderer>().lock()->SetFullscreen(fullscreen);
+		localConfigM->on(LocalConfigOption::Fullscreen, [] (core::polar *engine, LocalConfigOption, bool fullscreen) {
+			engine->getsystem<system::renderer::base>().lock()->setfullscreen(fullscreen);
 		});
-		localConfigM->On(LocalConfigOption::Bloom, [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
-		localConfigM->On(LocalConfigOption::Cel,   [SetPipeline] (Polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
+		localConfigM->on(LocalConfigOption::Bloom, [SetPipeline] (core::polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
+		localConfigM->on(LocalConfigOption::Cel,   [SetPipeline] (core::polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
 
-		steamConfigM->On(SteamConfigOption::MouseSmoothing, [] (Polar *engine, SteamConfigOption, Decimal x) {
-			auto con = engine->GetSystem<HumanPlayerController>().lock();
+		steamConfigM->on(SteamConfigOption::MouseSmoothing, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			auto con = engine->getsystem<system::player::human>().lock();
 			if(con) { con->smoothing = x; }
 		});
 
-		steamConfigM->On(SteamConfigOption::Mute, [] (Polar *engine, SteamConfigOption, bool mute) {
-			engine->GetSystem<AudioManager>().lock()->muted = mute;
+		steamConfigM->on(SteamConfigOption::Mute, [] (core::polar *engine, SteamConfigOption, bool mute) {
+			engine->getsystem<system::audio>().lock()->muted = mute;
 		});
-		steamConfigM->On(SteamConfigOption::MasterVolume, [] (Polar *engine, SteamConfigOption, int x) {
-			engine->GetSystem<AudioManager>().lock()->masterVolume = x;
+		steamConfigM->on(SteamConfigOption::MasterVolume, [] (core::polar *engine, SteamConfigOption, int x) {
+			engine->getsystem<system::audio>().lock()->masterVolume = x;
 		});
-		steamConfigM->On(SteamConfigOption::MusicVolume, [] (Polar *engine, SteamConfigOption, int x) {
-			engine->GetSystem<AudioManager>().lock()->volumes[static_cast<size_t>(AudioSourceType::Music)] = x;
+		steamConfigM->on(SteamConfigOption::MusicVolume, [] (core::polar *engine, SteamConfigOption, int x) {
+			engine->getsystem<system::audio>().lock()->volumes[static_cast<size_t>(support::audio::sourcetype::music)] = x;
 		});
-		steamConfigM->On(SteamConfigOption::EffectVolume, [] (Polar *engine, SteamConfigOption, int x) {
-			engine->GetSystem<AudioManager>().lock()->volumes[static_cast<size_t>(AudioSourceType::Effect)] = x;
+		steamConfigM->on(SteamConfigOption::EffectVolume, [] (core::polar *engine, SteamConfigOption, int x) {
+			engine->getsystem<system::audio>().lock()->volumes[static_cast<size_t>(support::audio::sourcetype::effect)] = x;
 		});
 
-		localConfigM->On(LocalConfigOption::UIScale, [] (Polar *engine, LocalConfigOption, Decimal uiScale) {
-			if(auto menuSystem = engine->GetSystem<MenuSystem>().lock()) {
+		localConfigM->on(LocalConfigOption::UIScale, [] (core::polar *engine, LocalConfigOption, Decimal uiScale) {
+			if(auto menuSystem = engine->getsystem<system::menu>().lock()) {
 				menuSystem->uiScale = uiScale;
-				menuSystem->RenderAll();
+				menuSystem->render_all();
 			}
 		});
 
-		localConfigM->Set<Decimal>(LocalConfigOption::BaseDetail, 8);
-		localConfigM->Set<Decimal>(LocalConfigOption::UIScale, Decimal(0.3125));
-		steamConfigM->Set<Decimal>(SteamConfigOption::MouseSmoothing, Decimal(0.995));
-		steamConfigM->Set<int>(SteamConfigOption::MasterVolume, 100);
-		steamConfigM->Set<int>(SteamConfigOption::MusicVolume, 100);
-		steamConfigM->Set<int>(SteamConfigOption::EffectVolume, 100);
+		localConfigM->set<Decimal>(LocalConfigOption::BaseDetail, 8);
+		localConfigM->set<Decimal>(LocalConfigOption::UIScale, Decimal(0.3125));
+		steamConfigM->set<Decimal>(SteamConfigOption::MouseSmoothing, Decimal(0.995));
+		steamConfigM->set<int>(SteamConfigOption::MasterVolume, 100);
+		steamConfigM->set<int>(SteamConfigOption::MusicVolume, 100);
+		steamConfigM->set<int>(SteamConfigOption::EffectVolume, 100);
 
-		steamConfigM->Load();
-		localConfigM->Load();
+		steamConfigM->load();
+		localConfigM->load();
 
-		/*assetM->Get<AudioAsset>("laser");
-		assetM->Get<AudioAsset>("beep1");
-		assetM->Get<AudioAsset>("menu1");
-		assetM->Get<AudioAsset>("30");
-		assetM->Get<AudioAsset>("60");
-		assetM->Get<AudioAsset>("1");
-		assetM->Get<AudioAsset>("2");
-		assetM->Get<AudioAsset>("3");
-		assetM->Get<AudioAsset>("4");
-		assetM->Get<AudioAsset>("5");
-		assetM->Get<AudioAsset>("6");
-		assetM->Get<AudioAsset>("7");
-		assetM->Get<AudioAsset>("8");
-		assetM->Get<AudioAsset>("9");
-		assetM->Get<AudioAsset>("seconds");
-		assetM->Get<AudioAsset>("hundred");
-		assetM->Get<AudioAsset>("fifty");
-		assetM->Get<AudioAsset>("freefall");*/
+		/*assetM->get<asset::audio>("laser");
+		assetM->get<asset::audio>("beep1");
+		assetM->get<asset::audio>("menu1");
+		assetM->get<asset::audio>("30");
+		assetM->get<asset::audio>("60");
+		assetM->get<asset::audio>("1");
+		assetM->get<asset::audio>("2");
+		assetM->get<asset::audio>("3");
+		assetM->get<asset::audio>("4");
+		assetM->get<asset::audio>("5");
+		assetM->get<asset::audio>("6");
+		assetM->get<asset::audio>("7");
+		assetM->get<asset::audio>("8");
+		assetM->get<asset::audio>("9");
+		assetM->get<asset::audio>("seconds");
+		assetM->get<asset::audio>("hundred");
+		assetM->get<asset::audio>("fifty");
+		assetM->get<asset::audio>("freefall");*/
 
-		auto inputM = engine->GetSystem<InputManager>().lock();
-		st.dtors.emplace_back(inputM->On(Key::F, [engine] (Key) {
-			auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
-			localConfigM->Set<bool>(LocalConfigOption::Fullscreen, !localConfigM->Get<bool>(LocalConfigOption::Fullscreen));
+		auto inputM = engine->getsystem<system::input>().lock();
+		st.dtors.emplace_back(inputM->on(key_t::F, [engine] (key_t) {
+			auto localConfigM = engine->getsystem<LocalConfigM>().lock();
+			localConfigM->set<bool>(LocalConfigOption::Fullscreen, !localConfigM->get<bool>(LocalConfigOption::Fullscreen));
 		}));
-		st.dtors.emplace_back(inputM->On(Key::M, [engine] (Key) {
-			auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
-			steamConfigM->Set<bool>(SteamConfigOption::Mute, !steamConfigM->Get<bool>(SteamConfigOption::Mute));
+		st.dtors.emplace_back(inputM->on(key_t::M, [engine] (key_t) {
+			auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+			steamConfigM->set<bool>(SteamConfigOption::Mute, !steamConfigM->get<bool>(SteamConfigOption::Mute));
 		}));
 
 		engine->transition = "forward";
 	});
 
-	engine.AddState("world", [&playerID] (Polar *engine, EngineState &st) {
-		st.dtors.emplace_back(engine->AddObject(&playerID));
+	engine.addstate("world", [&playerID] (core::polar *engine, core::state &st) {
+		st.dtors.emplace_back(engine->addobject(&playerID));
 
 		Point3 seed = glm::ballRand(WORLD_DECIMAL(1000.0));
-		engine->AddComponent<PositionComponent>(playerID, seed);
-		engine->AddComponent<OrientationComponent>(playerID);
+		engine->addcomponent<component::position>(playerID, seed);
+		engine->addcomponent<component::orientation>(playerID);
 
-		st.AddSystem<World>(engine->GetSystem<LevelSwitcher>().lock()->GetLevel(), false);
+		st.addsystem<system::world>(engine->getsystem<system::levelswitcher>().lock()->getlevel(), false);
 
-		engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(1));
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(1.0f, 0.0f, 0.5f, false, [] (Polar *engine, float x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(-glm::pow(x, 2.0f)));
+		engine->getsystem<system::renderer::base>().lock()->setuniform("u_exposure", Point3(1));
+		auto tw = engine->getsystem<system::tweener<float>>().lock();
+		st.dtors.emplace_back(tw->tween(1.0f, 0.0f, 0.5f, false, [] (core::polar *engine, float x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_exposure", Point3(-glm::pow(x, 2.0f)));
 		}));
 	});
 
-	std::shared_ptr<Destructor> soundDtor;
+	std::shared_ptr<core::destructor> soundDtor;
 
-	engine.AddState("notplaying", [&soundDtor] (Polar *engine, EngineState &st) {
-		engine->GetSystem<InputManager>().lock()->SetActiveSet("MenuControls");
-		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(true);
+	engine.addstate("notplaying", [&soundDtor] (core::polar *engine, core::state &st) {
+		engine->getsystem<system::input>().lock()->setactiveset("MenuControls");
+		engine->getsystem<system::levelswitcher>().lock()->setenabled(true);
 	});
 
-	engine.AddState("title", [&playerID] (Polar *engine, EngineState &st) {
+	engine.addstate("title", [&playerID] (core::polar *engine, core::state &st) {
 		st.transitions.emplace("forward", Transition{ Pop(), Pop(), Push("playing") });
 		st.transitions.emplace("credits", Transition{ Pop(), Pop(), Push("credits") });
 		st.transitions.emplace("back", Transition{ QuitAction() });
 
-		st.AddSystem<TitlePlayerController>(playerID);
+		st.addsystem<system::player::title>(playerID);
 
-		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
-		auto localConfigM = engine->GetSystem<LocalConfigM>().lock();
-		auto renderer = engine->GetSystem<Renderer>().lock();
+		auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+		auto localConfigM = engine->getsystem<LocalConfigM>().lock();
+		auto renderer = engine->getsystem<system::renderer::base>().lock();
 
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		assetM->Request<AudioAsset>("nexus");
-		assetM->Request<AudioAsset>("begin");
-		assetM->Request<AudioAsset>("convergence");
+		auto assetM = engine->getsystem<system::asset>().lock();
+		assetM->request<asset::audio>("nexus");
+		assetM->request<asset::audio>("begin");
+		assetM->request<asset::audio>("convergence");
 
-		Menu menu = {
-			MenuItem("Solo Play", [engine] (Decimal) {
+		using menu_t = system::menuitem_vector_t;
+		using menuitem = support::ui::menuitem;
+		namespace control = support::ui::control;
+
+		menu_t menu = {
+			menuitem("Solo Play", [engine] (Decimal) {
 				engine->transition = "forward";
 				return false;
 			}),
-			MenuItem("Options", {
-				MenuItem("Graphics", {
-					MenuItem("Base Detail", MenuControl::Slider<Decimal>(6, 30, localConfigM->Get<Decimal>(LocalConfigOption::BaseDetail)), [engine] (Decimal x) {
-						engine->GetSystem<LocalConfigM>().lock()->Set<Decimal>(LocalConfigOption::BaseDetail, x);
+			menuitem("Options", {
+				menuitem("Graphics", {
+					menuitem("Base Detail", control::slider<Decimal>(6, 30, localConfigM->get<Decimal>(LocalConfigOption::BaseDetail)), [engine] (Decimal x) {
+						engine->getsystem<LocalConfigM>().lock()->set<Decimal>(LocalConfigOption::BaseDetail, x);
 						return true;
 					}),
-					MenuItem("Bloom", MenuControl::Checkbox(localConfigM->Get<bool>(LocalConfigOption::Bloom)), [engine] (Decimal state) {
-						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Bloom, state);
+					menuitem("Bloom", control::checkbox(localConfigM->get<bool>(LocalConfigOption::Bloom)), [engine] (Decimal state) {
+						engine->getsystem<LocalConfigM>().lock()->set<bool>(LocalConfigOption::Bloom, state);
 						return true;
 					}),
-					MenuItem("Cel", MenuControl::Checkbox(localConfigM->Get<bool>(LocalConfigOption::Cel)), [engine] (Decimal state) {
-						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Cel, state);
+					menuitem("Cel", control::checkbox(localConfigM->get<bool>(LocalConfigOption::Cel)), [engine] (Decimal state) {
+						engine->getsystem<LocalConfigM>().lock()->set<bool>(LocalConfigOption::Cel, state);
 						return true;
 					}),
-					MenuItem("Grain", MenuControl::Slider<Decimal>(0, Decimal(0.2), steamConfigM->Get<Decimal>(SteamConfigOption::Grain), Decimal(0.01)), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::Grain, x);
+					menuitem("Grain", control::slider<Decimal>(0, Decimal(0.2), steamConfigM->get<Decimal>(SteamConfigOption::Grain), Decimal(0.01)), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::Grain, x);
 						return true;
 					}),
-					MenuItem("Scanlines", MenuControl::Slider<Decimal>(0, Decimal(0.2), steamConfigM->Get<Decimal>(SteamConfigOption::ScanIntensity), Decimal(0.01)), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::ScanIntensity, x);
+					menuitem("Scanlines", control::slider<Decimal>(0, Decimal(0.2), steamConfigM->get<Decimal>(SteamConfigOption::ScanIntensity), Decimal(0.01)), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::ScanIntensity, x);
 						return true;
 					}),
-					MenuItem("Chromatic Aberration", MenuControl::Slider<Decimal>(0, Decimal(0.001), steamConfigM->Get<Decimal>(SteamConfigOption::ChromaticAberration), Decimal(0.0001)), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::ChromaticAberration, x);
+					menuitem("Chromatic Aberration", control::slider<Decimal>(0, Decimal(0.001), steamConfigM->get<Decimal>(SteamConfigOption::ChromaticAberration), Decimal(0.0001)), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::ChromaticAberration, x);
 						return true;
 					}),
-					//MenuItem("Precision", MenuControl::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-					MenuItem("Pixel Factor", MenuControl::Slider<Decimal>(0, 20, steamConfigM->Get<Decimal>(SteamConfigOption::PixelFactor)), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::PixelFactor, x);
+					//menuitem("Precision", control::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
+					menuitem("Pixel Factor", control::slider<Decimal>(0, 20, steamConfigM->get<Decimal>(SteamConfigOption::PixelFactor)), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::PixelFactor, x);
 						return true;
 					}),
-					MenuItem("Voxel Factor", MenuControl::Slider<Decimal>(0, 20, steamConfigM->Get<Decimal>(SteamConfigOption::VoxelFactor)), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::VoxelFactor, x);
+					menuitem("Voxel Factor", control::slider<Decimal>(0, 20, steamConfigM->get<Decimal>(SteamConfigOption::VoxelFactor)), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::VoxelFactor, x);
 						return true;
 					}),
-					MenuItem("Fullscreen", MenuControl::Checkbox(localConfigM->Get<bool>(LocalConfigOption::Fullscreen)), [engine] (Decimal state) {
-						engine->GetSystem<LocalConfigM>().lock()->Set<bool>(LocalConfigOption::Fullscreen, state);
+					menuitem("Fullscreen", control::checkbox(localConfigM->get<bool>(LocalConfigOption::Fullscreen)), [engine] (Decimal state) {
+						engine->getsystem<LocalConfigM>().lock()->set<bool>(LocalConfigOption::Fullscreen, state);
 						return true;
 					}),
 					// XXX: broken right now, fix me
-					/*MenuItem("UI Scale", MenuControl::Slider<Decimal>(Decimal(0.125), Decimal(0.5), localConfigM->Get<Decimal>(LocalConfigOption::UIScale), Decimal(0.03125)), [engine] (Decimal x) {
-						engine->GetSystem<LocalConfigM>().lock()->Set<Decimal>(LocalConfigOption::UIScale, x);
+					/*menuitem("UI Scale", control::slider<Decimal>(Decimal(0.125), Decimal(0.5), localConfigM->get<Decimal>(LocalConfigOption::UIScale), Decimal(0.03125)), [engine] (Decimal x) {
+						engine->getsystem<LocalConfigM>().lock()->set<Decimal>(LocalConfigOption::UIScale, x);
 						return true;
 					}),*/
-					MenuItem("Show FPS", MenuControl::Checkbox(renderer->showFPS), [engine] (Decimal state) {
-						auto renderer = engine->GetSystem<Renderer>().lock();
+					menuitem("Show FPS", control::checkbox(renderer->showFPS), [engine] (Decimal state) {
+						auto renderer = engine->getsystem<system::renderer::base>().lock();
 						renderer->showFPS = state;
 						return true;
 					}),
 				}),
-				MenuItem("Audio", {
-					MenuItem("Master Volume", MenuControl::Slider<int>(0, 100, steamConfigM->Get<int>(SteamConfigOption::MasterVolume), 10), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<int>(SteamConfigOption::MasterVolume, x);
+				menuitem("Audio", {
+					menuitem("Master Volume", control::slider<int>(0, 100, steamConfigM->get<int>(SteamConfigOption::MasterVolume), 10), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<int>(SteamConfigOption::MasterVolume, x);
 						return true;
 					}),
-					MenuItem("Music Volume", MenuControl::Slider<int>(0, 100, steamConfigM->Get<int>(SteamConfigOption::MusicVolume), 10), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<int>(SteamConfigOption::MusicVolume, x);
+					menuitem("Music Volume", control::slider<int>(0, 100, steamConfigM->get<int>(SteamConfigOption::MusicVolume), 10), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<int>(SteamConfigOption::MusicVolume, x);
 						return true;
 					}),
-					MenuItem("Effect Volume", MenuControl::Slider<int>(0, 100, steamConfigM->Get<int>(SteamConfigOption::EffectVolume), 10), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<int>(SteamConfigOption::EffectVolume, x);
+					menuitem("Effect Volume", control::slider<int>(0, 100, steamConfigM->get<int>(SteamConfigOption::EffectVolume), 10), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<int>(SteamConfigOption::EffectVolume, x);
 						return true;
 					}),
-					MenuItem("Mute", MenuControl::Checkbox(steamConfigM->Get<bool>(SteamConfigOption::Mute)), [engine] (Decimal state) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<bool>(SteamConfigOption::Mute, state);
+					menuitem("Mute", control::checkbox(steamConfigM->get<bool>(SteamConfigOption::Mute)), [engine] (Decimal state) {
+						engine->getsystem<SteamConfigM>().lock()->set<bool>(SteamConfigOption::Mute, state);
 						return true;
 					}),
 				}),
-				MenuItem("Controls", {
-					MenuItem("Mouse Smoothing", MenuControl::Slider<Decimal>(Decimal(0.9), Decimal(0.995), steamConfigM->Get<Decimal>(SteamConfigOption::MouseSmoothing), Decimal(0.005)), [engine] (Decimal x) {
-						engine->GetSystem<SteamConfigM>().lock()->Set<Decimal>(SteamConfigOption::MouseSmoothing, x);
+				menuitem("Controls", {
+					menuitem("Mouse Smoothing", control::slider<Decimal>(Decimal(0.9), Decimal(0.995), steamConfigM->get<Decimal>(SteamConfigOption::MouseSmoothing), Decimal(0.005)), [engine] (Decimal x) {
+						engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::MouseSmoothing, x);
 						return true;
 					}),
 				}),
 			}),
-			MenuItem("Credits", [engine] (Decimal) {
+			menuitem("Credits", [engine] (Decimal) {
 				engine->transition = "credits";
 				return false;
 			}),
-			MenuItem("Quit Game", [engine] (Decimal) {
-				engine->Quit();
+			menuitem("Quit Game", [engine] (Decimal) {
+				engine->quit();
 				return false;
 			}),
 		};
-		auto uiScale = localConfigM->Get<Decimal>(LocalConfigOption::UIScale);
-		st.AddSystem<MenuSystem>(uiScale, menu);
+		auto uiScale = localConfigM->get<Decimal>(LocalConfigOption::UIScale);
+		st.addsystem<system::menu>(uiScale, menu);
 	});
 
-	engine.AddState("playing", [secsPerBeat, &playerID] (Polar *engine, EngineState &st) {
+	engine.addstate("playing", [secsPerBeat, &playerID] (core::polar *engine, core::state &st) {
 		st.transitions.emplace("back", Transition{Pop(), Pop(), Push("world"), Push("notplaying"), Push("title")});
 		st.transitions.emplace("gameover", Transition{Pop(), Push("notplaying"), Push("gameover")});
 
-		st.AddSystem<HumanPlayerController>(playerID);
+		st.addsystem<system::player::human>(playerID);
 
-		auto steamConfigM = engine->GetSystem<SteamConfigM>().lock();
-		engine->GetSystem<HumanPlayerController>().lock()->smoothing = steamConfigM->Get<Decimal>(SteamConfigOption::MouseSmoothing);
+		auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+		engine->getsystem<system::player::human>().lock()->smoothing = steamConfigM->get<Decimal>(SteamConfigOption::MouseSmoothing);
 
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto inputM = engine->GetSystem<InputManager>().lock();
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		auto renderer = engine->GetSystem<Renderer>().lock();
+		auto assetM   = engine->getsystem<system::asset>().lock();
+		auto inputM   = engine->getsystem<system::input>().lock();
+		auto tw       = engine->getsystem<system::tweener<float>>().lock();
+		auto renderer = engine->getsystem<system::renderer::base>().lock();
 
-		inputM->SetActiveSet("InGameControls");
+		inputM->setactiveset("InGameControls");
 
-		engine->GetSystem<World>().lock()->active = true;
-		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(false);
+		engine->getsystem<system::world>().lock()->active = true;
+		engine->getsystem<system::levelswitcher>().lock()->setenabled(false);
 
-		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
-			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "gameover"; }));
+		for(auto k : { key_t::Escape, key_t::Backspace, key_t::MouseRight, key_t::ControllerBack }) {
+			st.dtors.emplace_back(inputM->on(k, [engine] (key_t) { engine->transition = "gameover"; }));
 		}
 
-		st.dtors.emplace_back(inputM->OnDigital("ingame_return", [engine] () { engine->transition = "gameover"; }));
+		st.dtors.emplace_back(inputM->ondigital("ingame_return", [engine] () { engine->transition = "gameover"; }));
 
 		IDType beepID;
-		st.dtors.emplace_back(engine->AddObject(&beepID));
-		engine->AddComponent<AudioSource>(beepID, assetM->Get<AudioAsset>("begin"), AudioSourceType::Effect);
+		st.dtors.emplace_back(engine->addobject(&beepID));
+		engine->addcomponent<component::audiosource>(beepID, assetM->get<asset::audio>("begin"), support::audio::sourcetype::effect);
 
 		IDType musicID;
-		st.dtors.emplace_back(engine->AddObject(&musicID));
-		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("nexus"), AudioSourceType::Music, LoopIn{3565397});
+		st.dtors.emplace_back(engine->addobject(&musicID));
+		engine->addcomponent<component::audiosource>(musicID, assetM->get<asset::audio>("nexus"), support::audio::sourcetype::music, support::audio::loopin{3565397});
 
-		engine->GetSystem<Renderer>().lock()->SetMouseCapture(true);
-		st.dtors.emplace_back(std::make_shared<Destructor>([engine] () { engine->GetSystem<Renderer>().lock()->SetMouseCapture(false); }));
+		engine->getsystem<system::renderer::base>().lock()->setmousecapture(true);
+		st.dtors.emplace_back(std::make_shared<core::destructor>([engine] () {
+			engine->getsystem<system::renderer::base>().lock()->setmousecapture(false);
+		}));
 	});
 
-	engine.AddState("gameover", [] (Polar *engine, EngineState &st) {
+	engine.addstate("gameover", [] (core::polar *engine, core::state &st) {
 		st.transitions.emplace("back", Transition{Pop(), Pop(), Pop(), Push("world"), Push("notplaying"), Push("title")});
 		st.transitions.emplace("forward", Transition{Pop(), Pop(), Pop(), Push("world"), Push("playing")});
 
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto inputM = engine->GetSystem<InputManager>().lock();
-		auto world = engine->GetSystem<World>().lock();
+		auto assetM = engine->getsystem<system::asset>().lock();
+		auto inputM = engine->getsystem<system::input>().lock();
+		auto world  = engine->getsystem<system::world>().lock();
 
-		for(auto k : { Key::Space, Key::Enter, Key::MouseLeft, Key::ControllerA }) {
-			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "forward"; }));
+		for(auto k : { key_t::Space, key_t::Enter, key_t::MouseLeft, key_t::ControllerA }) {
+			st.dtors.emplace_back(inputM->on(k, [engine] (key_t) { engine->transition = "forward"; }));
 		}
 
-		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
-			st.dtors.emplace_back(inputM->On(k, [engine] (Key) { engine->transition = "back"; }));
+		for(auto k : { key_t::Escape, key_t::Backspace, key_t::MouseRight, key_t::ControllerBack }) {
+			st.dtors.emplace_back(inputM->on(k, [engine] (key_t) { engine->transition = "back"; }));
 		}
 
-		st.dtors.emplace_back(inputM->OnDigital("menu_confirm", [engine] () { engine->transition = "forward"; }));
-		st.dtors.emplace_back(inputM->OnDigital("menu_back",    [engine] () { engine->transition = "back"; }));
+		st.dtors.emplace_back(inputM->ondigital("menu_confirm", [engine] () { engine->transition = "forward"; }));
+		st.dtors.emplace_back(inputM->ondigital("menu_back",    [engine] () { engine->transition = "back"; }));
 
 		world->active = false;
-		auto seconds = Decimal(world->GetTicks()) / ENGINE_TICKS_PER_SECOND;
+		auto seconds = Decimal(world->get_ticks()) / ENGINE_TICKS_PER_SECOND;
 
 		int32 totalSeconds;
 		if(!SteamUserStats()->GetStat("time", &totalSeconds)) {
-			DebugManager()->Critical("failed to get current value of time stat");
+			debugmanager()->critical("failed to get current value of time stat");
 		} else {
-			DebugManager()->Verbose("current value of time stat is ", totalSeconds);
+			debugmanager()->verbose("current value of time stat is ", totalSeconds);
 		}
 
 		totalSeconds += lround(seconds);
 
-		DebugManager()->Verbose("setting new value of time stat to ", totalSeconds);
+		debugmanager()->verbose("setting new value of time stat to ", totalSeconds);
 		if(!SteamUserStats()->SetStat("time", totalSeconds)) {
-			DebugManager()->Critical("failed to set new value of time stat");
+			debugmanager()->critical("failed to set new value of time stat");
 		}
 		if(!SteamUserStats()->StoreStats()) {
-			DebugManager()->Critical("failed to upload new value of time stat");
+			debugmanager()->critical("failed to upload new value of time stat");
 		}
 
 #define IndicateAchievement(SZ, MIN, MAX) \
@@ -378,55 +388,58 @@ freefall::freefall(polar::core::polar &engine) {
 		else IndicateAchievement("1100_time_weeks_1",     86400,   604800)
 		else IndicateAchievement("1110_time_years_1",    604800, 31536000)
 
-		auto font = assetM->Get<FontAsset>("nasalization-rg");
+		auto font = assetM->get<asset::font>("nasalization-rg");
 
 		IDType textID;
-		st.dtors.emplace_back(engine->AddObject(&textID));
-		engine->AddComponent<Text>(textID, font, "Game Over");
-		engine->AddComponent<ScreenPositionComponent>(textID, Point2(0, 50), Origin::Center);
+		st.dtors.emplace_back(engine->addobject(&textID));
+		engine->addcomponent<component::text>(textID, font, "Game Over");
+		engine->addcomponent<component::screenposition>(textID, Point2(0, 50), support::ui::origin::center);
 
 		std::ostringstream oss;
 		oss << std::setiosflags(std::ios::fixed) << std::setprecision(2) << seconds << 's';
 
 		IDType timeID;
-		st.dtors.emplace_back(engine->AddObject(&timeID));
-		engine->AddComponent<Text>(timeID, font, oss.str());
-		engine->AddComponent<ScreenPositionComponent>(timeID, Point2(0, -100), Origin::Center);
-		engine->AddComponent<ScaleComponent>(timeID, Point3(0.75));
+		st.dtors.emplace_back(engine->addobject(&timeID));
+		engine->addcomponent<component::text>(timeID, font, oss.str());
+		engine->addcomponent<component::screenposition>(timeID, Point2(0, -100), support::ui::origin::center);
+		engine->addcomponent<component::scale>(timeID, Point3(0.75));
 
 		IDType crashID;
-		st.dtors.emplace_back(engine->AddObject(&crashID));
-		engine->AddComponent<AudioSource>(crashID, assetM->Get<AudioAsset>("crash1"), AudioSourceType::Effect);
+		st.dtors.emplace_back(engine->addobject(&crashID));
+		engine->addcomponent<component::audiosource>(crashID, assetM->get<asset::audio>("crash1"), support::audio::sourcetype::effect);
 
 		IDType gameoverID;
-		st.dtors.emplace_back(engine->AddObject(&gameoverID));
-		engine->AddComponent<AudioSource>(gameoverID, assetM->Get<AudioAsset>("gameover"), AudioSourceType::Effect);
+		st.dtors.emplace_back(engine->addobject(&gameoverID));
+		engine->addcomponent<component::audiosource>(gameoverID, assetM->get<asset::audio>("gameover"), support::audio::sourcetype::effect);
 
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		st.dtors.emplace_back(tweener->Tween(0.0f, -1.0f, 0.5f, false, [] (Polar *engine, float x) {
-			engine->GetSystem<Renderer>().lock()->SetUniform("u_exposure", Point3(x));
+		auto tw = engine->getsystem<system::tweener<float>>().lock();
+		st.dtors.emplace_back(tw->tween(0.0f, -1.0f, 0.5f, false, [] (core::polar *engine, float x) {
+			engine->getsystem<system::renderer::base>().lock()->setuniform("u_exposure", Point3(x));
 		}));
 	});
-	engine.AddState("credits", [] (Polar *engine, EngineState &st) {
+	engine.addstate("credits", [] (core::polar *engine, core::state &st) {
 		st.transitions.emplace("back", Transition{ Pop(), Push("notplaying"), Push("title") });
 
-		Credits credits = {
-			CreditsSection("Design and programming by", {
+		using credits_t = system::credits_vector_t;
+		using section_t = support::ui::credits_section;
+
+		credits_t credits = {
+			section_t("Design and programming by", {
 				"David Farrell",
 			}),
-			CreditsSection("Voice acting performed by",{
+			section_t("Voice acting performed by",{
 				"Christine Dodrill",
 			}),
-			CreditsSection("Sound effects created by", {
+			section_t("Sound effects created by", {
 				"David Farrell",
 			}),
-			CreditsSection("Credits music composed by", {
+			section_t("Credits music composed by", {
 				"David Farrell",
 			}),
-			CreditsSection("All other music written by", {
+			section_t("All other music written by", {
 				"Alex \"aji\" Iadicicco",
 			}),
-			CreditsSection("Alpha testing volunteered by", {
+			section_t("Alpha testing volunteered by", {
 				//"Aaron Dron?",
 				"Aidan Dodds",
 				"AkariTakai",
@@ -452,25 +465,25 @@ freefall::freefall(polar::core::polar &engine) {
 				"Woffler",
 				//"Xan",
 			}),
-			CreditsSection("Special thanks to", {
+			section_t("Special thanks to", {
 				"Bright",
 				"darkf",
 				"Miles Kjeller",
 			}),
-			CreditsSection("and", {
+			section_t("and", {
 				"A big thanks to all my friends and family",
 			}),
 		};
 
-		st.AddSystem<CreditsSystem>(credits);
+		st.addsystem<system::credits>(credits);
 
-		engine->GetSystem<LevelSwitcher>().lock()->SetEnabled(false);
+		engine->getsystem<system::levelswitcher>().lock()->setenabled(false);
 
-		auto assetM = engine->GetSystem<AssetManager>().lock();
+		auto assetM = engine->getsystem<system::asset>().lock();
 		IDType musicID;
-		st.dtors.emplace_back(engine->AddObject(&musicID));
-		engine->AddComponent<AudioSource>(musicID, assetM->Get<AudioAsset>("convergence"), AudioSourceType::Music, true);
+		st.dtors.emplace_back(engine->addobject(&musicID));
+		engine->addcomponent<component::audiosource>(musicID, assetM->get<asset::audio>("convergence"), support::audio::sourcetype::music, true);
 	});
 
-	engine.Run("root");
+	engine.run("root");
 }

@@ -1,323 +1,229 @@
 #pragma once
 
 #include <stdint.h>
+#include <vector>
 #include <polar/system/base.h>
+#include <polar/system/tweener.h>
 #include <polar/component/scale.h>
 #include <polar/component/color.h>
 #include <polar/component/text.h>
 #include <polar/component/screenposition.h>
 #include <polar/component/sprite/box.h>
 #include <polar/component/sprite/slider.h>
+#include <polar/support/ui/control.h>
+#include <polar/support/input/key.h>
+#include <polar/support/ui/menuitem.h>
 
-namespace MenuControl {
-	class Base {
-	public:
-		virtual ~Base() {}
-		virtual float Get() { return 0; }
-		virtual bool Activate() { return false; }
-		virtual bool Navigate(int) { return false; }
-		virtual std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2, float) {
-			return engine->AddObject(&id);
-		}
-	};
+namespace polar { namespace system {
+	using menuitem_vector_t = std::vector<support::ui::menuitem>;
 
-	class Button : public Base {
-	public:
-		Button() {}
-		bool Activate() override final { return true; }
-	};
-
-	class Checkbox : public Base {
+	class menu : public base {
+		using key_t = support::input::key;
 	private:
-		bool state;
-	public:
-		Checkbox(bool initial = false) : state(initial) {}
-		float Get() override final { return state; }
+		menuitem_vector_t _menu;
+		std::vector<size_t> stack;
+		int current = 0;
 
-		bool Activate() override final {
-			state = !state;
-			return true;
-		}
+		std::shared_ptr<polar::asset::font> font;
+		std::vector<std::shared_ptr<core::destructor>> itemDtors;
+		std::unordered_map<int, std::shared_ptr<core::destructor>> controlDtors;
+		float selectionAlpha = 0.0f;
 
-		bool Navigate(int delta) override {
-			// flip state delta times
-			state ^= delta & 1;
-			return true;
-		}
+		// the size of the array determines how many concurrent sounds we can play at once
+		std::array<std::shared_ptr<core::destructor>, 4> soundDtors;
+		size_t soundIndex = 0;
 
-		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
-			auto dtor = engine->AddObject(&id);
-
-			Decimal pad = 15;
-			Point2 offset = Point2(4 * scale, 0); // edgeOffset + edgePadding (SliderSprite)s
-			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
-
-			engine->AddComponentAs<Sprite, BoxSprite>(id);
-			engine->AddComponent<ScreenPositionComponent>(id, origin + pad + offset);
-			engine->AddComponent<ScaleComponent>(id, Point3(scale));
-			engine->AddComponent<ColorComponent>(id, color);
-
-			return dtor;
-		}
-	};
-
-	template<typename T> class Slider : public Base {
-	private:
-		T min;
-		T max;
-		T value;
-		T step;
-	public:
-		Slider(T min, T max, T initial = 0, T step = 1) : min(min), max(max), value(initial), step(step) {}
-		float Get() override final { return value; }
-		bool Activate() override final { return Navigate(1); }
-
-		bool Navigate(int delta) override final {
-			T newValue = glm::clamp(value + T(delta) * step, min, max);
-			bool changed = newValue != value;
-			value = newValue;
-			return changed;
-		}
-
-		std::shared_ptr<Destructor> Render(Polar *engine, IDType &id, Point2 origin, float scale) override final {
-			auto dtor = engine->AddObject(&id);
-
-			Decimal pad = 15;
-			float alpha = float(value - min) / float(max - min);
-
-			engine->AddComponentAs<Sprite, SliderSprite>(id, 12 * 8, 12, alpha);
-			engine->AddComponent<ScreenPositionComponent>(id, origin + pad);
-			engine->AddComponent<ScaleComponent>(id, Point3(scale));
-
-			return dtor;
-		}
-	};
-}
-
-class MenuItem {
-public:
-	using FTy = bool(float);
-
-	std::string value;
-	std::vector<MenuItem> children = {};
-	std::function<FTy> fn;
-	std::shared_ptr<MenuControl::Base> control;
-
-	MenuItem(std::string value, std::vector<MenuItem> children) : value(value), children(children) {}
-	MenuItem(std::string value, std::function<FTy> fn) : MenuItem(value, MenuControl::Button(), fn) {}
-	template<typename T> MenuItem(std::string value, T control, std::function<FTy> fn) : value(value), fn(fn) {
-		static_assert(std::is_base_of<MenuControl::Base, T>::value, "MenuItem requires object of base class MenuControl::Base");
-		this->control = std::shared_ptr<MenuControl::Base>(new T(control));
-	}
-};
-
-using Menu = std::vector<MenuItem>;
-
-class MenuSystem : public System {
-private:
-	Menu menu;
-	std::vector<size_t> stack;
-	int current = 0;
-
-	std::shared_ptr<FontAsset> font;
-	std::vector<std::shared_ptr<Destructor>> itemDtors;
-	std::unordered_map<int, std::shared_ptr<Destructor>> controlDtors;
-	float selectionAlpha = 0.0f;
-
-	// the size of the array determines how many concurrent sounds we can play at once
-	std::array<std::shared_ptr<Destructor>, 4> soundDtors;
-	size_t soundIndex = 0;
-
-	Menu * GetCurrentMenu() {
-		Menu *m = &menu;
-		for(auto i : stack) {
-			m = &m->at(i).children;
-		}
-		return m;
-	}
-
-	void Activate() {
-		auto m = GetCurrentMenu();
-		auto &item = m->at(current);
-
-		if(item.control) {
-			if(item.control->Activate()) {
-				Render(current, true);
-				if(item.fn(item.control->Get())) {
-					auto assetM = engine->GetSystem<AssetManager>().lock();
-					IDType soundID;
-					soundDtors[soundIndex++] = engine->AddObject(&soundID);
-					soundIndex %= soundDtors.size();
-					engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"), AudioSourceType::Effect);
-				}
+		menuitem_vector_t * getcurrentmenu() {
+			menuitem_vector_t *m = &_menu;
+			for(auto i : stack) {
+				m = &m->at(i).children;
 			}
-		} else if(!item.children.empty()) { Navigate(0, 1, true); }
-	}
+			return m;
+		}
 
-	void Navigate(int down, int right = 0, bool force = false) {
-		auto m = GetCurrentMenu();
-		auto &item = m->at(current);
+		void activate() {
+			auto m = getcurrentmenu();
+			auto &item = m->at(current);
 
-		bool playBeep = false;
-
-		bool newForce = force;
-		if(!force && right && item.control && item.control->Navigate(right)) {
-			item.fn(item.control->Get());
-			Render(current, true);
-			playBeep = true;
-		} else { newForce = force; }
-
-		if(newForce) {
-			while(right > 0) {
-				auto m = GetCurrentMenu();
-				auto &i = m->at(current);
-				if(!i.children.empty()) {
-					stack.emplace_back(current);
-					current = 0;
-					--right;
-					playBeep = true;
-				} else {
-					Activate();
-				}
-			}
-			while(right < 0) {
-				if(stack.empty()) {
-					if(force) {
-						engine->transition = "back";
-						return;
+			if(item.control) {
+				if(item.control->activate()) {
+					render(current, true);
+					if(item.fn(item.control->get())) {
+						auto assetM = engine->getsystem<asset>().lock();
+						IDType soundID;
+						soundDtors[soundIndex++] = engine->addobject(&soundID);
+						soundIndex %= soundDtors.size();
+						engine->addcomponent<component::audiosource>(soundID, assetM->get<polar::asset::audio>("menu1"), support::audio::sourcetype::effect);
 					}
-				} else {
-					current = stack.back();
-					stack.pop_back();
-					++right;
-					playBeep = true;
 				}
+			} else if(!item.children.empty()) { navigate(0, 1, true); }
+		}
+
+		void navigate(int down, int right = 0, bool force = false) {
+			auto m = getcurrentmenu();
+			auto &item = m->at(current);
+
+			bool playBeep = false;
+
+			bool newForce = force;
+			if(!force && right && item.control && item.control->navigate(right)) {
+				item.fn(item.control->get());
+				render(current, true);
+				playBeep = true;
+			} else { newForce = force; }
+
+			if(newForce) {
+				while(right > 0) {
+					auto m = getcurrentmenu();
+					auto &i = m->at(current);
+					if(!i.children.empty()) {
+						stack.emplace_back(current);
+						current = 0;
+						--right;
+						playBeep = true;
+					} else {
+						activate();
+					}
+				}
+				while(right < 0) {
+					if(stack.empty()) {
+						if(force) {
+							engine->transition = "back";
+							return;
+						}
+					} else {
+						current = stack.back();
+						stack.pop_back();
+						++right;
+						playBeep = true;
+					}
+				}
+				render_all();
 			}
-			RenderAll();
-		}
-		if(down != 0) {
-			auto m = GetCurrentMenu();
-			auto previous = current;
-			current += down;
-			if(current < 0) { current += m->size(); } else { current %= m->size(); }
-			Render(previous, true);
-			playBeep = true;
-		}
+			if(down != 0) {
+				auto m = getcurrentmenu();
+				auto previous = current;
+				current += down;
+				if(current < 0) { current += m->size(); } else { current %= m->size(); }
+				render(previous, true);
+				playBeep = true;
+			}
 
-		if(playBeep) {
-			auto assetM = engine->GetSystem<AssetManager>().lock();
-			IDType soundID;
-			soundDtors[soundIndex++] = engine->AddObject(&soundID);
-			soundIndex %= soundDtors.size();
-			engine->AddComponent<AudioSource>(soundID, assetM->Get<AudioAsset>("menu1"), AudioSourceType::Effect);
-		}
-	}
-
-	void Render(size_t i, bool replace = false) {
-		auto m = GetCurrentMenu();
-		auto &item = m->at(i);
-
-		IDType id;
-		if(replace) {
-			itemDtors.at(i) = engine->AddObject(&id);
-		} else {
-			itemDtors.emplace_back(engine->AddObject(&id));
+			if(playBeep) {
+				auto assetM = engine->getsystem<asset>().lock();
+				IDType soundID;
+				soundDtors[soundIndex++] = engine->addobject(&soundID);
+				soundIndex %= soundDtors.size();
+				engine->addcomponent<component::audiosource>(soundID, assetM->get<polar::asset::audio>("menu1"), support::audio::sourcetype::effect);
+			}
 		}
 
-		const Decimal uiHeight = 2.25;
-		const Decimal uiTextHeight = 160;
-		const Decimal uiTextWidth = 550;
+		void render(size_t i, bool replace = false) {
+			auto m = getcurrentmenu();
+			auto &item = m->at(i);
 
-		/* max 6 items on screen at max scale of 0.375
-		* 6 * 0.375 = 2.25 numerator
-		*/
-		Decimal scale = glm::min(Decimal(uiHeight) / Decimal(m->size()), Decimal(uiScale));
-		Decimal spacing = uiTextHeight * scale;
-		Point2 origin = Point2(60, 50 + spacing * (m->size() - i - 1));
+			IDType id;
+			if(replace) {
+				itemDtors.at(i) = engine->addobject(&id);
+			} else {
+				itemDtors.emplace_back(engine->addobject(&id));
+			}
 
-		engine->AddComponent<Text>(id, font, item.value);
-		engine->AddComponent<ScreenPositionComponent>(id, origin);
-		engine->AddComponent<ScaleComponent>(id, Point3(scale));
+			const Decimal uiHeight = 2.25;
+			const Decimal uiTextHeight = 160;
+			const Decimal uiTextWidth = 550;
 
-		auto text = engine->GetComponent<Text>(id);
+			/* max 6 items on screen at max scale of 0.375
+			* 6 * 0.375 = 2.25 numerator
+			*/
+			Decimal scale = glm::min(Decimal(uiHeight) / Decimal(m->size()), Decimal(uiScale));
+			Decimal spacing = uiTextHeight * scale;
+			Point2 origin = Point2(60, 50 + spacing * (m->size() - i - 1));
 
-		if(i == current) {
-			engine->AddComponent<ColorComponent>(id, Point4(1, 1, selectionAlpha, 1));
+			engine->addcomponent<component::text>(id, font, item.value);
+			engine->addcomponent<component::screenposition>(id, origin);
+			engine->addcomponent<component::scale>(id, Point3(scale));
+
+			auto text = engine->getcomponent<component::text>(id);
+
+			if(i == current) {
+				engine->addcomponent<component::color>(id, Point4(1, 1, selectionAlpha, 1));
+			}
+
+			if(item.control) {
+				IDType controlID;
+				auto offset = Point2(uiTextWidth / uiScale * scale, 0);
+				offset.y -= 12 * scale;
+				controlDtors[i] = item.control->render(engine, controlID, origin + offset, 8 * scale);
+			}
+		}
+	protected:
+		void init() override final {
+			auto assetM = engine->getsystem<asset>().lock();
+			auto inputM = engine->getsystem<input>().lock();
+			auto tw = engine->getsystem<tweener<float>>().lock();
+
+			assetM->request<polar::asset::audio>("menu1");
+
+			font = assetM->get<polar::asset::font>("nasalization-rg");
+
+			for(auto k : { key_t::Down, key_t::S }) {
+				dtors.emplace_back(inputM->on(k, [this] (key_t) { navigate(1); }));
+			}
+
+			for(auto k : { key_t::Up, key_t::W }) {
+				dtors.emplace_back(inputM->on(k, [this] (key_t) { navigate(-1); }));
+			}
+
+			for(auto k : { key_t::Left, key_t::A }) {
+				dtors.emplace_back(inputM->on(k, [this] (key_t) { navigate(0, -1); }));
+			}
+
+			for(auto k : { key_t::Right, key_t::D }) {
+				dtors.emplace_back(inputM->on(k, [this] (key_t) { navigate(0, 1); }));
+			}
+
+			for(auto k : { key_t::Space, key_t::Enter, key_t::MouseLeft, key_t::ControllerA }) {
+				dtors.emplace_back(inputM->on(k, [this] (key_t) { activate(); }));
+			}
+
+			for(auto k : { key_t::Escape, key_t::Backspace, key_t::MouseRight, key_t::ControllerBack }) {
+				dtors.emplace_back(inputM->on(k, [this] (key_t) { navigate(0, -1, true); }));
+			}
+
+			dtors.emplace_back(inputM->onmousewheel([this] (const Point2 &delta) { navigate(int(-delta.y), int(delta.x)); }));
+
+			dtors.emplace_back(inputM->ondigital("menu_up",      [this] () { navigate(-1); }));
+			dtors.emplace_back(inputM->ondigital("menu_down",    [this] () { navigate( 1); }));
+			dtors.emplace_back(inputM->ondigital("menu_left",    [this] () { navigate( 0, -1); }));
+			dtors.emplace_back(inputM->ondigital("menu_right",   [this] () { navigate( 0,  1); }));
+			dtors.emplace_back(inputM->ondigital("menu_confirm", [this] () { activate(); }));
+			dtors.emplace_back(inputM->ondigital("menu_back",    [this] () { navigate( 0, -1, true); }));
+
+			dtors.emplace_back(tw->tween(0.0f, 1.0f, 0.25, true, [this] (core::polar *engine, const float &x) {
+				selectionAlpha = x;
+			}));
+
+			render_all();
 		}
 
-		if(item.control) {
-			IDType controlID;
-			auto offset = Point2(uiTextWidth / uiScale * scale, 0);
-			offset.y -= 12 * scale;
-			controlDtors[i] = item.control->Render(engine, controlID, origin + offset, 8 * scale);
+		void update(DeltaTicks &) override final {
+			render(current, true);
 		}
-	}
-protected:
-	void Init() override final {
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		auto inputM = engine->GetSystem<InputManager>().lock();
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
+	public:
+		Decimal uiScale = 0.3125;
 
-		assetM->Request<AudioAsset>("menu1");
+		static bool supported() { return true; }
+		menu(core::polar *engine, Decimal uiScale, menuitem_vector_t _menu) : base(engine), uiScale(uiScale), _menu(_menu) {}
 
-		font = assetM->Get<FontAsset>("nasalization-rg");
+		void render_all() {
+			auto m = getcurrentmenu();
 
-		for(auto k : { Key::Down, Key::S }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(1); }));
+			itemDtors.clear();
+			controlDtors.clear();
+			for(size_t i = 0; i < m->size(); ++i) {
+				render(i);
+			}
 		}
-
-		for(auto k : { Key::Up, Key::W }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(-1); }));
-		}
-
-		for(auto k : { Key::Left, Key::A }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1); }));
-		}
-
-		for(auto k : { Key::Right, Key::D }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, 1); }));
-		}
-
-		for(auto k : { Key::Space, Key::Enter, Key::MouseLeft, Key::ControllerA }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Activate(); }));
-		}
-
-		for(auto k : { Key::Escape, Key::Backspace, Key::MouseRight, Key::ControllerBack }) {
-			dtors.emplace_back(inputM->On(k, [this] (Key) { Navigate(0, -1, true); }));
-		}
-
-		dtors.emplace_back(inputM->OnMouseWheel([this] (const Point2 &delta) { Navigate(int(-delta.y), int(delta.x)); }));
-
-		dtors.emplace_back(inputM->OnDigital("menu_up",      [this] () { Navigate(-1); }));
-		dtors.emplace_back(inputM->OnDigital("menu_down",    [this] () { Navigate( 1); }));
-		dtors.emplace_back(inputM->OnDigital("menu_left",    [this] () { Navigate( 0, -1); }));
-		dtors.emplace_back(inputM->OnDigital("menu_right",   [this] () { Navigate( 0,  1); }));
-		dtors.emplace_back(inputM->OnDigital("menu_confirm", [this] () { Activate(); }));
-		dtors.emplace_back(inputM->OnDigital("menu_back",    [this] () { Navigate( 0, -1, true); }));
-
-		dtors.emplace_back(tweener->Tween(0.0f, 1.0f, 0.25, true, [this] (Polar *engine, const float &x) {
-			selectionAlpha = x;
-		}));
-
-		RenderAll();
-	}
-
-	void Update(DeltaTicks &) override final {
-		Render(current, true);
-	}
-public:
-	Decimal uiScale = 0.3125;
-
-	static bool IsSupported() { return true; }
-	MenuSystem(Polar *engine, Decimal uiScale, Menu menu) : System(engine), uiScale(uiScale), menu(menu) {}
-
-	void RenderAll() {
-		auto m = GetCurrentMenu();
-
-		itemDtors.clear();
-		controlDtors.clear();
-		for(size_t i = 0; i < m->size(); ++i) {
-			Render(i);
-		}
-	}
-};
+	};
+} }

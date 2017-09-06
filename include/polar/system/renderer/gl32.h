@@ -7,381 +7,351 @@
 #include <unordered_map>
 #include <boost/container/flat_set.hpp>
 #include <polar/system/renderer/base.h>
-#include <polar/asset/shader.h>
 #include <polar/asset/font.h>
+#include <polar/asset/shaderprogram.h>
 #include <polar/component/model.h>
 #include <polar/component/text.h>
 #include <polar/component/sprite/base.h>
+#include <polar/property/gl32/model.h>
+#include <polar/property/gl32/sprite.h>
+#include <polar/support/gl32/pipelinenode.h>
+#include <polar/support/gl32/fontcache.h>
+#include <polar/util/sharedptr_less.h>
 #include <polar/util/sdl.h>
 #include <polar/util/gl.h>
 
-struct PipelineNode {
-	GLuint program;
-	GLuint fbo = 0;
-	std::unordered_set<std::string> uniforms;
-	std::unordered_map<std::string, GLuint> outs;
-	std::unordered_map<std::string, std::string> ins;
-	std::unordered_map<std::string, GLuint> globalOuts;
-	std::unordered_map<std::string, std::string> globalIns;
-	PipelineNode(GLuint program) : program(program) {}
-};
+namespace polar { namespace system { namespace renderer {
+	class gl32 : public base {
+		using pipelinenode = support::gl32::pipelinenode;
+		using fontcache_t = support::gl32::fontcache;
+		using model_p = property::gl32::model;
+		using sprite_p = property::gl32::sprite;
+	private:
+		bool inited = false;
+		bool capture = false;
+		bool fullscreen = false;
 
-struct GL32ModelProperty : public Property {
-	GLuint vao;
-	std::vector<GLuint> vbos;
-	GLsizei numVertices = 0;
-	GLsizei capacity = 0;
+		SDL_Window *window;
+		SDL_GLContext context;
+		std::vector<std::string> pipelineNames;
+		std::vector<pipelinenode> nodes;
+		boost::container::flat_multiset<std::shared_ptr<model_p>, sharedptr_less<model_p>> modelPropertyPool;
+		std::unordered_map<std::shared_ptr<polar::asset::font>, fontcache_t> fontCache;
 
-	inline friend bool operator<(const GL32ModelProperty &left, const GL32ModelProperty &right) {
-		return left.capacity < right.capacity;
-	}
-};
+		GLuint viewportVAO;
+		GLuint spriteProgram;
 
-struct GL32SpriteProperty : public Property {
-	GLuint texture;
-};
+		std::shared_ptr<core::destructor> fpsDtor;
+		IDType fpsID = 0;
 
-struct GL32FontCacheEntry {
-	bool active = false;
-	GLuint texture;
-};
+		std::unordered_map<std::string, glm::uint32> uniformsU32;
+		std::unordered_map<std::string, Decimal> uniformsFloat;
+		std::unordered_map<std::string, Point3> uniformsPoint3;
 
-struct GL32FontCache {
-	std::array<GL32FontCacheEntry, 128> entries;
-};
+		std::vector<std::string> changedUniformsU32;
+		std::vector<std::string> changedUniformsFloat;
+		std::vector<std::string> changedUniformsPoint3;
 
-template<typename T> struct SharedPtrLess : public std::binary_function<std::shared_ptr<T>, std::shared_ptr<T>, bool> {
-	inline bool operator()(const std::shared_ptr<T> &left, const std::shared_ptr<T> &right) const {
-		return *left < *right;
-	}
-};
+		void init() override final;
+		void update(DeltaTicks &) override final;
+		void rendersprite(IDType);
+		void rendertext(IDType);
 
-class GL32Renderer : public Renderer {
-private:
-	bool inited = false;
-	bool capture = false;
-	bool fullscreen = false;
+		inline std::shared_ptr<model_p> getpooledmodelproperty(const GLsizei required) {
+			if(modelPropertyPool.empty()) {
+				model_p prop;
 
-	SDL_Window *window;
-	SDL_GLContext context;
-	std::vector<std::string> pipelineNames;
-	std::vector<PipelineNode> nodes;
-	boost::container::flat_multiset<std::shared_ptr<GL32ModelProperty>, SharedPtrLess<GL32ModelProperty>> modelPropertyPool;
-	std::unordered_map<std::shared_ptr<FontAsset>, GL32FontCache> fontCache;
+				GL(glGenVertexArrays(1, &prop.vao));
+				GL(glBindVertexArray(prop.vao));
 
-	GLuint viewportVAO;
-	GLuint spriteProgram;
+				/* location   attribute
+				 *
+				 *        0   vertex
+				 *        1   normal
+				 */
 
-	std::shared_ptr<Destructor> fpsDtor;
-	IDType fpsID = 0;
+				prop.vbos.resize(2);
+				GL(glGenBuffers(2, &prop.vbos[0]));
 
-	std::unordered_map<std::string, glm::uint32> uniformsU32;
-	std::unordered_map<std::string, Decimal> uniformsFloat;
-	std::unordered_map<std::string, Point3> uniformsPoint3;
+				GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
+				GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
-	std::vector<std::string> changedUniformsU32;
-	std::vector<std::string> changedUniformsFloat;
-	std::vector<std::string> changedUniformsPoint3;
+				GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[1]));
+				GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
-	void Init() override final;
-	void Update(DeltaTicks &) override final;
-	void RenderSprite(IDType);
-	void RenderText(IDType);
+				GL(glEnableVertexAttribArray(0));
+				GL(glEnableVertexAttribArray(1));
 
-	inline std::shared_ptr<GL32ModelProperty> GetPooledModelProperty(const GLsizei required) {
-		if(modelPropertyPool.empty()) {
-			GL32ModelProperty prop;
-
-			GL(glGenVertexArrays(1, &prop.vao));
-			GL(glBindVertexArray(prop.vao));
-
-			/* location   attribute
-			 *
-			 *        0   vertex
-			 *        1   normal
-			 */
-
-			prop.vbos.resize(2);
-			GL(glGenBuffers(2, &prop.vbos[0]));
-
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
-			GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
-
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[1]));
-			GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
-
-			GL(glEnableVertexAttribArray(0));
-			GL(glEnableVertexAttribArray(1));
-
-			return std::make_shared<GL32ModelProperty>(prop);
-		} else {
-			auto dummy = std::make_shared<GL32ModelProperty>();
-			dummy->capacity = required;
-
-			auto it = modelPropertyPool.lower_bound(dummy);
-			if(it == modelPropertyPool.cend()) { it = modelPropertyPool.begin(); }
-
-			auto prop = *it;
-			modelPropertyPool.erase(it);
-			return prop;
-		}
-	}
-
-	inline void UploadModel(std::shared_ptr<ModelComponent> model) {
-		auto normals = model->CalculateNormals();
-		auto numVertices = normals.size();
-		auto dataSize = sizeof(ModelComponent::PointType) * numVertices;
-		auto prop = GetPooledModelProperty(numVertices);
-
-		if(numVertices > 0) {
-			if(GLsizei(numVertices) > prop->capacity) {
-				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
-				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, model->points.data(), GL_DYNAMIC_DRAW));
-
-				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
-				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(), GL_DYNAMIC_DRAW));
-
-				prop->capacity = numVertices;
+				return std::make_shared<model_p>(prop);
 			} else {
-				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
-				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, model->points.data()));
+				auto dummy = std::make_shared<model_p>();
+				dummy->capacity = required;
 
-				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
-				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, normals.data()));
+				auto it = modelPropertyPool.lower_bound(dummy);
+				if(it == modelPropertyPool.cend()) { it = modelPropertyPool.begin(); }
+
+				auto prop = *it;
+				modelPropertyPool.erase(it);
+				return prop;
 			}
 		}
 
-		prop->numVertices = numVertices;
+		inline void uploadmodel(std::shared_ptr<component::model> model) {
+			auto normals = model->calculate_normals();
+			auto numVertices = normals.size();
+			auto dataSize = sizeof(component::model::PointType) * numVertices;
+			auto prop = getpooledmodelproperty(numVertices);
 
-		model->Add<GL32ModelProperty>(prop);
-		//model->points.clear();
-		//model->points.shrink_to_fit();
-	}
+			if(numVertices > 0) {
+				if(GLsizei(numVertices) > prop->capacity) {
+					GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
+					GL(glBufferData(GL_ARRAY_BUFFER, dataSize, model->points.data(), GL_DYNAMIC_DRAW));
 
-	inline void ComponentAdded(IDType id, const std::type_info *ti, std::weak_ptr<Component> ptr) override final {
-		if(ti == &typeid(ModelComponent)) {
-			auto model = std::static_pointer_cast<ModelComponent>(ptr.lock());
-			UploadModel(model);
-		} else if(ti == &typeid(Sprite)) {
-			auto sprite = std::static_pointer_cast<Sprite>(ptr.lock());
-			sprite->Render();
-			GL32SpriteProperty prop;
+					GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
+					GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(), GL_DYNAMIC_DRAW));
 
-			GL(glGenTextures(1, &prop.texture));
-			GL(glBindTexture(GL_TEXTURE_2D, prop.texture));
+					prop->capacity = numVertices;
+				} else {
+					GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
+					GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, model->points.data()));
 
-			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w, sprite->surface->h, 0, format, GL_UNSIGNED_BYTE, sprite->surface->pixels));
-			GL(glGenerateMipmap(GL_TEXTURE_2D));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+					GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
+					GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, normals.data()));
+				}
+			}
 
-			sprite->Add<GL32SpriteProperty>(prop);
-		} else if(ti == &typeid(Text)) {
-			auto text = std::static_pointer_cast<Text>(ptr.lock());
-			auto &cache = fontCache.emplace(text->asset, GL32FontCache()).first->second;
+			prop->numVertices = numVertices;
 
-			for(auto c : text->str) {
-				auto &entry = cache.entries[c];
+			model->add<model_p>(prop);
+			//model->points.clear();
+			//model->points.shrink_to_fit();
+		}
 
-				if(!entry.active) {
-					auto &glyph = text->asset->glyphs[c];
+		inline void componentadded(IDType id, const std::type_info *ti, std::weak_ptr<component::base> ptr) override final {
+			if(ti == &typeid(component::model)) {
+				auto model = std::static_pointer_cast<component::model>(ptr.lock());
+				uploadmodel(model);
+			} else if(ti == &typeid(component::sprite::base)) {
+				auto sprite = std::static_pointer_cast<component::sprite::base>(ptr.lock());
+				sprite->render();
+				sprite_p prop;
 
-					GL(glGenTextures(1, &entry.texture));
-					GL(glBindTexture(GL_TEXTURE_2D, entry.texture));
+				GL(glGenTextures(1, &prop.texture));
+				GL(glBindTexture(GL_TEXTURE_2D, prop.texture));
 
-					GLint format = GL_RGBA;
-					GL(glTexImage2D(GL_TEXTURE_2D, 0, format, glyph.surface->w, glyph.surface->h, 0, format, GL_UNSIGNED_BYTE, glyph.surface->pixels));
-					GL(glGenerateMipmap(GL_TEXTURE_2D));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+				GLint format = GL_RGBA;
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w, sprite->surface->h, 0, format, GL_UNSIGNED_BYTE, sprite->surface->pixels));
+				GL(glGenerateMipmap(GL_TEXTURE_2D));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
-					entry.active = true;
+				sprite->add<sprite_p>(prop);
+			} else if(ti == &typeid(component::text)) {
+				auto text = std::static_pointer_cast<component::text>(ptr.lock());
+				auto &cache = fontCache.emplace(text->as, fontcache_t()).first->second;
+
+				for(auto c : text->str) {
+					auto &entry = cache.entries[c];
+
+					if(!entry.active) {
+						auto &glyph = text->as->glyphs[c];
+
+						GL(glGenTextures(1, &entry.texture));
+						GL(glBindTexture(GL_TEXTURE_2D, entry.texture));
+
+						GLint format = GL_RGBA;
+						GL(glTexImage2D(GL_TEXTURE_2D, 0, format, glyph.surface->w, glyph.surface->h, 0, format, GL_UNSIGNED_BYTE, glyph.surface->pixels));
+						GL(glGenerateMipmap(GL_TEXTURE_2D));
+						GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+						GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+						GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+						GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+
+						entry.active = true;
+					}
 				}
 			}
 		}
-	}
 
-	inline void ComponentRemoved(IDType id, const std::type_info *ti) override final {
-		if(ti == &typeid(ModelComponent)) {
-			auto model = engine->GetComponent<ModelComponent>(id);
-			if(model != nullptr) {
-				auto prop = model->Get<GL32ModelProperty>().lock();
-				if(prop) {
-					modelPropertyPool.emplace(prop);
+		inline void componentremoved(IDType id, const std::type_info *ti) override final {
+			if(ti == &typeid(component::model)) {
+				auto model = engine->getcomponent<component::model>(id);
+				if(model != nullptr) {
+					auto prop = model->get<model_p>().lock();
+					if(prop) {
+						modelPropertyPool.emplace(prop);
+					}
+				}
+			} else if(ti == &typeid(component::sprite::base)) {
+				auto text = engine->getcomponent<component::sprite::base>(id);
+				if(text != nullptr) {
+					auto prop = text->get<sprite_p>().lock();
+					if(prop) {
+						GL(glDeleteTextures(1, &prop->texture));
+					}
 				}
 			}
-		} else if(ti == &typeid(Sprite)) {
-			auto text = engine->GetComponent<Sprite>(id);
-			if(text != nullptr) {
-				auto prop = text->Get<GL32SpriteProperty>().lock();
-				if(prop) {
-					GL(glDeleteTextures(1, &prop->texture));
-				}
+		}
+
+		inline Mat4 CalculateProjection() {
+			auto heightF = static_cast<Decimal>(height);
+			auto fovy = 2.0f * glm::atan(heightF, Decimal(2) * pixelDistanceFromScreen) + fovPlus;
+			auto projection = glm::perspective(fovy, static_cast<Decimal>(width) / heightF, zNear, zFar);
+			//auto projection = glm::infinitePerspective(fovy, static_cast<Decimal>(width) / heightF, zNear);
+			return projection;
+		}
+
+		inline void project(GLuint programID) {
+			GL(glUseProgram(programID));
+			uploaduniform(programID, "u_projection", CalculateProjection());
+		}
+
+		void initGL();
+		void handleSDL(SDL_Event &);
+		void makepipeline(const std::vector<std::string> &) override final;
+		GLuint makeprogram(std::shared_ptr<polar::asset::shaderprogram>);
+	public:
+		Decimal fps = 60.0;
+
+		static bool supported();
+		gl32(core::polar *engine, const std::vector<std::string> &names) : base(engine), pipelineNames(names) {}
+		~gl32();
+
+		void setmousecapture(bool capture) override final {
+			this->capture = capture;
+			if(inited) {
+				if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) { debugmanager()->fatal("failed to set relative mouse mode"); }
 			}
 		}
-	}
 
-	inline Mat4 CalculateProjection() {
-		auto heightF = static_cast<Decimal>(height);
-		auto fovy = 2.0f * glm::atan(heightF, Decimal(2) * pixelDistanceFromScreen) + fovPlus;
-		auto projection = glm::perspective(fovy, static_cast<Decimal>(width) / heightF, zNear, zFar);
-		//auto projection = glm::infinitePerspective(fovy, static_cast<Decimal>(width) / heightF, zNear);
-		return projection;
-	}
-
-	inline void Project(GLuint programID) {
-		GL(glUseProgram(programID));
-		UploadUniform(programID, "u_projection", CalculateProjection());
-	}
-
-	void InitGL();
-	void HandleSDL(SDL_Event &);
-	void MakePipeline(const std::vector<std::string> &) override final;
-	GLuint MakeProgram(std::shared_ptr<ShaderProgramAsset>);
-public:
-	Decimal fps = 60.0;
-
-	static bool IsSupported();
-	GL32Renderer(Polar *engine, const std::vector<std::string> &names) : Renderer(engine), pipelineNames(names) {}
-	~GL32Renderer();
-
-	void SetMouseCapture(bool capture) {
-		this->capture = capture;
-		if(inited) {
-			if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) { DebugManager()->Fatal("failed to set relative mouse mode"); }
+		void setfullscreen(bool fullscreen) override final {
+			this->fullscreen = fullscreen;
+			if(inited) {
+				if(!SDL(SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) { debugmanager()->critical("failed to set fullscreen mode"); }
+			}
 		}
-	}
 
-	void SetFullscreen(bool fullscreen) {
-		this->fullscreen = fullscreen;
-		if(inited) {
-			if(!SDL(SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) { DebugManager()->Critical("failed to set fullscreen mode"); }
+		void setpipeline(const std::vector<std::string> &names) override final {
+			pipelineNames = names;
+			if(inited) {
+				debugmanager()->trace("MakePipeline from SetPipeline");
+				makepipeline(names);
+				debugmanager()->trace("MakePipeline done");
+			}
 		}
-	}
 
-	void SetPipeline(const std::vector<std::string> &names) override final {
-		pipelineNames = names;
-		if(inited) {
-			DebugManager()->Trace("MakePipeline from SetPipeline");
-			MakePipeline(names);
-			DebugManager()->Trace("MakePipeline done");
+		inline void setclearcolor(const Point4 &color) override final {
+			auto color2 = glm::vec4(color);
+			GL(glClearColor(color.r, color.g, color.b, color.a));
 		}
-	}
 
-	inline void SetClearColor(const Point4 &color) override final {
-		auto color2 = glm::vec4(color);
-		GL(glClearColor(color.r, color.g, color.b, color.a));
-	}
-
-	Decimal GetUniformDecimal(const std::string &name, const Decimal def) override final {
-		auto it = uniformsFloat.find(name);
-		if(it != uniformsFloat.end()) {
-			return it->second;
-		} else {
-			SetUniform(name, def);
-			return def;
+		Decimal getuniform_decimal(const std::string &name, const Decimal def) override final {
+			auto it = uniformsFloat.find(name);
+			if(it != uniformsFloat.end()) {
+				return it->second;
+			} else {
+				setuniform(name, def);
+				return def;
+			}
 		}
-	}
 
-	Point3 GetUniformPoint3(const std::string &name, const Point3 def) override final {
-		auto it = uniformsPoint3.find(name);
-		if(it != uniformsPoint3.end()) {
-			return it->second;
-		} else {
-			SetUniform(name, def);
-			return def;
+		Point3 getuniform_point3(const std::string &name, const Point3 def) override final {
+			auto it = uniformsPoint3.find(name);
+			if(it != uniformsPoint3.end()) {
+				return it->second;
+			} else {
+				setuniform(name, def);
+				return def;
+			}
 		}
-	}
 
-	void SetUniform(const std::string &name, glm::uint32 x, bool force = false) override final {
-		auto it = uniformsU32.find(name);
-		if(!force && it != uniformsU32.cend() && it->second == x) { return; }
+		void setuniform(const std::string &name, glm::uint32 x, bool force = false) override final {
+			auto it = uniformsU32.find(name);
+			if(!force && it != uniformsU32.cend() && it->second == x) { return; }
 
-		uniformsU32[name] = x;
-		changedUniformsU32.emplace_back(name);
-	}
+			uniformsU32[name] = x;
+			changedUniformsU32.emplace_back(name);
+		}
 
-	void SetUniform(const std::string &name, Decimal x, bool force = false) override final {
-		auto it = uniformsFloat.find(name);
-		if(!force && it != uniformsFloat.cend() && it->second == x) { return; }
+		void setuniform(const std::string &name, Decimal x, bool force = false) override final {
+			auto it = uniformsFloat.find(name);
+			if(!force && it != uniformsFloat.cend() && it->second == x) { return; }
 
-		uniformsFloat[name] = x;
-		changedUniformsFloat.emplace_back(name);
-	}
+			uniformsFloat[name] = x;
+			changedUniformsFloat.emplace_back(name);
+		}
 
-	void SetUniform(const std::string &name, Point3 p, bool force = false) override final {
-		auto it = uniformsPoint3.find(name);
-		if(!force && it != uniformsPoint3.cend() && it->second == p) { return; }
+		void setuniform(const std::string &name, Point3 p, bool force = false) override final {
+			auto it = uniformsPoint3.find(name);
+			if(!force && it != uniformsPoint3.cend() && it->second == p) { return; }
 
-		uniformsPoint3[name] = p;
-		changedUniformsPoint3.emplace_back(name);
-	}
+			uniformsPoint3[name] = p;
+			changedUniformsPoint3.emplace_back(name);
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, glm::int32 x) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		GL(glUniform1i(loc, x));
-		return true;
-	}
+		bool uploaduniform(GLuint program, const std::string &name, glm::int32 x) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			GL(glUniform1i(loc, x));
+			return true;
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, glm::uint32 x) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		GL(glUniform1ui(loc, x));
-		DebugManager()->Trace("uniform ", name, " = ", x);
-		return true;
-	}
+		bool uploaduniform(GLuint program, const std::string &name, glm::uint32 x) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			GL(glUniform1ui(loc, x));
+			debugmanager()->trace("uniform ", name, " = ", x);
+			return true;
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, Decimal x) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		auto x2 = float(x);
-		GL(glUniform1f(loc, x2));
-		DebugManager()->Trace("uniform ", name, " = ", x);
-		return true;
-	}
+		bool uploaduniform(GLuint program, const std::string &name, Decimal x) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			auto x2 = float(x);
+			GL(glUniform1f(loc, x2));
+			debugmanager()->trace("uniform ", name, " = ", x);
+			return true;
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, Point2 p) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		auto p2 = glm::vec2(p);
-		GL(glUniform2f(loc, p2.x, p2.y));
-		return true;
-	}
+		bool uploaduniform(GLuint program, const std::string &name, Point2 p) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			auto p2 = glm::vec2(p);
+			GL(glUniform2f(loc, p2.x, p2.y));
+			return true;
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, Point3 p) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		auto p2 = glm::vec3(p);
-		GL(glUniform3f(loc, p2.x, p2.y, p2.z));
-		return true;
-	}
+		bool uploaduniform(GLuint program, const std::string &name, Point3 p) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			auto p2 = glm::vec3(p);
+			GL(glUniform3f(loc, p2.x, p2.y, p2.z));
+			return true;
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, Point4 p) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		auto p2 = glm::vec4(p);
-		GL(glUniform4f(loc, p2.x, p2.y, p2.z, p2.w));
-		return true;
-	}
+		bool uploaduniform(GLuint program, const std::string &name, Point4 p) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			auto p2 = glm::vec4(p);
+			GL(glUniform4f(loc, p2.x, p2.y, p2.z, p2.w));
+			return true;
+		}
 
-	bool UploadUniform(GLuint program, const std::string &name, Mat4 m) {
-		GLint loc;
-		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) { return false; } // -1 if uniform does not exist in program
-		auto m2 = glm::mat4(m);
-		GL(glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m2)));
-		return true;
-	}
-};
+		bool uploaduniform(GLuint program, const std::string &name, Mat4 m) {
+			GLint loc;
+			GL(loc = glGetUniformLocation(program, name.c_str()));
+			if(loc == -1) { return false; } // -1 if uniform does not exist in program
+			auto m2 = glm::mat4(m);
+			GL(glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m2)));
+			return true;
+		}
+	};
+} } }

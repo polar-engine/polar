@@ -19,7 +19,7 @@ set(POLAR_SOURCES
 	src/polar/system/work.cpp
 	src/polar/support/work/worker.cpp
 	src/glew.c
-	src/Freefall.cpp
+	src/freefall.cpp
 	src/main-freefall.cpp
 )
 

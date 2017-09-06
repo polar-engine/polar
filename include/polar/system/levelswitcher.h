@@ -2,91 +2,96 @@
 
 #include <vector>
 #include <polar/system/base.h>
+#include <polar/system/tweener.h>
 #include <polar/asset/level.h>
 #include <polar/component/scale.h>
 #include <polar/component/color.h>
 #include <polar/component/screenposition.h>
 
-class LevelSwitcher : public System {
-private:
-	std::vector<std::string> levelNames;
-	int levelIndex = 0;
-	IDType qID = INVALID_ID();
-	IDType eID = INVALID_ID();
-	bool enabled = true;
+namespace polar { namespace system {
+	class levelswitcher : public base {
+		using level_t = polar::asset::level;
+		using key_t = support::input::key;
+	private:
+		std::vector<std::string> levelNames;
+		int levelIndex = 0;
+		IDType qID = INVALID_ID();
+		IDType eID = INVALID_ID();
+		bool enabled = true;
 
-	int GetIndex(int delta) {
-		int i = levelIndex + delta;
-		while(i < 0) { i += levelNames.size(); }
-		return i % levelNames.size();
-	}
-
-	void UpdateQE() {
-		auto qIndex = GetIndex(-1);
-		auto eIndex = GetIndex( 1);
-
-		engine->GetComponent<ColorComponent>(qID)->color = Point4(GetLevel(qIndex)->keyframes.begin()->colors[0], 1);
-		engine->GetComponent<ColorComponent>(eID)->color = Point4(GetLevel(eIndex)->keyframes.begin()->colors[0], 1);
-	}
-
-	void UpdateIndex(int delta) {
-		if(enabled) {
-			levelIndex = GetIndex(delta);
-			engine->GetSystem<World>().lock()->SetLevel(GetLevel());
-			UpdateQE();
+		int getindex(int delta) {
+			int i = levelIndex + delta;
+			while(i < 0) { i += levelNames.size(); }
+			return i % levelNames.size();
 		}
-	}
-protected:
-	void Init() override final {
-		auto assetM = engine->GetSystem<AssetManager>().lock();
 
-		levelNames = assetM->List<Level>();
-		levelIndex = 0;
+		void updateQE() {
+			auto qIndex = getindex(-1);
+			auto eIndex = getindex( 1);
 
-		dtors.emplace_back(engine->AddObject(&qID));
-		dtors.emplace_back(engine->AddObject(&eID));
+			engine->getcomponent<component::color>(qID)->col = Point4(getlevel(qIndex)->keyframes.begin()->colors[0], 1);
+			engine->getcomponent<component::color>(eID)->col = Point4(getlevel(eIndex)->keyframes.begin()->colors[0], 1);
+		}
 
-		auto font = assetM->Get<FontAsset>("nasalization-rg");
+		void updateindex(int delta) {
+			if(enabled) {
+				levelIndex = getindex(delta);
+				engine->getsystem<world>().lock()->set_level(getlevel());
+				updateQE();
+			}
+		}
+	protected:
+		void init() override final {
+			auto assetM = engine->getsystem<asset>().lock();
 
-		engine->AddComponent<Text>(qID, font, "Q");
-		engine->AddComponent<Text>(eID, font, "E");
+			levelNames = assetM->list<level_t>();
+			levelIndex = 0;
 
-		engine->AddComponent<ScreenPositionComponent>(qID, Point2(20), Origin::TopLeft);
-		engine->AddComponent<ScreenPositionComponent>(eID, Point2(20), Origin::TopRight);
+			dtors.emplace_back(engine->addobject(&qID));
+			dtors.emplace_back(engine->addobject(&eID));
 
-		engine->AddComponent<ColorComponent>(qID, Point4(0.8902, 0.9647, 0.9922, 0));
-		engine->AddComponent<ColorComponent>(eID, Point4(0.8902, 0.9647, 0.9922, 0));
+			auto font = assetM->get<polar::asset::font>("nasalization-rg");
 
-		engine->AddComponent<ScaleComponent>(qID, Point3(0.5));
-		engine->AddComponent<ScaleComponent>(eID, Point3(0.5));
+			engine->addcomponent<component::text>(qID, font, "Q");
+			engine->addcomponent<component::text>(eID, font, "E");
 
-		auto inputM = engine->GetSystem<InputManager>().lock();
-		dtors.emplace_back(inputM->On(Key::Q, [this] (Key) { UpdateIndex(-1); }));
-		dtors.emplace_back(inputM->On(Key::E, [this] (Key) { UpdateIndex( 1); }));
-		dtors.emplace_back(inputM->OnDigital("menu_previous", [this] () { UpdateIndex(-1); }));
-		dtors.emplace_back(inputM->OnDigital("menu_next",     [this] () { UpdateIndex( 1); }));
+			engine->addcomponent<component::screenposition>(qID, Point2(20), support::ui::origin::topleft);
+			engine->addcomponent<component::screenposition>(eID, Point2(20), support::ui::origin::topright);
 
-		auto tweener = engine->GetSystem<Tweener<float>>().lock();
-		dtors.emplace_back(tweener->Tween(0, 1, 0.5, true, [this] (Polar *engine, const float &x) {
-			auto alpha = enabled ? glm::pow(Decimal(x), Decimal(0.75)) : 0;
-			engine->GetComponent<ColorComponent>(qID)->color->a = alpha;
-			engine->GetComponent<ColorComponent>(eID)->color->a = alpha;
-		}));
+			engine->addcomponent<component::color>(qID, Point4(0.8902, 0.9647, 0.9922, 0));
+			engine->addcomponent<component::color>(eID, Point4(0.8902, 0.9647, 0.9922, 0));
 
-		UpdateQE();
-	}
-public:
-	static bool IsSupported() { return true; }
-	LevelSwitcher(Polar *engine) : System(engine) {}
+			engine->addcomponent<component::scale>(qID, Point3(0.5));
+			engine->addcomponent<component::scale>(eID, Point3(0.5));
 
-	void SetEnabled(bool e) {
-		enabled = e;
-	}
+			auto inputM = engine->getsystem<input>().lock();
+			dtors.emplace_back(inputM->on(key_t::Q, [this] (key_t) { updateindex(-1); }));
+			dtors.emplace_back(inputM->on(key_t::E, [this] (key_t) { updateindex( 1); }));
+			dtors.emplace_back(inputM->ondigital("menu_previous", [this] () { updateindex(-1); }));
+			dtors.emplace_back(inputM->ondigital("menu_next",     [this] () { updateindex( 1); }));
 
-	std::shared_ptr<Level> GetLevel() { return GetLevel(levelIndex); }
+			auto tw = engine->getsystem<tweener<float>>().lock();
+			dtors.emplace_back(tw->tween(0, 1, 0.5, true, [this] (core::polar *engine, const float &x) {
+				auto alpha = enabled ? glm::pow(Decimal(x), Decimal(0.75)) : 0;
+				engine->getcomponent<component::color>(qID)->col->a = alpha;
+				engine->getcomponent<component::color>(eID)->col->a = alpha;
+			}));
 
-	std::shared_ptr<Level> GetLevel(int i) {
-		auto assetM = engine->GetSystem<AssetManager>().lock();
-		return assetM->Get<Level>(levelNames[i]);
-	}
-};
+			updateQE();
+		}
+	public:
+		static bool supported() { return true; }
+		levelswitcher(core::polar *engine) : base(engine) {}
+
+		void setenabled(bool e) {
+			enabled = e;
+		}
+
+		std::shared_ptr<level_t> getlevel() { return getlevel(levelIndex); }
+
+		std::shared_ptr<level_t> getlevel(int i) {
+			auto assetM = engine->getsystem<asset>().lock();
+			return assetM->get<level_t>(levelNames[i]);
+		}
+	};
+} }

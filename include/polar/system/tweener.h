@@ -50,7 +50,7 @@ namespace polar { namespace system {
 		}
 	public:
 		static bool supported() { return true; }
-		tweener(core::polar *engine) : System(engine) {}
+		tweener(core::polar *engine) : base(engine) {}
 
 		inline std::shared_ptr<core::destructor> tween(T from, T to, double in, bool loop, tween_handler fn, double pause = 0.0) {
 			return tween(from, to, in, loop, fn, pause, from);
