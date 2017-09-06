@@ -25,7 +25,7 @@ namespace polar { namespace system {
 	public:
 		typedef std::uint_fast32_t IDType;
 		template<typename _Handler> using KeyHandlerBimap = boost::bimap<
-			boost::bimaps::multiset_of<Key>,
+			boost::bimaps::multiset_of<key_t>,
 			boost::bimaps::unordered_set_of<IDType>,
 			boost::bimaps::set_of_relation<>,
 			boost::bimaps::with_info<_Handler>
@@ -90,7 +90,7 @@ namespace polar { namespace system {
 			});
 		}
 
-		inline std::shared_ptr<core::destructor> when(Key key, const WhenKeyHandler &handler) {
+		inline std::shared_ptr<core::destructor> when(key_t key, const WhenKeyHandler &handler) {
 			auto id = nextID++;
 			whenKeyHandlers.insert(KeyHandlerBimap<WhenKeyHandler>::value_type(key, id, handler));
 			return std::make_shared<core::destructor>([this, id] () {
@@ -137,7 +137,7 @@ namespace polar { namespace system {
 			});
 		}
 
-		inline std::shared_ptr<core::destructor> OnAnalog(std::string name, const OnAnalogHandler &handler) {
+		inline std::shared_ptr<core::destructor> onanalog(std::string name, const OnAnalogHandler &handler) {
 			auto id = nextID++;
 			ControllerAnalogActionHandle_t analog = SteamController()->GetAnalogActionHandle(name.data());
 			trackedAnalogs.emplace(analog);

@@ -37,7 +37,7 @@ public:
 #include <condition_variable>
 #include <polar/core/debugmanager.h>
 
-template<typename T> class Atomic {
+template<typename T> class atomic {
 public:
 	typedef std::recursive_mutex mutex_type;
 private:
@@ -45,14 +45,14 @@ private:
 	mutex_type mutex;
 	std::condition_variable cv;
 public:
-	template<typename ...Ts> Atomic(Ts && ...args) : value(std::forward<Ts>(args)...) {}
+	template<typename ...Ts> atomic(Ts && ...args) : value(std::forward<Ts>(args)...) {}
 
-	inline void Notify() {
+	inline void notify() {
 		cv.notify_one();
 	}
 
-	inline void Wait(const std::function<bool(T &)> &pred, const std::function<void(T &)> &fn) {
-		DebugManager()->Fatal("Atomic::Wait: not implemented");
+	inline void wait(const std::function<bool(T &)> &pred, const std::function<void(T &)> &fn) {
+		polar::debugmanager()->fatal("atomic::wait: not implemented");
 		/*std::unique_lock<std::mutex> lock(mutex);
 		while(!pred(value)) {
 			cv.wait(lock);
@@ -60,12 +60,12 @@ public:
 		fn(value);*/
 	}
 
-	inline void With(const std::function<void(T &)> &fn) {
+	inline void with(const std::function<void(T &)> &fn) {
 		std::lock_guard<mutex_type> lock(mutex);
 		fn(value);
 	}
 
-	template<typename _Ret> inline _Ret With(const std::function<_Ret(T &)> &fn) {
+	template<typename _Ret> inline _Ret with(const std::function<_Ret(T &)> &fn) {
 		std::lock_guard<mutex_type> lock(mutex);
 		return fn(value);
 	}

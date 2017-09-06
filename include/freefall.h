@@ -2,7 +2,7 @@
 
 #include <polar/core/polar.h>
 
-class Freefall {
+class freefall {
 public:
-	Freefall(polar::core::polar &);
+	freefall(polar::core::polar &);
 };

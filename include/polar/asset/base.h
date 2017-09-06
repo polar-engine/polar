@@ -15,5 +15,8 @@ namespace polar { namespace asset {
 		virtual ~base() {}
 	};
 
-	template<typename T> inline std::string name() = delete;
+	template<typename T> inline std::string name() {
+		static_assert(true, "invalid template argument to polar::asset::name()");
+		return "";
+	}
 } }

@@ -207,15 +207,15 @@ namespace polar { namespace core {
 		template<typename T> inline void insertcomponent(IDType id, std::shared_ptr<T> component) {
 			auto ti = &typeid(T);
 			debugmanager()->trace("inserting component: ", ti->name());
-			objects.insert(Bimap::value_type(id, ti, component));
+			objects.insert(bimap::value_type(id, ti, component));
 			for(auto &state : stack) {
 				state.componentadded(id, ti, component);
 			}
-			DebugManager()->Trace("inserted component");
+			debugmanager()->trace("inserted component");
 		}
 
 		template<typename T> inline T * getcomponent(IDType id) {
-			auto it = objects.find(Bimap::relation(id, &typeid(T)));
+			auto it = objects.find(bimap::relation(id, &typeid(T)));
 			if(it != objects.end()) {
 				return static_cast<T *>(it->info.get());
 			} else { return nullptr; }

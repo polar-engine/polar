@@ -3,15 +3,15 @@
 #include <polar/component/base.h>
 #include <polar/property/integrable.h>
 
-class PositionComponent : public Component {
-public:
-	Integrable<Point3> position;
-	PositionComponent() : PositionComponent(Point3(0, 0, 0)) {}
-	PositionComponent(const Point3 position) : position(position) {
-		Add<IntegrableProperty>();
-		auto component = Get<IntegrableProperty>().lock();
-		if(component) {
-			component->AddIntegrable(&this->position);
+namespace polar { namespace component {
+	class position : public base {
+		template<typename T> using integrable = support::integrator::integrable<T>;
+	public:
+		integrable<Point3> pos;
+		position() : pos(Point3(0, 0, 0)) {}
+		position(const Point3 pos) : pos(pos) {
+			add<property::integrable>();
+			get<property::integrable>().lock()->add(&this->pos);
 		}
-	}
-};
+	};
+} }

@@ -2,15 +2,15 @@
 #include <polar/fs/local.h>
 #include <polar/util/sdl.h>
 
-std::shared_ptr<DebugManagerClass> DebugManagerClass::instance;
+namespace polar { namespace core {
+	std::shared_ptr<debugmanager_class> debugmanager_class::instance;
 
-void DebugManagerClass::MsgBox(std::string title, std::string msg) {
-#if defined(_WIN32)
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.data(), msg.data(), NULL);
-#endif
-}
-
-
-DebugManagerClass::DebugManagerClass(DebugPriority priority) :
-	priority(priority),
-	file(FileSystem::AppDir() + "/log.txt", std::ios::out | std::ios::binary | std::ios::trunc) {}
+	void debugmanager_class::msgbox(std::string title, std::string msg) {
+	#if defined(_WIN32)
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.data(), msg.data(), NULL);
+	#endif
+	}
+	debugmanager_class::debugmanager_class(priority_t priority) :
+		priority(priority),
+		file(fs::local::appdir() + "/log.txt", std::ios::out | std::ios::binary | std::ios::trunc) {}
+} }

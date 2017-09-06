@@ -2,10 +2,12 @@
 
 #include <polar/component/base.h>
 
-class OrientationComponent : public Component {
-public:
-	Quat orientation;
-	OrientationComponent() {}
-	OrientationComponent(const Point3 &euler) : orientation(euler) {}
-	OrientationComponent(const Point3 &&euler) : orientation(euler) {}
-};
+namespace polar { namespace component {
+	class orientation : public base {
+	public:
+		Quat orient;
+		orientation() {}
+		orientation(const Point3 &euler) : orient(euler) {}
+		orientation(const Point3 &&euler) : orient(euler) {}
+	};
+} }

@@ -5,18 +5,20 @@
 #include <polar/system/base.h>
 #include <polar/support/integrator/integrable.h>
 
-class Integrator : public System {
-private:
-	DeltaTicks accumulator;
-	void Tick(DeltaTicks::seconds_type);
-protected:
-	void Update(DeltaTicks &) override final;
-public:
-	const int fps = 50;
-	const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
-	std::atomic_uint_fast32_t alphaMicroseconds = {0};
+namespace polar { namespace system {
+	class integrator : public base {
+	private:
+		DeltaTicks accumulator;
+		void tick(DeltaTicks::seconds_type);
+	protected:
+		void update(DeltaTicks &) override final;
+	public:
+		const int fps = 50;
+		const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
+		std::atomic_uint_fast32_t alphaMicroseconds = {0};
 
-	static bool IsSupported() { return true; }
-	Integrator(Polar *engine) : System(engine) {}
-	const inline DeltaTicks & Accumulator() const { return accumulator; }
-};
+		static bool supported() { return true; }
+		integrator(core::polar *engine) : base(engine) {}
+		const inline DeltaTicks & getaccumulator() const { return accumulator; }
+	};
+} }

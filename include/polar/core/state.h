@@ -61,23 +61,23 @@ namespace polar { namespace core {
 				DebugManager()->Fatal("unsupported system: ", typeid(T).name());
 			} else {
 	#endif
-				systems.AddAs<B, T>(engine, std::forward<Ts>(args)...);
-				orderedSystems.emplace_back(systems.Get<B>());
+				systems.add_as<B, T>(engine, std::forward<Ts>(args)...);
+				orderedSystems.emplace_back(systems.get<B>());
 	#ifdef _DEBUG
 			}
 	#endif
 		}
 
 		template<typename T> inline void removesystem() {
-			auto sys = std::static_pointer_cast<System>(systems.Get<T>().lock());
+			auto sys = std::static_pointer_cast<system::base>(systems.get<T>().lock());
 			if(sys) {
 				orderedSystems.erase(std::remove(orderedSystems.begin(), orderedSystems.end(), sys));
-				systems.Remove<T>();
+				systems.remove<T>();
 			}
 		}
 
 		template<typename T> inline std::weak_ptr<T> getsystem() {
-			return systems.Get<T>();
+			return systems.get<T>();
 		}
 
 		inline void componentadded(IDType id, const std::type_info *ti, std::shared_ptr<component::base> ptr) {

@@ -21,7 +21,7 @@ namespace polar { namespace system {
 		config(core::polar *engine, std::string path) : base(engine), path(path) {}
 		~config() { save(); }
 
-		void On(key_t k, handler_t h) {
+		void on(key_t k, handler_t h) {
 			handlers[k] = h;
 		}
 

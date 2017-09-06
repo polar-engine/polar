@@ -3,10 +3,12 @@
 #include <polar/component/base.h>
 #include <polar/asset/font.h>
 
-class Text : public Component {
-public:
-	std::shared_ptr<FontAsset> asset;
-	std::string str;
+namespace polar { namespace component {
+	class text : public base {
+	public:
+		std::shared_ptr<asset::font> as;
+		std::string str;
 
-	Text(std::shared_ptr<FontAsset> asset, std::string str) : asset(asset), str(str) {}
-};
+		text(std::shared_ptr<asset::font> as, std::string str) : as(as), str(str) {}
+	};
+} }

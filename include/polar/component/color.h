@@ -3,12 +3,15 @@
 #include <polar/component/base.h>
 #include <polar/property/integrable.h>
 
-class ColorComponent : public Component {
-public:
-	Integrable<Point4> color;
+namespace polar { namespace component {
+	class color : public base {
+		template<typename T> using integrable = support::integrator::integrable<T>;
+	public:
+		integrable<Point4> col;
 
-	ColorComponent(Point4 color = Point4(1)) : color(color) {
-		Add<IntegrableProperty>();
-		Get<IntegrableProperty>().lock()->AddIntegrable(&this->color);
-	}
-};
+		color(Point4 col = Point4(1)) : col(col) {
+			add<property::integrable>();
+			get<property::integrable>().lock()->add(&this->col);
+		}
+	};
+} }
