@@ -30,6 +30,11 @@ set(FREEFALL_SRCS
 	src/freefall/main.cpp
 )
 
+set(PONG_SRCS
+	src/pong/app.cpp
+	src/pong/main.cpp
+)
+
 if(WIN32)
 	set(POLAR_LIBS
 		legacy_stdio_definitions.lib
@@ -92,6 +97,11 @@ set(FREEFALL_LIBS
 	$<TARGET_FILE:polar>
 )
 
+set(PONG_LIBS
+	${POLAR_LIBS}
+	$<TARGET_FILE:polar>
+)
+
 if(WIN32)
 	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_SOURCE_DIR})
 elseif(APPLE)
@@ -139,17 +149,22 @@ set_property(TARGET freefall PROPERTY CXX_STANDARD 11)
 set_property(TARGET freefall PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET freefall PROPERTY OUTPUT_NAME Freefall)
 
+# Pong Example
+add_executable(pong WIN32 MACOSX_BUNDLE ${PONG_SRCS})
+target_link_libraries(pong ${PONG_LIBS})
+set_property(TARGET pong PROPERTY CXX_STANDARD 11)
+set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
+
+set(FREEFALL_EXECUTABLE_DIR $<TARGET_FILE_DIR:freefall>)
+
 if(APPLE)
-	set(FREEFALL_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/MacOS)
 	set(FREEFALL_RESOURCES_DIR  ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/Resources)
 	set(FREEFALL_FRAMEWORKS_DIR ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/Frameworks)
 	add_custom_command(TARGET freefall POST_BUILD
 		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks" $<TARGET_FILE:freefall>
 	)
 else()
-	set(FREEFALL_EXECUTABLE_FILE $<TARGET_FILE:freefall> CACHE INTERNAL "")
-	set(FREEFALL_EXECUTABLE_DIR $<TARGET_FILE_DIR:freefall> CACHE INTERNAL "")
-	set(FREEFALL_RESOURCES_DIR ${FREEFALL_EXECUTABLE_DIR} CACHE INTERNAL "")
+	set(FREEFALL_RESOURCES_DIR ${FREEFALL_EXECUTABLE_DIR})
 endif()
 
 set(APP_FRAMEWORKS_CMDS "")
