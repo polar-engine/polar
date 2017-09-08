@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.6)
 
 project(polar)
 
@@ -30,50 +30,49 @@ set(ASSETBUILDER_SOURCES
 )
 
 if(WIN32)
-	set(PLATFORM_LIBS
-		legacy_stdio_definitions.lib
-		shlwapi.lib
+	find_library(LEGACY_STDIO_LIB legacy_stdio_definitions)
+	find_library(SHLWAPI_LIB shlwapi)
+	set(POLAR_LIBS
+		${LEGACY_STDIO_LIB}
+		${SHLWAPI_LIB}
 	)
 elseif(APPLE)
 	find_library(CARBON_LIB Carbon)
 	find_library(AUDIOTOOLBOX_LIB AudioToolbox)
 	find_library(AUDIOUNIT_LIB AudioUnit)
 	find_library(COREAUDIO_LIB CoreAudio)
-
-	set(PLATFORM_LIBS
+	set(POLAR_LIBS
 		${CARBON_LIB}
 		${AUDIOTOOLBOX_LIB}
 		${AUDIOUNIT_LIB}
 		${COREAUDIO_LIB}
 	)
+else()
 endif()
 
 if(UNIX)
 	find_library(PTHREAD_LIB pthread)
-
-	set(UNIX_LIBS
+	set(POLAR_LIBS ${POLAR_LIBS}
 		${PTHREAD_LIB}
 	)
+endif()
+
+if(WIN32)
+	set(LIB_SEARCH_PATH lib/win32)
+elseif(APPLE)
+	set(LIB_SEARCH_PATH lib/macos)
+else()
+	set(LIB_SEARCH_PATH lib/linux64)
 endif()
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
-find_library(Z_LIB NAMES z zlib      PATHS lib/win32 lib/macos)
-find_library(PORTAUDIO_LIB portaudio PATHS lib/win32 lib/macos)
-find_library(STEAM_API_LIB steam_api PATHS lib/win32 lib/linux64 lib/macos)
+find_library(Z_LIB NAMES z zlib      PATHS ${LIB_SEARCH_PATH})
+find_library(PORTAUDIO_LIB portaudio PATHS ${LIB_SEARCH_PATH})
+find_library(STEAM_API_LIB steam_api PATHS ${LIB_SEARCH_PATH})
 
-if(WIN32)
-	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES lib/win32 lib PATHS ${CMAKE_SOURCE_DIR})
-elseif(LINUX)
-	find_file(STEAM_API_DYLIB "steam_api.so" PATH_SUFFIXES lib/linux64 lib PATHS ${CMAKE_SOURCE_DIR})
-elseif(APPLE)
-	set(STEAM_API_DYLIB ${STEAM_API_LIB})
-endif()
-
-set(POLAR_LIBS
-	${PLATFORM_LIBS}
-	${UNIX_LIBS}
+set(POLAR_LIBS ${POLAR_LIBS}
 	${PORTAUDIO_LIB}
 	${OPENGL_LIBRARIES}
 	${SDL2_LIBRARY}
@@ -81,6 +80,17 @@ set(POLAR_LIBS
 	${STEAM_API_LIB}
 )
 
+if(WIN32)
+	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_SOURCE_DIR})
+elseif(APPLE)
+	set(STEAM_API_DYLIB ${STEAM_API_LIB})
+else()
+	find_file(STEAM_API_DYLIB "steam_api.so" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_SOURCE_DIR})
+endif()
+
+set(POLAR_FRAMEWORKS ${POLAR_LIBS})
+list(FILTER POLAR_FRAMEWORKS INCLUDE REGEX "\.framework$")
+list(FILTER POLAR_FRAMEWORKS EXCLUDE REGEX "^/System/")
 
 set(STEAM_APPID 0 CACHE STRING "Steam application ID")
 if(NOT STEAM_APPID GREATER "0")
@@ -113,7 +123,6 @@ set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # Polar Engine
-
 add_executable(polar WIN32 MACOSX_BUNDLE ${POLAR_SOURCES})
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
@@ -121,29 +130,40 @@ set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(APPLE)
 	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/MacOS)
-	set(POLAR_RESOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Resources)
+	set(POLAR_RESOURCES_DIR  ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Resources)
+	set(POLAR_FRAMEWORKS_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Frameworks)
+	add_custom_command(TARGET polar POST_BUILD
+		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks" $<TARGET_FILE:polar>
+	)
 else()
 	set(POLAR_EXECUTABLE_FILE $<TARGET_FILE:polar> CACHE INTERNAL "")
 	set(POLAR_EXECUTABLE_DIR $<TARGET_FILE_DIR:polar> CACHE INTERNAL "")
 	set(POLAR_RESOURCES_DIR ${POLAR_EXECUTABLE_DIR} CACHE INTERNAL "")
 endif()
 
+set(APP_FRAMEWORKS_CMDS "")
+foreach(V ${POLAR_FRAMEWORKS})
+	get_filename_component(BARENAME ${V} NAME)
+	set(APP_FRAMEWORKS_CMDS ${APP_FRAMEWORKS_CMDS} COMMAND ${CMAKE_COMMAND} -E copy_directory ${V} ${POLAR_FRAMEWORKS_DIR}/${BARENAME})
+endforeach()
+add_custom_target(appframeworks ALL ${APP_FRAMEWORKS_CMDS})
+message(STATUS "${CMDS}")
+
 # App Resources
 if(APP_RESOURCES)
 	add_custom_target(appresources ALL
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_RESOURCES} ${POLAR_EXECUTABLE_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy ${APP_RESOURCES} ${POLAR_EXECUTABLE_DIR}
 	)
 endif()
 
 # Resources
 if(RESOURCES)
 	add_custom_target(resources ALL
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCES} ${POLAR_RESOURCES_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCES} ${POLAR_RESOURCES_DIR}
 	)
 endif()
 
 # Assets
-
 add_custom_target(assets ALL
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/assets
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${POLAR_RESOURCES_DIR}/assets
