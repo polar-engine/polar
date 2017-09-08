@@ -30,11 +30,9 @@ set(ASSETBUILDER_SOURCES
 )
 
 if(WIN32)
-	find_library(LEGACY_STDIO_LIB legacy_stdio_definitions)
-	find_library(SHLWAPI_LIB shlwapi)
 	set(POLAR_LIBS
-		${LEGACY_STDIO_LIB}
-		${SHLWAPI_LIB}
+		legacy_stdio_definitions.lib
+		shlwapi.lib
 	)
 elseif(APPLE)
 	find_library(CARBON_LIB Carbon)
