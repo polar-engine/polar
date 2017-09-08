@@ -33,7 +33,8 @@ namespace polar { namespace core {
 
 		inline void init() {
 			for(auto &system : orderedSystems) {
-				debugmanager()->debug("initing system: ", typeid(*system).name());
+				auto &deref = *system;
+				debugmanager()->debug("initing system: ", typeid(deref).name());
 				system->init();
 				debugmanager()->debug("inited system");
 			}
@@ -43,7 +44,8 @@ namespace polar { namespace core {
 			/* copy ordered systems vector to avoid invalidation */
 			auto tmpSystems = orderedSystems;
 			for(auto &system : tmpSystems) {
-				debugmanager()->trace("updating system: ", typeid(*system).name());
+				auto &deref = *system;
+				debugmanager()->trace("updating system: ", typeid(deref).name());
 				system->update(dt);
 				debugmanager()->trace("updated system");
 			}
@@ -83,7 +85,8 @@ namespace polar { namespace core {
 		inline void componentadded(IDType id, const std::type_info *ti, std::shared_ptr<component::base> ptr) {
 			for(auto &pairSystem : *systems.get()) {
 				auto &system = pairSystem.second;
-				debugmanager()->trace("notifying system of component added: ", typeid(*system).name(), ", ", ti->name());
+				auto &deref = *system;
+				debugmanager()->trace("notifying system of component added: ", typeid(deref).name(), ", ", ti->name());
 				system->componentadded(id, ti, ptr);
 				debugmanager()->trace("notified system of component added");
 			}
@@ -92,7 +95,8 @@ namespace polar { namespace core {
 		inline void componentremoved(IDType id, const std::type_info *ti) {
 			for(auto &pairSystem : *systems.get()) {
 				auto &system = pairSystem.second;
-				debugmanager()->trace("notifying system of component removed: ", typeid(*system).name(), ", ", ti->name());
+				auto &deref = *system;
+				debugmanager()->trace("notifying system of component removed: ", typeid(deref).name(), ", ", ti->name());
 				system->componentremoved(id, ti);
 				debugmanager()->trace("notified system of component removed");
 			}
