@@ -22,8 +22,6 @@ set(POLAR_SRCS
 )
 
 set(ASSETBUILDER_SRCS
-	src/polar/core/debugmanager.cpp
-	src/polar/util/buildinfo.cpp
 	src/assetbuilder/main.cpp
 )
 
@@ -81,6 +79,14 @@ set(POLAR_LIBS ${POLAR_LIBS}
 	${STEAM_API_LIB}
 )
 
+set(ASSETBUILDER_LIBS
+	${WIN32_LIBS}
+	${APPLE_LIBS}
+	${SDL2_LIBRARY}
+	${Z_LIB}
+	$<TARGET_FILE:polar>
+)
+
 set(FREEFALL_LIBS
 	${POLAR_LIBS}
 	$<TARGET_FILE:polar>
@@ -115,14 +121,6 @@ set(RESOURCES
 )
 
 # Asset Builder
-
-set(ASSETBUILDER_LIBS
-	${WIN32_LIBS}
-	${APPLE_LIBS}
-	${SDL2_LIBRARY}
-	${Z_LIB}
-)
-
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
@@ -187,3 +185,4 @@ add_custom_target(assets ALL
 add_dependencies(assets freefall)
 add_dependencies(assets assetbuilder)
 add_dependencies(freefall polar)
+add_dependencies(assetbuilder polar)
