@@ -24,12 +24,12 @@ set(POLAR_SRCS
 set(ASSETBUILDER_SRCS
 	src/polar/core/debugmanager.cpp
 	src/polar/util/buildinfo.cpp
-	src/main-assetbuilder.cpp
+	src/assetbuilder/main.cpp
 )
 
 set(FREEFALL_SRCS
-	src/freefall.cpp
-	src/main-freefall.cpp
+	src/freefall/app.cpp
+	src/freefall/main.cpp
 )
 
 if(WIN32)
@@ -186,3 +186,4 @@ add_custom_target(assets ALL
 
 add_dependencies(assets freefall)
 add_dependencies(assets assetbuilder)
+add_dependencies(freefall polar)

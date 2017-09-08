@@ -1,4 +1,4 @@
-#include <freefall.h>
+#include <freefall/app.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -16,6 +16,6 @@ int main(int argc, char **argv) {
 	}
 
 	polar::core::polar engine(args);
-	auto app = freefall(engine);
+	auto app = freefall::app(engine);
 	return 0;
 }
