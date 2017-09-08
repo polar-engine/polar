@@ -8,7 +8,7 @@ include_directories(include)
 
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_CRT_SECURE_NO_WARNINGS)
 
-set(POLAR_SOURCES
+set(POLAR_SRCS
 	src/polar/core/debugmanager.cpp
 	src/polar/util/buildinfo.cpp
 	src/polar/system/audio.cpp
@@ -19,14 +19,17 @@ set(POLAR_SOURCES
 	src/polar/system/work.cpp
 	src/polar/support/work/worker.cpp
 	src/glew.c
-	src/freefall.cpp
-	src/main-freefall.cpp
 )
 
-set(ASSETBUILDER_SOURCES
+set(ASSETBUILDER_SRCS
 	src/polar/core/debugmanager.cpp
 	src/polar/util/buildinfo.cpp
 	src/main-assetbuilder.cpp
+)
+
+set(FREEFALL_SRCS
+	src/freefall.cpp
+	src/main-freefall.cpp
 )
 
 if(WIN32)
@@ -78,6 +81,11 @@ set(POLAR_LIBS ${POLAR_LIBS}
 	${STEAM_API_LIB}
 )
 
+set(FREEFALL_LIBS
+	${POLAR_LIBS}
+	$<TARGET_FILE:polar>
+)
+
 if(WIN32)
 	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_SOURCE_DIR})
 elseif(APPLE)
@@ -115,34 +123,41 @@ set(ASSETBUILDER_LIBS
 	${Z_LIB}
 )
 
-add_executable(assetbuilder ${ASSETBUILDER_SOURCES})
+add_executable(assetbuilder ${ASSETBUILDER_SRCS})
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # Polar Engine
-add_executable(polar WIN32 MACOSX_BUNDLE ${POLAR_SOURCES})
+add_library(polar STATIC ${POLAR_SRCS})
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
 
+# Freefall
+add_executable(freefall WIN32 MACOSX_BUNDLE ${FREEFALL_SRCS})
+target_link_libraries(freefall ${FREEFALL_LIBS})
+set_property(TARGET freefall PROPERTY CXX_STANDARD 11)
+set_property(TARGET freefall PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET freefall PROPERTY OUTPUT_NAME Freefall)
+
 if(APPLE)
-	set(POLAR_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/MacOS)
-	set(POLAR_RESOURCES_DIR  ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Resources)
-	set(POLAR_FRAMEWORKS_DIR ${CMAKE_CURRENT_BINARY_DIR}/polar.app/Contents/Frameworks)
-	add_custom_command(TARGET polar POST_BUILD
-		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks" $<TARGET_FILE:polar>
+	set(FREEFALL_EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/MacOS)
+	set(FREEFALL_RESOURCES_DIR  ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/Resources)
+	set(FREEFALL_FRAMEWORKS_DIR ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/Frameworks)
+	add_custom_command(TARGET freefall POST_BUILD
+		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks" $<TARGET_FILE:freefall>
 	)
 else()
-	set(POLAR_EXECUTABLE_FILE $<TARGET_FILE:polar> CACHE INTERNAL "")
-	set(POLAR_EXECUTABLE_DIR $<TARGET_FILE_DIR:polar> CACHE INTERNAL "")
-	set(POLAR_RESOURCES_DIR ${POLAR_EXECUTABLE_DIR} CACHE INTERNAL "")
+	set(FREEFALL_EXECUTABLE_FILE $<TARGET_FILE:freefall> CACHE INTERNAL "")
+	set(FREEFALL_EXECUTABLE_DIR $<TARGET_FILE_DIR:freefall> CACHE INTERNAL "")
+	set(FREEFALL_RESOURCES_DIR ${FREEFALL_EXECUTABLE_DIR} CACHE INTERNAL "")
 endif()
 
 set(APP_FRAMEWORKS_CMDS "")
 foreach(V ${POLAR_FRAMEWORKS})
 	get_filename_component(BARENAME ${V} NAME)
-	set(APP_FRAMEWORKS_CMDS ${APP_FRAMEWORKS_CMDS} COMMAND ${CMAKE_COMMAND} -E copy_directory ${V} ${POLAR_FRAMEWORKS_DIR}/${BARENAME})
+	set(APP_FRAMEWORKS_CMDS ${APP_FRAMEWORKS_CMDS} COMMAND ${CMAKE_COMMAND} -E copy_directory ${V} ${FREEFALL_FRAMEWORKS_DIR}/${BARENAME})
 endforeach()
 add_custom_target(appframeworks ALL ${APP_FRAMEWORKS_CMDS})
 message(STATUS "${CMDS}")
@@ -150,24 +165,24 @@ message(STATUS "${CMDS}")
 # App Resources
 if(APP_RESOURCES)
 	add_custom_target(appresources ALL
-		COMMAND ${CMAKE_COMMAND} -E copy ${APP_RESOURCES} ${POLAR_EXECUTABLE_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy ${APP_RESOURCES} ${FREEFALL_EXECUTABLE_DIR}
 	)
 endif()
 
 # Resources
 if(RESOURCES)
 	add_custom_target(resources ALL
-		COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCES} ${POLAR_RESOURCES_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCES} ${FREEFALL_RESOURCES_DIR}
 	)
 endif()
 
 # Assets
 add_custom_target(assets ALL
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/assets
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${POLAR_RESOURCES_DIR}/assets
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${FREEFALL_RESOURCES_DIR}/assets
 	COMMAND $<TARGET_FILE:assetbuilder> ${CMAKE_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/assets ${POLAR_RESOURCES_DIR}/assets
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/assets ${FREEFALL_RESOURCES_DIR}/assets
 )
 
-add_dependencies(assets polar)
+add_dependencies(assets freefall)
 add_dependencies(assets assetbuilder)
