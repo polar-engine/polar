@@ -5,7 +5,7 @@
 #include <string>
 
 namespace freefall {
-	enum class SteamConfigOption {
+	enum class CloudConfigOption {
 		Grain,
 		ScanIntensity,
 		PixelFactor,
@@ -18,11 +18,11 @@ namespace freefall {
 		ChromaticAberration
 	};
 
-	std::istream & operator>>(std::istream &s, SteamConfigOption &x) {
+	std::istream & operator>>(std::istream &s, CloudConfigOption &x) {
 		std::string word;
 		s >> word;
 
-	#define CASE(X) (word == #X) { x = SteamConfigOption::X; }
+	#define CASE(X) (word == #X) { x = CloudConfigOption::X; }
 		if CASE(Grain)
 		else if CASE(ScanIntensity)
 		else if CASE(PixelFactor)
@@ -39,8 +39,8 @@ namespace freefall {
 		return s;
 	}
 
-	std::ostream & operator<<(std::ostream &s, const SteamConfigOption &x) {
-	#define CASE(X) case SteamConfigOption::X: s << #X; break;
+	std::ostream & operator<<(std::ostream &s, const CloudConfigOption &x) {
+	#define CASE(X) case CloudConfigOption::X: s << #X; break;
 		switch(x) {
 		CASE(Grain)
 		CASE(ScanIntensity)

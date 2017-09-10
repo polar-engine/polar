@@ -1,7 +1,7 @@
 #pragma once
 
 namespace polar { namespace fs {
-	class steam {
+	class cloud {
 	public:
 		static bool exists(std::string path) {
 			return SteamRemoteStorage()->FileExists(path.data());

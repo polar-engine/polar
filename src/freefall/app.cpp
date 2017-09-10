@@ -19,12 +19,12 @@
 #include <polar/asset/level.h>
 #include <polar/component/text.h>
 #include <polar/component/playercamera.h>
-#include <polar/fs/steam.h>
+#include <polar/fs/cloud.h>
 #include <freefall/app.h>
 #include <freefall/config.h>
 
 namespace freefall {
-	using SteamConfigM = polar::system::config<SteamConfigOption, polar::fs::steam>;
+	using CloudConfigM = polar::system::config<CloudConfigOption, polar::fs::cloud>;
 	using LocalConfigM = polar::system::config<LocalConfigOption, polar::fs::local>;
 
 	app::app(polar::core::polar &engine) {
@@ -46,20 +46,20 @@ namespace freefall {
 			st.addsystem<system::input>();
 			st.addsystem<system::integrator>();
 			st.addsystem<system::tweener<float>>();
-			st.addsystem<SteamConfigM>("options.cfg");
+			st.addsystem<CloudConfigM>("options.cfg");
 			debugmanager()->verbose("saved games directory is ", fs::local::savedgamesdir());
 			st.addsystem<LocalConfigM>(fs::local::savedgamesdir() + "/local.cfg");
 			st.addsystem<system::levelswitcher>();
 
-			auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+			auto cloudConfigM = engine->getsystem<CloudConfigM>().lock();
 			auto localConfigM = engine->getsystem<LocalConfigM>().lock();
 
 			auto SetPipeline = [] (core::polar *engine) {
-				auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+				auto cloudConfigM = engine->getsystem<CloudConfigM>().lock();
 				auto localConfigM = engine->getsystem<LocalConfigM>().lock();
 
 				std::vector<std::string> names = { "perlin" };
-				if(steamConfigM->get<Decimal>(SteamConfigOption::ChromaticAberration) > 0) { names.emplace_back("chroma"); }
+				if(cloudConfigM->get<Decimal>(CloudConfigOption::ChromaticAberration) > 0) { names.emplace_back("chroma"); }
 				if(localConfigM->get<bool>(LocalConfigOption::Bloom)) { names.emplace_back("bloom"); }
 				if(localConfigM->get<bool>(LocalConfigOption::Cel)) { names.emplace_back("fxaa"); }
 				engine->getsystem<system::renderer::base>().lock()->setpipeline(names);
@@ -68,20 +68,20 @@ namespace freefall {
 			localConfigM->on(LocalConfigOption::BaseDetail, [] (core::polar *engine, LocalConfigOption, Decimal x) {
 				engine->getsystem<system::renderer::base>().lock()->setuniform("u_baseDetail", x);
 			});
-			steamConfigM->on(SteamConfigOption::Grain, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			cloudConfigM->on(CloudConfigOption::Grain, [] (core::polar *engine, CloudConfigOption, Decimal x) {
 				engine->getsystem<system::renderer::base>().lock()->setuniform("u_grain", x);
 			});
-			steamConfigM->on(SteamConfigOption::ScanIntensity, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			cloudConfigM->on(CloudConfigOption::ScanIntensity, [] (core::polar *engine, CloudConfigOption, Decimal x) {
 				engine->getsystem<system::renderer::base>().lock()->setuniform("u_scanIntensity", x);
 			});
-			steamConfigM->on(SteamConfigOption::ChromaticAberration, [SetPipeline] (core::polar *engine, SteamConfigOption, Decimal x) {
+			cloudConfigM->on(CloudConfigOption::ChromaticAberration, [SetPipeline] (core::polar *engine, CloudConfigOption, Decimal x) {
 				engine->getsystem<system::renderer::base>().lock()->setuniform("u_aberration", x);
 				SetPipeline(engine);
 			});
-			steamConfigM->on(SteamConfigOption::PixelFactor, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			cloudConfigM->on(CloudConfigOption::PixelFactor, [] (core::polar *engine, CloudConfigOption, Decimal x) {
 				engine->getsystem<system::renderer::base>().lock()->setuniform("u_pixelFactor", x);
 			});
-			steamConfigM->on(SteamConfigOption::VoxelFactor, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			cloudConfigM->on(CloudConfigOption::VoxelFactor, [] (core::polar *engine, CloudConfigOption, Decimal x) {
 				engine->getsystem<system::renderer::base>().lock()->setuniform("u_voxelFactor", x);
 			});
 			localConfigM->on(LocalConfigOption::Fullscreen, [] (core::polar *engine, LocalConfigOption, bool fullscreen) {
@@ -90,21 +90,21 @@ namespace freefall {
 			localConfigM->on(LocalConfigOption::Bloom, [SetPipeline] (core::polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
 			localConfigM->on(LocalConfigOption::Cel,   [SetPipeline] (core::polar *engine, LocalConfigOption, bool bloom) { SetPipeline(engine); });
 
-			steamConfigM->on(SteamConfigOption::MouseSmoothing, [] (core::polar *engine, SteamConfigOption, Decimal x) {
+			cloudConfigM->on(CloudConfigOption::MouseSmoothing, [] (core::polar *engine, CloudConfigOption, Decimal x) {
 				auto con = engine->getsystem<system::player::human>().lock();
 				if(con) { con->smoothing = x; }
 			});
 
-			steamConfigM->on(SteamConfigOption::Mute, [] (core::polar *engine, SteamConfigOption, bool mute) {
+			cloudConfigM->on(CloudConfigOption::Mute, [] (core::polar *engine, CloudConfigOption, bool mute) {
 				engine->getsystem<system::audio>().lock()->muted = mute;
 			});
-			steamConfigM->on(SteamConfigOption::MasterVolume, [] (core::polar *engine, SteamConfigOption, int x) {
+			cloudConfigM->on(CloudConfigOption::MasterVolume, [] (core::polar *engine, CloudConfigOption, int x) {
 				engine->getsystem<system::audio>().lock()->masterVolume = x;
 			});
-			steamConfigM->on(SteamConfigOption::MusicVolume, [] (core::polar *engine, SteamConfigOption, int x) {
+			cloudConfigM->on(CloudConfigOption::MusicVolume, [] (core::polar *engine, CloudConfigOption, int x) {
 				engine->getsystem<system::audio>().lock()->volumes[static_cast<size_t>(support::audio::sourcetype::music)] = x;
 			});
-			steamConfigM->on(SteamConfigOption::EffectVolume, [] (core::polar *engine, SteamConfigOption, int x) {
+			cloudConfigM->on(CloudConfigOption::EffectVolume, [] (core::polar *engine, CloudConfigOption, int x) {
 				engine->getsystem<system::audio>().lock()->volumes[static_cast<size_t>(support::audio::sourcetype::effect)] = x;
 			});
 
@@ -117,12 +117,12 @@ namespace freefall {
 
 			localConfigM->set<Decimal>(LocalConfigOption::BaseDetail, 8);
 			localConfigM->set<Decimal>(LocalConfigOption::UIScale, Decimal(0.3125));
-			steamConfigM->set<Decimal>(SteamConfigOption::MouseSmoothing, Decimal(0.995));
-			steamConfigM->set<int>(SteamConfigOption::MasterVolume, 100);
-			steamConfigM->set<int>(SteamConfigOption::MusicVolume, 100);
-			steamConfigM->set<int>(SteamConfigOption::EffectVolume, 100);
+			cloudConfigM->set<Decimal>(CloudConfigOption::MouseSmoothing, Decimal(0.995));
+			cloudConfigM->set<int>(CloudConfigOption::MasterVolume, 100);
+			cloudConfigM->set<int>(CloudConfigOption::MusicVolume, 100);
+			cloudConfigM->set<int>(CloudConfigOption::EffectVolume, 100);
 
-			steamConfigM->load();
+			cloudConfigM->load();
 			localConfigM->load();
 
 			/*assetM->get<asset::audio>("laser");
@@ -150,8 +150,8 @@ namespace freefall {
 				localConfigM->set<bool>(LocalConfigOption::Fullscreen, !localConfigM->get<bool>(LocalConfigOption::Fullscreen));
 			}));
 			st.dtors.emplace_back(inputM->on(key_t::M, [engine] (key_t) {
-				auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
-				steamConfigM->set<bool>(SteamConfigOption::Mute, !steamConfigM->get<bool>(SteamConfigOption::Mute));
+				auto cloudConfigM = engine->getsystem<CloudConfigM>().lock();
+				cloudConfigM->set<bool>(CloudConfigOption::Mute, !cloudConfigM->get<bool>(CloudConfigOption::Mute));
 			}));
 
 			engine->transition = "forward";
@@ -187,7 +187,7 @@ namespace freefall {
 
 			st.addsystem<system::player::title>(playerID);
 
-			auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
+			auto cloudConfigM = engine->getsystem<CloudConfigM>().lock();
 			auto localConfigM = engine->getsystem<LocalConfigM>().lock();
 			auto renderer = engine->getsystem<system::renderer::base>().lock();
 
@@ -219,25 +219,25 @@ namespace freefall {
 							engine->getsystem<LocalConfigM>().lock()->set<bool>(LocalConfigOption::Cel, state);
 							return true;
 						}),
-						menuitem("Grain", control::slider<Decimal>(0, Decimal(0.2), steamConfigM->get<Decimal>(SteamConfigOption::Grain), Decimal(0.01)), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::Grain, x);
+						menuitem("Grain", control::slider<Decimal>(0, Decimal(0.2), cloudConfigM->get<Decimal>(CloudConfigOption::Grain), Decimal(0.01)), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<Decimal>(CloudConfigOption::Grain, x);
 							return true;
 						}),
-						menuitem("Scanlines", control::slider<Decimal>(0, Decimal(0.2), steamConfigM->get<Decimal>(SteamConfigOption::ScanIntensity), Decimal(0.01)), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::ScanIntensity, x);
+						menuitem("Scanlines", control::slider<Decimal>(0, Decimal(0.2), cloudConfigM->get<Decimal>(CloudConfigOption::ScanIntensity), Decimal(0.01)), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<Decimal>(CloudConfigOption::ScanIntensity, x);
 							return true;
 						}),
-						menuitem("Chromatic Aberration", control::slider<Decimal>(0, Decimal(0.001), steamConfigM->get<Decimal>(SteamConfigOption::ChromaticAberration), Decimal(0.0001)), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::ChromaticAberration, x);
+						menuitem("Chromatic Aberration", control::slider<Decimal>(0, Decimal(0.001), cloudConfigM->get<Decimal>(CloudConfigOption::ChromaticAberration), Decimal(0.0001)), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<Decimal>(CloudConfigOption::ChromaticAberration, x);
 							return true;
 						}),
 						//menuitem("Precision", control::Selection({"Float", "Double"}), [] (Decimal) { return true; }),
-						menuitem("Pixel Factor", control::slider<Decimal>(0, 20, steamConfigM->get<Decimal>(SteamConfigOption::PixelFactor)), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::PixelFactor, x);
+						menuitem("Pixel Factor", control::slider<Decimal>(0, 20, cloudConfigM->get<Decimal>(CloudConfigOption::PixelFactor)), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<Decimal>(CloudConfigOption::PixelFactor, x);
 							return true;
 						}),
-						menuitem("Voxel Factor", control::slider<Decimal>(0, 20, steamConfigM->get<Decimal>(SteamConfigOption::VoxelFactor)), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::VoxelFactor, x);
+						menuitem("Voxel Factor", control::slider<Decimal>(0, 20, cloudConfigM->get<Decimal>(CloudConfigOption::VoxelFactor)), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<Decimal>(CloudConfigOption::VoxelFactor, x);
 							return true;
 						}),
 						menuitem("Fullscreen", control::checkbox(localConfigM->get<bool>(LocalConfigOption::Fullscreen)), [engine] (Decimal state) {
@@ -256,26 +256,26 @@ namespace freefall {
 						}),
 					}),
 					menuitem("Audio", {
-						menuitem("Master Volume", control::slider<int>(0, 100, steamConfigM->get<int>(SteamConfigOption::MasterVolume), 10), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<int>(SteamConfigOption::MasterVolume, x);
+						menuitem("Master Volume", control::slider<int>(0, 100, cloudConfigM->get<int>(CloudConfigOption::MasterVolume), 10), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<int>(CloudConfigOption::MasterVolume, x);
 							return true;
 						}),
-						menuitem("Music Volume", control::slider<int>(0, 100, steamConfigM->get<int>(SteamConfigOption::MusicVolume), 10), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<int>(SteamConfigOption::MusicVolume, x);
+						menuitem("Music Volume", control::slider<int>(0, 100, cloudConfigM->get<int>(CloudConfigOption::MusicVolume), 10), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<int>(CloudConfigOption::MusicVolume, x);
 							return true;
 						}),
-						menuitem("Effect Volume", control::slider<int>(0, 100, steamConfigM->get<int>(SteamConfigOption::EffectVolume), 10), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<int>(SteamConfigOption::EffectVolume, x);
+						menuitem("Effect Volume", control::slider<int>(0, 100, cloudConfigM->get<int>(CloudConfigOption::EffectVolume), 10), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<int>(CloudConfigOption::EffectVolume, x);
 							return true;
 						}),
-						menuitem("Mute", control::checkbox(steamConfigM->get<bool>(SteamConfigOption::Mute)), [engine] (Decimal state) {
-							engine->getsystem<SteamConfigM>().lock()->set<bool>(SteamConfigOption::Mute, state);
+						menuitem("Mute", control::checkbox(cloudConfigM->get<bool>(CloudConfigOption::Mute)), [engine] (Decimal state) {
+							engine->getsystem<CloudConfigM>().lock()->set<bool>(CloudConfigOption::Mute, state);
 							return true;
 						}),
 					}),
 					menuitem("Controls", {
-						menuitem("Mouse Smoothing", control::slider<Decimal>(Decimal(0.9), Decimal(0.995), steamConfigM->get<Decimal>(SteamConfigOption::MouseSmoothing), Decimal(0.005)), [engine] (Decimal x) {
-							engine->getsystem<SteamConfigM>().lock()->set<Decimal>(SteamConfigOption::MouseSmoothing, x);
+						menuitem("Mouse Smoothing", control::slider<Decimal>(Decimal(0.9), Decimal(0.995), cloudConfigM->get<Decimal>(CloudConfigOption::MouseSmoothing), Decimal(0.005)), [engine] (Decimal x) {
+							engine->getsystem<CloudConfigM>().lock()->set<Decimal>(CloudConfigOption::MouseSmoothing, x);
 							return true;
 						}),
 					}),
@@ -299,8 +299,8 @@ namespace freefall {
 
 			st.addsystem<system::player::human>(playerID);
 
-			auto steamConfigM = engine->getsystem<SteamConfigM>().lock();
-			engine->getsystem<system::player::human>().lock()->smoothing = steamConfigM->get<Decimal>(SteamConfigOption::MouseSmoothing);
+			auto cloudConfigM = engine->getsystem<CloudConfigM>().lock();
+			engine->getsystem<system::player::human>().lock()->smoothing = cloudConfigM->get<Decimal>(CloudConfigOption::MouseSmoothing);
 
 			auto assetM   = engine->getsystem<system::asset>().lock();
 			auto inputM   = engine->getsystem<system::input>().lock();
