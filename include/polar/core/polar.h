@@ -46,8 +46,9 @@ namespace polar { namespace core {
 		bimap objects;
 		IDType nextID = 1;
 		std::string transition;
+		const bool useSteamAPI;
 
-		polar(std::vector<std::string> args) {
+		polar(std::vector<std::string> args, bool useSteamAPI = true) : useSteamAPI(useSteamAPI) {
 			srand((unsigned int)time(0));
 			std::mt19937_64 rng(time(0));
 
@@ -76,12 +77,14 @@ namespace polar { namespace core {
 
 			debugmanager()->verbose("built on ", buildinfo_date(), " at ", buildinfo_time());
 
-			if(!SteamAPI_Init()) {
-				debugmanager()->fatal("failed to initialize Steam API");
+			if(useSteamAPI) {
+				if(!SteamAPI_Init()) {
+					debugmanager()->fatal("failed to initialize Steam API");
+				}
+				debugmanager()->info("Welcome, ", SteamFriends()->GetPersonaName());
+				SteamController()->Init();
+				SteamUserStats()->RequestCurrentStats();
 			}
-			debugmanager()->info("Welcome, ", SteamFriends()->GetPersonaName());
-			SteamController()->Init();
-			SteamUserStats()->RequestCurrentStats();
 		}
 
 		~polar() {
@@ -90,8 +93,10 @@ namespace polar { namespace core {
 				stack.pop_back();
 			}
 
-			SteamController()->Shutdown();
-			SteamAPI_Shutdown();
+			if(useSteamAPI) {
+				SteamController()->Shutdown();
+				SteamAPI_Shutdown();
+			}
 		}
 
 		inline void addstate(const std::string &name,
@@ -117,9 +122,11 @@ namespace polar { namespace core {
 
 				debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
 
-				debugmanager()->trace("SteamAPI_RunCallbacks before");
-				SteamAPI_RunCallbacks();
-				debugmanager()->trace("SteamAPI_RunCallbacks after");
+				if(useSteamAPI) {
+					debugmanager()->trace("SteamAPI_RunCallbacks before");
+					SteamAPI_RunCallbacks();
+					debugmanager()->trace("SteamAPI_RunCallbacks after");
+				}
 
 				for(auto &state : stack) {
 					state.update(dt);

@@ -122,14 +122,6 @@ endif()
 set(STEAM_APPID_FILE ${CMAKE_CURRENT_BINARY_DIR}/steam_appid.txt)
 file(WRITE ${STEAM_APPID_FILE} "${STEAM_APPID}")
 
-set(APP_RESOURCES
-	${STEAM_API_DYLIB}
-	${STEAM_APPID_FILE}
-)
-
-set(RESOURCES
-)
-
 # Asset Builder
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
@@ -175,29 +167,26 @@ endforeach()
 add_custom_target(appframeworks ALL ${APP_FRAMEWORKS_CMDS})
 message(STATUS "${CMDS}")
 
-# App Resources
-if(APP_RESOURCES)
-	add_custom_target(appresources ALL
-		COMMAND ${CMAKE_COMMAND} -E copy ${APP_RESOURCES} ${FREEFALL_EXECUTABLE_DIR}
-	)
-endif()
+add_custom_command(TARGET freefall POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy ${STEAM_API_DYLIB} ${STEAM_APPID_FILE} $<TARGET_FILE_DIR:freefall>
+)
 
-# Resources
-if(RESOURCES)
-	add_custom_target(resources ALL
-		COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCES} ${FREEFALL_RESOURCES_DIR}
-	)
-endif()
+add_custom_command(TARGET pong POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy ${STEAM_API_DYLIB} $<TARGET_FILE_DIR:pong>
+)
 
 # Assets
-add_custom_target(assets ALL
+add_custom_target(assets
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/assets
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${FREEFALL_RESOURCES_DIR}/assets
 	COMMAND $<TARGET_FILE:assetbuilder> ${CMAKE_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/assets ${FREEFALL_RESOURCES_DIR}/assets
 )
 
-add_dependencies(assets freefall)
-add_dependencies(assets assetbuilder)
-add_dependencies(freefall polar)
 add_dependencies(assetbuilder polar)
+
+add_dependencies(freefall polar)
+add_dependencies(freefall assets)
+add_dependencies(assets assetbuilder)
+
+add_dependencies(pong polar)
