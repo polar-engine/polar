@@ -19,12 +19,12 @@
 #include <polar/asset/level.h>
 #include <polar/component/text.h>
 #include <polar/component/playercamera.h>
-#include <polar/fs/cloud.h>
+#include <polar/fs/steam.h>
 #include <freefall/app.h>
 #include <freefall/config.h>
 
 namespace freefall {
-	using CloudConfigM = polar::system::config<CloudConfigOption, polar::fs::cloud>;
+	using CloudConfigM = polar::system::config<CloudConfigOption, polar::fs::steam>;
 	using LocalConfigM = polar::system::config<LocalConfigOption, polar::fs::local>;
 
 	app::app(polar::core::polar &engine) {

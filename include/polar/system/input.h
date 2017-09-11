@@ -124,27 +124,37 @@ namespace polar { namespace system {
 
 		inline void setactiveset(std::string name) {
 			currentSetAccum = Decimal(0.1);
-			currentActionSet = SteamController()->GetActionSetHandle(name.data());
+			if(engine->useSteamAPI) {
+				currentActionSet = SteamController()->GetActionSetHandle(name.data());
+			}
 		}
 
 		inline std::shared_ptr<core::destructor> ondigital(std::string name, const OnDigitalHandler &handler) {
-			auto id = nextID++;
-			ControllerDigitalActionHandle_t digital = SteamController()->GetDigitalActionHandle(name.data());
-			trackedDigitals.emplace(digital);
-			onDigitalHandlers.insert(DigitalHandlerBimap<OnDigitalHandler>::value_type(digital, id, handler));
-			return std::make_shared<core::destructor>([this, id] () {
-				onDigitalHandlers.right.erase(id);
-			});
+			if(engine->useSteamAPI) {
+				auto id = nextID++;
+				ControllerDigitalActionHandle_t digital = SteamController()->GetDigitalActionHandle(name.data());
+				trackedDigitals.emplace(digital);
+				onDigitalHandlers.insert(DigitalHandlerBimap<OnDigitalHandler>::value_type(digital, id, handler));
+				return std::make_shared<core::destructor>([this, id] () {
+					onDigitalHandlers.right.erase(id);
+				});
+			} else {
+				debugmanager()->fatal("polar::system::input::ondigital: Steam API disabled");
+			}
 		}
 
 		inline std::shared_ptr<core::destructor> onanalog(std::string name, const OnAnalogHandler &handler) {
-			auto id = nextID++;
-			ControllerAnalogActionHandle_t analog = SteamController()->GetAnalogActionHandle(name.data());
-			trackedAnalogs.emplace(analog);
-			onAnalogHandlers.insert(AnalogHandlerBimap<OnAnalogHandler>::value_type(analog, id, handler));
-			return std::make_shared<core::destructor>([this, id] () {
-				onAnalogHandlers.right.erase(id);
-			});
+			if(engine->useSteamAPI) {
+				auto id = nextID++;
+				ControllerAnalogActionHandle_t analog = SteamController()->GetAnalogActionHandle(name.data());
+				trackedAnalogs.emplace(analog);
+				onAnalogHandlers.insert(AnalogHandlerBimap<OnAnalogHandler>::value_type(analog, id, handler));
+				return std::make_shared<core::destructor>([this, id] () {
+					onAnalogHandlers.right.erase(id);
+				});
+			} else {
+				debugmanager()->fatal("polar::system::input::onanalog: Steam API disabled");
+			}
 		}
 	};
 } }
