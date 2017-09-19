@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 project(polar)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 include_directories(include)
 
@@ -23,11 +23,6 @@ set(POLAR_SRCS
 
 set(ASSETBUILDER_SRCS
 	src/assetbuilder/main.cpp
-)
-
-set(FREEFALL_SRCS
-	src/freefall/app.cpp
-	src/freefall/main.cpp
 )
 
 set(PONG_SRCS
@@ -69,6 +64,7 @@ else()
 	set(LIB_SEARCH_PATH lib/linux64)
 endif()
 
+find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
@@ -92,22 +88,17 @@ set(ASSETBUILDER_LIBS
 	$<TARGET_FILE:polar>
 )
 
-set(FREEFALL_LIBS
-	${POLAR_LIBS}
-	$<TARGET_FILE:polar>
-)
-
 set(PONG_LIBS
 	${POLAR_LIBS}
 	$<TARGET_FILE:polar>
 )
 
 if(WIN32)
-	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_SOURCE_DIR})
+	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_CURRENT_SOURCE_DIR})
 elseif(APPLE)
 	set(STEAM_API_DYLIB ${STEAM_API_LIB})
 else()
-	find_file(STEAM_API_DYLIB "steam_api.so" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_SOURCE_DIR})
+	find_file(STEAM_API_DYLIB "steam_api.so" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 set(POLAR_FRAMEWORKS ${POLAR_LIBS})
@@ -124,69 +115,31 @@ file(WRITE ${STEAM_APPID_FILE} "${STEAM_APPID}")
 
 # Asset Builder
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
+target_include_directories(assetbuilder PRIVATE ${GLM_INCLUDE_DIR})
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # Polar Engine
 add_library(polar STATIC ${POLAR_SRCS})
+target_include_directories(polar PRIVATE ${GLM_INCLUDE_DIR})
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
 
-# Freefall
-add_executable(freefall WIN32 MACOSX_BUNDLE ${FREEFALL_SRCS})
-target_link_libraries(freefall ${FREEFALL_LIBS})
-set_property(TARGET freefall PROPERTY CXX_STANDARD 11)
-set_property(TARGET freefall PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET freefall PROPERTY OUTPUT_NAME Freefall)
-
 # Pong Example
-add_executable(pong WIN32 MACOSX_BUNDLE ${PONG_SRCS})
+add_executable(pong WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL ${PONG_SRCS})
+target_include_directories(polar PRIVATE ${GLM_INCLUDE_DIR})
 target_link_libraries(pong ${PONG_LIBS})
 set_property(TARGET pong PROPERTY CXX_STANDARD 11)
 set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
-
-set(FREEFALL_EXECUTABLE_DIR $<TARGET_FILE_DIR:freefall>)
-
-if(APPLE)
-	set(FREEFALL_RESOURCES_DIR  ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/Resources)
-	set(FREEFALL_FRAMEWORKS_DIR ${CMAKE_CURRENT_BINARY_DIR}/Freefall.app/Contents/Frameworks)
-	add_custom_command(TARGET freefall POST_BUILD
-		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks" $<TARGET_FILE:freefall>
-	)
-else()
-	set(FREEFALL_RESOURCES_DIR ${FREEFALL_EXECUTABLE_DIR})
-endif()
-
-set(APP_FRAMEWORKS_CMDS "")
-foreach(V ${POLAR_FRAMEWORKS})
-	get_filename_component(BARENAME ${V} NAME)
-	set(APP_FRAMEWORKS_CMDS ${APP_FRAMEWORKS_CMDS} COMMAND ${CMAKE_COMMAND} -E copy_directory ${V} ${FREEFALL_FRAMEWORKS_DIR}/${BARENAME})
-endforeach()
-add_custom_target(appframeworks ALL ${APP_FRAMEWORKS_CMDS})
-message(STATUS "${CMDS}")
-
-add_custom_command(TARGET freefall POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy ${STEAM_API_DYLIB} ${STEAM_APPID_FILE} $<TARGET_FILE_DIR:freefall>
-)
 
 add_custom_command(TARGET pong POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy ${STEAM_API_DYLIB} $<TARGET_FILE_DIR:pong>
 )
 
-# Assets
-add_custom_target(assets
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/assets
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${FREEFALL_RESOURCES_DIR}/assets
-	COMMAND $<TARGET_FILE:assetbuilder> ${CMAKE_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/assets ${FREEFALL_RESOURCES_DIR}/assets
-)
-
 add_dependencies(assetbuilder polar)
-
-add_dependencies(freefall polar)
-add_dependencies(freefall assets)
-add_dependencies(assets assetbuilder)
-
 add_dependencies(pong polar)
+
+set(POLAR_LIBS ${POLAR_LIBS} PARENT_SCOPE)
+set(POLAR_FRAMEWORKS ${POLAR_FRAMEWORKS} PARENT_SCOPE)
