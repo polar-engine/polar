@@ -603,9 +603,7 @@ namespace polar { namespace system { namespace renderer {
 				debugmanager()->trace("MakePipeline from SDL_WINDOWEVENT");
 				makepipeline(pipelineNames);
 				debugmanager()->trace("MakePipeline done");
-				debugmanager()->trace("SteamAPI_RunCallbacks before");
-				SteamAPI_RunCallbacks();
-				debugmanager()->trace("SteamAPI_RunCallbacks after");
+				engine->getsystem<event>().lock()->fire("resize", nullptr);
 				break;
 			}
 			break;
