@@ -46,8 +46,6 @@ namespace polar { namespace system {
 	}
 
 	void input::update(DeltaTicks &dt) {
-		if(currentSetAccum > 0) { currentSetAccum -= dt.Seconds(); }
-
 		for(auto key : keys) {
 			auto range = whenKeyHandlers.left.equal_range(key);
 			for(auto it = range.first; it != range.second; ++it) {
@@ -60,73 +58,6 @@ namespace polar { namespace system {
 
 		for(auto &handler : controllerAxesHandlers) {
 			handler.right(glm::length(logarithmic) > controllerDeadZone ? logarithmic : Point2(0));
-		}
-
-		ControllerHandle_t cs[STEAM_CONTROLLER_MAX_COUNT];
-		debugmanager()->trace("GetConnectedControllers before");
-		int numControllers = SteamController()->GetConnectedControllers(cs);
-		debugmanager()->trace("GetConnectedControllers after");
-
-		/*auto con = SteamController();
-		ControllerActionSetHandle_t setHandle = con->GetActionSetHandle("MenuControls");
-		ControllerDigitalActionHandle_t digital = con->GetDigitalActionHandle("menu_down");
-		ControllerAnalogActionHandle_t analog = con->GetAnalogActionHandle("menu_down");
-		INFOS(digital << ' ' << analog);
-		for(int i = 0; i < numControllers; ++i) {
-			con->ActivateActionSet(cs[i], setHandle);
-			ControllerDigitalActionData_t data = con->GetDigitalActionData(cs[i], digital);
-			INFOS(data.bState);
-			EControllerActionOrigin os[STEAM_CONTROLLER_MAX_ORIGINS];
-			int numOrigins = con->GetDigitalActionOrigins(cs[i], setHandle, digital, os);
-			for(int o = 0; o < numOrigins; ++o) {
-				INFOS(con->GetStringForActionOrigin(os[o]));
-				INFOS(con->GetGlyphForActionOrigin(os[o]));
-			}
-		}*/
-
-		for(int i = 0; i < numControllers; ++i) {
-			debugmanager()->trace("ActivateActionSet before");
-			SteamController()->ActivateActionSet(cs[i], currentActionSet);
-			debugmanager()->trace("ActivateActionSet after");
-		}
-
-		for(auto digital : trackedDigitals) {
-			bool active = false;
-			for(int i = 0; i < numControllers; ++i) {
-				debugmanager()->trace("GetDigitalActionData before");
-				ControllerDigitalActionData_t data = SteamController()->GetDigitalActionData(cs[i], digital);
-				debugmanager()->trace("GetDigitalActionData after");
-				active |= data.bActive && data.bState;
-			}
-			if(active) {
-				// currentSetAccum avoids phantom activations after switching action set
-				if(currentSetAccum <= 0 && digitals.find(digital) == digitals.cend()) {
-					auto range = onDigitalHandlers.left.equal_range(digital);
-					for(auto it = range.first; it != range.second; ++it) {
-						it->info();
-					}
-				}
-				digitals.emplace(digital);
-			} else {
-				digitals.erase(digital);
-			}
-		}
-
-		for(auto analog : trackedAnalogs) {
-			Point2 delta(0);
-			for(int i = 0; i < numControllers; ++i) {
-				debugmanager()->trace("GetAnalogActionData before");
-				ControllerAnalogActionData_t data = SteamController()->GetAnalogActionData(cs[i], analog);
-				debugmanager()->trace("GetAnalogActionData after");
-				delta.x += data.x;
-				delta.y += data.y;
-			}
-			if(currentSetAccum <= 0) {
-				auto range = onAnalogHandlers.left.equal_range(analog);
-				for(auto it = range.first; it != range.second; ++it) {
-					it->info(delta);
-				}
-			}
 		}
 	}
 } }

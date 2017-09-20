@@ -45,9 +45,8 @@ namespace polar { namespace core {
 		bimap objects;
 		IDType nextID = 1;
 		std::string transition;
-		const bool useSteamAPI;
 
-		polar(std::vector<std::string> args, bool useSteamAPI = true) : useSteamAPI(useSteamAPI) {
+		polar(std::vector<std::string> args) {
 			srand((unsigned int)time(0));
 			std::mt19937_64 rng(time(0));
 

@@ -4,7 +4,6 @@
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
-#include <steam/steam_api.h>
 #include <polar/system/base.h>
 #include <polar/support/event/arg.h>
 #include <polar/support/input/key.h>
@@ -35,13 +34,13 @@ namespace polar { namespace system {
 			boost::bimaps::unconstrained_set_of<_Val>
 		>;
 		template<typename _Handler> using DigitalHandlerBimap = boost::bimap<
-			boost::bimaps::multiset_of<ControllerDigitalActionHandle_t>,
+			boost::bimaps::multiset_of<std::string>,
 			boost::bimaps::unordered_set_of<IDType>,
 			boost::bimaps::set_of_relation<>,
 			boost::bimaps::with_info<_Handler>
 		>;
 		template<typename _Handler> using AnalogHandlerBimap = boost::bimap<
-			boost::bimaps::multiset_of<ControllerAnalogActionHandle_t>,
+			boost::bimaps::multiset_of<std::string>,
 			boost::bimaps::unordered_set_of<IDType>,
 			boost::bimaps::set_of_relation<>,
 			boost::bimaps::with_info<_Handler>
@@ -57,19 +56,16 @@ namespace polar { namespace system {
 		IDMap<MouseWheelHandler> mouseWheelHandlers;
 		IDMap<ControllerAxesHandler> controllerAxesHandlers;
 
-		ControllerActionSetHandle_t currentActionSet;
-		Decimal currentSetAccum;
-		std::set<ControllerDigitalActionHandle_t> trackedDigitals;
-		std::set<ControllerDigitalActionHandle_t> digitals;
-		DigitalHandlerBimap<OnDigitalHandler> onDigitalHandlers;
-		std::set<ControllerAnalogActionHandle_t> trackedAnalogs;
-		AnalogHandlerBimap<OnAnalogHandler> onAnalogHandlers;
 	protected:
 		void init() override final;
 		void update(DeltaTicks &) override final;
 	public:
 		const float controllerDeadZone = 0.05f;
 		Point2 controllerAxes;
+		std::set<std::string> trackedDigitals;
+		std::set<std::string> trackedAnalogs;
+		DigitalHandlerBimap<OnDigitalHandler> onDigitalHandlers;
+		AnalogHandlerBimap<OnAnalogHandler> onAnalogHandlers;
 
 		static bool supported() { return true; }
 		input(core::polar *engine) : base(engine) {}
@@ -122,39 +118,22 @@ namespace polar { namespace system {
 			});
 		}
 
-		inline void setactiveset(std::string name) {
-			currentSetAccum = Decimal(0.1);
-			if(engine->useSteamAPI) {
-				currentActionSet = SteamController()->GetActionSetHandle(name.data());
-			}
-		}
-
 		inline std::shared_ptr<core::destructor> ondigital(std::string name, const OnDigitalHandler &handler) {
-			if(engine->useSteamAPI) {
-				auto id = nextID++;
-				ControllerDigitalActionHandle_t digital = SteamController()->GetDigitalActionHandle(name.data());
-				trackedDigitals.emplace(digital);
-				onDigitalHandlers.insert(DigitalHandlerBimap<OnDigitalHandler>::value_type(digital, id, handler));
-				return std::make_shared<core::destructor>([this, id] () {
-					onDigitalHandlers.right.erase(id);
-				});
-			} else {
-				debugmanager()->fatal("polar::system::input::ondigital: Steam API disabled");
-			}
+			auto id = nextID++;
+			trackedDigitals.emplace(name);
+			onDigitalHandlers.insert(DigitalHandlerBimap<OnDigitalHandler>::value_type(name, id, handler));
+			return std::make_shared<core::destructor>([this, id] () {
+				onDigitalHandlers.right.erase(id);
+			});
 		}
 
 		inline std::shared_ptr<core::destructor> onanalog(std::string name, const OnAnalogHandler &handler) {
-			if(engine->useSteamAPI) {
-				auto id = nextID++;
-				ControllerAnalogActionHandle_t analog = SteamController()->GetAnalogActionHandle(name.data());
-				trackedAnalogs.emplace(analog);
-				onAnalogHandlers.insert(AnalogHandlerBimap<OnAnalogHandler>::value_type(analog, id, handler));
-				return std::make_shared<core::destructor>([this, id] () {
-					onAnalogHandlers.right.erase(id);
-				});
-			} else {
-				debugmanager()->fatal("polar::system::input::onanalog: Steam API disabled");
-			}
+			auto id = nextID++;
+			trackedAnalogs.emplace(name);
+			onAnalogHandlers.insert(AnalogHandlerBimap<OnAnalogHandler>::value_type(name, id, handler));
+			return std::make_shared<core::destructor>([this, id] () {
+				onAnalogHandlers.right.erase(id);
+			});
 		}
 	};
 } }
