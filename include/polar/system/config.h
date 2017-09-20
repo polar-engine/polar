@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <steam/steam_api.h>
 #include <polar/system/base.h>
 #include <polar/util/getline.h>
 #include <polar/util/enumclasshash.h>
