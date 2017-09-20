@@ -70,14 +70,12 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 find_library(Z_LIB NAMES z zlib      PATHS ${LIB_SEARCH_PATH})
 find_library(PORTAUDIO_LIB portaudio PATHS ${LIB_SEARCH_PATH})
-find_library(STEAM_API_LIB steam_api PATHS ${LIB_SEARCH_PATH})
 
 set(POLAR_LIBS ${POLAR_LIBS}
 	${PORTAUDIO_LIB}
 	${OPENGL_LIBRARIES}
 	${SDL2_LIBRARY}
 	${TTF_LIBRARY}
-	${STEAM_API_LIB}
 )
 
 set(ASSETBUILDER_LIBS
@@ -93,25 +91,9 @@ set(PONG_LIBS
 	$<TARGET_FILE:polar>
 )
 
-if(WIN32)
-	find_file(STEAM_API_DYLIB "steam_api.dll" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_CURRENT_SOURCE_DIR})
-elseif(APPLE)
-	set(STEAM_API_DYLIB ${STEAM_API_LIB})
-else()
-	find_file(STEAM_API_DYLIB "steam_api.so" PATH_SUFFIXES ${LIB_SEARCH_PATH} PATHS ${CMAKE_CURRENT_SOURCE_DIR})
-endif()
-
 set(POLAR_FRAMEWORKS ${POLAR_LIBS})
 list(FILTER POLAR_FRAMEWORKS INCLUDE REGEX "\.framework$")
 list(FILTER POLAR_FRAMEWORKS EXCLUDE REGEX "^/System/")
-
-set(STEAM_APPID 0 CACHE STRING "Steam application ID")
-if(NOT STEAM_APPID GREATER "0")
-	message(FATAL_ERROR "STEAM_APPID variable must be non-zero.")
-endif()
-
-set(STEAM_APPID_FILE ${CMAKE_CURRENT_BINARY_DIR}/steam_appid.txt)
-file(WRITE ${STEAM_APPID_FILE} "${STEAM_APPID}")
 
 # Asset Builder
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
@@ -133,10 +115,6 @@ target_include_directories(polar PRIVATE ${GLM_INCLUDE_DIR})
 target_link_libraries(pong ${PONG_LIBS})
 set_property(TARGET pong PROPERTY CXX_STANDARD 11)
 set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
-
-add_custom_command(TARGET pong POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy ${STEAM_API_DYLIB} $<TARGET_FILE_DIR:pong>
-)
 
 add_dependencies(assetbuilder polar)
 add_dependencies(pong polar)
