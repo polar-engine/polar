@@ -17,7 +17,6 @@
 #include <boost/bimap/set_of.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
-#include <steam/steam_api.h>
 #include <polar/core/types.h>
 #include <polar/core/debugmanager.h>
 #include <polar/component/base.h>
@@ -76,26 +75,12 @@ namespace polar { namespace core {
 			}
 
 			debugmanager()->verbose("built on ", buildinfo_date(), " at ", buildinfo_time());
-
-			if(useSteamAPI) {
-				if(!SteamAPI_Init()) {
-					debugmanager()->fatal("failed to initialize Steam API");
-				}
-				debugmanager()->info("Welcome, ", SteamFriends()->GetPersonaName());
-				SteamController()->Init();
-				SteamUserStats()->RequestCurrentStats();
-			}
 		}
 
 		~polar() {
 			/* release stack in reverse order */
 			while(!stack.empty()) {
 				stack.pop_back();
-			}
-
-			if(useSteamAPI) {
-				SteamController()->Shutdown();
-				SteamAPI_Shutdown();
 			}
 		}
 
@@ -121,12 +106,6 @@ namespace polar { namespace core {
 				DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
 
 				debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
-
-				if(useSteamAPI) {
-					debugmanager()->trace("SteamAPI_RunCallbacks before");
-					SteamAPI_RunCallbacks();
-					debugmanager()->trace("SteamAPI_RunCallbacks after");
-				}
 
 				for(auto &state : stack) {
 					state.update(dt);
