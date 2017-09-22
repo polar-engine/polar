@@ -4,7 +4,7 @@
 #include <iostream>
 
 const char pathSeparator =
-#ifdef _WIN32
+#if defined(_WIN32)
 '\\'
 #else
 '/'
