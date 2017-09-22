@@ -278,7 +278,7 @@ namespace polar { namespace system { namespace renderer {
 					GL(glActiveTexture(GL_TEXTURE0 + b));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-					uploaduniform(node.program, pair.second.c_str(), glm::int32(b));
+					uploaduniform(node.program, pair.second, glm::int32(b));
 					++b;
 				}
 				for(auto &pair : node.globalIns) { /* for each global input*/
@@ -286,7 +286,7 @@ namespace polar { namespace system { namespace renderer {
 					GL(glActiveTexture(GL_TEXTURE0 + b));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-					uploaduniform(node.program, pair.second.c_str(), glm::int32(b));
+					uploaduniform(node.program, pair.second, glm::int32(b));
 					++b;
 				}
 
