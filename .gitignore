@@ -2,6 +2,10 @@
 .*.swp
 .*.swo
 
+# clion files/directories
+.idea
+cmake-build-debug
+
 # macOS files
 .DS_Store
 

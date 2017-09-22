@@ -396,7 +396,7 @@ int main(int argc, char **argv) {
 					}
 
 					if(directive == "shader") { /* shader stage */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing shader type"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing shader type"); }
 
 						if(args[0] == "vertex") {
 							asset.shaders.emplace_back(support::shader::shadertype::vertex, header.str());
@@ -404,31 +404,31 @@ int main(int argc, char **argv) {
 							asset.shaders.emplace_back(support::shader::shadertype::fragment, header.str());
 						} else { debugmanager()->error(iLine, ": unknown shader type `", args[0], '`'); }
 					} else if(directive == "uniform") { /* uniform variable */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing uniform type"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing uniform type"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing uniform name"); }
 						asset.uniforms.emplace_back(args[1]);
 						uniforms.emplace_back(args[0], args[1]);
 					} else if(directive == "attrib") { /* vertex attribute*/
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing attribute type"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing attribute type"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing attribute name"); }
 						attribs.emplace_back(args[0], args[1]);
 					} else if(directive == "varying") { /* vertex->fragment interpolable */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing varying interpolation method"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing varying interpolation method"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing varying type"); }
 						if(args.size() < 3) { debugmanager()->fatal(iLine, ": missing varying name"); }
 						varyings.emplace_back(args[0], args[1], args[2]);
 					} else if(directive == "in") { /* input from previous pipeline stage */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing program input key"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing program input key"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing program input name"); }
 						asset.ins.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "gin") { /* global input */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing program input key"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing program input key"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing program input name"); }
 						asset.globalIns.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "out") { /* output to next pipeline stage */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing program output type"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing program output type"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing program output key"); }
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) { debugmanager()->fatal(iLine, ": missing program output name"); }
@@ -454,7 +454,7 @@ int main(int argc, char **argv) {
 							asset.outs.emplace_back(support::shader::outputtype::depth, args[1]);
 						} else { debugmanager()->error(iLine, ": unknown program output type `", args[0], '`'); }
 					} else if(directive == "gout") { /* global output */
-						if(args.size() < 1) { debugmanager()->fatal(iLine, ": missing program global output type"); }
+						if(args.empty()) { debugmanager()->fatal(iLine, ": missing program global output type"); }
 						if(args.size() < 2) { debugmanager()->fatal(iLine, ": missing program global output key"); }
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) { debugmanager()->fatal(iLine, ": missing program global output name"); }
