@@ -6,7 +6,7 @@ class WaveShape {
 public:
 	static const unsigned int granularity = 12;
 	static const int16_t size = 1 << granularity;
-	std::array<int16_t, size> table = { 0 };
+	std::array<int16_t, size> table = {{0}};
 };
 
 inline WaveShape MkSineWaveShape() {
