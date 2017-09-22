@@ -13,7 +13,6 @@ set(POLAR_SRCS
 	src/polar/util/buildinfo.cpp
 	src/polar/system/audio.cpp
 	src/polar/system/renderer/gl32.cpp
-	src/polar/system/player/human.cpp
 	src/polar/system/input.cpp
 	src/polar/system/integrator.cpp
 	src/polar/system/work.cpp
