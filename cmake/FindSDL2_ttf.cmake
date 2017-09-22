@@ -21,7 +21,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SDL2TTF REQUIRED_VARS
 	SDL2TTF_INCLUDE_DIR
 	SDL2TTF_LIBRARY
-	SDL2TTF_DYLIB
-	SDL2TTF_ZLIB_DYLIB
-	SDL2TTF_FREETYPE_DYLIB
 )
