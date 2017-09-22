@@ -11,9 +11,9 @@ const char pathSeparator =
 #endif
 ;
 
-inline const char *basename(const char *path) {
+inline const char * polar_basename(const char *path) {
 	const char *r = strrchr(path, pathSeparator);
 	return r ? r + 1 : path;
 }
 
-#define BASEFILE (basename(__FILE__))
+#define BASEFILE (polar_basename(__FILE__))
