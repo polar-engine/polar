@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 #include <polar/asset/base.h>
 #include <polar/support/font/glyphentry.h>
 #include <polar/util/sdl.h>

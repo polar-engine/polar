@@ -71,11 +71,22 @@ find_package(SDL2_ttf REQUIRED)
 find_library(Z_LIB NAMES z zlib      PATHS ${LIB_SEARCH_PATH})
 find_library(PORTAUDIO_LIB portaudio PATHS ${LIB_SEARCH_PATH})
 
+set(POLAR_INCLUDE_DIRS
+	${GLM_INCLUDE_DIR}
+	${SDL2_INCLUDE_DIR}
+	${SDL2TTF_INCLUDE_DIR}
+)
+
 set(POLAR_LIBS ${POLAR_LIBS}
 	${PORTAUDIO_LIB}
 	${OPENGL_LIBRARIES}
 	${SDL2_LIBRARY}
-	${TTF_LIBRARY}
+	${SDL2TTF_LIBRARY}
+)
+
+set(POLAR_DYLIBS
+	${SDL2_DYLIB}
+	${SDL2TTF_DYLIBS}
 )
 
 set(ASSETBUILDER_LIBS
@@ -95,23 +106,29 @@ set(POLAR_FRAMEWORKS ${POLAR_LIBS})
 list(FILTER POLAR_FRAMEWORKS INCLUDE REGEX "\.framework$")
 list(FILTER POLAR_FRAMEWORKS EXCLUDE REGEX "^/System/")
 
-# Asset Builder
-add_executable(assetbuilder ${ASSETBUILDER_SRCS})
-target_include_directories(assetbuilder PRIVATE ${GLM_INCLUDE_DIR})
-target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
-set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
-set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
-
 # Polar Engine
 add_library(polar STATIC ${POLAR_SRCS})
-target_include_directories(polar PRIVATE ${GLM_INCLUDE_DIR})
+target_include_directories(polar PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
 
+# Asset Builder
+add_executable(assetbuilder ${ASSETBUILDER_SRCS})
+target_include_directories(assetbuilder PRIVATE ${POLAR_INCLUDE_DIRS})
+target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
+set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
+set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
+
+if(POLAR_DYLIBS)
+	add_custom_command(TARGET assetbuilder POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy ${POLAR_DYLIBS} $<TARGET_FILE_DIR:assetbuilder>
+	)
+endif()
+
 # Pong Example
 add_executable(pong WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL ${PONG_SRCS})
-target_include_directories(polar PRIVATE ${GLM_INCLUDE_DIR})
+target_include_directories(polar PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(pong ${PONG_LIBS})
 set_property(TARGET pong PROPERTY CXX_STANDARD 11)
 set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -119,5 +136,7 @@ set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
 add_dependencies(assetbuilder polar)
 add_dependencies(pong polar)
 
+set(POLAR_INCLUDE_DIRS ${POLAR_INCLUDE_DIRS} PARENT_SCOPE)
 set(POLAR_LIBS ${POLAR_LIBS} PARENT_SCOPE)
+set(POLAR_DYLIBS ${POLAR_DYLIBS} PARENT_SCOPE)
 set(POLAR_FRAMEWORKS ${POLAR_FRAMEWORKS} PARENT_SCOPE)

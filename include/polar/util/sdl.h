@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <polar/core/debugmanager.h>
 #include <polar/support/input/key.h>
 #include <polar/util/debug.h>
