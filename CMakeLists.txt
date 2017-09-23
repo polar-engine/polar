@@ -24,11 +24,6 @@ set(ASSETBUILDER_SRCS
 	src/assetbuilder/main.cpp
 )
 
-set(PONG_SRCS
-	src/pong/app.cpp
-	src/pong/main.cpp
-)
-
 if(WIN32)
 	set(POLAR_LIBS
 		legacy_stdio_definitions.lib
@@ -96,11 +91,6 @@ set(ASSETBUILDER_LIBS
 	$<TARGET_FILE:polar>
 )
 
-set(PONG_LIBS
-	${POLAR_LIBS}
-	$<TARGET_FILE:polar>
-)
-
 set(POLAR_FRAMEWORKS ${POLAR_LIBS})
 list(FILTER POLAR_FRAMEWORKS INCLUDE REGEX "\.framework$")
 list(FILTER POLAR_FRAMEWORKS EXCLUDE REGEX "^/System/")
@@ -118,22 +108,13 @@ target_include_directories(assetbuilder PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
+add_dependencies(assetbuilder polar)
 
 if(POLAR_DYLIBS)
 	add_custom_command(TARGET assetbuilder POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${POLAR_DYLIBS} $<TARGET_FILE_DIR:assetbuilder>
 	)
 endif()
-
-# Pong Example
-add_executable(pong WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL ${PONG_SRCS})
-target_include_directories(pong PRIVATE ${POLAR_INCLUDE_DIRS})
-target_link_libraries(pong ${PONG_LIBS})
-set_property(TARGET pong PROPERTY CXX_STANDARD 11)
-set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
-
-add_dependencies(assetbuilder polar)
-add_dependencies(pong polar)
 
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if(HAS_PARENT)
