@@ -15,8 +15,8 @@ namespace polar { namespace component {
 		PointsType points;
 
 		model() : type(GeometryType::None) {}
-		model(GeometryType type, const PointsType &points) : type(type), points(points) {}
-		model(const TrianglesType &triangles) : type(GeometryType::Triangles) {
+		model(GeometryType type, PointsType points) : type(type), points(points) {}
+		model(TrianglesType triangles) : type(GeometryType::Triangles) {
 			auto size = triangles.size() * 3;
 			points.resize(size);
 			for(TrianglesType::size_type i = 0; i < triangles.size(); ++i) {
