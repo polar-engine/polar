@@ -66,7 +66,7 @@ endif()
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(SDL2_ttf REQUIRED)
+find_package(SDL2TTF REQUIRED)
 find_library(Z_LIB NAMES z zlib      PATHS ${LIB_SEARCH_PATH})
 find_library(PORTAUDIO_LIB portaudio PATHS ${LIB_SEARCH_PATH})
 
