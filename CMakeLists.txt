@@ -127,7 +127,7 @@ endif()
 
 # Pong Example
 add_executable(pong WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL ${PONG_SRCS})
-target_include_directories(polar PRIVATE ${POLAR_INCLUDE_DIRS})
+target_include_directories(pong PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(pong ${PONG_LIBS})
 set_property(TARGET pong PROPERTY CXX_STANDARD 11)
 set_property(TARGET pong PROPERTY CXX_STANDARD_REQUIRED ON)
