@@ -14,7 +14,7 @@ if(WIN32)
 endif()
 
 if(SDL2TTF_LIBRARY_TEMP)
-	set(SDL2TTF_LIBRARY ${SDL2TTF_LIBRARY_TEMP} CACHE STRING "Where the SDL2_ttf library can be found")
+	set(SDL2TTF_LIBRARY ${SDL2TTF_LIBRARY_TEMP} CACHE STRING "Where the SDL2TTF library can be found")
 endif()
 
 include(FindPackageHandleStandardArgs)
