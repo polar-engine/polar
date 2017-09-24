@@ -219,31 +219,28 @@ namespace polar { namespace system { namespace renderer {
 
 			switch(i) {
 			case 0: {
-				// freefall main shader is in screen space
-				GL(glBindVertexArray(viewportVAO));
-				GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-				break;
-
-				/*auto pairRight = engine->objects.right.equal_range(&typeid(ModelComponent));
+				auto pairRight = engine->objects.right.equal_range(&typeid(component::model));
 				for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-					auto model = static_cast<ModelComponent *>(itRight->info.get());
-					Mat4 modelMatrix;
-
-					PositionComponent *pos = nullptr;
-					OrientationComponent *orient = nullptr;
+					auto model = static_cast<component::model *>(itRight->info.get());
+					component::position *pos = nullptr;
+					component::orientation *orient = nullptr;
 
 					auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
 					for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
 						auto type = itLeft->get_right();
-						if(type == &typeid(PositionComponent)) { pos = static_cast<PositionComponent *>(itLeft->info.get()); } else if(type == &typeid(OrientationComponent)) { orient = static_cast<OrientationComponent *>(itLeft->info.get()); }
+						if(type == &typeid(component::position)) {
+							pos = static_cast<component::position *>(itLeft->info.get());
+						} else if(type == &typeid(component::orientation)) {
+							orient = static_cast<component::orientation *>(itLeft->info.get());
+						}
 					}
 
-					auto property = model->Get<GL32ModelProperty>().lock();
+					auto property = model->get<model_p>().lock();
 					if(property) {
-						glm::dmat4 modelView = cameraView;
+						Mat4 modelMatrix;
 
-						if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->position.Temporal(alpha).To<Point3>()); }
-						if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orientation)); }
+						if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(alpha).to<Point3>()); }
+						if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orient)); }
 
 						GLenum drawMode = GL_TRIANGLES;
 						switch(model->type) {
@@ -260,13 +257,13 @@ namespace polar { namespace system { namespace renderer {
 							break;
 						}
 
-						UploadUniform(node.program, "u_model", modelMatrix);
+						uploaduniform(node.program, "u_model", modelMatrix);
 
 						GL(glBindVertexArray(property->vao));
 						GL(glDrawArrays(drawMode, 0, property->numVertices));
 					}
 				}
-				break;*/
+				break;
 			}
 			default:
 				for(auto &pair : nodes[i - 1].globalOuts) { /* for each previous global output */
