@@ -30,11 +30,25 @@ namespace polar { namespace component {
 		PointsType calculate_normals() const {
 			PointsType normals;
 			normals.resize(points.size());
-			for(PointsType::size_type i = 0; i < points.size(); i += 3) {
+
+			PointsType::size_type i = 0;
+			while(i < points.size() - 3) {
 				auto normal = calculate_normal(points[i], points[i + 1], points[i + 2]);
 				normals[i + 0] = normal;
 				normals[i + 1] = normal;
 				normals[i + 2] = normal;
+
+				switch(type) {
+				case GeometryType::Triangles:
+					i += 3;
+					break;
+				case GeometryType::TriangleStrip:
+					++i;
+					break;
+				default:
+					debugmanager()->fatal("cannot calculate normals for non-triangle geometry");
+					break;
+				}
 			}
 			return normals;
 		}
