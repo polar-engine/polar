@@ -95,12 +95,18 @@ set(POLAR_FRAMEWORKS ${POLAR_LIBS})
 list(FILTER POLAR_FRAMEWORKS INCLUDE REGEX "\.framework$")
 list(FILTER POLAR_FRAMEWORKS EXCLUDE REGEX "^/System/")
 
+# invalidate buildinfo
+add_custom_target(invalidate_buildinfo ALL
+	COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/src/polar/util/buildinfo.cpp
+)
+
 # Polar Engine
 add_library(polar STATIC ${POLAR_SRCS})
 target_include_directories(polar PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
+add_dependencies(polar invalidate_buildinfo)
 
 # Asset Builder
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
