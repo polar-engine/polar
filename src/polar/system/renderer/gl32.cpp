@@ -188,6 +188,7 @@ namespace polar { namespace system { namespace renderer {
 
 			component::position *pos = nullptr;
 			component::orientation *orient = nullptr;
+			component::scale *sc = nullptr;
 
 			auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
 			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
@@ -224,6 +225,7 @@ namespace polar { namespace system { namespace renderer {
 					auto model = static_cast<component::model *>(itRight->info.get());
 					component::position *pos = nullptr;
 					component::orientation *orient = nullptr;
+					component::scale *sc = nullptr;
 
 					auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
 					for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
@@ -232,6 +234,8 @@ namespace polar { namespace system { namespace renderer {
 							pos = static_cast<component::position *>(itLeft->info.get());
 						} else if(type == &typeid(component::orientation)) {
 							orient = static_cast<component::orientation *>(itLeft->info.get());
+						} else if(type == &typeid(component::scale)) {
+							sc = static_cast<component::scale *>(itLeft->info.get());
 						}
 					}
 
@@ -239,8 +243,9 @@ namespace polar { namespace system { namespace renderer {
 					if(property) {
 						Mat4 modelMatrix;
 
-						if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(alpha).to<Point3>()); }
+						if(pos != nullptr)    { modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(alpha).to<Point3>()); }
 						if(orient != nullptr) { modelMatrix *= glm::toMat4(glm::inverse(orient->orient)); }
+						if(sc != nullptr)     { modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(alpha).to<Point3>()); }
 
 						GLenum drawMode = GL_TRIANGLES;
 						switch(model->type) {
