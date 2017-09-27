@@ -130,7 +130,9 @@ namespace polar { namespace system { namespace renderer {
 		inline void componentadded(IDType id, const std::type_info *ti, std::weak_ptr<component::base> ptr) override final {
 			if(ti == &typeid(component::model)) {
 				auto model = std::static_pointer_cast<component::model>(ptr.lock());
-				uploadmodel(model);
+				if(!model->has<model_p>()) {
+					uploadmodel(model);
+				}
 			} else if(ti == &typeid(component::sprite::base)) {
 				auto sprite = std::static_pointer_cast<component::sprite::base>(ptr.lock());
 				sprite->render();
