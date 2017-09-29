@@ -150,9 +150,11 @@ namespace polar { namespace core {
 			running = false;
 		}
 
-		template<typename T> inline std::weak_ptr<T> getsystem() {
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
+		inline std::weak_ptr<T> getsystem() {
 			for(auto &state : stack) {
-				auto ptr = state.getsystem<T>();
+				auto ptr = state.get_system<T>();
 				if(!ptr.expired()) { return ptr; }
 			}
 			return std::weak_ptr<T>();
@@ -170,7 +172,7 @@ namespace polar { namespace core {
 			auto pairLeft = objects.left.equal_range(id);
 			for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
 				for(auto &state : stack) {
-					state.componentremoved(id, it->get_right());
+					state.component_removed(id, it->get_right());
 				}
 			}
 			objects.left.erase(id);
@@ -194,7 +196,7 @@ namespace polar { namespace core {
 			debugmanager()->trace("inserting component: ", ti->name());
 			objects.insert(bimap::value_type(id, ti, component));
 			for(auto &state : stack) {
-				state.componentadded(id, ti, component);
+				state.component_added(id, ti, component);
 			}
 			debugmanager()->trace("inserted component");
 		}

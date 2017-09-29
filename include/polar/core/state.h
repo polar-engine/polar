@@ -51,13 +51,18 @@ namespace polar { namespace core {
 			}
 		}
 
-		template<typename T, typename ...Ts> inline void addsystem(Ts && ...args) {
-			addsystem_as<T, T>(std::forward<Ts>(args)...);
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type,
+		         typename ...Ts>
+		inline void add_system(Ts && ...args) {
+			add_system_as<T, T>(std::forward<Ts>(args)...);
 		}
 
-		template<typename B, typename T, typename ...Ts> inline void addsystem_as(Ts && ...args) {
-			static_assert(std::is_base_of<B, T>::value, "addsystem_as requires base class and sub class");
-
+		template<typename B, typename T,
+		         typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type,
+		         typename = typename std::enable_if<std::is_base_of<B, T>::value>::type,
+		         typename ...Ts>
+		inline void add_system_as(Ts && ...args) {
 	#ifdef _DEBUG
 			if(!T::supported()) {
 				debugmanager()->fatal("unsupported system: ", typeid(T).name());
@@ -70,7 +75,9 @@ namespace polar { namespace core {
 	#endif
 		}
 
-		template<typename T> inline void removesystem() {
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
+		inline void remove() {
 			auto sys = std::static_pointer_cast<system::base>(systems.get<T>().lock());
 			if(sys) {
 				orderedSystems.erase(std::remove(orderedSystems.begin(), orderedSystems.end(), sys));
@@ -78,11 +85,13 @@ namespace polar { namespace core {
 			}
 		}
 
-		template<typename T> inline std::weak_ptr<T> getsystem() {
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
+		inline std::weak_ptr<T> get_system() {
 			return systems.get<T>();
 		}
 
-		inline void componentadded(IDType id, const std::type_info *ti, std::shared_ptr<component::base> ptr) {
+		inline void component_added(IDType id, const std::type_info *ti, std::shared_ptr<component::base> ptr) {
 			for(auto &pairSystem : *systems.get()) {
 				auto &system = pairSystem.second;
 				auto &deref = *system;
@@ -92,7 +101,7 @@ namespace polar { namespace core {
 			}
 		}
 
-		inline void componentremoved(IDType id, const std::type_info *ti) {
+		inline void component_removed(IDType id, const std::type_info *ti) {
 			for(auto &pairSystem : *systems.get()) {
 				auto &system = pairSystem.second;
 				auto &deref = *system;
