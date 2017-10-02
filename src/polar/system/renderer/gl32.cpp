@@ -110,7 +110,7 @@ namespace polar { namespace system { namespace renderer {
 		makepipeline(pipelineNames);
 		debugmanager()->trace("MakePipeline done");
 
-		auto assetM = engine->getsystem<asset>().lock();
+		auto assetM = engine->get_system<asset>().lock();
 		spriteProgram = makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
 
 		inited = true;
@@ -153,7 +153,7 @@ namespace polar { namespace system { namespace renderer {
 		changedUniformsFloat.clear();
 		changedUniformsPoint3.clear();
 
-		fpsDtor = engine->addobject(&fpsID);
+		fpsDtor = engine->add_object(&fpsID);
 
 		if(dt.Seconds() > 0) {
 			fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
@@ -163,13 +163,13 @@ namespace polar { namespace system { namespace renderer {
 			std::ostringstream oss;
 			oss << (int)fps << " fps";
 
-			auto assetM = engine->getsystem<asset>().lock();
+			auto assetM = engine->get_system<asset>().lock();
 			auto font = assetM->get<polar::asset::font>("nasalization-rg");
 
-			engine->addcomponent<component::text>(fpsID, font, oss.str());
-			engine->addcomponent<component::screenposition>(fpsID, Point2(5, 5), support::ui::origin::topleft);
-			engine->addcomponent<component::color>(fpsID, Point4(1, 1, 1, 0.8));
-			engine->addcomponent<component::scale>(fpsID, Point3(0.125));
+			engine->add_component<component::text>(fpsID, font, oss.str());
+			engine->add_component<component::screenposition>(fpsID, Point2(5, 5), support::ui::origin::topleft);
+			engine->add_component<component::color>(fpsID, Point4(1, 1, 1, 0.8));
+			engine->add_component<component::scale>(fpsID, Point3(0.125));
 		}
 
 		SDL_Event event;
@@ -178,7 +178,7 @@ namespace polar { namespace system { namespace renderer {
 		}
 		SDL_ClearError();
 
-		auto integrator_s = engine->getsystem<integrator>().lock();
+		auto integrator_s = engine->get_system<integrator>().lock();
 		float alpha = integrator_s->alphaMicroseconds / 1000000.0f;
 
 		Mat4 cameraView;
@@ -325,11 +325,11 @@ namespace polar { namespace system { namespace renderer {
 	void gl32::rendersprite(IDType id) {
 		using origin_t = support::ui::origin;
 
-		auto sprite = engine->getcomponent<component::sprite::base>(id);
+		auto sprite = engine->get_component<component::sprite::base>(id);
 		auto prop = sprite->get<property::gl32::sprite>().lock();
-		auto screenPos = engine->getcomponent<component::screenposition>(id);
-		auto scale = engine->getcomponent<component::scale>(id);
-		auto color = engine->getcomponent<component::color>(id);
+		auto screenPos = engine->get_component<component::screenposition>(id);
+		auto scale = engine->get_component<component::scale>(id);
+		auto color = engine->get_component<component::color>(id);
 
 		auto coord = Point2(0);
 
@@ -429,10 +429,10 @@ namespace polar { namespace system { namespace renderer {
 	void gl32::rendertext(IDType id) {
 		using origin_t = support::ui::origin;
 
-		auto text = engine->getcomponent<component::text>(id);
-		auto screenPos = engine->getcomponent<component::screenposition>(id);
-		auto scale = engine->getcomponent<component::scale>(id);
-		auto color = engine->getcomponent<component::color>(id);
+		auto text = engine->get_component<component::text>(id);
+		auto screenPos = engine->get_component<component::screenposition>(id);
+		auto scale = engine->get_component<component::scale>(id);
+		auto color = engine->get_component<component::color>(id);
 
 		// calculate intended width of string
 		Decimal stringWidth = 0;
@@ -605,43 +605,43 @@ namespace polar { namespace system { namespace renderer {
 				debugmanager()->trace("MakePipeline from SDL_WINDOWEVENT");
 				makepipeline(pipelineNames);
 				debugmanager()->trace("MakePipeline done");
-				engine->getsystem<event>().lock()->fire("resize", nullptr);
+				engine->get_system<event>().lock()->fire("resize", nullptr);
 				break;
 			}
 			break;
 		case SDL_KEYDOWN:
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
-				engine->getsystem<event>().lock()->fire("keydown", &key);
+				engine->get_system<event>().lock()->fire("keydown", &key);
 			}
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
-			engine->getsystem<event>().lock()->fire("keyup", &key);
+			engine->get_system<event>().lock()->fire("keyup", &key);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			engine->getsystem<event>().lock()->fire("keydown", &key);
+			engine->get_system<event>().lock()->fire("keydown", &key);
 			break;
 		case SDL_MOUSEBUTTONUP:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			engine->getsystem<event>().lock()->fire("keyup", &key);
+			engine->get_system<event>().lock()->fire("keyup", &key);
 			break;
 		case SDL_MOUSEMOTION:
 			mouseDelta = Point2(ev.motion.xrel, ev.motion.yrel);
-			engine->getsystem<event>().lock()->fire("mousemove", &mouseDelta);
+			engine->get_system<event>().lock()->fire("mousemove", &mouseDelta);
 			break;
 		case SDL_MOUSEWHEEL:
 			mouseDelta = Point2(ev.wheel.x, ev.wheel.y);
-			engine->getsystem<event>().lock()->fire("mousewheel", &mouseDelta);
+			engine->get_system<event>().lock()->fire("mousewheel", &mouseDelta);
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			engine->getsystem<event>().lock()->fire("keydown", &key);
+			engine->get_system<event>().lock()->fire("keydown", &key);
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			engine->getsystem<event>().lock()->fire("keyup", &key);
+			engine->get_system<event>().lock()->fire("keyup", &key);
 			break;
 		case SDL_CONTROLLERAXISMOTION:
 			/* axis 0 = x axis
@@ -650,10 +650,10 @@ namespace polar { namespace system { namespace renderer {
 			controllerAxisValue = ev.caxis.value;
 			switch(ev.caxis.axis) {
 			case 0:
-				engine->getsystem<event>().lock()->fire("controlleraxisx", support::event::arg(controllerAxisValue));
+				engine->get_system<event>().lock()->fire("controlleraxisx", support::event::arg(controllerAxisValue));
 				break;
 			case 1:
-				engine->getsystem<event>().lock()->fire("controlleraxisy", support::event::arg(controllerAxisValue));
+				engine->get_system<event>().lock()->fire("controlleraxisy", support::event::arg(controllerAxisValue));
 				break;
 			}
 			break;
@@ -663,7 +663,7 @@ namespace polar { namespace system { namespace renderer {
 	void gl32::makepipeline(const std::vector<std::string> &names) {
 		pipelineNames = names;
 
-		auto assetM = engine->getsystem<asset>().lock();
+		auto assetM = engine->get_system<asset>().lock();
 		std::vector<std::shared_ptr<polar::asset::shaderprogram>> assets;
 		for(auto &node : nodes) {
 			for(auto &out : node.globalOuts) { GL(glDeleteTextures(1, &out.second)); }

@@ -4,7 +4,7 @@
 
 namespace polar { namespace system {
 	void input::init() {
-		auto eventM = engine->getsystem<event>().lock();
+		auto eventM = engine->get_system<event>().lock();
 		dtors.emplace_back(eventM->listenfor("keydown", [this] (arg_t arg) {
 			auto key = *arg.get<key_t>();
 

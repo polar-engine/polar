@@ -49,11 +49,11 @@ namespace polar { namespace system {
 				if(item.control->activate()) {
 					render(current, true);
 					if(item.fn(item.control->get())) {
-						auto assetM = engine->getsystem<asset>().lock();
+						auto assetM = engine->get_system<asset>().lock();
 						IDType soundID;
-						soundDtors[soundIndex++] = engine->addobject(&soundID);
+						soundDtors[soundIndex++] = engine->add_object(&soundID);
 						soundIndex %= soundDtors.size();
-						engine->addcomponent<component::audiosource>(soundID, assetM->get<polar::asset::audio>("menu1"), support::audio::sourcetype::effect);
+						engine->add_component<component::audiosource>(soundID, assetM->get<polar::asset::audio>("menu1"), support::audio::sourcetype::effect);
 					}
 				}
 			} else if(!item.children.empty()) { navigate(0, 1, true); }
@@ -110,11 +110,11 @@ namespace polar { namespace system {
 			}
 
 			if(playBeep) {
-				auto assetM = engine->getsystem<asset>().lock();
+				auto assetM = engine->get_system<asset>().lock();
 				IDType soundID;
-				soundDtors[soundIndex++] = engine->addobject(&soundID);
+				soundDtors[soundIndex++] = engine->add_object(&soundID);
 				soundIndex %= soundDtors.size();
-				engine->addcomponent<component::audiosource>(soundID, assetM->get<polar::asset::audio>("menu1"), support::audio::sourcetype::effect);
+				engine->add_component<component::audiosource>(soundID, assetM->get<polar::asset::audio>("menu1"), support::audio::sourcetype::effect);
 			}
 		}
 
@@ -124,9 +124,9 @@ namespace polar { namespace system {
 
 			IDType id;
 			if(replace) {
-				itemDtors.at(i) = engine->addobject(&id);
+				itemDtors.at(i) = engine->add_object(&id);
 			} else {
-				itemDtors.emplace_back(engine->addobject(&id));
+				itemDtors.emplace_back(engine->add_object(&id));
 			}
 
 			const Decimal uiHeight = 2.25;
@@ -140,14 +140,14 @@ namespace polar { namespace system {
 			Decimal spacing = uiTextHeight * scale;
 			Point2 origin = Point2(60, 50 + spacing * (m->size() - i - 1));
 
-			engine->addcomponent<component::text>(id, font, item.value);
-			engine->addcomponent<component::screenposition>(id, origin);
-			engine->addcomponent<component::scale>(id, Point3(scale));
+			engine->add_component<component::text>(id, font, item.value);
+			engine->add_component<component::screenposition>(id, origin);
+			engine->add_component<component::scale>(id, Point3(scale));
 
-			auto text = engine->getcomponent<component::text>(id);
+			auto text = engine->get_component<component::text>(id);
 
 			if(i == current) {
-				engine->addcomponent<component::color>(id, Point4(1, 1, selectionAlpha, 1));
+				engine->add_component<component::color>(id, Point4(1, 1, selectionAlpha, 1));
 			}
 
 			if(item.control) {
@@ -159,9 +159,9 @@ namespace polar { namespace system {
 		}
 	protected:
 		void init() override final {
-			auto assetM = engine->getsystem<asset>().lock();
-			auto inputM = engine->getsystem<input>().lock();
-			auto tw = engine->getsystem<tweener<float>>().lock();
+			auto assetM = engine->get_system<asset>().lock();
+			auto inputM = engine->get_system<input>().lock();
+			auto tw = engine->get_system<tweener<float>>().lock();
 
 			assetM->request<polar::asset::audio>("menu1");
 

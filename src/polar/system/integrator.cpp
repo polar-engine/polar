@@ -25,6 +25,6 @@ namespace polar { namespace system {
 				}
 			}
 		}
-		engine->getsystem<event>().lock()->firein("integrator", "ticked", seconds);
+		engine->get_system<event>().lock()->firein("integrator", "ticked", seconds);
 	}
 } }
