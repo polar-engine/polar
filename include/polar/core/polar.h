@@ -152,7 +152,7 @@ namespace polar { namespace core {
 
 		template<typename T,
 		         typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
-		inline std::weak_ptr<T> getsystem() {
+		inline std::weak_ptr<T> get_system() {
 			for(auto &state : stack) {
 				auto ptr = state.get_system<T>();
 				if(!ptr.expired()) { return ptr; }
@@ -160,15 +160,15 @@ namespace polar { namespace core {
 			return std::weak_ptr<T>();
 		}
 
-		inline std::shared_ptr<destructor> addobject(IDType *inputID) {
+		inline std::shared_ptr<destructor> add_object(IDType *inputID) {
 			auto id = nextID++;
 			*inputID = id;
 			return std::make_shared<destructor>([this, id] () {
-				removeobject(id);
+				remove_object(id);
 			});
 		}
 
-		inline void removeobject(IDType id) {
+		inline void remove_object(IDType id) {
 			auto pairLeft = objects.left.equal_range(id);
 			for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
 				for(auto &state : stack) {
@@ -178,20 +178,28 @@ namespace polar { namespace core {
 			objects.left.erase(id);
 		}
 
-		template<typename T, typename ...Ts> inline void addcomponent(IDType id, Ts && ...args) {
-			insertcomponent(id, new T(std::forward<Ts>(args)...));
+		template<typename T, typename ...Ts,
+		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
+		inline void add_component(IDType id, Ts && ...args) {
+			add_component_as<T, T>(id, std::forward<Ts>(args)...);
 		}
 
-		template<typename B, typename T, typename ...Ts> inline void addcomponent_as(IDType id, Ts && ...args) {
-			static_assert(std::is_base_of<B, T>::value, "addcomponent_as requires base class and sub class");
-			insertcomponent<B>(id, new T(std::forward<Ts>(args)...));
+		template<typename B, typename T, typename ...Ts,
+		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type,
+		         typename = typename std::enable_if<std::is_base_of<B, T>::value>::type>
+		inline void add_component_as(IDType id, Ts && ...args) {
+			insert_component<B>(id, new T(std::forward<Ts>(args)...));
 		}
 
-		template<typename T> inline void insertcomponent(IDType id, T *component) {
-			insertcomponent(id, std::shared_ptr<T>(component));
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
+		inline void insert_component(IDType id, T *component) {
+			insert_component(id, std::shared_ptr<T>(component));
 		}
 
-		template<typename T> inline void insertcomponent(IDType id, std::shared_ptr<T> component) {
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
+		inline void insert_component(IDType id, std::shared_ptr<T> component) {
 			auto ti = &typeid(T);
 			debugmanager()->trace("inserting component: ", ti->name());
 			objects.insert(bimap::value_type(id, ti, component));
@@ -201,7 +209,9 @@ namespace polar { namespace core {
 			debugmanager()->trace("inserted component");
 		}
 
-		template<typename T> inline T * getcomponent(IDType id) {
+		template<typename T,
+		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
+		inline T * get_component(IDType id) {
 			auto it = objects.find(bimap::relation(id, &typeid(T)));
 			if(it != objects.end()) {
 				return static_cast<T *>(it->info.get());

@@ -179,7 +179,7 @@ namespace polar { namespace system { namespace renderer {
 
 		inline void componentremoved(IDType id, const std::type_info *ti) override final {
 			if(ti == &typeid(component::model)) {
-				auto model = engine->getcomponent<component::model>(id);
+				auto model = engine->get_component<component::model>(id);
 				if(model != nullptr) {
 					auto prop = model->get<model_p>().lock();
 					if(prop) {
@@ -187,7 +187,7 @@ namespace polar { namespace system { namespace renderer {
 					}
 				}
 			} else if(ti == &typeid(component::sprite::base)) {
-				auto text = engine->getcomponent<component::sprite::base>(id);
+				auto text = engine->get_component<component::sprite::base>(id);
 				if(text != nullptr) {
 					auto prop = text->get<sprite_p>().lock();
 					if(prop) {
