@@ -1,5 +1,6 @@
 #pragma once
 
+#include <polar/core/types.h>
 #include <vector>
 
 namespace polar {

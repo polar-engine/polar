@@ -1,6 +1,10 @@
+#if !defined(POLAR_H)
+#include <polar/core/polar.h>
+#else
 #pragma once
 
 #include <polar/core/destructor.h>
+#include <polar/core/polar.h>
 #include <polar/core/stack.h>
 #include <polar/system/base.h>
 #include <unordered_map>
@@ -8,8 +12,6 @@
 
 namespace polar {
 namespace core {
-	class polar;
-
 	class state {
 	  private:
 		polar *engine;
@@ -126,3 +128,5 @@ namespace core {
 	};
 }
 }
+
+#endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#define POLAR_BASE_POLAR_H
+#define POLAR_H
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -17,13 +17,23 @@
 #include <polar/component/base.h>
 #include <polar/core/debugmanager.h>
 #include <polar/core/stack.h>
-#include <polar/core/state.h>
 #include <polar/core/types.h>
-#include <polar/system/base.h>
 #include <polar/util/buildinfo.h>
 #include <random>
 #include <unordered_map>
 #include <vector>
+
+// define types in explicit order to stop loops
+
+namespace polar {
+namespace core {
+	class polar;
+}
+}
+
+#include <polar/system/base.h>
+
+#include <polar/core/state.h>
 
 namespace polar {
 namespace core {
