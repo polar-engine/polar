@@ -2,52 +2,63 @@
 
 #include <polar/component/sprite/base.h>
 
-namespace polar { namespace component { namespace sprite {
-	class slider : public base {
-	private:
-		const float width;
-		const float height;
-		const float alpha;
-	public:
-		slider(const float width, const float height, const float alpha) : width(width), height(height), alpha(alpha) {}
+namespace polar {
+namespace component {
+	namespace sprite {
+		class slider : public base {
+		  private:
+			const float width;
+			const float height;
+			const float alpha;
 
-		void render_me() override final {
-			const int edgeSize = 2;
-			const int edgePadding = 2;
-			const int boxSize = int(height);
-			const int w = int(width), h = int(height);
+		  public:
+			slider(const float width, const float height, const float alpha)
+			    : width(width), height(height), alpha(alpha) {}
 
-			SDL(surface = SDL_CreateRGBSurface(0, w, h, 32, 0xff, 0xff00, 0xff0000, 0xff000000));
+			void render_me() override final {
+				const int edgeSize    = 2;
+				const int edgePadding = 2;
+				const int boxSize     = int(height);
+				const int w = int(width), h = int(height);
 
-			SDL_Rect rect;
+				SDL(surface = SDL_CreateRGBSurface(0, w, h, 32, 0xff, 0xff00,
+				                                   0xff0000, 0xff000000));
 
-			// edges
-			rect.y = 0;
-			rect.h = h;
+				SDL_Rect rect;
 
-			// left edge
-			rect.x = 0;
-			rect.w = edgeSize;
-			SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 255, 255, 255)));
+				// edges
+				rect.y = 0;
+				rect.h = h;
 
-			// right edge
-			rect.x = w - edgeSize;
-			rect.w = edgeSize;
-			SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 255, 255, 255)));
+				// left edge
+				rect.x = 0;
+				rect.w = edgeSize;
+				SDL(SDL_FillRect(surface, &rect,
+				                 SDL_MapRGB(surface->format, 255, 255, 255)));
 
-			// box
-			int min = edgeSize + edgePadding;
-			int max = w - min - boxSize;
-			rect.y = 0;
-			rect.h = boxSize;
-			rect.x = glm::mix(min, max, alpha);
-			rect.w = boxSize;
-			SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0, 0, 0)));
-			rect.y += 1;
-			rect.h -= 2;
-			rect.x += 1;
-			rect.w -= 2;
-			SDL(SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 77, 204, 255)));
-		}
-	};
-} } }
+				// right edge
+				rect.x = w - edgeSize;
+				rect.w = edgeSize;
+				SDL(SDL_FillRect(surface, &rect,
+				                 SDL_MapRGB(surface->format, 255, 255, 255)));
+
+				// box
+				int min = edgeSize + edgePadding;
+				int max = w - min - boxSize;
+				rect.y  = 0;
+				rect.h  = boxSize;
+				rect.x  = glm::mix(min, max, alpha);
+				rect.w  = boxSize;
+				SDL(SDL_FillRect(surface, &rect,
+				                 SDL_MapRGB(surface->format, 0, 0, 0)));
+				rect.y += 1;
+				rect.h -= 2;
+				rect.x += 1;
+				rect.w -= 2;
+				SDL(SDL_FillRect(surface, &rect,
+				                 SDL_MapRGB(surface->format, 77, 204, 255)));
+			}
+		};
+	}
+}
+}

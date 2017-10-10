@@ -6,8 +6,8 @@
 //#define GLM_FORCE_SWIZZLE
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 
 typedef float Decimal;
 typedef glm::tvec2<Decimal, glm::highp> EnginePoint2;
@@ -27,12 +27,7 @@ typedef glm::tmat4x4<Decimal, glm::highp> Mat4;
 typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 #define Triangle EngineTriangle
 
-enum class GeometryType : uint8_t {
-	None,
-	Lines,
-	Triangles,
-	TriangleStrip
-};
+enum class GeometryType : uint8_t { None, Lines, Triangles, TriangleStrip };
 
 typedef std::uint_fast64_t IDType;
 #define INVALID_ID std::numeric_limits<IDType>::max

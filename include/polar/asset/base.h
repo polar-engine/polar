@@ -1,13 +1,14 @@
 #pragma once
 
-#include <stdint.h>
-#include <string>
-#include <vector>
-#include <type_traits>
 #include <polar/core/serializer.h>
 #include <polar/util/endian.h>
+#include <stdint.h>
+#include <string>
+#include <type_traits>
+#include <vector>
 
-namespace polar { namespace asset {
+namespace polar {
+namespace asset {
 	using core::serializer;
 	using core::deserializer;
 
@@ -15,8 +16,10 @@ namespace polar { namespace asset {
 		virtual ~base() {}
 	};
 
-	template<typename T> inline std::string name() {
-		static_assert(true, "invalid template argument to polar::asset::name()");
+	template <typename T> inline std::string name() {
+		static_assert(true,
+		              "invalid template argument to polar::asset::name()");
 		return "";
 	}
-} }
+}
+}

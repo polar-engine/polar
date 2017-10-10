@@ -1,6 +1,7 @@
 #include <polar/system/work.h>
 
-namespace polar { namespace system {
+namespace polar {
+namespace system {
 	work::work(core::polar *engine) : base(engine) {
 		for(int i = 0; i < numWorkers; ++i) {
 			_workers.push_back(new worker_t());
@@ -8,9 +9,7 @@ namespace polar { namespace system {
 	}
 
 	work::~work() {
-		for(auto worker : _workers) {
-			worker->addjob(job_t(job_type::stop));
-		}
+		for(auto worker : _workers) { worker->addjob(job_t(job_type::stop)); }
 
 		/* copy vector to avoid invalidation */
 		auto tmpWorkers = _workers;
@@ -23,15 +22,14 @@ namespace polar { namespace system {
 	}
 
 	void work::init() {
-		for(auto worker : _workers) {
-			worker->start();
-		}
+		for(auto worker : _workers) { worker->start(); }
 	}
 
 	void work::update(DeltaTicks &) {
-		jobs.with([this] (job_queue_t &jobs) {
-			auto numJobs = jobs.size();
-			auto numOnMain = std::max(static_cast<uint64_t>(128), static_cast<uint64_t>(numJobs / 64));
+		jobs.with([this](job_queue_t &jobs) {
+			auto numJobs   = jobs.size();
+			auto numOnMain = std::max(static_cast<uint64_t>(128),
+			                          static_cast<uint64_t>(numJobs / 64));
 
 			for(; numJobs > 0; --numJobs) {
 				auto job = jobs.top();
@@ -41,7 +39,9 @@ namespace polar { namespace system {
 					if(numOnMain > 0) {
 						job.fn();
 						numOnMain--;
-					} else { jobs.emplace(job); }
+					} else {
+						jobs.emplace(job);
+					}
 					break;
 				case job_thread::any:
 					if(numOnMain > 0) {
@@ -57,4 +57,5 @@ namespace polar { namespace system {
 			}
 		});
 	}
-} }
+}
+}

@@ -2,12 +2,15 @@
 
 #include <functional>
 
-namespace polar { namespace core {
+namespace polar {
+namespace core {
 	class destructor {
-	private:
+	  private:
 		std::function<void()> fn;
-	public:
+
+	  public:
 		destructor(std::function<void()> fn) : fn(fn) {}
 		~destructor() { fn(); }
 	};
-} }
+}
+}

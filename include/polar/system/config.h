@@ -1,40 +1,40 @@
 #pragma once
 
-#include <unordered_map>
 #include <polar/system/base.h>
-#include <polar/util/getline.h>
 #include <polar/util/enumclasshash.h>
+#include <polar/util/getline.h>
+#include <unordered_map>
 
-namespace polar { namespace system {
-	template<typename K, typename FS> class config : public base {
-	public:
-		using key_t = K;
-		using value_t = Decimal;
+namespace polar {
+namespace system {
+	template <typename K, typename FS> class config : public base {
+	  public:
+		using key_t     = K;
+		using value_t   = Decimal;
 		using handler_t = std::function<void(core::polar *, key_t, value_t)>;
-	private:
+
+	  private:
 		const std::string path;
 		std::unordered_map<key_t, value_t, enum_class_hash> values;
 		std::unordered_map<key_t, handler_t, enum_class_hash> handlers;
-	public:
+
+	  public:
 		static bool supported() { return true; }
-		config(core::polar *engine, std::string path) : base(engine), path(path) {}
+		config(core::polar *engine, std::string path)
+		    : base(engine), path(path) {}
 		~config() { save(); }
 
-		void on(key_t k, handler_t h) {
-			handlers[k] = h;
-		}
+		void on(key_t k, handler_t h) { handlers[k] = h; }
 
-		template<typename T> T get(key_t k) {
+		template <typename T> T get(key_t k) {
 			auto it = values.find(k);
 			return it != values.cend() ? T(it->second) : set<T>(k, T(0));
 		}
 
-		template<typename T> T set(key_t k, T v) {
+		template <typename T> T set(key_t k, T v) {
 			values[k] = value_t(v);
-			auto it = handlers.find(k);
-			if(it != handlers.cend()) {
-				it->second(engine, k, v);
-			}
+			auto it   = handlers.find(k);
+			if(it != handlers.cend()) { it->second(engine, k, v); }
 			return T(v);
 		}
 
@@ -66,7 +66,9 @@ namespace polar { namespace system {
 				oss << pair.first << ' ' << pair.second << "\r\n";
 			}
 			auto result = FS::write(path, oss.str());
-			debugmanager()->verbose("saving ", path, "... ", (result ? "success" : "failed"));
+			debugmanager()->verbose("saving ", path, "... ",
+			                        (result ? "success" : "failed"));
 		}
 	};
-} }
+}
+}

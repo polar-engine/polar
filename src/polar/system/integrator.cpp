@@ -1,9 +1,10 @@
 #include <polar/core/polar.h>
-#include <polar/system/integrator.h>
 #include <polar/property/integrable.h>
 #include <polar/system/event.h>
+#include <polar/system/integrator.h>
 
-namespace polar { namespace system {
+namespace polar {
+namespace system {
 	void integrator::update(DeltaTicks &dt) {
 		accumulator += dt;
 		if(accumulator.Seconds() > 1.0f) { accumulator.SetSeconds(1.0f); }
@@ -13,11 +14,13 @@ namespace polar { namespace system {
 			accumulator -= timestep;
 		}
 
-		alphaMicroseconds = static_cast<uint32_t>(accumulator.Seconds() * 1000000.0f);
+		alphaMicroseconds =
+		    static_cast<uint32_t>(accumulator.Seconds() * 1000000.0f);
 	}
 
 	void integrator::tick(DeltaTicks::seconds_type seconds) {
-		for(auto it = engine->objects.left.begin(); it != engine->objects.left.end(); ++it) {
+		for(auto it = engine->objects.left.begin();
+		    it != engine->objects.left.end(); ++it) {
 			auto property = it->info->get<property::integrable>().lock();
 			if(property) {
 				for(auto integrable : *property->get()) {
@@ -25,6 +28,8 @@ namespace polar { namespace system {
 				}
 			}
 		}
-		engine->get_system<event>().lock()->firein("integrator", "ticked", seconds);
+		engine->get_system<event>().lock()->firein("integrator", "ticked",
+		                                           seconds);
 	}
-} }
+}
+}

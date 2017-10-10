@@ -17,7 +17,7 @@ inline bool _GL_real(const char *file, const long line, const char *code) {
 	return err == GL_NO_ERROR;
 }
 
-#define ENGINE_GL(CODE) ((CODE),  _GL_real(BASEFILE, __LINE__, #CODE))
+#define ENGINE_GL(CODE) ((CODE), _GL_real(BASEFILE, __LINE__, #CODE))
 
 //#ifdef _DEBUG
 #define GL ENGINE_GL
