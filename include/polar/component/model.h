@@ -1,6 +1,7 @@
 #pragma once
 
 #include <polar/component/base.h>
+#include <polar/core/debugmanager.h>
 #include <vector>
 
 namespace polar {
