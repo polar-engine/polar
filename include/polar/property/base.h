@@ -1,8 +1,10 @@
 #pragma once
 
-namespace polar { namespace property {
+namespace polar {
+namespace property {
 	class base {
-	public:
-		virtual ~base() {};
+	  public:
+		virtual ~base(){};
 	};
-} }
+}
+}

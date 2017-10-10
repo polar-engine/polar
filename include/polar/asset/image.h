@@ -2,14 +2,15 @@
 
 #include <polar/asset/base.h>
 
-namespace polar { namespace asset {
+namespace polar {
+namespace asset {
 	struct imagepixel : base {
 		uint8_t red;
 		uint8_t green;
 		uint8_t blue;
 		uint8_t alpha;
 
-		inline uint8_t & operator[](const size_t index) {
+		inline uint8_t &operator[](const size_t index) {
 			switch(index) {
 			case 0:
 				return red;
@@ -25,11 +26,11 @@ namespace polar { namespace asset {
 		}
 	};
 
-	inline serializer & operator<<(serializer &s, const imagepixel &pixel) {
+	inline serializer &operator<<(serializer &s, const imagepixel &pixel) {
 		return s << pixel.red << pixel.green << pixel.blue << pixel.alpha;
 	}
 
-	inline deserializer & operator>>(deserializer &s, imagepixel &pixel) {
+	inline deserializer &operator>>(deserializer &s, imagepixel &pixel) {
 		return s >> pixel.red >> pixel.green >> pixel.blue >> pixel.alpha;
 	}
 
@@ -39,13 +40,14 @@ namespace polar { namespace asset {
 		std::vector<imagepixel> pixels;
 	};
 
-	inline serializer & operator<<(serializer &s, const image &asset) {
+	inline serializer &operator<<(serializer &s, const image &asset) {
 		return s << asset.width << asset.height << asset.pixels;
 	}
 
-	inline deserializer & operator>>(deserializer &s, image &asset) {
+	inline deserializer &operator>>(deserializer &s, image &asset) {
 		return s >> asset.width >> asset.height >> asset.pixels;
 	}
 
-	template<> inline std::string name<image>() { return "image"; }
-} }
+	template <> inline std::string name<image>() { return "image"; }
+}
+}

@@ -1,47 +1,54 @@
 #pragma once
 
-#include <atomic>
 #include <array>
+#include <atomic>
 #include <boost/container/flat_map.hpp>
-#include <portaudio.h>
-#include <polar/system/base.h>
 #include <polar/component/audiosource.h>
 #include <polar/support/audio/channel.h>
 #include <polar/support/audio/oscillator.h>
+#include <polar/system/base.h>
+#include <portaudio.h>
 
-namespace polar { namespace system {
-	int audio_stream_cb(const void *, void *, unsigned long, const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags, void *);
+namespace polar {
+namespace system {
+	int audio_stream_cb(const void *, void *, unsigned long,
+	                    const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags,
+	                    void *);
 
 	class audio : public base {
 		using audiosource = component::audiosource;
 		using sourcetype  = support::audio::sourcetype;
 		using messagetype = support::audio::channel::messagetype;
 		using message_t   = support::audio::channel::message;
-	private:
+
+	  private:
 		static const int channelSize = 8;
 		std::array<message_t, channelSize> channel;
 		std::atomic_int channelWaiting = {0};
-		int channelIndexMain = 0;
-		int channelIndexStream = 0;
+		int channelIndexMain           = 0;
+		int channelIndexStream         = 0;
 
-		boost::container::flat_map<IDType, std::shared_ptr<audiosource>> sources;
+		boost::container::flat_map<IDType, std::shared_ptr<audiosource>>
+		    sources;
 
 		PaStream *stream;
-	protected:
-		virtual void init() override {
-			Pa_StartStream(stream);
-		}
 
-		void componentadded(IDType id, const std::type_info *ti, std::weak_ptr<component::base> ptr) override final {
+	  protected:
+		virtual void init() override { Pa_StartStream(stream); }
+
+		void componentadded(IDType id, const std::type_info *ti,
+		                    std::weak_ptr<component::base> ptr) override final {
 			if(ti != &typeid(audiosource)) { return; }
 
-			channel[channelIndexMain] = message_t::add(id, std::static_pointer_cast<audiosource>(ptr.lock()));
+			channel[channelIndexMain] = message_t::add(
+			    id, std::static_pointer_cast<audiosource>(ptr.lock()));
 			++channelWaiting;
 			++channelIndexMain;
 			if(channelIndexMain == channelSize) { channelIndexMain = 0; }
 		}
 
-		void componentremoved(IDType id, const std::type_info *ti) override final {
+		void componentremoved(IDType id,
+		                      const std::type_info *ti) override final {
 			if(ti != &typeid(audiosource)) { return; }
 
 			channel[channelIndexMain] = message_t::remove(id);
@@ -49,8 +56,9 @@ namespace polar { namespace system {
 			++channelIndexMain;
 			if(channelIndexMain == channelSize) { channelIndexMain = 0; }
 		}
-	public:
-		const double sampleRate = 44100.0;
+
+	  public:
+		const double sampleRate             = 44100.0;
 		const unsigned long framesPerBuffer = 256;
 		std::atomic<bool> muted;
 
@@ -62,7 +70,8 @@ namespace polar { namespace system {
 		audio(core::polar *engine) : base(engine), muted(false) {
 			for(auto &vol : volumes) { vol = 100; }
 			Pa_Initialize();
-			Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate, framesPerBuffer, audio_stream_cb, this);
+			Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate,
+			                     framesPerBuffer, audio_stream_cb, this);
 		}
 
 		~audio() {
@@ -83,17 +92,21 @@ namespace polar { namespace system {
 				}
 				--channelWaiting;
 				++channelIndexStream;
-				if(channelIndexStream == channelSize) { channelIndexStream = 0; }
+				if(channelIndexStream == channelSize) {
+					channelIndexStream = 0;
+				}
 			}
 
 			for(unsigned long frame = 0; frame < frameCount; ++frame) {
 				auto &left  = buffer[frame * 2];
 				auto &right = buffer[frame * 2 + 1];
-				left  = 0;
-				right = 0;
+				left        = 0;
+				right       = 0;
 
 				for(auto &source : sources) {
-					double volume = volumes[static_cast<size_t>(source.second->type)] / 100.0;
+					double volume =
+					    volumes[static_cast<size_t>(source.second->type)] /
+					    100.0;
 					source.second->tick(sampleRate, volume, left, right);
 				}
 
@@ -101,11 +114,12 @@ namespace polar { namespace system {
 					left  = 0;
 					right = 0;
 				} else {
-					left  *= masterVolume / 100.0;
+					left *= masterVolume / 100.0;
 					right *= masterVolume / 100.0;
 				}
 			}
 			return paContinue;
 		}
 	};
-} }
+}
+}

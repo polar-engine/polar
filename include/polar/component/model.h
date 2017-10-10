@@ -3,9 +3,10 @@
 #include <polar/component/base.h>
 #include <vector>
 
-namespace polar { namespace component {
+namespace polar {
+namespace component {
 	class model : public base {
-	public:
+	  public:
 		typedef glm::vec3 PointType;
 		typedef std::tuple<PointType, PointType, PointType> TriangleType;
 		typedef std::vector<PointType> PointsType;
@@ -15,12 +16,13 @@ namespace polar { namespace component {
 		PointsType points;
 
 		model() : type(GeometryType::None) {}
-		model(GeometryType type, PointsType points) : type(type), points(points) {}
+		model(GeometryType type, PointsType points)
+		    : type(type), points(points) {}
 		model(TrianglesType triangles) : type(GeometryType::Triangles) {
 			auto size = triangles.size() * 3;
 			points.resize(size);
 			for(TrianglesType::size_type i = 0; i < triangles.size(); ++i) {
-				auto &triangle = triangles.at(i);
+				auto &triangle    = triangles.at(i);
 				points[i * 3 + 0] = std::get<0>(triangle);
 				points[i * 3 + 1] = std::get<1>(triangle);
 				points[i * 3 + 2] = std::get<2>(triangle);
@@ -33,7 +35,8 @@ namespace polar { namespace component {
 
 			PointsType::size_type i = 0;
 			while(i < points.size() - 3) {
-				auto normal = calculate_normal(points[i], points[i + 1], points[i + 2]);
+				auto normal =
+				    calculate_normal(points[i], points[i + 1], points[i + 2]);
 				normals[i + 0] = normal;
 				normals[i + 1] = normal;
 				normals[i + 2] = normal;
@@ -46,7 +49,8 @@ namespace polar { namespace component {
 					++i;
 					break;
 				default:
-					debugmanager()->fatal("cannot calculate normals for non-triangle geometry");
+					debugmanager()->fatal(
+					    "cannot calculate normals for non-triangle geometry");
 					break;
 				}
 			}
@@ -54,9 +58,13 @@ namespace polar { namespace component {
 		}
 
 		static PointType calculate_normal(const TriangleType &triangle) {
-			return calculate_normal(std::get<0>(triangle), std::get<1>(triangle), std::get<2>(triangle));
+			return calculate_normal(std::get<0>(triangle),
+			                        std::get<1>(triangle),
+			                        std::get<2>(triangle));
 		}
-		static PointType calculate_normal(const PointType &p1, const PointType &p2, const PointType &p3) {
+		static PointType calculate_normal(const PointType &p1,
+		                                  const PointType &p2,
+		                                  const PointType &p3) {
 			PointType deltaPos1 = p2 - p1;
 			PointType deltaPos2 = p3 - p1;
 
@@ -67,4 +75,5 @@ namespace polar { namespace component {
 			return glm::normalize(normal);
 		}
 	};
-} }
+}
+}

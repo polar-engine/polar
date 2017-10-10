@@ -1,25 +1,26 @@
 #pragma once
 
-#include <array>
 #include <SDL_ttf.h>
+#include <array>
 #include <polar/asset/base.h>
 #include <polar/support/font/glyphentry.h>
 #include <polar/util/sdl.h>
 
-namespace polar { namespace asset {
+namespace polar {
+namespace asset {
 	struct font : base {
 		using glyphentry = support::font::glyphentry;
 
 		TTF_Font *ttf;
-		int maxWidth = 0;
+		int maxWidth  = 0;
 		int maxHeight = 0;
-		int lineSkip = 0;
+		int lineSkip  = 0;
 		std::array<glyphentry, 128> glyphs;
 	};
 
-	template<> inline std::string name<font>() { return "font"; }
+	template <> inline std::string name<font>() { return "font"; }
 
-	inline deserializer & operator>>(deserializer &s, font &asset) {
+	inline deserializer &operator>>(deserializer &s, font &asset) {
 		std::string data;
 		s >> data;
 		char *buffer = static_cast<char *>(malloc(data.size()));
@@ -37,10 +38,12 @@ namespace polar { namespace asset {
 
 		for(size_t i = 0; i < asset.glyphs.size(); ++i) {
 			if(TTF_GlyphIsProvided(asset.ttf, i)) {
-				auto &glyph = asset.glyphs[i];
+				auto &glyph  = asset.glyphs[i];
 				glyph.active = true;
 				glyph.origin = asset.maxWidth;
-				SDL(TTF_GlyphMetrics(asset.ttf, i, &glyph.min.x, &glyph.max.x, &glyph.min.y, &glyph.max.y, &glyph.advance));
+				SDL(TTF_GlyphMetrics(asset.ttf, i, &glyph.min.x, &glyph.max.x,
+				                     &glyph.min.y, &glyph.max.y,
+				                     &glyph.advance));
 
 				asset.maxWidth += glyph.max.x - glyph.min.x;
 				int h = glyph.max.y - glyph.min.y;
@@ -48,12 +51,14 @@ namespace polar { namespace asset {
 
 				// render outline first for drop-shadow effect
 				SDL(TTF_SetFontOutline(asset.ttf, 2));
-				SDL(glyph.surface = TTF_RenderGlyph_Blended(asset.ttf, i, { 0, 0, 0, 255 }));
+				SDL(glyph.surface =
+				        TTF_RenderGlyph_Blended(asset.ttf, i, {0, 0, 0, 255}));
 
 				// render foreground and blit on top of outline
 				SDL(TTF_SetFontOutline(asset.ttf, 0));
 				SDL_Surface *fg;
-				SDL(fg = TTF_RenderGlyph_Blended(asset.ttf, i, { 255, 255, 255, 255 }));
+				SDL(fg = TTF_RenderGlyph_Blended(asset.ttf, i,
+				                                 {255, 255, 255, 255}));
 				SDL(SDL_BlitSurface(fg, NULL, glyph.surface, NULL));
 				SDL(SDL_FreeSurface(fg));
 			}
@@ -61,4 +66,5 @@ namespace polar { namespace asset {
 
 		return s;
 	}
-} }
+}
+}

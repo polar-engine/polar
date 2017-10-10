@@ -3,10 +3,13 @@
 #include <polar/component/base.h>
 #include <polar/property/integrable.h>
 
-namespace polar { namespace component {
+namespace polar {
+namespace component {
 	class scale : public base {
-		template<typename T> using integrable = support::integrator::integrable<T>;
-	public:
+		template <typename T>
+		using integrable = support::integrator::integrable<T>;
+
+	  public:
 		integrable<Point3> sc;
 
 		scale(Point3 sc = Point3(1)) : sc(sc) {
@@ -14,4 +17,5 @@ namespace polar { namespace component {
 			get<property::integrable>().lock()->add(&this->sc);
 		}
 	};
-} }
+}
+}
