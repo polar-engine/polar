@@ -27,24 +27,22 @@ namespace system {
 
 			for(auto &section : _credits) {
 				height += pad;
-				dtors.emplace_back(engine->add_object(&section.id));
-				engine->add_component<component::text>(section.id, font,
-				                                       section.value);
-				engine->add_component<component::screenposition>(
+				dtors.emplace_back(engine->add(&section.id));
+				engine->add<component::text>(section.id, font, section.value);
+				engine->add<component::screenposition>(
 				    section.id, Point2(0, height), origin_t::top);
-				engine->add_component<component::scale>(section.id,
-				                                        Point3(0.3125));
+				engine->add<component::scale>(section.id, Point3(0.3125));
 				height += Decimal(0.3125 * 1.12) * font->lineSkip;
 
 				for(size_t n = 0; n < section.names.size(); ++n) {
 					auto &name = section.names[n];
-					dtors.emplace_back(engine->add_object(&section.nameIDs[n]));
-					engine->add_component<component::text>(section.nameIDs[n],
-					                                       font, name);
-					engine->add_component<component::screenposition>(
+					dtors.emplace_back(engine->add(&section.nameIDs[n]));
+					engine->add<component::text>(section.nameIDs[n], font,
+					                             name);
+					engine->add<component::screenposition>(
 					    section.nameIDs[n], Point2(0, height), origin_t::top);
-					engine->add_component<component::scale>(section.nameIDs[n],
-					                                        Point3(0.1875));
+					engine->add<component::scale>(section.nameIDs[n],
+					                              Point3(0.1875));
 					height += Decimal(0.1875) * font->lineSkip;
 				}
 			}
@@ -52,8 +50,8 @@ namespace system {
 
 	  protected:
 		void init() override final {
-			auto inputM = engine->get_system<input>().lock();
-			auto assetM = engine->get_system<asset>().lock();
+			auto inputM = engine->get<input>().lock();
+			auto assetM = engine->get<asset>().lock();
 
 			for(auto k : {key_t::Escape, key_t::Backspace, key_t::MouseRight,
 			              key_t::ControllerBack}) {
@@ -73,13 +71,10 @@ namespace system {
 			Decimal delta = dt.Seconds() * 50;
 
 			for(auto &section : _credits) {
-				auto sectionText =
-				    engine->get_component<component::text>(section.id);
+				auto sectionText = engine->get<component::text>(section.id);
 				auto sectionPos =
-				    engine->get_component<component::screenposition>(
-				        section.id);
-				auto sectionScale =
-				    engine->get_component<component::scale>(section.id);
+				    engine->get<component::screenposition>(section.id);
+				auto sectionScale = engine->get<component::scale>(section.id);
 
 				auto sectionRealScale =
 				    sectionText->as->lineSkip * sectionScale->sc.get().y;
@@ -89,13 +84,10 @@ namespace system {
 				    sectionRealScale;
 
 				for(auto nameID : section.nameIDs) {
-					auto nameText =
-					    engine->get_component<component::text>(nameID);
+					auto nameText = engine->get<component::text>(nameID);
 					auto namePos =
-					    engine->get_component<component::screenposition>(
-					        nameID);
-					auto nameScale =
-					    engine->get_component<component::scale>(nameID);
+					    engine->get<component::screenposition>(nameID);
+					auto nameScale = engine->get<component::scale>(nameID);
 
 					auto nameRealScale =
 					    nameText->as->lineSkip * nameScale->sc.get().y;

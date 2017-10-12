@@ -12,7 +12,7 @@ namespace support {
 				virtual bool navigate(int) { return false; }
 				virtual std::shared_ptr<core::destructor>
 				render(core::polar *engine, IDType &id, Point2, float) {
-					return engine->add_object(&id);
+					return engine->add(&id);
 				}
 			};
 
@@ -44,7 +44,7 @@ namespace support {
 				std::shared_ptr<core::destructor>
 				render(core::polar *engine, IDType &id, Point2 origin,
 				       float scale) override final {
-					auto dtor = engine->add_object(&id);
+					auto dtor = engine->add(&id);
 
 					Decimal pad = 15;
 					Point2 offset =
@@ -53,12 +53,12 @@ namespace support {
 					Point4 color =
 					    state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
 
-					engine->add_component_as<component::sprite::base,
-					                         component::sprite::box>(id);
-					engine->add_component<component::screenposition>(
-					    id, origin + pad + offset);
-					engine->add_component<component::scale>(id, Point3(scale));
-					engine->add_component<component::color>(id, color);
+					engine->add_as<component::sprite::base,
+					               component::sprite::box>(id);
+					engine->add<component::screenposition>(id, origin + pad +
+					                                               offset);
+					engine->add<component::scale>(id, Point3(scale));
+					engine->add<component::color>(id, color);
 
 					return dtor;
 				}
@@ -87,17 +87,16 @@ namespace support {
 				std::shared_ptr<core::destructor>
 				render(core::polar *engine, IDType &id, Point2 origin,
 				       float scale) override final {
-					auto dtor = engine->add_object(&id);
+					auto dtor = engine->add(&id);
 
 					Decimal pad = 15;
 					float alpha = float(value - min) / float(max - min);
 
-					engine->add_component_as<component::sprite::base,
-					                         component::sprite::slider>(
-					    id, 12 * 8, 12, alpha);
-					engine->add_component<component::screenposition>(
-					    id, origin + pad);
-					engine->add_component<component::scale>(id, Point3(scale));
+					engine->add_as<component::sprite::base,
+					               component::sprite::slider>(id, 12 * 8, 12,
+					                                          alpha);
+					engine->add<component::screenposition>(id, origin + pad);
+					engine->add<component::scale>(id, Point3(scale));
 
 					return dtor;
 				}
