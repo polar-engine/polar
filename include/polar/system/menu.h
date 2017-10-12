@@ -50,11 +50,11 @@ namespace system {
 				if(item.control->activate()) {
 					render(current, true);
 					if(item.fn(item.control->get())) {
-						auto assetM = engine->get_system<asset>().lock();
+						auto assetM = engine->get<asset>().lock();
 						IDType soundID;
-						soundDtors[soundIndex++] = engine->add_object(&soundID);
+						soundDtors[soundIndex++] = engine->add(&soundID);
 						soundIndex %= soundDtors.size();
-						engine->add_component<component::audiosource>(
+						engine->add<component::audiosource>(
 						    soundID, assetM->get<polar::asset::audio>("menu1"),
 						    support::audio::sourcetype::effect);
 					}
@@ -122,11 +122,11 @@ namespace system {
 			}
 
 			if(playBeep) {
-				auto assetM = engine->get_system<asset>().lock();
+				auto assetM = engine->get<asset>().lock();
 				IDType soundID;
-				soundDtors[soundIndex++] = engine->add_object(&soundID);
+				soundDtors[soundIndex++] = engine->add(&soundID);
 				soundIndex %= soundDtors.size();
-				engine->add_component<component::audiosource>(
+				engine->add<component::audiosource>(
 				    soundID, assetM->get<polar::asset::audio>("menu1"),
 				    support::audio::sourcetype::effect);
 			}
@@ -138,9 +138,9 @@ namespace system {
 
 			IDType id;
 			if(replace) {
-				itemDtors.at(i) = engine->add_object(&id);
+				itemDtors.at(i) = engine->add(&id);
 			} else {
-				itemDtors.emplace_back(engine->add_object(&id));
+				itemDtors.emplace_back(engine->add(&id));
 			}
 
 			const Decimal uiHeight     = 2.25;
@@ -155,15 +155,15 @@ namespace system {
 			Decimal spacing = uiTextHeight * scale;
 			Point2 origin   = Point2(60, 50 + spacing * (m->size() - i - 1));
 
-			engine->add_component<component::text>(id, font, item.value);
-			engine->add_component<component::screenposition>(id, origin);
-			engine->add_component<component::scale>(id, Point3(scale));
+			engine->add<component::text>(id, font, item.value);
+			engine->add<component::screenposition>(id, origin);
+			engine->add<component::scale>(id, Point3(scale));
 
-			auto text = engine->get_component<component::text>(id);
+			auto text = engine->get<component::text>(id);
 
 			if(i == current) {
-				engine->add_component<component::color>(
-				    id, Point4(1, 1, selectionAlpha, 1));
+				engine->add<component::color>(id,
+				                              Point4(1, 1, selectionAlpha, 1));
 			}
 
 			if(item.control) {
@@ -177,9 +177,9 @@ namespace system {
 
 	  protected:
 		void init() override final {
-			auto assetM = engine->get_system<asset>().lock();
-			auto inputM = engine->get_system<input>().lock();
-			auto tw     = engine->get_system<tweener<float>>().lock();
+			auto assetM = engine->get<asset>().lock();
+			auto inputM = engine->get<input>().lock();
+			auto tw     = engine->get<tweener<float>>().lock();
 
 			assetM->request<polar::asset::audio>("menu1");
 

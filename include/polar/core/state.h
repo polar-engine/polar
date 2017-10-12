@@ -61,8 +61,8 @@ namespace core {
 		template <typename T, typename... Ts,
 		          typename = typename std::enable_if<
 		              std::is_base_of<system::base, T>::value>::type>
-		inline void add_system(Ts &&... args) {
-			add_system_as<T, T>(std::forward<Ts>(args)...);
+		inline void add(Ts &&... args) {
+			add_as<T, T>(std::forward<Ts>(args)...);
 		}
 
 		template <typename B, typename T, typename... Ts,
@@ -70,7 +70,7 @@ namespace core {
 		              std::is_base_of<system::base, T>::value>::type,
 		          typename = typename std::enable_if<
 		              std::is_base_of<B, T>::value>::type>
-		inline void add_system_as(Ts &&... args) {
+		inline void add_as(Ts &&... args) {
 #ifdef _DEBUG
 			if(!T::supported()) {
 				debugmanager()->fatal("unsupported system: ", typeid(T).name());
@@ -99,7 +99,7 @@ namespace core {
 		template <typename T,
 		          typename = typename std::enable_if<
 		              std::is_base_of<system::base, T>::value>::type>
-		inline std::weak_ptr<T> get_system() {
+		inline std::weak_ptr<T> get() {
 			return systems.get<T>();
 		}
 

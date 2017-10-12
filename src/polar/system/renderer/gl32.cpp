@@ -137,7 +137,7 @@ namespace system {
 			makepipeline(pipelineNames);
 			debugmanager()->trace("MakePipeline done");
 
-			auto assetM = engine->get_system<asset>().lock();
+			auto assetM = engine->get<asset>().lock();
 			spriteProgram =
 			    makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
 
@@ -181,7 +181,7 @@ namespace system {
 			changedUniformsFloat.clear();
 			changedUniformsPoint3.clear();
 
-			fpsDtor = engine->add_object(&fpsID);
+			fpsDtor = engine->add(&fpsID);
 
 			if(dt.Seconds() > 0) {
 				fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
@@ -191,22 +191,21 @@ namespace system {
 				std::ostringstream oss;
 				oss << (int)fps << " fps";
 
-				auto assetM = engine->get_system<asset>().lock();
+				auto assetM = engine->get<asset>().lock();
 				auto font = assetM->get<polar::asset::font>("nasalization-rg");
 
-				engine->add_component<component::text>(fpsID, font, oss.str());
-				engine->add_component<component::screenposition>(
+				engine->add<component::text>(fpsID, font, oss.str());
+				engine->add<component::screenposition>(
 				    fpsID, Point2(5, 5), support::ui::origin::topleft);
-				engine->add_component<component::color>(fpsID,
-				                                        Point4(1, 1, 1, 0.8));
-				engine->add_component<component::scale>(fpsID, Point3(0.125));
+				engine->add<component::color>(fpsID, Point4(1, 1, 1, 0.8));
+				engine->add<component::scale>(fpsID, Point3(0.125));
 			}
 
 			SDL_Event event;
 			while(SDL_PollEvent(&event)) { handleSDL(event); }
 			SDL_ClearError();
 
-			auto integrator_s = engine->get_system<integrator>().lock();
+			auto integrator_s = engine->get<integrator>().lock();
 			float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
 
 			Mat4 cameraView;
@@ -395,12 +394,11 @@ namespace system {
 		void gl32::rendersprite(IDType id) {
 			using origin_t = support::ui::origin;
 
-			auto sprite = engine->get_component<component::sprite::base>(id);
-			auto prop   = sprite->get<property::gl32::sprite>().lock();
-			auto screenPos =
-			    engine->get_component<component::screenposition>(id);
-			auto scale = engine->get_component<component::scale>(id);
-			auto color = engine->get_component<component::color>(id);
+			auto sprite    = engine->get<component::sprite::base>(id);
+			auto prop      = sprite->get<property::gl32::sprite>().lock();
+			auto screenPos = engine->get<component::screenposition>(id);
+			auto scale     = engine->get<component::scale>(id);
+			auto color     = engine->get<component::color>(id);
 
 			auto coord = Point2(0);
 
@@ -500,11 +498,10 @@ namespace system {
 		void gl32::rendertext(IDType id) {
 			using origin_t = support::ui::origin;
 
-			auto text = engine->get_component<component::text>(id);
-			auto screenPos =
-			    engine->get_component<component::screenposition>(id);
-			auto scale = engine->get_component<component::scale>(id);
-			auto color = engine->get_component<component::color>(id);
+			auto text      = engine->get<component::text>(id);
+			auto screenPos = engine->get<component::screenposition>(id);
+			auto scale     = engine->get<component::scale>(id);
+			auto color     = engine->get<component::color>(id);
 
 			// calculate intended width of string
 			Decimal stringWidth = 0;
@@ -680,47 +677,45 @@ namespace system {
 					debugmanager()->trace("MakePipeline from SDL_WINDOWEVENT");
 					makepipeline(pipelineNames);
 					debugmanager()->trace("MakePipeline done");
-					engine->get_system<event>().lock()->fire("resize", nullptr);
+					engine->get<event>().lock()->fire("resize", nullptr);
 					break;
 				}
 				break;
 			case SDL_KEYDOWN:
 				if(ev.key.repeat == 0) {
 					key = mkKeyFromSDL(ev.key.keysym.sym);
-					engine->get_system<event>().lock()->fire("keydown", &key);
+					engine->get<event>().lock()->fire("keydown", &key);
 				}
 				break;
 			case SDL_KEYUP:
 				key = mkKeyFromSDL(ev.key.keysym.sym);
-				engine->get_system<event>().lock()->fire("keyup", &key);
+				engine->get<event>().lock()->fire("keyup", &key);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				key = mkMouseButtonFromSDL(ev.button.button);
-				engine->get_system<event>().lock()->fire("keydown", &key);
+				engine->get<event>().lock()->fire("keydown", &key);
 				break;
 			case SDL_MOUSEBUTTONUP:
 				key = mkMouseButtonFromSDL(ev.button.button);
-				engine->get_system<event>().lock()->fire("keyup", &key);
+				engine->get<event>().lock()->fire("keyup", &key);
 				break;
 			case SDL_MOUSEMOTION:
 				mouseDelta = Point2(ev.motion.xrel, ev.motion.yrel);
-				engine->get_system<event>().lock()->fire("mousemove",
-				                                         &mouseDelta);
+				engine->get<event>().lock()->fire("mousemove", &mouseDelta);
 				break;
 			case SDL_MOUSEWHEEL:
 				mouseDelta = Point2(ev.wheel.x, ev.wheel.y);
-				engine->get_system<event>().lock()->fire("mousewheel",
-				                                         &mouseDelta);
+				engine->get<event>().lock()->fire("mousewheel", &mouseDelta);
 				break;
 			case SDL_CONTROLLERBUTTONDOWN:
 				key = mkButtonFromSDL(
 				    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-				engine->get_system<event>().lock()->fire("keydown", &key);
+				engine->get<event>().lock()->fire("keydown", &key);
 				break;
 			case SDL_CONTROLLERBUTTONUP:
 				key = mkButtonFromSDL(
 				    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-				engine->get_system<event>().lock()->fire("keyup", &key);
+				engine->get<event>().lock()->fire("keyup", &key);
 				break;
 			case SDL_CONTROLLERAXISMOTION:
 				/* axis 0 = x axis
@@ -729,12 +724,12 @@ namespace system {
 				controllerAxisValue = ev.caxis.value;
 				switch(ev.caxis.axis) {
 				case 0:
-					engine->get_system<event>().lock()->fire(
+					engine->get<event>().lock()->fire(
 					    "controlleraxisx",
 					    support::event::arg(controllerAxisValue));
 					break;
 				case 1:
-					engine->get_system<event>().lock()->fire(
+					engine->get<event>().lock()->fire(
 					    "controlleraxisy",
 					    support::event::arg(controllerAxisValue));
 					break;
@@ -746,7 +741,7 @@ namespace system {
 		void gl32::makepipeline(const std::vector<std::string> &names) {
 			pipelineNames = names;
 
-			auto assetM = engine->get_system<asset>().lock();
+			auto assetM = engine->get<asset>().lock();
 			std::vector<std::shared_ptr<polar::asset::shaderprogram>> assets;
 			for(auto &node : nodes) {
 				for(auto &out : node.globalOuts) {

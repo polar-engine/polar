@@ -28,8 +28,7 @@ namespace system {
 				}
 			}
 		}
-		engine->get_system<event>().lock()->firein("integrator", "ticked",
-		                                           seconds);
+		engine->get<event>().lock()->firein("integrator", "ticked", seconds);
 	}
 }
 }
