@@ -2,6 +2,7 @@
 
 #include <polar/property/base.h>
 #include <polar/support/integrator/integrable.h>
+#include <vector>
 
 namespace polar {
 namespace property {

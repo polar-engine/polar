@@ -3,7 +3,6 @@
 #include <polar/asset/base.h>
 #include <polar/asset/text.h>
 #include <polar/support/shader/types.h>
-#include <polar/util/debug.h>
 
 namespace polar {
 namespace asset {

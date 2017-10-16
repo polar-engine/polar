@@ -15,30 +15,9 @@ namespace asset {
 		explicit level(std::set<keyframe> kfs = {}, uint64_t t = 0)
 		    : keyframes(kfs), ticks(t) {}
 
-		const keyframe &get_current() const {
-			auto it = keyframes.lower_bound(keyframe(ticks));
-			if(it != keyframes.cbegin()) { --it; }
-			return *it;
-		}
-
-		const keyframe &get_next() const {
-			auto it = keyframes.lower_bound(keyframe(ticks));
-			if(it == keyframes.cend()) { --it; }
-			return *it;
-		}
-
-		keyframe get_now() const {
-			auto &current = get_current();
-			auto &next    = get_next();
-
-			if(next.ticks == current.ticks) { return current; }
-
-			auto diff  = Decimal(next.ticks - current.ticks);
-			auto alpha = diff > 0 ? Decimal(ticks - current.ticks) / diff : 1;
-			auto kf    = next * alpha + current * (1 - alpha);
-			kf.ticks   = ticks;
-			return kf;
-		}
+		const keyframe &get_current() const;
+		const keyframe &get_next() const;
+		keyframe get_now() const;
 	};
 
 	template <> inline std::string name<level>() { return "level"; }

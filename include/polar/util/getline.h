@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-std::istream &getline(std::istream &is, std::string &line) {
+inline std::istream &getline(std::istream &is, std::string &line) {
 	line.clear();
 	std::istream::sentry sentry(is, true);
 	std::streambuf *sb = is.rdbuf();
