@@ -43,8 +43,8 @@ namespace component {
 			currentSample += size_t(double(delta) * (44100.0 / sampleRate));
 		}
 
-		bool tick(double sampleRate, double volume, int16_t &left,
-		          int16_t &right) {
+		inline bool tick(double sampleRate, double volume, int16_t &left,
+		                 int16_t &right) {
 			if(looping) {
 				if(currentSample == loopOut ||
 				   currentSample >= asset->samples.size()) {

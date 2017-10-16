@@ -1,11 +1,11 @@
 #pragma once
 
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <polar/support/debug/priority.h>
 #include <string>
-#include <vector>
 
 namespace polar {
 namespace core {
@@ -41,9 +41,9 @@ namespace core {
 		}
 
 		template <typename... Ts> void log(priority_t p, Ts &&... args) {
-			static const std::vector<std::string> uppers = {
-			    "TRACE",   "DEBUG", "VERBOSE",  "INFO", "NOTICE",
-			    "WARNING", "ERROR", "CRITICAL", "FATAL"};
+			static const std::array<std::string, size_t(priority_t::_size)>
+			    uppers = {"TRACE",   "DEBUG", "VERBOSE",  "INFO", "NOTICE",
+			              "WARNING", "ERROR", "CRITICAL", "FATAL"};
 
 			if(p >= priority) {
 				write('[');
@@ -67,31 +67,31 @@ namespace core {
 			}
 		}
 
-		template <typename... Ts> void trace(Ts &&... args) {
+		template <typename... Ts> inline void trace(Ts &&... args) {
 			log(priority_t::trace, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void debug(Ts &&... args) {
+		template <typename... Ts> inline void debug(Ts &&... args) {
 			log(priority_t::debug, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void verbose(Ts &&... args) {
+		template <typename... Ts> inline void verbose(Ts &&... args) {
 			log(priority_t::verbose, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void info(Ts &&... args) {
+		template <typename... Ts> inline void info(Ts &&... args) {
 			log(priority_t::info, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void notice(Ts &&... args) {
+		template <typename... Ts> inline void notice(Ts &&... args) {
 			log(priority_t::notice, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void warning(Ts &&... args) {
+		template <typename... Ts> inline void warning(Ts &&... args) {
 			log(priority_t::warning, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void error(Ts &&... args) {
+		template <typename... Ts> inline void error(Ts &&... args) {
 			log(priority_t::error, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void critical(Ts &&... args) {
+		template <typename... Ts> inline void critical(Ts &&... args) {
 			log(priority_t::critical, std::forward<Ts>(args)...);
 		}
-		template <typename... Ts> void fatal(Ts &&... args) {
+		template <typename... Ts> inline void fatal(Ts &&... args) {
 			log(priority_t::fatal, std::forward<Ts>(args)...);
 		}
 	};

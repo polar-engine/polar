@@ -9,14 +9,23 @@ include_directories(include)
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_CRT_SECURE_NO_WARNINGS)
 
 set(POLAR_SRCS
+	src/polar/core/polar.cpp
+	src/polar/core/state.cpp
 	src/polar/core/debugmanager.cpp
-	src/polar/util/buildinfo.cpp
+	src/polar/asset/font.cpp
+	src/polar/asset/level.cpp
+	src/polar/component/sprite/box.cpp
+	src/polar/component/sprite/slider.cpp
 	src/polar/system/audio.cpp
-	src/polar/system/renderer/gl32.cpp
+	src/polar/system/credits.cpp
 	src/polar/system/input.cpp
 	src/polar/system/integrator.cpp
+	src/polar/system/menu.cpp
+	src/polar/system/renderer/gl32.cpp
 	src/polar/system/work.cpp
 	src/polar/support/work/worker.cpp
+	src/polar/fs/local.cpp
+	src/polar/util/buildinfo.cpp
 	src/glew.c
 )
 

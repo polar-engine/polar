@@ -12,7 +12,8 @@ namespace support {
 			warning,
 			error,
 			critical,
-			fatal
+			fatal,
+			_size
 		};
 	}
 }

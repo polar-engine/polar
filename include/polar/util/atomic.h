@@ -1,41 +1,5 @@
 #pragma once
 
-/*
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-template<typename T> class Atomic {
-private:
-    T value;
-    CRITICAL_SECTION critSect;
-public:
-    template<typename ...Ts> Atomic(Ts && ...args) :
-value(std::forward<Ts>(args)...) {
-        InitializeCriticalSection(&critSect);
-    }
-
-    ~Atomic() {
-        DeleteCriticalSection(&critSect);
-    }
-
-    inline void With(const std::function<void(T &)> &fn) {
-        EnterCriticalSection(&critSect);
-        fn(value);
-        LeaveCriticalSection(&critSect);
-    }
-
-    template<typename Ret> inline Ret With(const std::function<Ret(T &)> &fn) {
-        EnterCriticalSection(&critSect);
-        Ret ret = fn(value);
-        LeaveCriticalSection(&critSect);
-        return ret;
-    }
-};
-
-#else
-*/
-
 #include <condition_variable>
 #include <mutex>
 #include <polar/core/debugmanager.h>
@@ -76,5 +40,3 @@ template <typename T> class atomic {
 		return fn(value);
 	}
 };
-
-//#endif

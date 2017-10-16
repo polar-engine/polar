@@ -15,7 +15,7 @@ namespace component {
 				if(surface && freeSurface) { SDL(SDL_FreeSurface(surface)); }
 			}
 
-			virtual void render() final {
+			void render() {
 				if(surface && freeSurface) { SDL(SDL_FreeSurface(surface)); }
 				render_me();
 			}

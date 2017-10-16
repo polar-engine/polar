@@ -55,17 +55,20 @@ namespace core {
 			return components.find(ti) != components.end();
 		}
 
+		inline std::weak_ptr<C> get(const std::type_info *ti) const {
+			auto it = components.find(ti);
+			if(it == components.end()) {
+				return std::weak_ptr<C>();
+			} else {
+				return it->second;
+			}
+		}
+
 		template <typename T> inline std::weak_ptr<T> get() const {
 			static_assert(
 			    std::is_base_of<C, T>::value,
 			    "ecs::get requires template argument of correct type");
-			auto it = components.find(&typeid(T));
-			if(it == components.end()) {
-				return std::weak_ptr<T>();
-			} else {
-				return std::weak_ptr<T>(
-				    std::static_pointer_cast<T, C>(it->second));
-			}
+			return std::static_pointer_cast<T, C>(get(&typeid(T)).lock());
 		}
 
 		inline const component_map_t *const get() const { return &components; }

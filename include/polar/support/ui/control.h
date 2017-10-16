@@ -1,5 +1,12 @@
 #pragma once
 
+#include <polar/component/color.h>
+#include <polar/component/scale.h>
+#include <polar/component/screenposition.h>
+#include <polar/component/sprite/box.h>
+#include <polar/component/sprite/slider.h>
+#include <polar/core/polar.h>
+
 namespace polar {
 namespace support {
 	namespace ui {
