@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.6)
 project(polar)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-include(cotire)
 
 include_directories(include)
 
@@ -122,7 +121,6 @@ add_dependencies(polar invalidate_buildinfo)
 set_target_properties(polar PROPERTIES
 	COTIRE_PREFIX_HEADER_IGNORE_PATH "${SDL2_INCLUDE_DIR}"
 )
-cotire(polar)
 
 # Asset Builder
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
