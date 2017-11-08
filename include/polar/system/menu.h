@@ -46,7 +46,7 @@ namespace system {
 
 		static bool supported() { return true; }
 		menu(core::polar *engine, Decimal uiScale, menuitem_vector_t _menu)
-		    : base(engine), uiScale(uiScale), _menu(_menu) {}
+		    : base(engine), _menu(_menu), uiScale(uiScale) {}
 
 		inline void render_all() {
 			auto m = getcurrentmenu();

@@ -23,9 +23,7 @@ namespace property {
 			integrables.emplace_back(i);
 		}
 
-		inline const integrable_vector_t *const get() const {
-			return &integrables;
-		}
+		inline const integrable_vector_t *get() const { return &integrables; }
 	};
 }
 }

@@ -4,6 +4,24 @@ project(polar)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+include(CheckCXXCompilerFlag)
+
+function(enable_cxx_compiler_flag_if_supported flag)
+	string(FIND "${CMAKE_CXX_FLAGS}" "${flag}" flag_already_set)
+	if(flag_already_set EQUAL -1)
+		check_cxx_compiler_flag("${flag}" flag_supported)
+		if(flag_supported)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
+		endif()
+		unset(flag_supported CACHE)
+	endif()
+endfunction()
+
+enable_cxx_compiler_flag_if_supported("-Wall")
+enable_cxx_compiler_flag_if_supported("-Wextra")
+enable_cxx_compiler_flag_if_supported("-pedantic")
+enable_cxx_compiler_flag_if_supported("-Werror")
+
 include_directories(include)
 
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_CRT_SECURE_NO_WARNINGS)
@@ -118,9 +136,15 @@ set_property(TARGET polar PROPERTY CXX_STANDARD 11)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
 add_dependencies(polar invalidate_buildinfo)
 
-set_target_properties(polar PROPERTIES
-	COTIRE_PREFIX_HEADER_IGNORE_PATH "${SDL2_INCLUDE_DIR}"
-)
+set(ENABLE_CLANG_TIDY ON CACHE BOOL "Run clang-tidy on polar")
+if(ENABLE_CLANG_TIDY)
+	find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy clang-tidy-3.8)
+	if(CLANG_TIDY_EXECUTABLE)
+		message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXECUTABLE}")
+		set(CLANG_TIDY_CHECKS "modernize*,performance*")
+		set_property(TARGET polar PROPERTY CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE};-checks=${CLANG_TIDY_CHECKS};-header-filter='${CMAKE_CURRENT_SOURCE_DIR}/include/polar'")
+	endif()
+endif()
 
 # Asset Builder
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})

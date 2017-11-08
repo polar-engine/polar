@@ -11,10 +11,11 @@ namespace core {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.data(), msg.data(),
 		                         NULL);
 #endif
+		std::cerr << title << ": " << msg << std::endl;
 	}
 	debugmanager_class::debugmanager_class(priority_t priority)
-	    : priority(priority),
-	      file(fs::local::appdir() + "/log.txt",
-	           std::ios::out | std::ios::binary | std::ios::trunc) {}
+	    : file(fs::local::appdir() + "/log.txt",
+	           std::ios::out | std::ios::binary | std::ios::trunc),
+	      priority(priority) {}
 }
 }

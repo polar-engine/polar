@@ -42,8 +42,8 @@ namespace core {
 
 		template <typename... Ts> void log(priority_t p, Ts &&... args) {
 			static const std::array<std::string, size_t(priority_t::_size)>
-			    uppers = {"TRACE",   "DEBUG", "VERBOSE",  "INFO", "NOTICE",
-			              "WARNING", "ERROR", "CRITICAL", "FATAL"};
+			    uppers = {{"TRACE",   "DEBUG", "VERBOSE",  "INFO", "NOTICE",
+			              "WARNING", "ERROR", "CRITICAL", "FATAL"}};
 
 			if(p >= priority) {
 				write('[');

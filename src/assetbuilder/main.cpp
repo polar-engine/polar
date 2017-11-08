@@ -112,7 +112,8 @@ int main(int argc, char **argv) {
 					uint8_t colorType;
 					iss.read(reinterpret_cast<char *>(&colorType),
 					         sizeof(colorType));
-					if(!(colorType & 0b110)) {
+					// 0b110 == 0x6
+					if(!(colorType & 0x6)) {
 						debugmanager()->fatal(
 						    "color type must be color & alpha");
 					}

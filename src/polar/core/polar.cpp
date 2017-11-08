@@ -4,8 +4,8 @@
 namespace polar {
 namespace core {
 	polar::polar(std::vector<std::string> args) {
-		srand((unsigned int)time(0));
-		std::mt19937_64 rng(time(0));
+		srand((unsigned int)time(nullptr));
+		std::mt19937_64 rng(time(nullptr));
 
 		for(auto &arg : args) {
 			if(arg == "-console") {
