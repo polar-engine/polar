@@ -13,7 +13,7 @@ struct StackAction {
 inline StackAction Push(std::string name) {
 	return StackAction{StackActionType::Push, name};
 }
-inline StackAction Pop() { return StackAction{StackActionType::Pop}; }
-inline StackAction QuitAction() { return StackAction{StackActionType::Quit}; }
+inline StackAction Pop() { return StackAction{StackActionType::Pop, ""}; }
+inline StackAction QuitAction() { return StackAction{StackActionType::Quit, ""}; }
 
 typedef std::vector<StackAction> Transition;

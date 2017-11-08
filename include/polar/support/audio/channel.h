@@ -16,7 +16,7 @@ namespace support {
 					return message{messagetype::add, id, source};
 				}
 				static message remove(IDType id) {
-					return message{messagetype::remove, id};
+					return message{messagetype::remove, id, nullptr};
 				}
 
 				messagetype type;

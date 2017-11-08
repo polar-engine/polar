@@ -24,7 +24,7 @@ namespace core {
 		std::unordered_map<std::string, Transition> transitions;
 
 		state(const std::string &name, polar *engine)
-		    : name(name), engine(engine) {}
+		    : engine(engine), name(name) {}
 
 		~state() noexcept {
 			/* release destructors before systems in case of dependencies */

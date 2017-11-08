@@ -19,8 +19,8 @@ template <typename T> class atomic {
 
 	inline void notify() { cv.notify_one(); }
 
-	inline void wait(const std::function<bool(T &)> &pred,
-	                 const std::function<void(T &)> &fn) {
+	inline void wait(const std::function<bool(T &)> &,
+	                 const std::function<void(T &)> &) {
 		polar::debugmanager()->fatal("atomic::wait: not implemented");
 		/*std::unique_lock<std::mutex> lock(mutex);
 		while(!pred(value)) {

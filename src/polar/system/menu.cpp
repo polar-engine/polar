@@ -132,9 +132,7 @@ namespace system {
 		engine->add<component::screenposition>(id, origin);
 		engine->add<component::scale>(id, Point3(scale));
 
-		auto text = engine->get<component::text>(id);
-
-		if(i == current) {
+		if(int(i) == current) {
 			engine->add<component::color>(id, Point4(1, 1, selectionAlpha, 1));
 		}
 
@@ -206,7 +204,7 @@ namespace system {
 
 		dtors.emplace_back(
 		    tw->tween(0.0f, 1.0f, 0.25, true,
-		              [this](core::polar *engine, const float &x) {
+		              [this](core::polar *, const float &x) {
 			              selectionAlpha = x;
 			          }));
 

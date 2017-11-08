@@ -218,7 +218,7 @@ namespace system {
 
 				component::position *pos       = nullptr;
 				component::orientation *orient = nullptr;
-				component::scale *sc           = nullptr;
+				//component::scale *sc           = nullptr;
 
 				auto pairLeft =
 				    engine->objects.left.equal_range(itRight->get_left());
@@ -965,15 +965,14 @@ namespace system {
 					}
 
 					if(infoLen > 0) {
-						char *infoLog = new char[infoLen];
+						auto infoLog = std::unique_ptr<char[]>(new char[infoLen]);
 						if(!GL(glGetShaderInfoLog(id, infoLen, NULL,
-						                          infoLog))) {
+						                          infoLog.get()))) {
 							debugmanager()->fatal(
 							    "failed to get shader info log");
 						}
 						debugmanager()->debug("shader info log:");
-						debugmanager()->debug(infoLog);
-						delete[] infoLog;
+						debugmanager()->debug(infoLog.get());
 					}
 					debugmanager()->fatal("failed to compile shader");
 				}
@@ -1016,14 +1015,13 @@ namespace system {
 				}
 
 				if(infoLen > 0) {
-					char *infoLog = new char[infoLen];
+					auto infoLog = std::unique_ptr<char[]>(new char[infoLen]);
 					if(!GL(glGetProgramInfoLog(programID, infoLen, NULL,
-					                           infoLog))) {
+					                           infoLog.get()))) {
 						debugmanager()->fatal("failed to get program info log");
 					}
 					debugmanager()->debug("program info log:");
-					debugmanager()->debug(infoLog);
-					delete[] infoLog;
+					debugmanager()->debug(infoLog.get());
 				}
 				debugmanager()->fatal("failed to link program");
 			}
@@ -1107,7 +1105,7 @@ namespace system {
 			// model->points.shrink_to_fit();
 		}
 
-		void gl32::componentadded(IDType id, const std::type_info *ti,
+		void gl32::componentadded(IDType, const std::type_info *ti,
 		                          std::weak_ptr<component::base> ptr) {
 			if(ti == &typeid(component::model)) {
 				auto model =
@@ -1220,7 +1218,6 @@ namespace system {
 		}
 
 		void gl32::setclearcolor(const Point4 &color) {
-			auto color2 = glm::vec4(color);
 			GL(glClearColor(color.r, color.g, color.b, color.a));
 		}
 

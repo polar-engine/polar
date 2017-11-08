@@ -6,7 +6,7 @@ namespace asset {
 		std::string data;
 		s >> data;
 		char *buffer = static_cast<char *>(malloc(data.size()));
-		if(buffer == NULL) {
+		if(buffer == nullptr) {
 			debugmanager()->fatal("failed to allocate memory for font data");
 		} else {
 			memcpy(buffer, data.data(), data.size());
@@ -41,7 +41,7 @@ namespace asset {
 				SDL_Surface *fg;
 				SDL(fg = TTF_RenderGlyph_Blended(asset.ttf, i,
 				                                 {255, 255, 255, 255}));
-				SDL(SDL_BlitSurface(fg, NULL, glyph.surface, NULL));
+				SDL(SDL_BlitSurface(fg, nullptr, glyph.surface, nullptr));
 				SDL(SDL_FreeSurface(fg));
 			}
 		}

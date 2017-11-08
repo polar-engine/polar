@@ -12,15 +12,13 @@ namespace component {
 		using loopout    = support::audio::loopout;
 		using sourcetype = support::audio::sourcetype;
 
-	  protected:
+	  public:
 		std::shared_ptr<asset::audio> asset;
+		sourcetype type = sourcetype::none;
 		bool looping;
 		size_t loopIn;
 		size_t loopOut;
 		size_t currentSample = 0;
-
-	  public:
-		sourcetype type = sourcetype::none;
 
 		audiosource(std::shared_ptr<asset::audio> as, sourcetype type,
 		            const bool looping = false)
