@@ -4,7 +4,10 @@ namespace polar {
 namespace support {
 	namespace phys {
 		namespace responder {
-			class base {};
+			class base {
+			  public:
+				virtual ~base() = default;
+			};
 		}
 	}
 }
