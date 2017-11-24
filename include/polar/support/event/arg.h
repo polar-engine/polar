@@ -1,5 +1,7 @@
 #pragma once
 
+#include <polar/core/types.h>
+
 namespace polar {
 namespace support {
 	namespace event {
