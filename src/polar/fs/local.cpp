@@ -97,7 +97,7 @@ namespace fs {
 		file.seekg(offset, std::ios::beg);
 		if(file.fail()) { debugmanager()->fatal(path + ": seekg"); }
 
-		char *sz = new char[static_cast<unsigned int>(len + 1)];
+		auto sz = new char[static_cast<unsigned int>(len + 1)];
 		sz[len]  = '\0';
 
 		file.read(sz, static_cast<unsigned int>(len));
