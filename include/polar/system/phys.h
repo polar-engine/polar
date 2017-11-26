@@ -35,11 +35,10 @@ namespace system {
 
 		using ti_t          = const std::type_info *;
 		using detector_base = support::phys::detector::base;
-		using pair_t        = std::pair<ti_t, ti_t>;
 		using resolver_t    = std::function<bool(std::shared_ptr<detector_base>,
 		                                      std::shared_ptr<detector_base>)>;
 
-		std::unordered_map<pair_t, std::shared_ptr<resolver_t>,
+		std::unordered_map<std::pair<ti_t, ti_t>, std::shared_ptr<resolver_t>,
 		                   pair_hasher<ti_t>, pair_comparator<ti_t>>
 		    resolvers;
 
@@ -55,7 +54,8 @@ namespace system {
 		              std::is_base_of<detector_base, T>::value>::type,
 		          typename = typename std::enable_if<
 		              std::is_base_of<detector_base, U>::value>::type>
-		void add(std::function<bool(const T *, const U *)> resolver) {
+		void add(std::function<bool(std::shared_ptr<T>, std::shared_ptr<U>)>
+		             resolver) {
 			// reinterpret_pointer_cast isn't standard yet
 			auto typedPtr = new decltype(resolver)(resolver);
 			auto ptr      = reinterpret_cast<resolver_t *>(typedPtr);

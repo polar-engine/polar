@@ -6,7 +6,10 @@ namespace polar {
 namespace support {
 	namespace phys {
 		namespace detector {
-			class box : public base {};
+			class box : public base {
+			  public:
+				Point3 size;
+			};
 		}
 	}
 }
