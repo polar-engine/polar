@@ -28,9 +28,7 @@ namespace system {
 						if(search != resolvers.cend()) {
 							auto b = search->second->operator()(
 							    phys1->detector, phys2->detector);
-							if(b) {
-								debugmanager()->info("collision!");
-							}
+							if(b) { debugmanager()->info("collision!"); }
 						}
 					}
 				}
