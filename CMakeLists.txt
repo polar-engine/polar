@@ -132,7 +132,7 @@ add_custom_target(invalidate_buildinfo ALL
 add_library(polar STATIC ${POLAR_SRCS})
 target_include_directories(polar PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(polar ${POLAR_LIBS})
-set_property(TARGET polar PROPERTY CXX_STANDARD 11)
+set_property(TARGET polar PROPERTY CXX_STANDARD 17)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
 add_dependencies(polar invalidate_buildinfo)
 
@@ -150,7 +150,7 @@ endif()
 add_executable(assetbuilder ${ASSETBUILDER_SRCS})
 target_include_directories(assetbuilder PRIVATE ${POLAR_INCLUDE_DIRS})
 target_link_libraries(assetbuilder ${ASSETBUILDER_LIBS})
-set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 11)
+set_property(TARGET assetbuilder PROPERTY CXX_STANDARD 17)
 set_property(TARGET assetbuilder PROPERTY CXX_STANDARD_REQUIRED ON)
 add_dependencies(assetbuilder polar)
 
