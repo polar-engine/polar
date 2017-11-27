@@ -86,6 +86,11 @@ else()
 	set(LIB_SEARCH_PATH lib/linux64)
 endif()
 
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+
+find_package(Boost REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -94,12 +99,14 @@ find_library(Z_LIB NAMES z zlib      PATHS ${LIB_SEARCH_PATH})
 find_library(PORTAUDIO_LIB portaudio PATHS ${LIB_SEARCH_PATH})
 
 set(POLAR_INCLUDE_DIRS
+	${Boost_INCLUDE_DIRS}
 	${GLM_INCLUDE_DIR}
 	${SDL2_INCLUDE_DIR}
 	${SDL2TTF_INCLUDE_DIR}
 )
 
 set(POLAR_LIBS ${POLAR_LIBS}
+	${Boost_LIBRARIES}
 	${PORTAUDIO_LIB}
 	${OPENGL_LIBRARIES}
 	${SDL2_LIBRARY}
@@ -138,7 +145,7 @@ add_dependencies(polar invalidate_buildinfo)
 
 set(ENABLE_CLANG_TIDY ON CACHE BOOL "Run clang-tidy on polar")
 if(ENABLE_CLANG_TIDY)
-	find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy clang-tidy-3.8)
+	find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
 	if(CLANG_TIDY_EXECUTABLE)
 		message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXECUTABLE}")
 		set(CLANG_TIDY_CHECKS "modernize*,performance*")
