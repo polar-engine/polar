@@ -8,8 +8,7 @@
 #include <polar/system/base.h>
 #include <set>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	typedef std::function<void(support::input::key)> OnKeyHandler;
 	typedef std::function<void(support::input::key)> AfterKeyHandler;
 	typedef std::function<void(support::input::key, const DeltaTicks &)>
@@ -26,22 +25,22 @@ namespace system {
 
 	  public:
 		typedef std::uint_fast32_t IDType;
-		template <typename _Handler>
+		template<typename _Handler>
 		using KeyHandlerBimap =
 		    boost::bimap<boost::bimaps::multiset_of<key_t>,
 		                 boost::bimaps::unordered_set_of<IDType>,
 		                 boost::bimaps::set_of_relation<>,
 		                 boost::bimaps::with_info<_Handler>>;
-		template <typename _Val>
+		template<typename _Val>
 		using IDMap = boost::bimap<boost::bimaps::set_of<IDType>,
 		                           boost::bimaps::unconstrained_set_of<_Val>>;
-		template <typename _Handler>
+		template<typename _Handler>
 		using DigitalHandlerBimap =
 		    boost::bimap<boost::bimaps::multiset_of<std::string>,
 		                 boost::bimaps::unordered_set_of<IDType>,
 		                 boost::bimaps::set_of_relation<>,
 		                 boost::bimaps::with_info<_Handler>>;
-		template <typename _Handler>
+		template<typename _Handler>
 		using AnalogHandlerBimap =
 		    boost::bimap<boost::bimaps::multiset_of<std::string>,
 		                 boost::bimaps::unordered_set_of<IDType>,
@@ -74,8 +73,7 @@ namespace system {
 		static bool supported() { return true; }
 		input(core::polar *engine) : base(engine) {}
 
-		inline std::shared_ptr<core::destructor>
-		on(key_t key, const OnKeyHandler &handler) {
+		inline auto on(key_t key, const OnKeyHandler &handler) {
 			auto id = nextID++;
 			onKeyHandlers.insert(
 			    KeyHandlerBimap<OnKeyHandler>::value_type(key, id, handler));
@@ -83,8 +81,7 @@ namespace system {
 			    [this, id]() { onKeyHandlers.right.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		after(key_t key, const AfterKeyHandler &handler) {
+		inline auto after(key_t key, const AfterKeyHandler &handler) {
 			auto id = nextID++;
 			afterKeyHandlers.insert(
 			    KeyHandlerBimap<AfterKeyHandler>::value_type(key, id, handler));
@@ -92,8 +89,7 @@ namespace system {
 			    [this, id]() { afterKeyHandlers.right.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		when(key_t key, const WhenKeyHandler &handler) {
+		inline auto when(key_t key, const WhenKeyHandler &handler) {
 			auto id = nextID++;
 			whenKeyHandlers.insert(
 			    KeyHandlerBimap<WhenKeyHandler>::value_type(key, id, handler));
@@ -101,8 +97,7 @@ namespace system {
 			    [this, id]() { whenKeyHandlers.right.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		onmousemove(const MouseMoveHandler &handler) {
+		inline auto onmousemove(const MouseMoveHandler &handler) {
 			auto id = nextID++;
 			mouseMoveHandlers.insert(
 			    IDMap<MouseMoveHandler>::value_type(id, handler));
@@ -110,8 +105,7 @@ namespace system {
 			    [this, id]() { mouseMoveHandlers.left.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		onmousewheel(const MouseWheelHandler &handler) {
+		inline auto onmousewheel(const MouseWheelHandler &handler) {
 			auto id = nextID++;
 			mouseWheelHandlers.insert(
 			    IDMap<MouseWheelHandler>::value_type(id, handler));
@@ -119,8 +113,7 @@ namespace system {
 			    [this, id]() { mouseWheelHandlers.left.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		oncontrolleraxes(const ControllerAxesHandler &handler) {
+		inline auto oncontrolleraxes(const ControllerAxesHandler &handler) {
 			auto id = nextID++;
 			controllerAxesHandlers.insert(
 			    IDMap<ControllerAxesHandler>::value_type(id, handler));
@@ -128,8 +121,8 @@ namespace system {
 			    [this, id]() { controllerAxesHandlers.left.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		ondigital(std::string name, const OnDigitalHandler &handler) {
+		inline auto ondigital(std::string name,
+		                      const OnDigitalHandler &handler) {
 			auto id = nextID++;
 			trackedDigitals.emplace(name);
 			onDigitalHandlers.insert(
@@ -139,8 +132,7 @@ namespace system {
 			    [this, id]() { onDigitalHandlers.right.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		onanalog(std::string name, const OnAnalogHandler &handler) {
+		inline auto onanalog(std::string name, const OnAnalogHandler &handler) {
 			auto id = nextID++;
 			trackedAnalogs.emplace(name);
 			onAnalogHandlers.insert(
@@ -150,5 +142,4 @@ namespace system {
 			    [this, id]() { onAnalogHandlers.right.erase(id); });
 		}
 	};
-}
-}
+} // namespace polar::system

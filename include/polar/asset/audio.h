@@ -2,8 +2,7 @@
 
 #include <polar/asset/base.h>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	struct audio : base {
 		bool stereo;
 		uint32_t sampleRate;
@@ -18,6 +17,5 @@ namespace asset {
 		return s >> asset.stereo >> asset.sampleRate >> asset.samples;
 	}
 
-	template <> inline std::string name<audio>() { return "audio"; }
-}
-}
+	template<> inline std::string name<audio>() { return "audio"; }
+} // namespace polar::asset

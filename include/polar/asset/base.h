@@ -7,19 +7,17 @@
 #include <type_traits>
 #include <vector>
 
-namespace polar {
-namespace asset {
-	using core::serializer;
+namespace polar::asset {
 	using core::deserializer;
+	using core::serializer;
 
 	struct base {
 		virtual ~base() {}
 	};
 
-	template <typename T> inline std::string name() {
+	template<typename T> inline std::string name() {
 		static_assert(true,
 		              "invalid template argument to polar::asset::name()");
 		return "";
 	}
-}
-}
+} // namespace polar::asset

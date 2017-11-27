@@ -4,7 +4,7 @@
 #include <mutex>
 #include <polar/core/debugmanager.h>
 
-template <typename T> class atomic {
+template<typename T> class atomic {
   public:
 	typedef std::recursive_mutex mutex_type;
 
@@ -14,7 +14,7 @@ template <typename T> class atomic {
 	std::condition_variable cv;
 
   public:
-	template <typename... Ts>
+	template<typename... Ts>
 	atomic(Ts &&... args) : value(std::forward<Ts>(args)...) {}
 
 	inline void notify() { cv.notify_one(); }
@@ -34,7 +34,7 @@ template <typename T> class atomic {
 		fn(value);
 	}
 
-	template <typename _Ret>
+	template<typename _Ret>
 	inline _Ret with(const std::function<_Ret(T &)> &fn) {
 		std::lock_guard<mutex_type> lock(mutex);
 		return fn(value);

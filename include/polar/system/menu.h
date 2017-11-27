@@ -5,8 +5,7 @@
 #include <stdint.h>
 #include <vector>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	using menuitem_vector_t = std::vector<support::ui::menuitem>;
 
 	class menu : public base {
@@ -56,5 +55,4 @@ namespace system {
 			for(size_t i = 0; i < m->size(); ++i) { render(i); }
 		}
 	};
-}
-}
+} // namespace polar::system

@@ -2,15 +2,13 @@
 
 #include <array>
 #include <atomic>
-#include <boost/container/flat_map.hpp>
 #include <polar/component/audiosource.h>
 #include <polar/support/audio/channel.h>
 #include <polar/support/audio/oscillator.h>
 #include <polar/system/base.h>
 #include <portaudio.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	int audio_stream_cb(const void *, void *, unsigned long,
 	                    const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags,
 	                    void *);
@@ -28,8 +26,7 @@ namespace system {
 		int channelIndexMain           = 0;
 		int channelIndexStream         = 0;
 
-		boost::container::flat_map<IDType, std::shared_ptr<audiosource>>
-		    sources;
+		std::unordered_map<IDType, std::shared_ptr<audiosource>> sources;
 
 		PaStream *stream;
 
@@ -121,5 +118,4 @@ namespace system {
 			return paContinue;
 		}
 	};
-}
-}
+} // namespace polar::system

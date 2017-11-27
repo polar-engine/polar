@@ -2,7 +2,7 @@
 
 #include <functional>
 
-template <typename T>
+template<typename T>
 struct sharedptr_less : public std::binary_function<std::shared_ptr<T>,
                                                     std::shared_ptr<T>, bool> {
 	inline bool operator()(const std::shared_ptr<T> &left,

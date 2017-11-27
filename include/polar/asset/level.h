@@ -4,8 +4,7 @@
 #include <polar/support/level/keyframe.h>
 #include <set>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	struct level : base {
 		using keyframe = support::level::keyframe;
 
@@ -20,7 +19,7 @@ namespace asset {
 		keyframe get_now() const;
 	};
 
-	template <> inline std::string name<level>() { return "level"; }
+	template<> inline std::string name<level>() { return "level"; }
 
 	inline serializer &operator<<(serializer &s, const level &level) {
 		return s << level.keyframes;
@@ -29,5 +28,4 @@ namespace asset {
 	inline deserializer &operator>>(deserializer &s, level &level) {
 		return s >> level.keyframes;
 	}
-}
-}
+} // namespace polar::asset

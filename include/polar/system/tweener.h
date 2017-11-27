@@ -4,9 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
-namespace polar {
-namespace system {
-	template <typename T> class tweener : public base {
+namespace polar::system {
+	template<typename T> class tweener : public base {
 	  public:
 		typedef std::function<void(core::polar *, const T &)> tween_handler;
 		struct tween_desc {
@@ -62,22 +61,18 @@ namespace system {
 		static bool supported() { return true; }
 		tweener(core::polar *engine) : base(engine) {}
 
-		inline std::shared_ptr<core::destructor> tween(T from, T to, double in,
-		                                               bool loop,
-		                                               tween_handler fn,
-		                                               double pause = 0.0) {
-			return tween(from, to, in, loop, fn, pause, from);
-		}
-
-		inline std::shared_ptr<core::destructor>
-		tween(T from, T to, double in, bool loop, tween_handler fn,
-		      double pause, T initial) {
+		inline auto tween(T from, T to, double in, bool loop, tween_handler fn,
+		                  double pause, T initial) {
 			auto id    = nextID++;
 			double acc = (initial - from) / (to - from) * in;
 			tweens.emplace(id, tween_desc(from, to, in, pause, loop, fn, acc));
 			return std::make_shared<core::destructor>(
 			    [this, id]() { tweens.erase(id); });
 		}
+
+		inline auto tween(T from, T to, double in, bool loop, tween_handler fn,
+		                  double pause = 0.0) {
+			return tween(from, to, in, loop, fn, pause, from);
+		}
 	};
-}
-}
+} // namespace polar::system

@@ -1,9 +1,7 @@
 #include <polar/core/debugmanager.h>
 #include <polar/support/work/worker.h>
 
-namespace polar {
-namespace support {
-	namespace work {
+namespace polar::support::work {
 		void worker::start() {
 			auto fn = [this]() {
 				while(true) {
@@ -37,6 +35,4 @@ namespace support {
 			if(joinable) { _thread.join(); }
 			return joinable;
 		}
-	}
-}
 }

@@ -5,8 +5,7 @@
 #include <polar/system/base.h>
 #include <vector>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	class work : public base {
 		using worker_t     = support::work::worker;
 		using job_t        = support::work::job;
@@ -42,5 +41,4 @@ namespace system {
 			});
 		}
 	};
-}
-}
+} // namespace polar::system

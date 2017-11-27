@@ -1,9 +1,7 @@
 #include <polar/component/sprite/slider.h>
 #include <polar/core/types.h>
 
-namespace polar {
-namespace component {
-	namespace sprite {
+namespace polar::component::sprite {
 		void slider::render_me() {
 			const int edgeSize    = 2;
 			const int edgePadding = 2;
@@ -47,6 +45,4 @@ namespace component {
 			SDL(SDL_FillRect(surface, &rect,
 			                 SDL_MapRGB(surface->format, 77, 204, 255)));
 		}
-	}
-}
 }

@@ -5,8 +5,7 @@
 #include <polar/system/credits.h>
 #include <polar/system/input.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	void credits::render_all() {
 		const Decimal pad     = 75;
 		const Decimal forepad = 720;
@@ -84,5 +83,4 @@ namespace system {
 			}
 		}
 	}
-}
 }

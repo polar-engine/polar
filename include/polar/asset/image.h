@@ -2,8 +2,7 @@
 
 #include <polar/asset/base.h>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	struct imagepixel : base {
 		uint8_t red;
 		uint8_t green;
@@ -48,6 +47,5 @@ namespace asset {
 		return s >> asset.width >> asset.height >> asset.pixels;
 	}
 
-	template <> inline std::string name<image>() { return "image"; }
-}
-}
+	template<> inline std::string name<image>() { return "image"; }
+} // namespace polar::asset

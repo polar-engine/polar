@@ -1,7 +1,6 @@
 #include <polar/asset/font.h>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	deserializer &operator>>(deserializer &s, font &asset) {
 		std::string data;
 		s >> data;
@@ -48,5 +47,4 @@ namespace asset {
 
 		return s;
 	}
-}
 }

@@ -3,10 +3,9 @@
 #include <polar/component/base.h>
 #include <polar/property/integrable.h>
 
-namespace polar {
-namespace component {
+namespace polar::component {
 	class playercamera : public base {
-		template <typename T>
+		template<typename T>
 		using integrable = support::integrator::integrable<T>;
 
 	  public:
@@ -26,5 +25,4 @@ namespace component {
 			}
 		}
 	};
-}
-}
+} // namespace polar::component

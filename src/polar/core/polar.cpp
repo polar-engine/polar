@@ -1,8 +1,7 @@
 #include <polar/core/polar.h>
 #include <random>
 
-namespace polar {
-namespace core {
+namespace polar::core {
 	polar::polar(std::vector<std::string> args) {
 		srand((unsigned int)time(nullptr));
 		std::mt19937_64 rng(time(nullptr));
@@ -132,5 +131,4 @@ namespace core {
 		}
 		objects.left.erase(id);
 	}
-}
-}
+} // namespace polar::core

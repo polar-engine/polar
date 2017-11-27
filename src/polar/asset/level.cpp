@@ -1,7 +1,6 @@
 #include <polar/asset/level.h>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	using keyframe = support::level::keyframe;
 
 	const keyframe &level::get_current() const {
@@ -28,5 +27,4 @@ namespace asset {
 		kf.ticks   = ticks;
 		return kf;
 	}
-}
 }

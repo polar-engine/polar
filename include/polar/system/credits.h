@@ -7,8 +7,7 @@
 #include <polar/system/base.h>
 #include <vector>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	using credits_vector_t = std::vector<support::ui::credits_section>;
 
 	class credits : public base {
@@ -30,5 +29,4 @@ namespace system {
 		credits(core::polar *engine, credits_vector_t _credits)
 		    : base(engine), _credits(_credits) {}
 	};
-}
-}
+} // namespace polar::system

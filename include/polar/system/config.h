@@ -5,9 +5,8 @@
 #include <polar/util/getline.h>
 #include <unordered_map>
 
-namespace polar {
-namespace system {
-	template <typename K, typename FS> class config : public base {
+namespace polar::system {
+	template<typename K, typename FS> class config : public base {
 	  public:
 		using key_t     = K;
 		using value_t   = Decimal;
@@ -26,12 +25,12 @@ namespace system {
 
 		void on(key_t k, handler_t h) { handlers[k] = h; }
 
-		template <typename T> T get(key_t k) {
+		template<typename T> T get(key_t k) {
 			auto it = values.find(k);
 			return it != values.cend() ? T(it->second) : set<T>(k, T(0));
 		}
 
-		template <typename T> T set(key_t k, T v) {
+		template<typename T> T set(key_t k, T v) {
 			values[k] = value_t(v);
 			auto it   = handlers.find(k);
 			if(it != handlers.cend()) { it->second(engine, k, v); }
@@ -70,5 +69,4 @@ namespace system {
 			                        (result ? "success" : "failed"));
 		}
 	};
-}
-}
+} // namespace polar::system
