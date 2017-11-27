@@ -26,6 +26,18 @@ namespace polar::core {
 				debugmanager()->priority = priority_t::debug;
 			} else if(arg == "-verbose") {
 				debugmanager()->priority = priority_t::verbose;
+			} else if(arg == "-info") {
+				debugmanager()->priority = priority_t::info;
+			} else if(arg == "-notice") {
+				debugmanager()->priority = priority_t::notice;
+			} else if(arg == "-warning") {
+				debugmanager()->priority = priority_t::warning;
+			} else if(arg == "-error") {
+				debugmanager()->priority = priority_t::error;
+			} else if(arg == "-critical") {
+				debugmanager()->priority = priority_t::critical;
+			} else if(arg == "-fatal") {
+				debugmanager()->priority = priority_t::fatal;
 			}
 		}
 
