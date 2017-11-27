@@ -5,8 +5,7 @@
 #include <polar/support/integrator/integrable.h>
 #include <polar/system/base.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	class integrator : public base {
 	  private:
 		DeltaTicks accumulator;
@@ -24,5 +23,4 @@ namespace system {
 		integrator(core::polar *engine) : base(engine) {}
 		const inline DeltaTicks &getaccumulator() const { return accumulator; }
 	};
-}
-}
+} // namespace polar::system

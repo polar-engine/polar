@@ -7,8 +7,7 @@
 #include <polar/system/base.h>
 #include <unordered_map>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	class asset : public base {
 		using partial = support::asset::partial;
 
@@ -24,14 +23,14 @@ namespace system {
 #endif
 		}
 
-		template <typename T> static std::string getdir() {
+		template<typename T> static std::string getdir() {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::getdir requires typename of "
 			              "type polar::asset::base");
 			return getassetsdir() + "/" + polar::asset::name<T>();
 		}
 
-		template <typename T>
+		template<typename T>
 		static std::string getpath(const std::string &name) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::getpath requires typename of "
@@ -39,7 +38,7 @@ namespace system {
 			return getdir<T>() + "/" + name + ".asset";
 		}
 
-		template <typename T> std::vector<std::string> list() {
+		template<typename T> auto list() {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::list requires typename of "
 			              "type polar::asset::base");
@@ -72,7 +71,7 @@ namespace system {
 			}
 		}
 
-		template <typename T> void request(const std::string name) {
+		template<typename T> void request(const std::string name) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::request requires typename of "
 			              "type polar::asset::base");
@@ -83,7 +82,7 @@ namespace system {
 			}
 		}
 
-		template <typename T> partial &forcepartial(const std::string name) {
+		template<typename T> partial &forcepartial(const std::string name) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::forcepartial requires "
 			              "typename of type polar::asset::base");
@@ -103,7 +102,7 @@ namespace system {
 			return partial;
 		}
 
-		template <typename T, typename... Ts>
+		template<typename T, typename... Ts>
 		std::shared_ptr<T> get(const std::string name, Ts &&... args) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::get requires typename of type "
@@ -130,5 +129,4 @@ namespace system {
 			return std::static_pointer_cast<T>(partial.asset);
 		}
 	};
-}
-}
+} // namespace polar::system

@@ -1,7 +1,6 @@
 #include <polar/core/state.h>
 
-namespace polar {
-namespace core {
+namespace polar::core {
 	void state::init() {
 		for(auto &system : orderedSystems) {
 			auto &deref = *system;
@@ -44,5 +43,4 @@ namespace core {
 			debugmanager()->trace("notified system of component removed");
 		}
 	}
-}
 }

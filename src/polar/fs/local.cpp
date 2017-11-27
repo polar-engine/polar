@@ -22,8 +22,7 @@
 #include <unistd.h>
 #endif
 
-namespace polar {
-namespace fs {
+namespace polar::fs {
 	std::string local::app() {
 #if defined(_WIN32)
 		char sz[MAX_PATH];
@@ -238,5 +237,4 @@ namespace fs {
 			}
 		} while(pos != path.npos);
 	}
-}
 }

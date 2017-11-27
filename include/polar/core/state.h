@@ -10,8 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace polar {
-namespace core {
+namespace polar::core {
 	class state {
 	  private:
 		polar *engine;
@@ -40,18 +39,18 @@ namespace core {
 		void init();
 		void update(DeltaTicks &dt);
 
-		template <typename T, typename... Ts,
-		          typename = typename std::enable_if<
-		              std::is_base_of<system::base, T>::value>::type>
+		template<typename T, typename... Ts,
+		         typename = typename std::enable_if<
+		             std::is_base_of<system::base, T>::value>::type>
 		inline void add(Ts &&... args) {
 			add_as<T, T>(std::forward<Ts>(args)...);
 		}
 
-		template <typename B, typename T, typename... Ts,
-		          typename = typename std::enable_if<
-		              std::is_base_of<system::base, T>::value>::type,
-		          typename = typename std::enable_if<
-		              std::is_base_of<B, T>::value>::type>
+		template<typename B, typename T, typename... Ts,
+		         typename = typename std::enable_if<
+		             std::is_base_of<system::base, T>::value>::type,
+		         typename = typename std::enable_if<
+		             std::is_base_of<B, T>::value>::type>
 		inline void add_as(Ts &&... args) {
 #ifdef _DEBUG
 			if(!T::supported()) {
@@ -65,9 +64,8 @@ namespace core {
 #endif
 		}
 
-		template <typename T,
-		          typename = typename std::enable_if<
-		              std::is_base_of<system::base, T>::value>::type>
+		template<typename T, typename = typename std::enable_if<
+		                         std::is_base_of<system::base, T>::value>::type>
 		inline void remove() {
 			auto sys =
 			    std::static_pointer_cast<system::base>(systems.get<T>().lock());
@@ -78,9 +76,8 @@ namespace core {
 			}
 		}
 
-		template <typename T,
-		          typename = typename std::enable_if<
-		              std::is_base_of<system::base, T>::value>::type>
+		template<typename T, typename = typename std::enable_if<
+		                         std::is_base_of<system::base, T>::value>::type>
 		inline std::weak_ptr<T> get() {
 			return systems.get<T>();
 		}
@@ -93,7 +90,6 @@ namespace core {
 		                     std::shared_ptr<component::base> ptr);
 		void component_removed(IDType id, const std::type_info *ti);
 	};
-}
-}
+} // namespace polar::core
 
 #endif

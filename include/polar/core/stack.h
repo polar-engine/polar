@@ -10,10 +10,10 @@ struct StackAction {
 	std::string name;
 };
 
-inline StackAction Push(std::string name) {
+inline auto Push(std::string name) {
 	return StackAction{StackActionType::Push, name};
 }
-inline StackAction Pop() { return StackAction{StackActionType::Pop, ""}; }
-inline StackAction QuitAction() { return StackAction{StackActionType::Quit, ""}; }
+inline auto Pop() { return StackAction{StackActionType::Pop, ""}; }
+inline auto QuitAction() { return StackAction{StackActionType::Quit, ""}; }
 
 typedef std::vector<StackAction> Transition;

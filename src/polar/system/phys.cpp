@@ -2,8 +2,7 @@
 #include <polar/system/event.h>
 #include <polar/system/phys.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	void phys::init() {
 		using arg_t = support::event::arg;
 		auto eventM = engine->get<system::event>().lock();
@@ -36,5 +35,4 @@ namespace system {
 		};
 		dtors.emplace_back(eventM->listenfor("integrator", "ticked", f));
 	}
-}
 }

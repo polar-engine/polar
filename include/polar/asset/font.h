@@ -7,8 +7,7 @@
 #include <polar/util/gl.h>
 #include <polar/util/sdl.h>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	struct font : base {
 		using glyphentry = support::font::glyphentry;
 
@@ -21,6 +20,5 @@ namespace asset {
 
 	deserializer &operator>>(deserializer &s, font &asset);
 
-	template <> inline std::string name<font>() { return "font"; }
-}
-}
+	template<> inline std::string name<font>() { return "font"; }
+} // namespace polar::asset

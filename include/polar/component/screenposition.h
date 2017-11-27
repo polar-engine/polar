@@ -4,10 +4,9 @@
 #include <polar/property/integrable.h>
 #include <polar/support/ui/origin.h>
 
-namespace polar {
-namespace component {
+namespace polar::component {
 	class screenposition : public base {
-		template <typename T>
+		template<typename T>
 		using integrable = support::integrator::integrable<T>;
 		using origin_t   = support::ui::origin;
 
@@ -22,5 +21,4 @@ namespace component {
 			get<property::integrable>().lock()->add(&this->position);
 		}
 	};
-}
-}
+} // namespace polar::component

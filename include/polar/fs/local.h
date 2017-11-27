@@ -7,8 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace polar {
-namespace fs {
+namespace polar::fs {
 	class local {
 	  private:
 		static void createdir_impl(std::string path);
@@ -51,5 +50,4 @@ namespace fs {
 			remove(path.c_str());
 		}
 	};
-}
-}
+} // namespace polar::fs

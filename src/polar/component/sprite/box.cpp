@@ -1,8 +1,6 @@
 #include <polar/component/sprite/box.h>
 
-namespace polar {
-namespace component {
-	namespace sprite {
+namespace polar::component::sprite {
 		void box::render_me() {
 			const int width  = 12;
 			const int height = 12;
@@ -19,6 +17,4 @@ namespace component {
 			SDL(SDL_FillRect(surface, &rect,
 			                 SDL_MapRGB(surface->format, 255, 255, 255)));
 		}
-	}
-}
 }

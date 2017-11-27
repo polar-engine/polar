@@ -5,8 +5,7 @@
 #include <polar/support/audio/loop.h>
 #include <polar/support/audio/sourcetype.h>
 
-namespace polar {
-namespace component {
+namespace polar::component {
 	class audiosource : public base {
 		using loopin     = support::audio::loopin;
 		using loopout    = support::audio::loopout;
@@ -64,5 +63,4 @@ namespace component {
 			return true;
 		}
 	};
-}
-}
+} // namespace polar::component

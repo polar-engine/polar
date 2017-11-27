@@ -2,8 +2,7 @@
 #include <polar/system/event.h>
 #include <polar/system/input.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	void input::init() {
 		auto eventM = engine->get<event>().lock();
 		dtors.emplace_back(eventM->listenfor("keydown", [this](arg_t arg) {
@@ -61,5 +60,4 @@ namespace system {
 			                  : Point2(0));
 		}
 	}
-}
 }

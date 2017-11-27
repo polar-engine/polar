@@ -4,8 +4,7 @@
 #include <polar/asset/text.h>
 #include <polar/support/shader/types.h>
 
-namespace polar {
-namespace asset {
+namespace polar::asset {
 	struct shaderinput : base {
 		std::string key;
 		std::string name;
@@ -78,8 +77,7 @@ namespace asset {
 		       asset.globalIns >> asset.globalOuts >> asset.shaders;
 	}
 
-	template <> inline std::string name<shaderprogram>() {
+	template<> inline std::string name<shaderprogram>() {
 		return "shaderprogram";
 	}
-}
-}
+} // namespace polar::asset

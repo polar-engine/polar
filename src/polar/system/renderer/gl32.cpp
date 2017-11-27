@@ -17,9 +17,7 @@
 #include "Windows.h"
 #endif
 
-namespace polar {
-namespace system {
-	namespace renderer {
+namespace polar::system::renderer {
 		bool gl32::supported() {
 			gl32 renderer(nullptr, {});
 			try {
@@ -1073,7 +1071,7 @@ namespace system {
 		void gl32::uploadmodel(std::shared_ptr<component::model> model) {
 			auto normals     = model->calculate_normals();
 			auto numVertices = normals.size();
-			auto dataSize = sizeof(component::model::PointType) * numVertices;
+			auto dataSize = sizeof(component::model::point_t) * numVertices;
 			auto prop     = getpooledmodelproperty(numVertices);
 
 			if(numVertices > 0) {
@@ -1374,6 +1372,4 @@ namespace system {
 			GL(glUseProgram(programID));
 			uploaduniform(programID, "u_projection", calculate_projection());
 		}
-	}
-}
 }

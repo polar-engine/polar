@@ -14,8 +14,7 @@
 #include <polar/system/menu.h>
 #include <polar/system/tweener.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	void menu::activate() {
 		auto m     = getcurrentmenu();
 		auto &item = m->at(current);
@@ -210,5 +209,4 @@ namespace system {
 
 		render_all();
 	}
-}
 }

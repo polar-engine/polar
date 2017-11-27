@@ -3,8 +3,7 @@
 #include <polar/component/base.h>
 #include <polar/support/phys/boundingbox.h>
 
-namespace polar {
-namespace component {
+namespace polar::component {
 	class bounds : public base {
 	  public:
 		support::phys::boundingbox box;
@@ -13,5 +12,4 @@ namespace component {
 		       const bool &skipRoot = false)
 		    : box(position, size, skipRoot) {}
 	};
-}
-}
+} // namespace polar::component

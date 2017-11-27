@@ -3,8 +3,7 @@
 #include <polar/system/event.h>
 #include <polar/system/integrator.h>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	void integrator::update(DeltaTicks &dt) {
 		accumulator += dt;
 		if(accumulator.Seconds() > 1.0f) { accumulator.SetSeconds(1.0f); }
@@ -30,5 +29,4 @@ namespace system {
 		}
 		engine->get<event>().lock()->firein("integrator", "ticked", seconds);
 	}
-}
 }

@@ -19,9 +19,9 @@ class DeltaTicks {
 	DeltaTicks(const DeltaTicksBase &value) : value(value) {}
 	DeltaTicks(const DeltaTicksBase::rep ticks) : value(ticks) {}
 
-	inline DeltaTicksBase::rep Ticks() const { return value.count(); }
+	inline auto Ticks() const { return value.count(); }
 
-	inline seconds_type Seconds() const {
+	inline auto Seconds() const {
 		return value.count() /
 		       static_cast<seconds_type>(ENGINE_TICKS_PER_SECOND);
 	}

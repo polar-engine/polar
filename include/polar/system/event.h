@@ -7,8 +7,7 @@
 #include <polar/system/base.h>
 #include <unordered_map>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	class event : public base {
 		using arg_t = support::event::arg;
 
@@ -31,27 +30,24 @@ namespace system {
 		static bool supported() { return true; }
 		event(core::polar *engine) : base(engine) {}
 
-		inline std::shared_ptr<core::destructor>
-		listen(const global_listener_t &fn) {
+		inline auto listen(const global_listener_t &fn) {
 			auto id = nextID++;
 			globalListeners.emplace(id, fn);
 			return std::make_shared<core::destructor>(
 			    [this, id]() { globalListeners.erase(id); });
 		}
 
-		inline std::shared_ptr<core::destructor>
-		listenfor(const std::string &msg, const listener_t &fn) {
-			return listenfor("", msg, fn);
-		}
-
-		inline std::shared_ptr<core::destructor>
-		listenfor(const std::string &ns, const std::string &msg,
-		          const listener_t &fn) {
+		inline auto listenfor(const std::string &ns, const std::string &msg,
+		                      const listener_t &fn) {
 			auto m  = ns + '.' + msg;
 			auto id = nextID++;
 			listeners.insert(listener_bimap::value_type(m, id, fn));
 			return std::make_shared<core::destructor>(
 			    [this, id]() { listeners.right.erase(id); });
+		}
+
+		inline auto listenfor(const std::string &msg, const listener_t &fn) {
+			return listenfor("", msg, fn);
 		}
 
 		inline void fire(const std::string &msg, arg_t arg = nullptr) const {
@@ -66,5 +62,4 @@ namespace system {
 			for(auto &listener : globalListeners) { listener.second(m, arg); }
 		}
 	};
-}
-}
+} // namespace polar::system

@@ -9,8 +9,7 @@
 #include <polar/core/destructor.h>
 #include <vector>
 
-namespace polar {
-namespace system {
+namespace polar::system {
 	class base {
 	  protected:
 		std::vector<std::shared_ptr<core::destructor>> dtors;
@@ -28,7 +27,6 @@ namespace system {
 		                            std::weak_ptr<component::base>) {}
 		virtual void componentremoved(IDType, const std::type_info *) {}
 	};
-}
-}
+} // namespace polar::system
 
 #endif
