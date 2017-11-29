@@ -34,11 +34,23 @@ namespace polar::system {
 
 		using ti_t          = const std::type_info *;
 		using detector_base = support::phys::detector::base;
-		using resolver_t    = std::function<bool(std::shared_ptr<detector_base>,
-                                              std::shared_ptr<detector_base>)>;
 
-		std::unordered_map<std::pair<ti_t, ti_t>, std::shared_ptr<resolver_t>,
-		                   pair_hasher<ti_t>, pair_comparator<ti_t>>
+		template<typename T, typename = typename std::enable_if<std::is_base_of<
+		                         detector_base, T>::value>::type>
+		struct wrapped_detector {
+			IDType id;
+			std::shared_ptr<T> detector;
+		};
+
+		template<typename T, typename U>
+		using resolver_t = std::function<bool(
+		    core::polar *, wrapped_detector<T>, wrapped_detector<U>)>;
+
+		using resolver_base = resolver_t<detector_base, detector_base>;
+
+		std::unordered_map<std::pair<ti_t, ti_t>,
+		                   std::shared_ptr<resolver_base>, pair_hasher<ti_t>,
+		                   pair_comparator<ti_t>>
 		    resolvers;
 
 	  protected:
@@ -53,12 +65,11 @@ namespace polar::system {
 		             std::is_base_of<detector_base, T>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<detector_base, U>::value>::type>
-		void add(std::function<bool(std::shared_ptr<T>, std::shared_ptr<U>)>
-		             resolver) {
+		void add(resolver_t<T, U> resolver) {
 			// reinterpret_pointer_cast isn't standard yet
 			auto typedPtr = new decltype(resolver)(resolver);
-			auto ptr      = reinterpret_cast<resolver_t *>(typedPtr);
-			auto sp       = std::shared_ptr<resolver_t>(ptr);
+			auto ptr      = reinterpret_cast<resolver_base *>(typedPtr);
+			auto sp       = std::shared_ptr<resolver_base>(ptr);
 			auto pair     = std::make_pair(&typeid(T), &typeid(U));
 			resolvers.emplace(pair, sp);
 		}
