@@ -26,8 +26,10 @@ namespace polar::support::integrator {
 			previousValue = value;
 		}
 
-		inline T &get() { return value; }
-		inline T &getprevious() { return previousValue; }
+		inline operator const T &() const { return get(); }
+
+		inline const T &get() const { return value; }
+		inline const T &getprevious() const { return previousValue; }
 		template<typename _To> inline _To to() {
 			return static_cast<_To>(value);
 		}
