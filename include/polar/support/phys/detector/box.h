@@ -1,5 +1,6 @@
 #pragma once
 
+#include <polar/core/types.h>
 #include <polar/support/phys/detector/base.h>
 
 namespace polar::support::phys::detector {
