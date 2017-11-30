@@ -33,7 +33,11 @@ namespace polar::system {
                             auto b = search->second->operator()(
                                 engine, {id1, phys1->detector},
                                 {id2, phys2->detector});
-                            if(b) { debugmanager()->info("collision!"); }
+                            if(b) {
+                                debugmanager()->info("collision!");
+                                phys1->responder->respond(engine, id1, seconds);
+                                phys2->responder->respond(engine, id2, seconds);
+                            }
                         }
                     }
                 }
