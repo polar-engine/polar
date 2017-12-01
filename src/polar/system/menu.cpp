@@ -25,7 +25,7 @@ namespace polar::system {
 				if(item.fn(item.control->get())) {
 					auto assetM = engine->get<asset>().lock();
 					IDType soundID;
-					soundDtors[soundIndex++] = engine->add(&soundID);
+					soundDtors[soundIndex++] = engine->add(soundID);
 					soundIndex %= soundDtors.size();
 					engine->add<component::audiosource>(
 					    soundID, assetM->get<polar::asset::audio>("menu1"),
@@ -96,7 +96,7 @@ namespace polar::system {
 		if(playBeep) {
 			auto assetM = engine->get<asset>().lock();
 			IDType soundID;
-			soundDtors[soundIndex++] = engine->add(&soundID);
+			soundDtors[soundIndex++] = engine->add(soundID);
 			soundIndex %= soundDtors.size();
 			engine->add<component::audiosource>(
 			    soundID, assetM->get<polar::asset::audio>("menu1"),
@@ -110,9 +110,9 @@ namespace polar::system {
 
 		IDType id;
 		if(replace) {
-			itemDtors.at(i) = engine->add(&id);
+			itemDtors.at(i) = engine->add(id);
 		} else {
-			itemDtors.emplace_back(engine->add(&id));
+			itemDtors.emplace_back(engine->add(id));
 		}
 
 		const Decimal uiHeight     = 2.25;
@@ -120,8 +120,8 @@ namespace polar::system {
 		const Decimal uiTextWidth  = 550;
 
 		/* max 6 items on screen at max scale of 0.375
-		* 6 * 0.375 = 2.25 numerator
-		*/
+		 * 6 * 0.375 = 2.25 numerator
+		 */
 		Decimal scale =
 		    glm::min(Decimal(uiHeight) / Decimal(m->size()), Decimal(uiScale));
 		Decimal spacing = uiTextHeight * scale;
@@ -201,12 +201,10 @@ namespace polar::system {
 		dtors.emplace_back(inputM->ondigital(
 		    "menu_back", [this]() { navigate(0, -1, true); }));
 
-		dtors.emplace_back(
-		    tw->tween(0.0f, 1.0f, 0.25, true,
-		              [this](core::polar *, const float &x) {
-			              selectionAlpha = x;
-			          }));
+		dtors.emplace_back(tw->tween(
+		    0.0f, 1.0f, 0.25, true,
+		    [this](core::polar *, const float &x) { selectionAlpha = x; }));
 
 		render_all();
 	}
-}
+} // namespace polar::system

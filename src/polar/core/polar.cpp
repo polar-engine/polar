@@ -103,10 +103,10 @@ namespace polar::core {
 		}
 	}
 
-	std::shared_ptr<destructor> polar::add(IDType *inputID) {
-		auto id  = nextID++;
-		*inputID = id;
-		return std::make_shared<destructor>([this, id]() { remove(id); });
+	std::shared_ptr<destructor> polar::add(IDType &inputID) {
+		inputID = nextID++;
+		return std::make_shared<destructor>(
+		    [this, inputID]() { remove(inputID); });
 	}
 
 	void polar::insert(IDType id, std::shared_ptr<component::base> component,

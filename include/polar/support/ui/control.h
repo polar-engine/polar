@@ -16,7 +16,7 @@ namespace polar::support::ui::control {
 		virtual bool navigate(int) { return false; }
 		virtual std::shared_ptr<core::destructor>
 		render(core::polar *engine, IDType &id, Point2, float) {
-			return engine->add(&id);
+			return engine->add(id);
 		}
 	};
 
@@ -48,7 +48,7 @@ namespace polar::support::ui::control {
 		std::shared_ptr<core::destructor> render(core::polar *engine,
 		                                         IDType &id, Point2 origin,
 		                                         float scale) override final {
-			auto dtor = engine->add(&id);
+			auto dtor = engine->add(id);
 
 			Decimal pad = 15;
 			Point2 offset =
@@ -88,7 +88,7 @@ namespace polar::support::ui::control {
 		std::shared_ptr<core::destructor> render(core::polar *engine,
 		                                         IDType &id, Point2 origin,
 		                                         float scale) override final {
-			auto dtor = engine->add(&id);
+			auto dtor = engine->add(id);
 
 			Decimal pad = 15;
 			float alpha = float(value - min) / float(max - min);
