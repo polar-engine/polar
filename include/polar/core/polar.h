@@ -61,9 +61,9 @@ namespace polar::core {
 			while(!stack.empty()) { stack.pop_back(); }
 		}
 
-		inline void
-		addstate(const std::string &name, const state_initializer &init,
-		         const state_initializer &destroy = [](polar *, state &) {}) {
+		inline void add(const std::string &name, const state_initializer &init,
+		                const state_initializer &destroy = [](polar *,
+		                                                      state &) {}) {
 			states.emplace(name, std::make_pair(init, destroy));
 		}
 
