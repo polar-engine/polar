@@ -9,6 +9,7 @@ namespace polar::support::phys::responder {
 			if(auto p = engine->get<component::position>(id)) {
 				p->pos.revert();
 				p->pos.derivative()->x *= -1;
+				p->pos.derivative()->y *= -1;
 			}
 		}
 	};
