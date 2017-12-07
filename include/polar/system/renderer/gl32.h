@@ -65,10 +65,9 @@ namespace polar::system::renderer {
 
 		void uploadmodel(std::shared_ptr<component::model> model);
 
-		void componentadded(IDType id, const std::type_info *ti,
+		void componentadded(IDType id, std::type_index ti,
 		                    std::weak_ptr<component::base> ptr) override final;
-		void componentremoved(IDType id,
-		                      const std::type_info *ti) override final;
+		void componentremoved(IDType id, std::type_index ti) override final;
 
 		Mat4 calculate_projection();
 		void project(GLuint programID);

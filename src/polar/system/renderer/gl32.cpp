@@ -203,7 +203,7 @@ namespace polar::system::renderer {
 
 		Mat4 cameraView;
 		auto pairRight =
-		    engine->objects.right.equal_range(&typeid(component::playercamera));
+		    engine->objects.right.equal_range(typeid(component::playercamera));
 		for(auto itRight = pairRight.first; itRight != pairRight.second;
 		    ++itRight) {
 			auto camera =
@@ -218,10 +218,10 @@ namespace polar::system::renderer {
 			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second;
 			    ++itLeft) {
 				auto type = itLeft->get_right();
-				if(type == &typeid(component::position)) {
+				if(type == typeid(component::position)) {
 					pos =
 					    static_cast<component::position *>(itLeft->info.get());
-				} else if(type == &typeid(component::orientation)) {
+				} else if(type == typeid(component::orientation)) {
 					orient = static_cast<component::orientation *>(
 					    itLeft->info.get());
 				}
@@ -253,8 +253,8 @@ namespace polar::system::renderer {
 
 			switch(i) {
 			case 0: {
-				auto pairRight = engine->objects.right.equal_range(
-				    &typeid(component::model));
+				auto pairRight =
+				    engine->objects.right.equal_range(typeid(component::model));
 				for(auto itRight = pairRight.first; itRight != pairRight.second;
 				    ++itRight) {
 					auto model =
@@ -268,13 +268,13 @@ namespace polar::system::renderer {
 					for(auto itLeft = pairLeft.first; itLeft != pairLeft.second;
 					    ++itLeft) {
 						auto type = itLeft->get_right();
-						if(type == &typeid(component::position)) {
+						if(type == typeid(component::position)) {
 							pos = static_cast<component::position *>(
 							    itLeft->info.get());
-						} else if(type == &typeid(component::orientation)) {
+						} else if(type == typeid(component::orientation)) {
 							orient = static_cast<component::orientation *>(
 							    itLeft->info.get());
-						} else if(type == &typeid(component::scale)) {
+						} else if(type == typeid(component::scale)) {
 							sc = static_cast<component::scale *>(
 							    itLeft->info.get());
 						}
@@ -362,14 +362,14 @@ namespace polar::system::renderer {
 			GL(glBindVertexArray(viewportVAO));
 
 			auto pairRight = engine->objects.right.equal_range(
-			    &typeid(component::sprite::base));
+			    typeid(component::sprite::base));
 			for(auto itRight = pairRight.first; itRight != pairRight.second;
 			    ++itRight) {
 				rendersprite(itRight->get_left());
 			}
 
 			pairRight =
-			    engine->objects.right.equal_range(&typeid(component::text));
+			    engine->objects.right.equal_range(typeid(component::text));
 			for(auto itRight = pairRight.first; itRight != pairRight.second;
 			    ++itRight) {
 				rendertext(itRight->get_left());
@@ -1080,12 +1080,12 @@ namespace polar::system::renderer {
 		// model->points.shrink_to_fit();
 	}
 
-	void gl32::componentadded(IDType, const std::type_info *ti,
+	void gl32::componentadded(IDType, std::type_index ti,
 	                          std::weak_ptr<component::base> ptr) {
-		if(ti == &typeid(component::model)) {
+		if(ti == typeid(component::model)) {
 			auto model = std::static_pointer_cast<component::model>(ptr.lock());
 			if(!model->has<model_p>()) { uploadmodel(model); }
-		} else if(ti == &typeid(component::sprite::base)) {
+		} else if(ti == typeid(component::sprite::base)) {
 			auto sprite =
 			    std::static_pointer_cast<component::sprite::base>(ptr.lock());
 			sprite->render();
@@ -1109,7 +1109,7 @@ namespace polar::system::renderer {
 			                   GL_LINEAR_MIPMAP_NEAREST));
 
 			sprite->add<sprite_p>(prop);
-		} else if(ti == &typeid(component::text)) {
+		} else if(ti == typeid(component::text)) {
 			auto text = std::static_pointer_cast<component::text>(ptr.lock());
 			auto &cache =
 			    fontCache.emplace(text->as, fontcache_t()).first->second;
@@ -1143,14 +1143,14 @@ namespace polar::system::renderer {
 		}
 	}
 
-	void gl32::componentremoved(IDType id, const std::type_info *ti) {
-		if(ti == &typeid(component::model)) {
+	void gl32::componentremoved(IDType id, std::type_index ti) {
+		if(ti == typeid(component::model)) {
 			auto model = engine->get<component::model>(id);
 			if(model != nullptr) {
 				auto prop = model->get<model_p>().lock();
 				if(prop) { modelPropertyPool.emplace(prop); }
 			}
-		} else if(ti == &typeid(component::sprite::base)) {
+		} else if(ti == typeid(component::sprite::base)) {
 			auto text = engine->get<component::sprite::base>(id);
 			if(text != nullptr) {
 				auto prop = text->get<sprite_p>().lock();

@@ -33,9 +33,9 @@ namespace polar::system {
 	  protected:
 		virtual void init() override { Pa_StartStream(stream); }
 
-		void componentadded(IDType id, const std::type_info *ti,
+		void componentadded(IDType id, std::type_index ti,
 		                    std::weak_ptr<component::base> ptr) override final {
-			if(ti != &typeid(audiosource)) { return; }
+			if(ti != typeid(audiosource)) { return; }
 
 			channel[channelIndexMain] = message_t::add(
 			    id, std::static_pointer_cast<audiosource>(ptr.lock()));
@@ -44,9 +44,8 @@ namespace polar::system {
 			if(channelIndexMain == channelSize) { channelIndexMain = 0; }
 		}
 
-		void componentremoved(IDType id,
-		                      const std::type_info *ti) override final {
-			if(ti != &typeid(audiosource)) { return; }
+		void componentremoved(IDType id, std::type_index ti) override final {
+			if(ti != typeid(audiosource)) { return; }
 
 			channel[channelIndexMain] = message_t::remove(id);
 			++channelWaiting;

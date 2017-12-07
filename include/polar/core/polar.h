@@ -32,7 +32,7 @@ namespace polar::core {
 		using state_initializer = std::function<void(polar *, state &)>;
 		using bimap             = boost::bimap<
             boost::bimaps::multiset_of<IDType>,
-            boost::bimaps::unordered_multiset_of<const std::type_info *>,
+            boost::bimaps::unordered_multiset_of<std::type_index>,
             boost::bimaps::set_of_relation<>,
             boost::bimaps::with_info<std::shared_ptr<component::base>>>;
 
@@ -44,10 +44,10 @@ namespace polar::core {
 		    states;
 		std::vector<state> stack;
 
-		std::weak_ptr<system::base> get(const std::type_info *ti);
-		component::base *get(IDType id, const std::type_info *ti);
+		std::weak_ptr<system::base> get(std::type_index ti);
+		component::base *get(IDType id, std::type_index ti);
 		void insert(IDType id, std::shared_ptr<component::base> component,
-		            const std::type_info *ti);
+		            std::type_index ti);
 
 	  public:
 		bimap objects;
@@ -75,7 +75,7 @@ namespace polar::core {
 		                         std::is_base_of<system::base, T>::value>::type>
 		inline std::weak_ptr<T> get() {
 			return std::static_pointer_cast<T, system::base>(
-			    get(&typeid(T)).lock());
+			    get(typeid(T)).lock());
 		}
 
 		std::shared_ptr<destructor> add(IDType &inputID);
@@ -107,13 +107,13 @@ namespace polar::core {
 		template<typename T, typename = typename std::enable_if<std::is_base_of<
 		                         component::base, T>::value>::type>
 		inline void insert(IDType id, std::shared_ptr<T> component) {
-			insert(id, component, &typeid(T));
+			insert(id, component, typeid(T));
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<
 		                         component::base, T>::value>::type>
 		inline T *get(IDType id) {
-			return static_cast<T *>(get(id, &typeid(T)));
+			return static_cast<T *>(get(id, typeid(T)));
 		}
 	};
 } // namespace polar::core

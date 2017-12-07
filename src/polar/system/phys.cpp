@@ -14,7 +14,7 @@ namespace polar::system {
             (void)seconds;
 
             auto range =
-                engine->objects.right.equal_range(&typeid(component::phys));
+                engine->objects.right.equal_range(typeid(component::phys));
             for(auto it1 = range.first; it1 != range.second; ++it1) {
                 auto id1   = it1->get_left();
                 auto comp1 = it1->info.get();
@@ -27,7 +27,8 @@ namespace polar::system {
                         auto &det1 = *phys1->detector;
                         auto &det2 = *phys2->detector;
                         auto pair =
-                            std::make_pair(&typeid(det1), &typeid(det2));
+                            std::make_pair(std::type_index(typeid(det1)),
+                                           std::type_index(typeid(det2)));
                         auto search = resolvers.find(pair);
                         if(search != resolvers.cend()) {
                             auto b = search->second->operator()(

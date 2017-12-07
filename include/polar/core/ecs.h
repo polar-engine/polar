@@ -1,10 +1,11 @@
 #pragma once
 
+#include <typeindex>
 #include <unordered_map>
 
 namespace polar::core {
 	template<typename C> class ecs {
-		typedef std::unordered_map<const std::type_info *, std::shared_ptr<C>>
+		typedef std::unordered_map<std::type_index, std::shared_ptr<C>>
 		    component_map_t;
 
 	  private:
@@ -35,26 +36,26 @@ namespace polar::core {
 		template<typename T> inline void add(std::shared_ptr<T> ptr) {
 			static_assert(std::is_base_of<C, T>::value,
 			              "ecs::add requires object of correct type");
-			components.emplace(&typeid(T), std::static_pointer_cast<C>(ptr));
+			components.emplace(typeid(T), std::static_pointer_cast<C>(ptr));
 		}
 
 		template<typename T> inline void remove() {
 			static_assert(std::is_base_of<C, T>::value,
 			              "ecs::remove requires object of correct type");
-			components.erase(&typeid(T));
+			components.erase(typeid(T));
 		}
 
 		template<typename T> inline bool has() const {
 			static_assert(std::is_base_of<C, T>::value,
 			              "ecs::has requires object of correct type");
-			return has(&typeid(T));
+			return has(typeid(T));
 		}
 
-		inline bool has(const std::type_info *ti) const {
+		inline bool has(std::type_index ti) const {
 			return components.find(ti) != components.end();
 		}
 
-		inline std::weak_ptr<C> get(const std::type_info *ti) const {
+		inline std::weak_ptr<C> get(std::type_index ti) const {
 			auto it = components.find(ti);
 			if(it == components.end()) {
 				return std::weak_ptr<C>();
@@ -67,7 +68,7 @@ namespace polar::core {
 			static_assert(
 			    std::is_base_of<C, T>::value,
 			    "ecs::get requires template argument of correct type");
-			return std::static_pointer_cast<T, C>(get(&typeid(T)).lock());
+			return std::static_pointer_cast<T, C>(get(typeid(T)).lock());
 		}
 
 		inline const component_map_t *const get() const { return &components; }

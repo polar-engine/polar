@@ -82,13 +82,13 @@ namespace polar::core {
 			return systems.get<T>();
 		}
 
-		inline std::weak_ptr<system::base> get(const std::type_info *ti) {
+		inline std::weak_ptr<system::base> get(std::type_index ti) {
 			return systems.get(ti);
 		}
 
-		void component_added(IDType id, const std::type_info *ti,
+		void component_added(IDType id, std::type_index ti,
 		                     std::shared_ptr<component::base> ptr);
-		void component_removed(IDType id, const std::type_info *ti);
+		void component_removed(IDType id, std::type_index ti);
 	};
 } // namespace polar::core
 

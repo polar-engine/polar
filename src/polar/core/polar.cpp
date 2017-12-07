@@ -110,14 +110,14 @@ namespace polar::core {
 	}
 
 	void polar::insert(IDType id, std::shared_ptr<component::base> component,
-	                   const std::type_info *ti) {
-		debugmanager()->trace("inserting component: ", ti->name());
+	                   std::type_index ti) {
+		debugmanager()->trace("inserting component: ", ti.name());
 		objects.insert(bimap::value_type(id, ti, component));
 		for(auto &state : stack) { state.component_added(id, ti, component); }
 		debugmanager()->trace("inserted component");
 	}
 
-	std::weak_ptr<system::base> polar::get(const std::type_info *ti) {
+	std::weak_ptr<system::base> polar::get(std::type_index ti) {
 		for(auto &state : stack) {
 			auto ptr = state.get(ti);
 			if(!ptr.expired()) { return ptr; }
@@ -125,7 +125,7 @@ namespace polar::core {
 		return std::weak_ptr<system::base>();
 	}
 
-	component::base *polar::get(IDType id, const std::type_info *ti) {
+	component::base *polar::get(IDType id, std::type_index ti) {
 		auto it = objects.find(bimap::relation(id, ti));
 		if(it != objects.end()) {
 			return it->info.get();
