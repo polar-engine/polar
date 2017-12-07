@@ -21,26 +21,26 @@ namespace polar::core {
 		}
 	}
 
-	void state::component_added(IDType id, const std::type_info *ti,
+	void state::component_added(IDType id, std::type_index ti,
 	                            std::shared_ptr<component::base> ptr) {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
 			debugmanager()->trace("notifying system of component added: ",
-			                      typeid(deref).name(), ", ", ti->name());
+			                      typeid(deref).name(), ", ", ti.name());
 			system->componentadded(id, ti, ptr);
 			debugmanager()->trace("notified system of component added");
 		}
 	}
 
-	void state::component_removed(IDType id, const std::type_info *ti) {
+	void state::component_removed(IDType id, std::type_index ti) {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
 			debugmanager()->trace("notifying system of component removed: ",
-			                      typeid(deref).name(), ", ", ti->name());
+			                      typeid(deref).name(), ", ", ti.name());
 			system->componentremoved(id, ti);
 			debugmanager()->trace("notified system of component removed");
 		}
 	}
-}
+} // namespace polar::core

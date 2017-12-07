@@ -32,7 +32,8 @@ namespace polar::system {
 			}
 		};
 
-		using ti_t          = const std::type_info *;
+		using ti_t          = std::type_index;
+		using pair_t        = std::pair<ti_t, ti_t>;
 		using detector_base = support::phys::detector::base;
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<
@@ -48,9 +49,8 @@ namespace polar::system {
 
 		using resolver_base = resolver_t<detector_base, detector_base>;
 
-		std::unordered_map<std::pair<ti_t, ti_t>,
-		                   std::shared_ptr<resolver_base>, pair_hasher<ti_t>,
-		                   pair_comparator<ti_t>>
+		std::unordered_map<pair_t, std::shared_ptr<resolver_base>,
+		                   pair_hasher<ti_t>, pair_comparator<ti_t>>
 		    resolvers;
 
 	  protected:
@@ -70,7 +70,8 @@ namespace polar::system {
 			auto typedPtr = new decltype(resolver)(resolver);
 			auto ptr      = reinterpret_cast<resolver_base *>(typedPtr);
 			auto sp       = std::shared_ptr<resolver_base>(ptr);
-			auto pair     = std::make_pair(&typeid(T), &typeid(U));
+			auto pair     = std::make_pair(std::type_index(typeid(T)),
+                                       std::type_index(typeid(U)));
 			resolvers.emplace(pair, sp);
 		}
 	};
