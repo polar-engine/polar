@@ -35,10 +35,8 @@ namespace polar::system {
 		void render(size_t i, bool replace = false);
 
 	  protected:
-		void init() override final;
-		inline void update(DeltaTicks &) override final {
-			render(current, true);
-		}
+		void init() override;
+		inline void update(DeltaTicks &) override { render(current, true); }
 
 	  public:
 		Decimal uiScale = 0.3125;

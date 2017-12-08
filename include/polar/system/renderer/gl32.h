@@ -56,8 +56,8 @@ namespace polar::system::renderer {
 		std::vector<std::string> changedUniformsFloat;
 		std::vector<std::string> changedUniformsPoint3;
 
-		void init() override final;
-		void update(DeltaTicks &) override final;
+		void init() override;
+		void update(DeltaTicks &) override;
 		void rendersprite(IDType);
 		void rendertext(IDType);
 
@@ -66,15 +66,15 @@ namespace polar::system::renderer {
 		void uploadmodel(std::shared_ptr<component::model> model);
 
 		void componentadded(IDType id, std::type_index ti,
-		                    std::weak_ptr<component::base> ptr) override final;
-		void componentremoved(IDType id, std::type_index ti) override final;
+		                    std::weak_ptr<component::base> ptr) override;
+		void componentremoved(IDType id, std::type_index ti) override;
 
 		Mat4 calculate_projection();
 		void project(GLuint programID);
 
 		void initGL();
 		void handleSDL(SDL_Event &);
-		void makepipeline(const std::vector<std::string> &) override final;
+		void makepipeline(const std::vector<std::string> &) override;
 		GLuint makeprogram(std::shared_ptr<polar::asset::shaderprogram>);
 
 	  public:
@@ -85,22 +85,22 @@ namespace polar::system::renderer {
 		    : base(engine), pipelineNames(names) {}
 		~gl32();
 
-		void setmousecapture(bool capture) override final;
-		void setfullscreen(bool fullscreen) override final;
-		void setpipeline(const std::vector<std::string> &names) override final;
-		void setclearcolor(const Point4 &color) override final;
+		void setmousecapture(bool capture) override;
+		void setfullscreen(bool fullscreen) override;
+		void setpipeline(const std::vector<std::string> &names) override;
+		void setclearcolor(const Point4 &color) override;
 
 		Decimal getuniform_decimal(const std::string &name,
-		                           const Decimal def) override final;
+		                           const Decimal def) override;
 		Point3 getuniform_point3(const std::string &name,
-		                         const Point3 def) override final;
+		                         const Point3 def) override;
 
 		void setuniform(const std::string &name, glm::uint32 x,
-		                bool force = false) override final;
+		                bool force = false) override;
 		void setuniform(const std::string &name, Decimal x,
-		                bool force = false) override final;
+		                bool force = false) override;
 		void setuniform(const std::string &name, Point3 p,
-		                bool force = false) override final;
+		                bool force = false) override;
 
 		bool uploaduniform(GLuint program, const std::string &name,
 		                   glm::int32 x);

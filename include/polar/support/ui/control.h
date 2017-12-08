@@ -23,7 +23,7 @@ namespace polar::support::ui::control {
 	class button : public base {
 	  public:
 		button() {}
-		bool activate() override final { return true; }
+		bool activate() override { return true; }
 	};
 
 	class checkbox : public base {
@@ -32,9 +32,9 @@ namespace polar::support::ui::control {
 
 	  public:
 		checkbox(bool initial = false) : state(initial) {}
-		float get() override final { return state; }
+		float get() override { return state; }
 
-		bool activate() override final {
+		bool activate() override {
 			state = !state;
 			return true;
 		}
@@ -47,7 +47,7 @@ namespace polar::support::ui::control {
 
 		std::shared_ptr<core::destructor> render(core::polar *engine,
 		                                         IDType &id, Point2 origin,
-		                                         float scale) override final {
+		                                         float scale) override {
 			auto dtor = engine->add(id);
 
 			Decimal pad = 15;
@@ -75,10 +75,10 @@ namespace polar::support::ui::control {
 	  public:
 		slider(T min, T max, T initial = 0, T step = 1)
 		    : min(min), max(max), value(initial), step(step) {}
-		float get() override final { return value; }
-		bool activate() override final { return navigate(1); }
+		float get() override { return value; }
+		bool activate() override { return navigate(1); }
 
-		bool navigate(int delta) override final {
+		bool navigate(int delta) override {
 			T newValue   = glm::clamp(value + T(delta) * step, min, max);
 			bool changed = newValue != value;
 			value        = newValue;
@@ -87,7 +87,7 @@ namespace polar::support::ui::control {
 
 		std::shared_ptr<core::destructor> render(core::polar *engine,
 		                                         IDType &id, Point2 origin,
-		                                         float scale) override final {
+		                                         float scale) override {
 			auto dtor = engine->add(id);
 
 			Decimal pad = 15;

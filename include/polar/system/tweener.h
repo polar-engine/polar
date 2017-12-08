@@ -28,7 +28,7 @@ namespace polar::system {
 		IDType nextID = 1;
 
 	  protected:
-		void update(DeltaTicks &dt) override final {
+		void update(DeltaTicks &dt) override {
 			std::vector<IDType> toRemove;
 			for(auto &tween : tweens) {
 				tween.second.accumulator += dt.Seconds();

@@ -5,6 +5,6 @@
 namespace polar::component::sprite {
 	class box : public base {
 	  public:
-		void render_me() override final;
+		void render_me() override;
 	};
 } // namespace polar::component::sprite

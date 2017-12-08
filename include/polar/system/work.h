@@ -21,8 +21,8 @@ namespace polar::system {
 		std::vector<worker_t *>::size_type nextWorker = 0;
 
 	  protected:
-		void init() override final;
-		void update(DeltaTicks &) override final;
+		void init() override;
+		void update(DeltaTicks &) override;
 
 	  public:
 		const int numWorkers = std::max(

@@ -37,7 +37,7 @@ namespace polar::support::integrator {
 			return static_cast<_To>(previousValue);
 		}
 
-		inline bool hasderivative(const unsigned char n = 0) override final {
+		inline bool hasderivative(const unsigned char n = 0) override {
 			if(!deriv) {
 				return false;
 			} else if(n == 0) {
@@ -48,7 +48,7 @@ namespace polar::support::integrator {
 		}
 
 		inline integrable_base &
-		getderivative(const unsigned char n = 0) override final {
+		getderivative(const unsigned char n = 0) override {
 			if(n == 0) {
 				if(!deriv) { deriv = derivative_t(new integrable<T>()); }
 				return *deriv;
@@ -72,8 +72,7 @@ namespace polar::support::integrator {
 			return integrable<T>(newValue * alpha + value * (1 - alpha));
 		}
 
-		inline void
-		integrate(const DeltaTicks::seconds_type seconds) override final {
+		inline void integrate(const DeltaTicks::seconds_type seconds) override {
 			if(hasderivative()) {
 				previousValue = value;
 
@@ -90,7 +89,7 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline void revert() override final { value = previousValue; }
+		inline void revert() override { value = previousValue; }
 
 		inline T &operator*() { return value; }
 		inline T *operator->() { return &value; }
