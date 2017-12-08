@@ -54,7 +54,7 @@ namespace polar::system {
 		    resolvers;
 
 	  protected:
-		void init() override final;
+		void init() override;
 
 	  public:
 		static bool supported() { return true; }

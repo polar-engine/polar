@@ -59,8 +59,8 @@ namespace polar::system {
 		IDMap<ControllerAxesHandler> controllerAxesHandlers;
 
 	  protected:
-		void init() override final;
-		void update(DeltaTicks &) override final;
+		void init() override;
+		void update(DeltaTicks &) override;
 
 	  public:
 		const float controllerDeadZone = 0.05f;

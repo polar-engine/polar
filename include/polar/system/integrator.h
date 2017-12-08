@@ -12,7 +12,7 @@ namespace polar::system {
 		void tick(DeltaTicks::seconds_type);
 
 	  protected:
-		void update(DeltaTicks &) override final;
+		void update(DeltaTicks &) override;
 
 	  public:
 		const int fps             = 50;

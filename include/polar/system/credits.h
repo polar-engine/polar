@@ -21,8 +21,8 @@ namespace polar::system {
 		void render_all();
 
 	  protected:
-		void init() override final;
-		void update(DeltaTicks &dt) override final;
+		void init() override;
+		void update(DeltaTicks &dt) override;
 
 	  public:
 		static bool supported() { return true; }
