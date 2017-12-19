@@ -16,8 +16,8 @@ class DeltaTicks {
 	using seconds_type = Decimal;
 
 	DeltaTicks() {}
-	DeltaTicks(const DeltaTicksBase &value) : value(value) {}
-	DeltaTicks(const DeltaTicksBase::rep ticks) : value(ticks) {}
+	DeltaTicks(DeltaTicksBase value) : value(value) {}
+	DeltaTicks(DeltaTicksBase::rep ticks) : value(ticks) {}
 
 	inline auto Ticks() const { return value.count(); }
 

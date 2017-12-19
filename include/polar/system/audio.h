@@ -110,8 +110,8 @@ namespace polar::system {
 					left  = 0;
 					right = 0;
 				} else {
-					left *= masterVolume / 100.0;
-					right *= masterVolume / 100.0;
+					left *= int16_t(masterVolume / 100.0);
+					right *= int16_t(masterVolume / 100.0);
 				}
 			}
 			return paContinue;

@@ -52,12 +52,12 @@ namespace polar::component {
 			}
 
 			if(asset->stereo) {
-				left += asset->samples[currentSample] * volume;
-				right += asset->samples[currentSample + 1] * volume;
+				left += int16_t(asset->samples[currentSample] * volume);
+				right += int16_t(asset->samples[currentSample + 1] * volume);
 				advance(sampleRate, 2);
 			} else {
-				left += asset->samples[currentSample] * volume;
-				right += asset->samples[currentSample] * volume;
+				left += int16_t(asset->samples[currentSample] * volume);
+				right += int16_t(asset->samples[currentSample] * volume);
 				advance(sampleRate, 1);
 			}
 			return true;
