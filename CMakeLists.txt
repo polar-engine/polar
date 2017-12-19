@@ -17,14 +17,24 @@ function(enable_cxx_compiler_flag_if_supported flag)
 	endif()
 endfunction()
 
-enable_cxx_compiler_flag_if_supported("-Wall")
+if(WIN32)
+else()
+	enable_cxx_compiler_flag_if_supported("-Wall")
+endif()
 enable_cxx_compiler_flag_if_supported("-Wextra")
 enable_cxx_compiler_flag_if_supported("-pedantic")
 enable_cxx_compiler_flag_if_supported("-Werror")
 
 include_directories(include)
 
-add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_CRT_SECURE_NO_WARNINGS)
+add_definitions(
+	-DGLEW_STATIC
+	-D__STDC_CONSTANT_MACROS
+	-D__STDC_LIMIT_MACROS
+	-D_CRT_SECURE_NO_WARNINGS
+	-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
+	-D_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
+)
 
 set(POLAR_SRCS
 	src/polar/core/polar.cpp
