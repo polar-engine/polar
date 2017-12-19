@@ -53,21 +53,23 @@ set(ASSETBUILDER_SRCS
 )
 
 if(WIN32)
-	set(POLAR_LIBS
+	set(WIN32_LIBS
 		legacy_stdio_definitions.lib
 		shlwapi.lib
 	)
+	set(POLAR_LIBS ${WIN32_LIBS})
 elseif(APPLE)
 	find_library(CARBON_LIB Carbon)
 	find_library(AUDIOTOOLBOX_LIB AudioToolbox)
 	find_library(AUDIOUNIT_LIB AudioUnit)
 	find_library(COREAUDIO_LIB CoreAudio)
-	set(POLAR_LIBS
+	set(APPLE_LIBS
 		${CARBON_LIB}
 		${AUDIOTOOLBOX_LIB}
 		${AUDIOUNIT_LIB}
 		${COREAUDIO_LIB}
 	)
+	set(POLAR_LIBS ${APPLE_LIBS})
 else()
 endif()
 
