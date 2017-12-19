@@ -2,6 +2,7 @@
 
 #include <typeindex>
 #include <unordered_map>
+#include <memory>
 
 namespace polar::core {
 	template<typename C> class ecs {
