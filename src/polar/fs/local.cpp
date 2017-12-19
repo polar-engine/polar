@@ -85,7 +85,7 @@ namespace polar::fs {
 		                   std::ios::in | std::ios::binary | std::ios::ate);
 		if(file.fail()) { debugmanager()->fatal(path + ": open"); }
 
-		size_t filelen = file.tellg();
+		size_t filelen = size_t(file.tellg());
 		if(file.fail()) { debugmanager()->fatal(path + ": tellg"); }
 
 		if(len == 0 || len > filelen - offset) {

@@ -17,7 +17,7 @@ namespace polar::asset {
 
 		SDL(asset.lineSkip = TTF_FontLineSkip(asset.ttf));
 
-		for(size_t i = 0; i < asset.glyphs.size(); ++i) {
+		for(Uint16 i = 0; i < asset.glyphs.size(); ++i) {
 			if(TTF_GlyphIsProvided(asset.ttf, i)) {
 				auto &glyph  = asset.glyphs[i];
 				glyph.active = true;
