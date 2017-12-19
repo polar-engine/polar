@@ -1,6 +1,11 @@
 #include <polar/core/polar.h>
 #include <random>
 
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"
+#endif
+
 namespace polar::core {
 	polar::polar(std::vector<std::string> args) {
 		srand((unsigned int)time(nullptr));

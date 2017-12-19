@@ -15,7 +15,6 @@
 #include <polar/system/renderer/base.h>
 #include <polar/util/gl.h>
 #include <polar/util/sdl.h>
-#include <polar/util/sharedptr_less.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -36,9 +35,7 @@ namespace polar::system::renderer {
 		SDL_GLContext context;
 		std::vector<std::string> pipelineNames;
 		std::vector<pipelinenode> nodes;
-		boost::container::flat_multiset<std::shared_ptr<model_p>,
-		                                sharedptr_less<model_p>>
-		    modelPropertyPool;
+		std::unordered_multiset<std::shared_ptr<model_p>> modelPropertyPool;
 		std::unordered_map<std::shared_ptr<polar::asset::font>, fontcache_t>
 		    fontCache;
 

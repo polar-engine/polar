@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 namespace polar::support::input {
 	enum class key : uint8_t {
 		None,
@@ -52,15 +54,5 @@ namespace polar::support::input {
 		MouseRight,
 		ControllerA,
 		ControllerBack
-	};
-
-	struct key_hash : public std::unary_function<key, std::size_t> {
-		std::size_t operator()(const key &k) const {
-			return static_cast<size_t>(k);
-		}
-	};
-
-	struct key_equal : public std::binary_function<key, key, bool> {
-		bool operator()(const key &v0, const key &v1) const { return v0 == v1; }
 	};
 } // namespace polar::support::input
