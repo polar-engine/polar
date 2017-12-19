@@ -36,8 +36,8 @@ namespace polar::system {
                                 {id2, phys2->detector});
                             if(b) {
                                 debugmanager()->info("collision!");
-                                phys1->responder->respond(engine, id1, seconds);
-                                phys2->responder->respond(engine, id2, seconds);
+                                phys1->responder->respond(engine, id1, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
+                                phys2->responder->respond(engine, id2, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
                             }
                         }
                     }
