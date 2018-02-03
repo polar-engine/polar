@@ -156,52 +156,52 @@ namespace polar::system {
 		font = assetM->get<polar::asset::font>("nasalization-rg");
 
 		for(auto k : {key_t::Down, key_t::S}) {
-			dtors.emplace_back(inputM->on(k, [this](key_t) { navigate(1); }));
+			keep(inputM->on(k, [this](key_t) { navigate(1); }));
 		}
 
 		for(auto k : {key_t::Up, key_t::W}) {
-			dtors.emplace_back(inputM->on(k, [this](key_t) { navigate(-1); }));
+			keep(inputM->on(k, [this](key_t) { navigate(-1); }));
 		}
 
 		for(auto k : {key_t::Left, key_t::A}) {
-			dtors.emplace_back(
+			keep(
 			    inputM->on(k, [this](key_t) { navigate(0, -1); }));
 		}
 
 		for(auto k : {key_t::Right, key_t::D}) {
-			dtors.emplace_back(
+			keep(
 			    inputM->on(k, [this](key_t) { navigate(0, 1); }));
 		}
 
 		for(auto k : {key_t::Space, key_t::Enter, key_t::MouseLeft,
 		              key_t::ControllerA}) {
-			dtors.emplace_back(inputM->on(k, [this](key_t) { activate(); }));
+			keep(inputM->on(k, [this](key_t) { activate(); }));
 		}
 
 		for(auto k : {key_t::Escape, key_t::Backspace, key_t::MouseRight,
 		              key_t::ControllerBack}) {
-			dtors.emplace_back(
+			keep(
 			    inputM->on(k, [this](key_t) { navigate(0, -1, true); }));
 		}
 
-		dtors.emplace_back(inputM->onmousewheel([this](const Point2 &delta) {
+		keep(inputM->onmousewheel([this](const Point2 &delta) {
 			navigate(int(-delta.y), int(delta.x));
 		}));
 
-		dtors.emplace_back(
+		keep(
 		    inputM->ondigital("menu_up", [this]() { navigate(-1); }));
-		dtors.emplace_back(
+		keep(
 		    inputM->ondigital("menu_down", [this]() { navigate(1); }));
-		dtors.emplace_back(
+		keep(
 		    inputM->ondigital("menu_left", [this]() { navigate(0, -1); }));
-		dtors.emplace_back(
+		keep(
 		    inputM->ondigital("menu_right", [this]() { navigate(0, 1); }));
-		dtors.emplace_back(
+		keep(
 		    inputM->ondigital("menu_confirm", [this]() { activate(); }));
-		dtors.emplace_back(inputM->ondigital(
+		keep(inputM->ondigital(
 		    "menu_back", [this]() { navigate(0, -1, true); }));
 
-		dtors.emplace_back(tw->tween(
+		keep(tw->tween(
 		    0.0f, 1.0f, 0.25, true,
 		    [this](core::polar *, const float &x) { selectionAlpha = x; }));
 

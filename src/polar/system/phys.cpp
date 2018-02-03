@@ -44,7 +44,7 @@ namespace polar::system {
                 }
             }
 		};
-		dtors.emplace_back(eventM->listenfor("integrator", "ticked", f));
+		keep(eventM->listenfor("integrator", "ticked", f));
 
 		add<support::phys::detector::box, support::phys::detector::box>(
 		    [](core::polar *engine, auto a, auto b) {

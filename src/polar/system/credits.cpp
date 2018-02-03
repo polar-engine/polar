@@ -13,7 +13,7 @@ namespace polar::system {
 
 		for(auto &section : _credits) {
 			height += pad;
-			dtors.emplace_back(engine->add(section.id));
+			keep(engine->add(section.id));
 			engine->add<component::text>(section.id, font, section.value);
 			engine->add<component::screenposition>(
 			    section.id, Point2(0, height), origin_t::top);
@@ -22,7 +22,7 @@ namespace polar::system {
 
 			for(size_t n = 0; n < section.names.size(); ++n) {
 				auto &name = section.names[n];
-				dtors.emplace_back(engine->add(section.nameIDs[n]));
+				keep(engine->add(section.nameIDs[n]));
 				engine->add<component::text>(section.nameIDs[n], font, name);
 				engine->add<component::screenposition>(
 				    section.nameIDs[n], Point2(0, height), origin_t::top);
@@ -41,11 +41,11 @@ namespace polar::system {
 
 		for(auto k : {key_t::Escape, key_t::Backspace, key_t::MouseRight,
 		              key_t::ControllerBack}) {
-			dtors.emplace_back(
+			keep(
 			    inputM->on(k, [this](key_t) { engine->transition = "back"; }));
 		}
 
-		dtors.emplace_back(inputM->ondigital(
+		keep(inputM->ondigital(
 		    "menu_back", [this]() { engine->transition = "back"; }));
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");

@@ -11,8 +11,9 @@
 
 namespace polar::system {
 	class base {
-	  protected:
+	  private:
 		std::vector<core::ref> dtors;
+	  protected:
 		core::polar *engine;
 
 	  public:
@@ -20,6 +21,10 @@ namespace polar::system {
 
 		base(core::polar *engine) : engine(engine) {}
 		virtual ~base() {}
+
+		inline void keep(core::ref r) {
+			dtors.emplace_back(r);
+		}
 
 		virtual void init() {}
 		virtual void update(DeltaTicks &) {}
