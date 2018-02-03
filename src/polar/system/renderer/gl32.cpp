@@ -7,9 +7,11 @@
 #include <polar/component/screenposition.h>
 #include <polar/component/text.h>
 #include <polar/core/polar.h>
+#include <polar/system/action.h>
 #include <polar/system/asset.h>
 #include <polar/system/event.h>
 #include <polar/system/integrator.h>
+#include <polar/system/keyboard.h>
 #include <polar/system/renderer/gl32.h>
 
 #if defined(_WIN32)
@@ -650,6 +652,10 @@ namespace polar::system::renderer {
 		support::input::key key;
 		Point2 mouseDelta;
 		float controllerAxisValue;
+
+		auto act = engine->get<action>().lock();
+		auto kb = engine->get<keyboard>().lock();
+
 		switch(ev.type) {
 		case SDL_QUIT:
 			engine->quit();
@@ -671,11 +677,17 @@ namespace polar::system::renderer {
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
 				engine->get<event>().lock()->fire("keydown", &key);
+				if(act && kb) {
+					act->trigger(kb->action(key), true);
+				}
 			}
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
 			engine->get<event>().lock()->fire("keyup", &key);
+			if(act && kb) {
+				act->trigger(kb->action(key), false);
+			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);

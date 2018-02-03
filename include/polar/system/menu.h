@@ -15,13 +15,13 @@ namespace polar::system {
 		int current = 0;
 
 		std::shared_ptr<polar::asset::font> font;
-		std::vector<std::shared_ptr<core::destructor>> itemDtors;
-		std::unordered_map<int, std::shared_ptr<core::destructor>> controlDtors;
+		std::vector<core::ref> itemDtors;
+		std::unordered_map<int, core::ref> controlDtors;
 		float selectionAlpha = 0.0f;
 
 		// the size of the array determines how many concurrent sounds we can
 		// play at once
-		std::array<std::shared_ptr<core::destructor>, 4> soundDtors;
+		std::array<core::ref, 4> soundDtors;
 		size_t soundIndex = 0;
 
 		inline menuitem_vector_t *getcurrentmenu() {

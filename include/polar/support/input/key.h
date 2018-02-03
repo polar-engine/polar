@@ -53,6 +53,7 @@ namespace polar::support::input {
 		MouseMiddle,
 		MouseRight,
 		ControllerA,
-		ControllerBack
+		ControllerBack,
+		SIZE
 	};
 } // namespace polar::support::input

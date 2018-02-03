@@ -19,7 +19,7 @@ namespace polar::core {
 
 	  public:
 		const std::string name;
-		std::vector<std::shared_ptr<destructor>> dtors;
+		std::vector<core::ref> dtors;
 		std::unordered_map<std::string, Transition> transitions;
 
 		state(const std::string &name, polar *engine)

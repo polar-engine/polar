@@ -66,7 +66,7 @@ namespace polar::system {
 			auto id    = nextID++;
 			double acc = (initial - from) / (to - from) * in;
 			tweens.emplace(id, tween_desc(from, to, in, pause, loop, fn, acc));
-			return std::make_shared<core::destructor>(
+			return core::ref(
 			    [this, id]() { tweens.erase(id); });
 		}
 

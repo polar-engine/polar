@@ -12,7 +12,7 @@
 namespace polar::system {
 	class base {
 	  protected:
-		std::vector<std::shared_ptr<core::destructor>> dtors;
+		std::vector<core::ref> dtors;
 		core::polar *engine;
 
 	  public:

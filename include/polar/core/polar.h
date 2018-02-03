@@ -78,7 +78,7 @@ namespace polar::core {
 			    get(typeid(T)).lock());
 		}
 
-		std::shared_ptr<destructor> add(IDType &inputID);
+		ref add(IDType &inputID);
 
 		void remove(IDType id);
 
