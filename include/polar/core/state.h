@@ -16,10 +16,10 @@ namespace polar::core {
 		polar *engine;
 		ecs<system::base> systems;
 		std::vector<std::shared_ptr<system::base>> orderedSystems;
+		std::vector<core::ref> dtors;
 
 	  public:
 		const std::string name;
-		std::vector<core::ref> dtors;
 		std::unordered_map<std::string, Transition> transitions;
 
 		state(const std::string &name, polar *engine)
@@ -34,6 +34,10 @@ namespace polar::core {
 			 */
 			systems.clear();
 			while(!orderedSystems.empty()) { orderedSystems.pop_back(); }
+		}
+
+		inline void keep(ref r) {
+			dtors.emplace_back(r);
 		}
 
 		void init();

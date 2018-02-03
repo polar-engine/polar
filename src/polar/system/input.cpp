@@ -5,7 +5,7 @@
 namespace polar::system {
 	void input::init() {
 		auto eventM = engine->get<event>().lock();
-		dtors.emplace_back(eventM->listenfor("keydown", [this](arg_t arg) {
+		keep(eventM->listenfor("keydown", [this](arg_t arg) {
 			auto key = *arg.get<key_t>();
 
 			auto range = onKeyHandlers.left.equal_range(key);
@@ -15,7 +15,7 @@ namespace polar::system {
 
 			keys.emplace(key);
 		}));
-		dtors.emplace_back(eventM->listenfor("keyup", [this](arg_t arg) {
+		keep(eventM->listenfor("keyup", [this](arg_t arg) {
 			auto key = *arg.get<key_t>();
 
 			keys.erase(key);
@@ -25,19 +25,19 @@ namespace polar::system {
 				it->info(key);
 			}
 		}));
-		dtors.emplace_back(eventM->listenfor("mousemove", [this](arg_t arg) {
+		keep(eventM->listenfor("mousemove", [this](arg_t arg) {
 			auto &delta = *arg.get<Point2>();
 			for(auto &handler : mouseMoveHandlers) { handler.right(delta); }
 		}));
-		dtors.emplace_back(eventM->listenfor("mousewheel", [this](arg_t arg) {
+		keep(eventM->listenfor("mousewheel", [this](arg_t arg) {
 			auto &delta = *arg.get<Point2>();
 			for(auto &handler : mouseWheelHandlers) { handler.right(delta); }
 		}));
-		dtors.emplace_back(
+		keep(
 		    eventM->listenfor("controlleraxisx", [this](arg_t arg) {
 			    controllerAxes.x = arg.float_;
 			}));
-		dtors.emplace_back(
+		keep(
 		    eventM->listenfor("controlleraxisy", [this](arg_t arg) {
 			    controllerAxes.y = arg.float_;
 			}));
