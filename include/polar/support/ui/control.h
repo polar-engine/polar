@@ -14,7 +14,7 @@ namespace polar::support::ui::control {
 		virtual float get() { return 0; }
 		virtual bool activate() { return false; }
 		virtual bool navigate(int) { return false; }
-		virtual std::shared_ptr<core::destructor>
+		virtual core::ref
 		render(core::polar *engine, IDType &id, Point2, float) {
 			return engine->add(id);
 		}
@@ -45,9 +45,9 @@ namespace polar::support::ui::control {
 			return true;
 		}
 
-		std::shared_ptr<core::destructor> render(core::polar *engine,
-		                                         IDType &id, Point2 origin,
-		                                         float scale) override {
+		core::ref render(core::polar *engine,
+		                 IDType &id, Point2 origin,
+		                 float scale) override {
 			auto dtor = engine->add(id);
 
 			Decimal pad = 15;
@@ -85,9 +85,9 @@ namespace polar::support::ui::control {
 			return changed;
 		}
 
-		std::shared_ptr<core::destructor> render(core::polar *engine,
-		                                         IDType &id, Point2 origin,
-		                                         float scale) override {
+		core::ref render(core::polar *engine,
+		                 IDType &id, Point2 origin,
+		                 float scale) override {
 			auto dtor = engine->add(id);
 
 			Decimal pad = 15;

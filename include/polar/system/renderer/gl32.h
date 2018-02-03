@@ -42,7 +42,7 @@ namespace polar::system::renderer {
 		GLuint viewportVAO;
 		GLuint spriteProgram;
 
-		std::shared_ptr<core::destructor> fpsDtor;
+		core::ref fpsDtor;
 		IDType fpsID = 0;
 
 		std::unordered_map<std::string, glm::uint32> uniformsU32;

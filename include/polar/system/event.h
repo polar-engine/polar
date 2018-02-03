@@ -33,7 +33,7 @@ namespace polar::system {
 		inline auto listen(const global_listener_t &fn) {
 			auto id = nextID++;
 			globalListeners.emplace(id, fn);
-			return std::make_shared<core::destructor>(
+			return core::ref(
 			    [this, id]() { globalListeners.erase(id); });
 		}
 
@@ -42,7 +42,7 @@ namespace polar::system {
 			auto m  = ns + '.' + msg;
 			auto id = nextID++;
 			listeners.insert(listener_bimap::value_type(m, id, fn));
-			return std::make_shared<core::destructor>(
+			return core::ref(
 			    [this, id]() { listeners.right.erase(id); });
 		}
 

@@ -77,48 +77,42 @@ namespace polar::system {
 			auto id = nextID++;
 			onKeyHandlers.insert(
 			    KeyHandlerBimap<OnKeyHandler>::value_type(key, id, handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { onKeyHandlers.right.erase(id); });
+			return core::ref([this, id]() { onKeyHandlers.right.erase(id); });
 		}
 
 		inline auto after(key_t key, const AfterKeyHandler &handler) {
 			auto id = nextID++;
 			afterKeyHandlers.insert(
 			    KeyHandlerBimap<AfterKeyHandler>::value_type(key, id, handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { afterKeyHandlers.right.erase(id); });
+			return core::ref([this, id]() { afterKeyHandlers.right.erase(id); });
 		}
 
 		inline auto when(key_t key, const WhenKeyHandler &handler) {
 			auto id = nextID++;
 			whenKeyHandlers.insert(
 			    KeyHandlerBimap<WhenKeyHandler>::value_type(key, id, handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { whenKeyHandlers.right.erase(id); });
+			return core::ref([this, id]() { whenKeyHandlers.right.erase(id); });
 		}
 
 		inline auto onmousemove(const MouseMoveHandler &handler) {
 			auto id = nextID++;
 			mouseMoveHandlers.insert(
 			    IDMap<MouseMoveHandler>::value_type(id, handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { mouseMoveHandlers.left.erase(id); });
+			return core::ref([this, id]() { mouseMoveHandlers.left.erase(id); });
 		}
 
 		inline auto onmousewheel(const MouseWheelHandler &handler) {
 			auto id = nextID++;
 			mouseWheelHandlers.insert(
 			    IDMap<MouseWheelHandler>::value_type(id, handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { mouseWheelHandlers.left.erase(id); });
+			return core::ref([this, id]() { mouseWheelHandlers.left.erase(id); });
 		}
 
 		inline auto oncontrolleraxes(const ControllerAxesHandler &handler) {
 			auto id = nextID++;
 			controllerAxesHandlers.insert(
 			    IDMap<ControllerAxesHandler>::value_type(id, handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { controllerAxesHandlers.left.erase(id); });
+			return core::ref([this, id]() { controllerAxesHandlers.left.erase(id); });
 		}
 
 		inline auto ondigital(std::string name,
@@ -128,8 +122,7 @@ namespace polar::system {
 			onDigitalHandlers.insert(
 			    DigitalHandlerBimap<OnDigitalHandler>::value_type(name, id,
 			                                                      handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { onDigitalHandlers.right.erase(id); });
+			return core::ref([this, id]() { onDigitalHandlers.right.erase(id); });
 		}
 
 		inline auto onanalog(std::string name, const OnAnalogHandler &handler) {
@@ -138,8 +131,7 @@ namespace polar::system {
 			onAnalogHandlers.insert(
 			    AnalogHandlerBimap<OnAnalogHandler>::value_type(name, id,
 			                                                    handler));
-			return std::make_shared<core::destructor>(
-			    [this, id]() { onAnalogHandlers.right.erase(id); });
+			return core::ref([this, id]() { onAnalogHandlers.right.erase(id); });
 		}
 	};
 } // namespace polar::system
