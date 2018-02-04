@@ -14,8 +14,9 @@ namespace polar::system {
 	public:
 		template<typename T>
 		struct ref : public core::ref {
-			const IDType id;
+			IDType id;
 
+			ref() : id(INVALID_ID()) {}
 			ref(std::function<void()> fn, const IDType id) : core::ref(fn), id(id) {}
 
 			inline bool operator==(const ref<T> &rhs) const { return id == rhs.id; }
@@ -74,18 +75,18 @@ namespace polar::system {
 		action(core::polar *engine) : base(engine) {}
 
 		void update(DeltaTicks &) override {
-			for(auto &pair : analogs) {
-				pair.second.value = pair.second.initial;
-			}
-
 			for(auto &pair : digitals) {
-				trigger(pair.second.state ? lifetime::when
-				                          : lifetime::unless,
+				trigger(pair.second.state ? lifetime::when : lifetime::unless,
 				        pair.first);
 			}
 
 			for(auto &pair : analogs) {
 				trigger(pair.first);
+
+				/* reset value immediately after triggering
+				 * this allows the value to accumulate across the entire frame
+				 */
+				pair.second.value = pair.second.initial;
 			}
 		}
 

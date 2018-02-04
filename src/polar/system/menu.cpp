@@ -10,7 +10,6 @@
 #include <polar/support/input/key.h>
 #include <polar/support/ui/control.h>
 #include <polar/system/asset.h>
-#include <polar/system/input.h>
 #include <polar/system/menu.h>
 #include <polar/system/tweener.h>
 
@@ -145,65 +144,35 @@ namespace polar::system {
 	}
 
 	void menu::init() {
-		using key_t = support::input::key;
+		using lifetime = support::action::lifetime;
 
 		auto assetM = engine->get<asset>().lock();
-		auto inputM = engine->get<input>().lock();
+		auto act    = engine->get<action>().lock();
 		auto tw     = engine->get<tweener<float>>().lock();
 
 		assetM->request<polar::asset::audio>("menu1");
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");
 
-		for(auto k : {key_t::Down, key_t::S}) {
-			keep(inputM->on(k, [this](key_t) { navigate(1); }));
-		}
+		a_up       = act->digital();
+		a_down     = act->digital();
+		a_right    = act->digital();
+		a_left     = act->digital();
+		a_forward  = act->digital();
+		a_backward = act->digital();
 
-		for(auto k : {key_t::Up, key_t::W}) {
-			keep(inputM->on(k, [this](key_t) { navigate(-1); }));
-		}
-
-		for(auto k : {key_t::Left, key_t::A}) {
-			keep(
-			    inputM->on(k, [this](key_t) { navigate(0, -1); }));
-		}
-
-		for(auto k : {key_t::Right, key_t::D}) {
-			keep(
-			    inputM->on(k, [this](key_t) { navigate(0, 1); }));
-		}
-
-		for(auto k : {key_t::Space, key_t::Enter, key_t::MouseLeft,
-		              key_t::ControllerA}) {
-			keep(inputM->on(k, [this](key_t) { activate(); }));
-		}
-
-		for(auto k : {key_t::Escape, key_t::Backspace, key_t::MouseRight,
-		              key_t::ControllerBack}) {
-			keep(
-			    inputM->on(k, [this](key_t) { navigate(0, -1, true); }));
-		}
-
-		keep(inputM->onmousewheel([this](const Point2 &delta) {
-			navigate(int(-delta.y), int(delta.x));
+		keep(act->bind(lifetime::on, a_up,       [this] { navigate( 1);    }));
+		keep(act->bind(lifetime::on, a_down,     [this] { navigate(-1);    }));
+		keep(act->bind(lifetime::on, a_right,    [this] { navigate(0,  1); }));
+		keep(act->bind(lifetime::on, a_left,     [this] { navigate(0, -1); }));
+		keep(act->bind(lifetime::on, a_forward,  [this] { activate();      }));
+		keep(act->bind(lifetime::on, a_backward, [this] {
+			navigate(0, -1, true);
 		}));
 
-		keep(
-		    inputM->ondigital("menu_up", [this]() { navigate(-1); }));
-		keep(
-		    inputM->ondigital("menu_down", [this]() { navigate(1); }));
-		keep(
-		    inputM->ondigital("menu_left", [this]() { navigate(0, -1); }));
-		keep(
-		    inputM->ondigital("menu_right", [this]() { navigate(0, 1); }));
-		keep(
-		    inputM->ondigital("menu_confirm", [this]() { activate(); }));
-		keep(inputM->ondigital(
-		    "menu_back", [this]() { navigate(0, -1, true); }));
-
-		keep(tw->tween(
-		    0.0f, 1.0f, 0.25, true,
-		    [this](core::polar *, const float &x) { selectionAlpha = x; }));
+		keep(tw->tween(0.0f, 1.0f, 0.25, true, [this](auto, const float &x) {
+			selectionAlpha = x;
+		}));
 
 		render_all();
 	}

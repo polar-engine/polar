@@ -1,9 +1,9 @@
 #include <polar/component/scale.h>
 #include <polar/component/screenposition.h>
 #include <polar/component/text.h>
+#include <polar/system/action.h>
 #include <polar/system/asset.h>
 #include <polar/system/credits.h>
-#include <polar/system/input.h>
 
 namespace polar::system {
 	void credits::render_all() {
@@ -34,19 +34,15 @@ namespace polar::system {
 	}
 
 	void credits::init() {
-		using key_t = support::input::key;
+		using lifetime = support::action::lifetime;
 
-		auto inputM = engine->get<input>().lock();
 		auto assetM = engine->get<asset>().lock();
+		auto act = engine->get<action>().lock();
 
-		for(auto k : {key_t::Escape, key_t::Backspace, key_t::MouseRight,
-		              key_t::ControllerBack}) {
-			keep(
-			    inputM->on(k, [this](key_t) { engine->transition = "back"; }));
+		if(act) {
+			a_back = act->digital();
+			keep(act->bind(lifetime::on, a_back, [this] { engine->transition = "back"; }));
 		}
-
-		keep(inputM->ondigital(
-		    "menu_back", [this]() { engine->transition = "back"; }));
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");
 

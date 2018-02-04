@@ -7,11 +7,11 @@
 #include <polar/component/screenposition.h>
 #include <polar/component/text.h>
 #include <polar/core/polar.h>
-#include <polar/system/action.h>
 #include <polar/system/asset.h>
-#include <polar/system/event.h>
+#include <polar/system/controller.h>
 #include <polar/system/integrator.h>
 #include <polar/system/keyboard.h>
+#include <polar/system/mouse.h>
 #include <polar/system/renderer/gl32.h>
 
 #if defined(_WIN32)
@@ -137,6 +137,8 @@ namespace polar::system::renderer {
 		    makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
 
 		inited = true;
+
+		base::init();
 	}
 
 	void gl32::update(DeltaTicks &dt) {
@@ -339,7 +341,7 @@ namespace polar::system::renderer {
 					uploaduniform(node.program, pair.second, glm::int32(b));
 					++b;
 				}
-				for(auto &pair : node.globalIns) { /* for each global input*/
+				for(auto &pair : node.globalIns) { /* for each global input */
 					auto buffer = globals[pair.first];
 					GL(glActiveTexture(GL_TEXTURE0 + b));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));
@@ -650,11 +652,11 @@ namespace polar::system::renderer {
 
 	void gl32::handleSDL(SDL_Event &ev) {
 		support::input::key key;
-		Point2 mouseDelta;
-		float controllerAxisValue;
 
-		auto act = engine->get<action>().lock();
-		auto kb = engine->get<keyboard>().lock();
+		auto act  = engine->get<action>().lock();
+		auto kb   = engine->get<keyboard>().lock();
+		auto mse  = engine->get<mouse>().lock();
+		auto ctlr = engine->get<controller>().lock();
 
 		switch(ev.type) {
 		case SDL_QUIT:
@@ -669,14 +671,15 @@ namespace polar::system::renderer {
 				debugmanager()->trace("MakePipeline from SDL_WINDOWEVENT");
 				makepipeline(pipelineNames);
 				debugmanager()->trace("MakePipeline done");
-				engine->get<event>().lock()->fire("resize", nullptr);
+				if(act) {
+					act->trigger(action_resize());
+				}
 				break;
 			}
 			break;
 		case SDL_KEYDOWN:
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
-				engine->get<event>().lock()->fire("keydown", &key);
 				if(act && kb) {
 					act->trigger(kb->action(key), true);
 				}
@@ -684,52 +687,59 @@ namespace polar::system::renderer {
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
-			engine->get<event>().lock()->fire("keyup", &key);
 			if(act && kb) {
 				act->trigger(kb->action(key), false);
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			engine->get<event>().lock()->fire("keydown", &key);
+			if(act && kb) {
+				act->trigger(kb->action(key), false);
+			}
 			break;
 		case SDL_MOUSEBUTTONUP:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			engine->get<event>().lock()->fire("keyup", &key);
+			if(act && kb) {
+				act->trigger(kb->action(key), false);
+			}
 			break;
 		case SDL_MOUSEMOTION:
-			mouseDelta = Point2(ev.motion.xrel, ev.motion.yrel);
-			engine->get<event>().lock()->fire("mousemove", &mouseDelta);
+			if(act && mse) {
+				act->accumulate(mse->action_motion_x(), ev.motion.xrel);
+				act->accumulate(mse->action_motion_y(), ev.motion.yrel);
+			}
 			break;
 		case SDL_MOUSEWHEEL:
-			mouseDelta = Point2(ev.wheel.x, ev.wheel.y);
-			engine->get<event>().lock()->fire("mousewheel", &mouseDelta);
+			if(act && mse) {
+				act->accumulate(mse->action_wheel_x(), ev.wheel.x);
+				act->accumulate(mse->action_wheel_y(), ev.wheel.y);
+			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			engine->get<event>().lock()->fire("keydown", &key);
+			if(act && kb) {
+				act->trigger(kb->action(key), true);
+			}
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			engine->get<event>().lock()->fire("keyup", &key);
+			if(act && kb) {
+				act->trigger(kb->action(key), false);
+			}
 			break;
 		case SDL_CONTROLLERAXISMOTION:
-			/* axis 0 = x axis
-			 * axis 1 = y axis
-			 */
-			controllerAxisValue = ev.caxis.value;
 			switch(ev.caxis.axis) {
-			case 0:
-				engine->get<event>().lock()->fire(
-				    "controlleraxisx",
-				    support::event::arg(controllerAxisValue));
+			case 0: // x axis
+				if(act && ctlr) {
+					act->accumulate(ctlr->action_motion_x(), ev.caxis.value);
+				}
 				break;
-			case 1:
-				engine->get<event>().lock()->fire(
-				    "controlleraxisy",
-				    support::event::arg(controllerAxisValue));
+			case 1: // y axis
+				if(act && ctlr) {
+					act->accumulate(ctlr->action_motion_y(), ev.caxis.value);
+				}
 				break;
 			}
 			break;
