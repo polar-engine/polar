@@ -1,10 +1,14 @@
 #pragma once
 
+#include <polar/system/action.h>
 #include <polar/system/base.h>
 #include <vector>
 
 namespace polar::system::renderer {
 	class base : public system::base {
+	  private:
+		action::digital_ref a_resize;
+
 	  protected:
 		uint16_t width                  = 1280;
 		uint16_t height                 = 720;
@@ -19,6 +23,14 @@ namespace polar::system::renderer {
 
 		static bool supported() { return false; }
 		base(core::polar *engine) : system::base(engine) {}
+
+		const auto action_resize() { return a_resize; }
+
+		virtual void init() override {
+			auto act = engine->get<action>().lock();
+
+			a_resize = act->digital();
+		}
 
 		inline uint16_t getwidth() { return width; }
 		inline uint16_t getheight() { return height; }

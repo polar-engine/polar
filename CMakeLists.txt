@@ -46,7 +46,6 @@ set(POLAR_SRCS
 	src/polar/component/sprite/slider.cpp
 	src/polar/system/audio.cpp
 	src/polar/system/credits.cpp
-	src/polar/system/input.cpp
 	src/polar/system/integrator.cpp
 	src/polar/system/menu.cpp
 	src/polar/system/phys.cpp

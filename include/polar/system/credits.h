@@ -18,6 +18,8 @@ namespace polar::system {
 		std::shared_ptr<polar::asset::font> font;
 		Decimal height = 0;
 
+		action::digital_ref a_back;
+
 		void render_all();
 
 	  protected:
@@ -28,5 +30,9 @@ namespace polar::system {
 		static bool supported() { return true; }
 		credits(core::polar *engine, credits_vector_t _credits)
 		    : base(engine), _credits(_credits) {}
+
+		const action::digital_ref action_back() {
+			return a_back;
+		}
 	};
 } // namespace polar::system
