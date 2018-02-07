@@ -90,45 +90,51 @@ namespace polar::system {
 			}
 		}
 
-		digital_ref digital(bool state = false) {
+		auto digital(bool state = false) {
 			auto id = nextID++;
 			digitals.emplace(id, digital_data{state});
 			return digital_ref([this, id] { digitals.erase(id); }, id);
 		}
 
-		analog_ref analog(Decimal initial = 0) {
+		auto analog(Decimal initial = 0) {
 			auto id = nextID++;
 			analogs.emplace(id, analog_data{initial, initial});
 			return analog_ref([this, id] { analogs.erase(id); }, id);
 		}
 
-		core::ref bind(lifetime lt, digital_ref src, const digital_function_t f) {
+		auto bind(lifetime lt, digital_ref src, const digital_function_t f) {
 			auto id = nextID++;
 			lt_bindings[size_t(lt)].insert(binding_bimap::value_type(src.id, id, binding_t{src, f}));
 			return core::ref([this, lt, id] { lt_bindings[size_t(lt)].right.erase(id); });
 		}
 
-		core::ref bind(lifetime lt, analog_ref src, const digital_function_t f) {
+		auto bind(lifetime lt, analog_ref src, const digital_function_t f) {
 			auto id = nextID++;
 			lt_bindings[size_t(lt)].insert(binding_bimap::value_type(src.id, id, binding_t{src, f}));
 			return core::ref([this, lt, id] { lt_bindings[size_t(lt)].right.erase(id); });
 		}
 
-		core::ref bind(lifetime lt, digital_ref src, digital_ref tgt) {
+		auto bind(lifetime lt, digital_ref src, digital_ref tgt) {
 			auto id = nextID++;
 			lt_bindings[size_t(lt)].insert(binding_bimap::value_type(src.id, id, binding_t{src, tgt}));
 			return core::ref([this, lt, id] { lt_bindings[size_t(lt)].right.erase(id); });
 		}
 
-		core::ref bind(lifetime lt, digital_ref src, analog_ref tgt, Decimal passthrough) {
+		auto bind(lifetime lt, digital_ref src, analog_ref tgt, Decimal passthrough) {
 			auto id = nextID++;
 			lt_bindings[size_t(lt)].insert(binding_bimap::value_type(src.id, id, binding_t{src, tgt, passthrough}));
 			return core::ref([this, lt, id] { lt_bindings[size_t(lt)].right.erase(id); });
 		}
 
-		core::ref bind(analog_ref src, const analog_function_t f) {
+		auto bind(analog_ref src, const analog_function_t f) {
 			auto id = nextID++;
 			bindings.insert(binding_bimap::value_type(src.id, id, binding_t{src, f}));
+			return core::ref([this, id] { bindings.right.erase(id); });
+		}
+
+		auto bind(analog_ref src, analog_ref tgt) {
+			auto id = nextID++;
+			bindings.insert(binding_bimap::value_type(src.id, id, binding_t{src, tgt}));
 			return core::ref([this, id] { bindings.right.erase(id); });
 		}
 
@@ -183,6 +189,14 @@ namespace polar::system {
 
 		void accumulate(IDType id, Decimal passthrough) {
 			analogs.at(id).value += passthrough;
+
+			auto pair = bindings.left.equal_range(id);
+			for(auto it = pair.first; it != pair.second; ++it) {
+				auto &binding = it->info;
+				if(auto r = std::get_if<analog_ref>(&binding.target)) {
+					accumulate(*r, passthrough);
+				}
+			}
 		}
 
 		void accumulate(analog_ref r, Decimal passthrough) {
