@@ -7,11 +7,11 @@
 #include <polar/component/screenposition.h>
 #include <polar/component/text.h>
 #include <polar/core/polar.h>
+#include <polar/support/action/controller.h>
+#include <polar/support/action/keyboard.h>
+#include <polar/support/action/mouse.h>
 #include <polar/system/asset.h>
-#include <polar/system/controller.h>
 #include <polar/system/integrator.h>
-#include <polar/system/keyboard.h>
-#include <polar/system/mouse.h>
 #include <polar/system/renderer/gl32.h>
 
 #if defined(_WIN32)
@@ -137,8 +137,6 @@ namespace polar::system::renderer {
 		    makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
 
 		inited = true;
-
-		base::init();
 	}
 
 	void gl32::update(DeltaTicks &dt) {
@@ -651,12 +649,13 @@ namespace polar::system::renderer {
 	}
 
 	void gl32::handleSDL(SDL_Event &ev) {
+		namespace kb         = support::action::keyboard;
+		namespace mouse      = support::action::mouse;
+		namespace controller = support::action::controller;
+
 		support::input::key key;
 
 		auto act  = engine->get<action>().lock();
-		auto kb   = engine->get<keyboard>().lock();
-		auto mse  = engine->get<mouse>().lock();
-		auto ctlr = engine->get<controller>().lock();
 
 		switch(ev.type) {
 		case SDL_QUIT:
@@ -672,7 +671,7 @@ namespace polar::system::renderer {
 				makepipeline(pipelineNames);
 				debugmanager()->trace("MakePipeline done");
 				if(act) {
-					act->trigger(action_resize());
+					act->trigger<action_resize>();
 				}
 				break;
 			}
@@ -680,65 +679,65 @@ namespace polar::system::renderer {
 		case SDL_KEYDOWN:
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
-				if(act && kb) {
-					act->trigger(kb->action(key), true);
+				if(act) {
+					act->trigger_digital(kb::key_ti(key), true);
 				}
 			}
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
-			if(act && kb) {
-				act->trigger(kb->action(key), false);
+			if(act) {
+				act->trigger_digital(kb::key_ti(key), false);
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			if(act && kb) {
-				act->trigger(kb->action(key), false);
+			if(act) {
+				act->trigger_digital(kb::key_ti(key), true);
 			}
 			break;
 		case SDL_MOUSEBUTTONUP:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			if(act && kb) {
-				act->trigger(kb->action(key), false);
+			if(act) {
+				act->trigger_digital(kb::key_ti(key), false);
 			}
 			break;
 		case SDL_MOUSEMOTION:
-			if(act && mse) {
-				act->accumulate(mse->action_motion_x(), ev.motion.xrel);
-				act->accumulate(mse->action_motion_y(), ev.motion.yrel);
+			if(act) {
+				act->accumulate<mouse::motion_x>(ev.motion.xrel);
+				act->accumulate<mouse::motion_y>(ev.motion.yrel);
 			}
 			break;
 		case SDL_MOUSEWHEEL:
-			if(act && mse) {
-				act->accumulate(mse->action_wheel_x(), ev.wheel.x);
-				act->accumulate(mse->action_wheel_y(), ev.wheel.y);
+			if(act) {
+				act->accumulate<mouse::wheel_x>(ev.wheel.x);
+				act->accumulate<mouse::wheel_y>(ev.wheel.y);
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			if(act && kb) {
-				act->trigger(kb->action(key), true);
+			if(act) {
+				act->trigger_digital(kb::key_ti(key), true);
 			}
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			if(act && kb) {
-				act->trigger(kb->action(key), false);
+			if(act) {
+				act->trigger_digital(kb::key_ti(key), false);
 			}
 			break;
 		case SDL_CONTROLLERAXISMOTION:
 			switch(ev.caxis.axis) {
 			case 0: // x axis
-				if(act && ctlr) {
-					act->accumulate(ctlr->action_motion_x(), ev.caxis.value);
+				if(act) {
+					act->accumulate<controller::motion_x>(ev.caxis.value);
 				}
 				break;
 			case 1: // y axis
-				if(act && ctlr) {
-					act->accumulate(ctlr->action_motion_y(), ev.caxis.value);
+				if(act) {
+					act->accumulate<controller::motion_y>(ev.caxis.value);
 				}
 				break;
 			}

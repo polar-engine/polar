@@ -1,7 +1,7 @@
 #include <polar/component/scale.h>
 #include <polar/component/screenposition.h>
 #include <polar/component/text.h>
-#include <polar/system/action.h>
+#include <polar/support/action/credits.h>
 #include <polar/system/asset.h>
 #include <polar/system/credits.h>
 
@@ -40,8 +40,9 @@ namespace polar::system {
 		auto act = engine->get<action>().lock();
 
 		if(act) {
-			a_back = act->digital();
-			keep(act->bind(lifetime::on, a_back, [this] { engine->transition = "back"; }));
+			keep(act->bind<support::action::credits::back>(lifetime::on, [this] {
+				engine->transition = "back";
+			}));
 		}
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");
