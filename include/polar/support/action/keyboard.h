@@ -13,7 +13,7 @@ namespace polar::support::action::keyboard {
 
 		switch(k) {
 			default:
-				debugmanager()->fatal("no matching type_index for key");
+				debugmanager()->warning("no matching type_index for key=", size_t(k));
 				return typeid(key<key_t::None>);
 			CASE(A)
 			CASE(B)
@@ -65,5 +65,7 @@ namespace polar::support::action::keyboard {
 			CASE(ControllerA)
 			CASE(ControllerBack)
 		}
+
+#undef CASE
 	}
 }
