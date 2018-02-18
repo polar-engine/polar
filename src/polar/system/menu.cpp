@@ -6,9 +6,11 @@
 #include <polar/component/sprite/box.h>
 #include <polar/component/sprite/slider.h>
 #include <polar/component/text.h>
+#include <polar/support/action/menu.h>
 #include <polar/support/audio/sourcetype.h>
 #include <polar/support/input/key.h>
 #include <polar/support/ui/control.h>
+#include <polar/system/action.h>
 #include <polar/system/asset.h>
 #include <polar/system/menu.h>
 #include <polar/system/tweener.h>
@@ -145,6 +147,7 @@ namespace polar::system {
 
 	void menu::init() {
 		using lifetime = support::action::lifetime;
+		namespace a = support::action::menu;
 
 		auto assetM = engine->get<asset>().lock();
 		auto act    = engine->get<action>().lock();
@@ -154,19 +157,12 @@ namespace polar::system {
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");
 
-		a_up       = act->digital();
-		a_down     = act->digital();
-		a_right    = act->digital();
-		a_left     = act->digital();
-		a_forward  = act->digital();
-		a_backward = act->digital();
-
-		keep(act->bind(lifetime::on, a_up,       [this] { navigate( 1);    }));
-		keep(act->bind(lifetime::on, a_down,     [this] { navigate(-1);    }));
-		keep(act->bind(lifetime::on, a_right,    [this] { navigate(0,  1); }));
-		keep(act->bind(lifetime::on, a_left,     [this] { navigate(0, -1); }));
-		keep(act->bind(lifetime::on, a_forward,  [this] { activate();      }));
-		keep(act->bind(lifetime::on, a_backward, [this] {
+		keep(act->bind<a::down   >(lifetime::on, [this] { navigate( 1);    }));
+		keep(act->bind<a::up     >(lifetime::on, [this] { navigate(-1);    }));
+		keep(act->bind<a::right  >(lifetime::on, [this] { navigate(0,  1); }));
+		keep(act->bind<a::left   >(lifetime::on, [this] { navigate(0, -1); }));
+		keep(act->bind<a::forward>(lifetime::on, [this] { activate();      }));
+		keep(act->bind<a::back   >(lifetime::on, [this] {
 			navigate(0, -1, true);
 		}));
 
