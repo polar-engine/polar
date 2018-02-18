@@ -1,7 +1,6 @@
 #pragma once
 
 #include <polar/support/ui/menuitem.h>
-#include <polar/system/action.h>
 #include <polar/system/base.h>
 #include <stdint.h>
 #include <vector>
@@ -25,13 +24,6 @@ namespace polar::system {
 		std::array<core::ref, 4> soundDtors;
 		size_t soundIndex = 0;
 
-		action::digital_ref a_up;
-		action::digital_ref a_down;
-		action::digital_ref a_right;
-		action::digital_ref a_left;
-		action::digital_ref a_forward;
-		action::digital_ref a_backward;
-
 		inline menuitem_vector_t *getcurrentmenu() {
 			menuitem_vector_t *m = &_menu;
 			for(auto i : stack) { m = &m->at(i).children; }
@@ -52,13 +44,6 @@ namespace polar::system {
 		static bool supported() { return true; }
 		menu(core::polar *engine, Decimal uiScale, menuitem_vector_t _menu)
 		    : base(engine), _menu(_menu), uiScale(uiScale) {}
-
-		const auto action_up()       { return a_up;       }
-		const auto action_down()     { return a_down;     }
-		const auto action_right()    { return a_right;    }
-		const auto action_left()     { return a_left;     }
-		const auto action_forward()  { return a_forward;  }
-		const auto action_backward() { return a_backward; }
 
 		inline void render_all() {
 			auto m = getcurrentmenu();
