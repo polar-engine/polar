@@ -271,12 +271,14 @@ namespace polar::system {
 			// force registration of digital
 			reg_digital(ti);
 
-			if(state) {
-				trigger_digital(ti, lifetime::on);
-				digitals[ti].state = state;
-			} else {
-				digitals[ti].state = state;
-				trigger_digital(ti, lifetime::after);
+			if(state != digitals[ti].state) {
+				if(state) {
+					trigger_digital(ti, lifetime::on);
+					digitals[ti].state = state;
+				} else {
+					digitals[ti].state = state;
+					trigger_digital(ti, lifetime::after);
+				}
 			}
 		}
 
