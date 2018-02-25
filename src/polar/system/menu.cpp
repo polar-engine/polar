@@ -17,8 +17,7 @@
 
 namespace polar::system {
 	void menu::activate() {
-		auto m     = getcurrentmenu();
-		auto &item = m->at(current);
+		auto &item = current_at(current);
 
 		if(item.control) {
 			if(item.control->activate()) {
@@ -39,8 +38,8 @@ namespace polar::system {
 	}
 
 	void menu::navigate(int down, int right, bool force) {
-		auto m     = getcurrentmenu();
-		auto &item = m->at(current);
+		auto &item = current_at(current);
+		auto size = current_size();
 
 		bool playBeep = false;
 
@@ -55,8 +54,7 @@ namespace polar::system {
 
 		if(newForce) {
 			while(right > 0) {
-				auto m  = getcurrentmenu();
-				auto &i = m->at(current);
+				auto &i = current_at(current);
 				if(!i.children.empty()) {
 					stack.emplace_back(current);
 					current = 0;
@@ -82,13 +80,13 @@ namespace polar::system {
 			render_all();
 		}
 		if(down != 0) {
-			auto m        = getcurrentmenu();
+			auto sz = current_size();
 			auto previous = current;
 			current += down;
 			if(current < 0) {
-				current += m->size();
+				current += sz;
 			} else {
-				current %= m->size();
+				current %= sz;
 			}
 			render(previous, true);
 			playBeep = true;
@@ -106,8 +104,8 @@ namespace polar::system {
 	}
 
 	void menu::render(size_t i, bool replace) {
-		auto m     = getcurrentmenu();
-		auto &item = m->at(i);
+		auto &item = current_at(i);
+		auto size = current_size();
 
 		IDType id;
 		if(replace) {
@@ -124,9 +122,9 @@ namespace polar::system {
 		 * 6 * 0.375 = 2.25 numerator
 		 */
 		Decimal scale =
-		    glm::min(Decimal(uiHeight) / Decimal(m->size()), Decimal(uiScale));
+		    glm::min(Decimal(uiHeight) / Decimal(size), Decimal(uiScale));
 		Decimal spacing = uiTextHeight * scale;
-		Point2 origin   = Point2(60, 50 + spacing * (m->size() - i - 1));
+		Point2 origin   = Point2(60, 50 + spacing * (size - i - 1));
 
 		engine->add<component::text>(id, font, item.value);
 		engine->add<component::screenposition>(id, origin);
