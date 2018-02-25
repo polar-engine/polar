@@ -59,7 +59,8 @@ namespace polar::system {
 		inline void update(DeltaTicks &) override { render(current, true); }
 
 	  public:
-		Decimal uiScale = 0.3125;
+		const Decimal uiBase = 0.3125;
+		Decimal uiScale = uiBase;
 
 		static bool supported() { return true; }
 		menu(core::polar *engine, Decimal uiScale, menuitem_vector_t _menu)

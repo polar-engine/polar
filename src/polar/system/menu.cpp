@@ -114,13 +114,11 @@ namespace polar::system {
 			itemDtors.emplace_back(engine->add(id));
 		}
 
-		const Decimal uiHeight     = 2.25;
+		// max 6 items on screen at max scale of uiBase
+		const Decimal uiHeight     = 8 * uiBase;
 		const Decimal uiTextHeight = 160;
 		const Decimal uiTextWidth  = 550;
 
-		/* max 6 items on screen at max scale of 0.375
-		 * 6 * 0.375 = 2.25 numerator
-		 */
 		Decimal scale =
 		    glm::min(Decimal(uiHeight) / Decimal(size), Decimal(uiScale));
 		Decimal spacing = uiTextHeight * scale;
@@ -136,7 +134,7 @@ namespace polar::system {
 
 		if(item.control) {
 			IDType controlID;
-			auto offset = Point2(uiTextWidth / uiScale * scale, 0);
+			auto offset = Point2(uiTextWidth / uiBase * scale, 0);
 			offset.y -= 12 * scale;
 			controlDtors[i] = item.control->render(engine, controlID,
 			                                       origin + offset, 8 * scale);
