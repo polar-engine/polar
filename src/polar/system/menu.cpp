@@ -114,7 +114,7 @@ namespace polar::system {
 			itemDtors.emplace_back(engine->add(id));
 		}
 
-		// max 6 items on screen at max scale of uiBase
+		// max 8 items on screen at max scale of uiBase
 		const Decimal uiHeight     = 8 * uiBase;
 		const Decimal uiTextHeight = 160;
 		const Decimal uiTextWidth  = 550;
