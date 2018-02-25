@@ -6,13 +6,19 @@
 #include <vector>
 
 namespace polar::system {
-	using menuitem_vector_t = std::vector<support::ui::menuitem>;
+	using menuitem_t = support::ui::menuitem;
+	using menuitem_vector_t = std::vector<menuitem_t>;
 
 	class menu : public base {
 	  private:
 		menuitem_vector_t _menu;
 		std::vector<size_t> stack;
 		int current = 0;
+
+		menuitem_t back_item = menuitem_t("Back", [this](Decimal) {
+			navigate(0, -1, true);
+			return false;
+		});
 
 		std::shared_ptr<polar::asset::font> font;
 		std::vector<core::ref> itemDtors;
@@ -24,10 +30,24 @@ namespace polar::system {
 		std::array<core::ref, 4> soundDtors;
 		size_t soundIndex = 0;
 
-		inline menuitem_vector_t *getcurrentmenu() {
+		inline menuitem_vector_t & current_menu() {
 			menuitem_vector_t *m = &_menu;
 			for(auto i : stack) { m = &m->at(i).children; }
-			return m;
+			return *m;
+		}
+
+		inline menuitem_t & current_at(size_t i) {
+			auto &m = current_menu();
+			if(i == m.size() && !stack.empty()) {
+				return back_item;
+			} else {
+				return m.at(i);
+			}
+		}
+
+		inline size_t current_size() {
+			auto &m = current_menu();
+			return stack.empty() ? m.size() : (m.size() + 1);
 		}
 
 		void activate();
@@ -46,11 +66,11 @@ namespace polar::system {
 		    : base(engine), _menu(_menu), uiScale(uiScale) {}
 
 		inline void render_all() {
-			auto m = getcurrentmenu();
+			auto size = current_size();
 
 			itemDtors.clear();
 			controlDtors.clear();
-			for(size_t i = 0; i < m->size(); ++i) { render(i); }
+			for(size_t i = 0; i < size; ++i) { render(i); }
 		}
 	};
 } // namespace polar::system
