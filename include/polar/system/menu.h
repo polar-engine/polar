@@ -52,7 +52,11 @@ namespace polar::system {
 
 		void activate();
 		void navigate(int down, int right = 0, bool force = false);
+		void navigate_to(int to);
 		void render(size_t i, bool replace = false);
+		void beep();
+
+		void on_cursor(int y);
 
 	  protected:
 		void init() override;
@@ -60,6 +64,12 @@ namespace polar::system {
 
 	  public:
 		const Decimal uiBase = 0.3125;
+
+		// max 8 items on screen at max scale of uiBase
+		const Decimal uiHeight     = 8 * uiBase;
+		const Decimal uiTextHeight = 160;
+		const Decimal uiTextWidth  = 550;
+
 		Decimal uiScale = uiBase;
 
 		static bool supported() { return true; }
