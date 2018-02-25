@@ -704,6 +704,10 @@ namespace polar::system::renderer {
 			break;
 		case SDL_MOUSEMOTION:
 			if(act) {
+				// XXX: this is hacky
+				act->accumulate<mouse::position_x>(ev.motion.x);
+				act->accumulate<mouse::position_y>(ev.motion.y);
+
 				act->accumulate<mouse::motion_x>(ev.motion.xrel);
 				act->accumulate<mouse::motion_y>(ev.motion.yrel);
 			}
