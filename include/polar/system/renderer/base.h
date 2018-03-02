@@ -28,7 +28,7 @@ namespace polar::system::renderer {
 		inline uint16_t getwidth() { return width; }
 		inline uint16_t getheight() { return height; }
 
-		inline Mat4 getheadview() const { return headView; }
+		inline const Mat4 & getheadview() const { return headView; }
 
 		virtual void setmousecapture(bool)                                  = 0;
 		virtual void setfullscreen(bool)                                    = 0;
