@@ -1,3 +1,4 @@
+#include <glm/gtc/type_ptr.hpp>
 #include <polar/asset/shaderprogram.h>
 #include <polar/component/color.h>
 #include <polar/component/orientation.h>
@@ -107,7 +108,38 @@ namespace polar::system::renderer {
 		GL(glCullFace(GL_BACK));
 	}
 
+	void gl32::initVR() {
+		if(!vr::VR_IsHmdPresent()) { return; }
+
+		debugmanager()->verbose("initializing OpenVR");
+
+		vr::HmdError err;
+		vrSystem = vr::VR_Init(&err, vr::VRApplication_Scene);
+		if(vrSystem == nullptr) {
+			auto errString = vr::VR_GetVRInitErrorAsSymbol(err);
+			debugmanager()->critical("failed to initialize OpenVR: ", errString, " (", err, ')');
+			return;
+		}
+
+		if(!vr::VRCompositor()) {
+			debugmanager()->critical("failed to initialize VR compositor");
+			if(vrSystem != nullptr) {
+				vr::VR_Shutdown();
+				vrSystem = nullptr;
+			}
+			return;
+		}
+
+		uint32_t w, h;
+		vrSystem->GetRecommendedRenderTargetSize(&w, &h);
+		width = w;
+		height = h;
+
+		debugmanager()->verbose("initialized OpenVR (width=", w, ", height=", h, ')');
+	}
+
 	void gl32::init() {
+		initVR();
 		initGL();
 
 		setclearcolor(Point4(0.0f));
@@ -135,112 +167,13 @@ namespace polar::system::renderer {
 		auto assetM = engine->get<asset>().lock();
 		spriteProgram =
 		    makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
+		identityProgram =
+		    makeprogram(assetM->get<polar::asset::shaderprogram>("identity"));
 
 		inited = true;
 	}
 
-	void gl32::update(DeltaTicks &dt) {
-		// upload changed uniforms
-		for(size_t i = 0; i < nodes.size(); ++i) {
-			bool usingProgram = false;
-			auto &node        = nodes[nodes.size() - 1 - i];
-			for(auto &name : changedUniformsU32) {
-				if(node.uniforms.find(name) != node.uniforms.cend()) {
-					if(!usingProgram) {
-						GL(glUseProgram(node.program));
-						usingProgram = true;
-					}
-					uploaduniform(node.program, name, uniformsU32[name]);
-				}
-			}
-			for(auto &name : changedUniformsFloat) {
-				if(node.uniforms.find(name) != node.uniforms.cend()) {
-					if(!usingProgram) {
-						GL(glUseProgram(node.program));
-						usingProgram = true;
-					}
-					uploaduniform(node.program, name, uniformsFloat[name]);
-				}
-			}
-			for(auto &name : changedUniformsPoint3) {
-				if(node.uniforms.find(name) != node.uniforms.cend()) {
-					if(!usingProgram) {
-						GL(glUseProgram(node.program));
-						usingProgram = true;
-					}
-					uploaduniform(node.program, name, uniformsPoint3[name]);
-				}
-			}
-		}
-		changedUniformsU32.clear();
-		changedUniformsFloat.clear();
-		changedUniformsPoint3.clear();
-
-		fpsDtor = engine->add(fpsID);
-
-		if(dt.Seconds() > 0) {
-			fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
-		}
-
-		if(showFPS) {
-			std::ostringstream oss;
-			oss << (int)fps << " fps";
-
-			auto assetM = engine->get<asset>().lock();
-			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
-
-			engine->add<component::text>(fpsID, font, oss.str());
-			engine->add<component::screenposition>(
-			    fpsID, Point2(5, 5), support::ui::origin::topleft);
-			engine->add<component::color>(fpsID, Point4(1, 1, 1, 0.8));
-			engine->add<component::scale>(fpsID, Point3(0.125));
-		}
-
-		SDL_Event event;
-		while(SDL_PollEvent(&event)) { handleSDL(event); }
-		SDL_ClearError();
-
-		auto integrator_s = engine->get<integrator>().lock();
-		float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
-
-		Mat4 cameraView;
-		auto pairRight =
-		    engine->objects.right.equal_range(typeid(component::playercamera));
-		for(auto itRight = pairRight.first; itRight != pairRight.second;
-		    ++itRight) {
-			auto camera =
-			    static_cast<component::playercamera *>(itRight->info.get());
-
-			component::position *pos       = nullptr;
-			component::orientation *orient = nullptr;
-			// component::scale *sc           = nullptr;
-
-			auto pairLeft =
-			    engine->objects.left.equal_range(itRight->get_left());
-			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second;
-			    ++itLeft) {
-				auto type = itLeft->get_right();
-				if(type == typeid(component::position)) {
-					pos =
-					    static_cast<component::position *>(itLeft->info.get());
-				} else if(type == typeid(component::orientation)) {
-					orient = static_cast<component::orientation *>(
-					    itLeft->info.get());
-				}
-			}
-
-			cameraView = glm::translate(
-			    cameraView, -camera->distance.temporal(alpha).to<Point3>());
-			cameraView *= glm::toMat4(camera->orientation);
-			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient); }
-			cameraView = glm::translate(
-			    cameraView, -camera->position.temporal(alpha).to<Point3>());
-			if(pos != nullptr) {
-				cameraView = glm::translate(
-				    cameraView, -pos->pos.temporal(alpha).to<Point3>());
-			}
-		}
-
+	void gl32::render(Mat4 proj, Mat4 view, float alpha) {
 		std::unordered_map<std::string, GLuint> globals;
 		for(unsigned int i = 0; i < nodes.size(); ++i) {
 			auto &node = nodes[i];
@@ -249,9 +182,9 @@ namespace polar::system::renderer {
 			GL(glUseProgram(node.program));
 			GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-			uploaduniform(node.program, "u_view", cameraView);
+			uploaduniform(node.program, "u_view", view);
 			uploaduniform(node.program, "u_invViewProj",
-			              glm::inverse(calculate_projection() * cameraView));
+			              glm::inverse(proj * view));
 
 			switch(i) {
 			case 0: {
@@ -358,6 +291,7 @@ namespace polar::system::renderer {
 		// render sprites and text
 		GL(glEnable(GL_BLEND));
 		{
+			//GL(glBindFramebuffer(GL_FRAMEBUFFER, nodes.back().fbo));
 			GL(glUseProgram(spriteProgram));
 			uploaduniform(spriteProgram, "u_texture", 0);
 			GL(glActiveTexture(GL_TEXTURE0));
@@ -367,22 +301,176 @@ namespace polar::system::renderer {
 			    typeid(component::sprite::base));
 			for(auto itRight = pairRight.first; itRight != pairRight.second;
 			    ++itRight) {
-				rendersprite(itRight->get_left());
+				rendersprite(itRight->get_left(), proj);
 			}
 
 			pairRight =
 			    engine->objects.right.equal_range(typeid(component::text));
 			for(auto itRight = pairRight.first; itRight != pairRight.second;
 			    ++itRight) {
-				rendertext(itRight->get_left());
+				rendertext(itRight->get_left(), proj);
 			}
 		}
 		GL(glDisable(GL_BLEND));
 
+		// mirror
+		GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GL(glUseProgram(identityProgram));
+		GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		GL(glActiveTexture(GL_TEXTURE0));
+		GL(glBindTexture(GL_TEXTURE_2D, nodes.back().outs.at("color")));
+		uploaduniform(identityProgram, "u_colorBuffer", 0);
+		GL(glBindVertexArray(viewportVAO));
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+	}
+
+	void gl32::update(DeltaTicks &dt) {
+		// upload changed uniforms
+		for(size_t i = 0; i < nodes.size(); ++i) {
+			bool usingProgram = false;
+			auto &node        = nodes[nodes.size() - 1 - i];
+			for(auto &name : changedUniformsU32) {
+				if(node.uniforms.find(name) != node.uniforms.cend()) {
+					if(!usingProgram) {
+						GL(glUseProgram(node.program));
+						usingProgram = true;
+					}
+					uploaduniform(node.program, name, uniformsU32[name]);
+				}
+			}
+			for(auto &name : changedUniformsFloat) {
+				if(node.uniforms.find(name) != node.uniforms.cend()) {
+					if(!usingProgram) {
+						GL(glUseProgram(node.program));
+						usingProgram = true;
+					}
+					uploaduniform(node.program, name, uniformsFloat[name]);
+				}
+			}
+			for(auto &name : changedUniformsPoint3) {
+				if(node.uniforms.find(name) != node.uniforms.cend()) {
+					if(!usingProgram) {
+						GL(glUseProgram(node.program));
+						usingProgram = true;
+					}
+					uploaduniform(node.program, name, uniformsPoint3[name]);
+				}
+			}
+		}
+		changedUniformsU32.clear();
+		changedUniformsFloat.clear();
+		changedUniformsPoint3.clear();
+
+		fpsDtor = engine->add(fpsID);
+
+		if(dt.Seconds() > 0) {
+			fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
+		}
+
+		if(showFPS) {
+			std::ostringstream oss;
+			oss << (int)fps << " fps";
+
+			auto assetM = engine->get<asset>().lock();
+			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
+
+			engine->add<component::text>(fpsID, font, oss.str());
+			engine->add<component::screenposition>(
+			    fpsID, Point2(5, 5), support::ui::origin::topleft);
+			engine->add<component::color>(fpsID, Point4(1, 1, 1, 0.8));
+			engine->add<component::scale>(fpsID, Point3(0.125));
+		}
+
+		SDL_Event event;
+		while(SDL_PollEvent(&event)) { handleSDL(event); }
+		SDL_ClearError();
+
+		auto integrator_s = engine->get<integrator>().lock();
+		float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
+
+		Mat4 cameraView;
+		auto pairRight =
+		    engine->objects.right.equal_range(typeid(component::playercamera));
+		for(auto itRight = pairRight.first; itRight != pairRight.second;
+		    ++itRight) {
+			auto camera =
+			    static_cast<component::playercamera *>(itRight->info.get());
+
+			component::position *pos       = nullptr;
+			component::orientation *orient = nullptr;
+			// component::scale *sc           = nullptr;
+
+			auto pairLeft =
+			    engine->objects.left.equal_range(itRight->get_left());
+			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second;
+			    ++itLeft) {
+				auto type = itLeft->get_right();
+				if(type == typeid(component::position)) {
+					pos =
+					    static_cast<component::position *>(itLeft->info.get());
+				} else if(type == typeid(component::orientation)) {
+					orient = static_cast<component::orientation *>(
+					    itLeft->info.get());
+				}
+			}
+
+			cameraView = glm::translate(
+			    cameraView, -camera->distance.temporal(alpha).to<Point3>());
+			cameraView *= glm::toMat4(camera->orientation);
+			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient); }
+			cameraView = glm::translate(
+			    cameraView, -camera->position.temporal(alpha).to<Point3>());
+			if(pos != nullptr) {
+				cameraView = glm::translate(
+				    cameraView, -pos->pos.temporal(alpha).to<Point3>());
+			}
+		}
+
+		if(vrSystem) {
+			vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
+			vr::VRCompositor()->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
+			auto vrHeadView = trackedDevicePose[0].mDeviceToAbsoluteTracking;
+			headView = Mat4(vrHeadView.m[0][0], vrHeadView.m[1][0], vrHeadView.m[2][0], 0,
+			                vrHeadView.m[0][1], vrHeadView.m[1][1], vrHeadView.m[2][1], 0,
+			                vrHeadView.m[0][2], vrHeadView.m[1][2], vrHeadView.m[2][2], 0,
+			                vrHeadView.m[0][3], vrHeadView.m[1][3], vrHeadView.m[2][3], 1);
+			headView = glm::transpose(headView);
+			cameraView = headView * cameraView;
+
+			// left eye
+			auto vrProj = vrSystem->GetProjectionMatrix(vr::Eye_Left, zNear, zFar);
+			auto proj = glm::transpose(glm::make_mat4(&vrProj.m[0][0]));
+
+			render(proj, cameraView, alpha);
+
+			auto testTexture = nodes.back().outs.at("color");
+			vr::Texture_t leftEyeTexture = {(void *)(uintptr_t)testTexture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+			auto err = vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+			if(err) {
+				debugmanager()->critical("failed to submit left eye to VR compositor (", err, ')');
+			}
+
+			// right eye
+			vrProj = vrSystem->GetProjectionMatrix(vr::Eye_Right, zNear, zFar);
+			proj = glm::transpose(glm::make_mat4(&vrProj.m[0][0]));
+
+			render(proj, cameraView, alpha);
+
+			testTexture = nodes.back().outs.at("color");
+			vr::Texture_t rightEyeTexture = {(void *)(uintptr_t)testTexture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+			err = vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+			if(err) {
+				debugmanager()->critical("failed to submit right eye to VR compositor (", err, ')');
+			}
+		} else {
+			render(calculate_projection(), cameraView, alpha);
+		}
+
 		SDL(SDL_GL_SwapWindow(window));
 	}
 
-	void gl32::rendersprite(IDType id) {
+	void gl32::rendersprite(IDType id, Mat4 proj) {
 		using origin_t = support::ui::origin;
 
 		auto sprite    = engine->get<component::sprite::base>(id);
@@ -457,15 +545,27 @@ namespace polar::system::renderer {
 
 		Mat4 transform;
 
+		// translate to near plane
+		auto pz = proj * Point4(0, 0, -zNear, 1);
+		pz /= pz.w; // perspective divide
+		transform = glm::translate(transform, Point3(pz));
+
+		// scale down for VR viewing
+		Decimal uiScale = 1;
+		if(vrSystem) { uiScale /= 2; }
+		transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
+
 		// translate to bottom left corner
 		transform = glm::translate(transform, Point3(-1, -1, 0));
 
+		// normalize bounds
+		transform = glm::scale(transform, Point3(2, 2, 1));
+
 		// scale to one pixel
-		transform =
-		    glm::scale(transform, Decimal(2) / Point3(width, height, 1));
+		transform = glm::scale(transform, Point3(1.0 / width, 1.0 / height, 1));
 
 		// translate to screen coord
-		transform = glm::translate(transform, Point3(coord, 0));
+		transform = glm::translate(transform, Point3(coord.x, coord.y, 0));
 
 		// scale by scale component
 		if(scale) { transform = glm::scale(transform, scale->sc.get()); }
@@ -486,7 +586,7 @@ namespace polar::system::renderer {
 		GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 	}
 
-	void gl32::rendertext(IDType id) {
+	void gl32::rendertext(IDType id, Mat4 proj) {
 		using origin_t = support::ui::origin;
 
 		auto text      = engine->get<component::text>(id);
@@ -595,15 +695,27 @@ namespace polar::system::renderer {
 
 		Mat4 transform;
 
+		// translate to near plane
+		auto pz = proj * Point4(0, 0, -zNear, 1);
+		pz /= pz.w; // perspective divide
+		transform = glm::translate(transform, Point3(pz));
+
+		// scale down for VR viewing
+		Decimal uiScale = 1;
+		if(vrSystem) { uiScale /= 2; }
+		transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
+
 		// translate to bottom left corner
 		transform = glm::translate(transform, Point3(-1, -1, 0));
 
+		// normalize bounds
+		transform = glm::scale(transform, Point3(2, 2, 1));
+
 		// scale to one pixel
-		transform =
-		    glm::scale(transform, Decimal(2) / Point3(width, height, 1));
+		transform = glm::scale(transform, Point3(1.0 / width, 1.0 / height, 1));
 
 		// translate to screen coord
-		transform = glm::translate(transform, Point3(coord, 0));
+		transform = glm::translate(transform, Point3(coord.x, coord.y, 0));
 
 		// scale by scale component
 		if(scale) { transform = glm::scale(transform, scale->sc.get()); }
@@ -642,6 +754,9 @@ namespace polar::system::renderer {
 	}
 
 	gl32::~gl32() {
+		if(vrSystem != nullptr) {
+			vr::VR_Shutdown();
+		}
 		SDL(SDL_GL_DeleteContext(context));
 		SDL(SDL_DestroyWindow(window));
 		SDL(SDL_GL_ResetAttributes());
@@ -774,9 +889,9 @@ namespace polar::system::renderer {
 			}
 		}
 
-		for(unsigned int i = 0; i < nodes.size() - 1; ++i) {
-			auto &as = assets[i], &nextAsset = assets[i + 1];
-			auto &node = nodes[i], &nextNode = nodes[i + 1];
+		for(unsigned int i = 0; i < nodes.size(); ++i) {
+			auto &as = assets[i];
+			auto &node = nodes[i];
 
 			std::vector<GLenum> drawBuffers;
 			int colorAttachment = 0;
@@ -871,18 +986,23 @@ namespace polar::system::renderer {
 				node.globalOuts.emplace(out.key, fOut(out));
 			}
 
-			for(auto &in : nextAsset->ins) {
-				auto it = node.outs.find(in.key);
-				if(it == node.outs.end()) {
-					debugmanager()->fatal(
-					    "failed to connect nodes (invalid key `" + in.key +
-					    "`)");
-				}
-				nextNode.ins.emplace(in.key, in.name);
-			}
+			if(i < nodes.size() - 1) {
+				auto &nextAsset = assets[i + 1];
+				auto &nextNode = nodes[i + 1];
 
-			for(auto &in : nextAsset->globalIns) {
-				nextNode.globalIns.emplace(in.key, in.name);
+				for(auto &in : nextAsset->ins) {
+					auto it = node.outs.find(in.key);
+					if(it == node.outs.end()) {
+						debugmanager()->fatal(
+							"failed to connect nodes (invalid key `" + in.key +
+							"`)");
+					}
+					nextNode.ins.emplace(in.key, in.name);
+				}
+
+				for(auto &in : nextAsset->globalIns) {
+					nextNode.globalIns.emplace(in.key, in.name);
+				}
 			}
 
 			GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()),

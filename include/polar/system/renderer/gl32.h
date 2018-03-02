@@ -3,6 +3,7 @@
 #include <array>
 #include <boost/container/flat_set.hpp>
 #include <functional>
+#include <openvr.h>
 #include <polar/asset/font.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/component/model.h>
@@ -31,8 +32,10 @@ namespace polar::system::renderer {
 		bool capture    = false;
 		bool fullscreen = false;
 
-		SDL_Window *window;
+		SDL_Window *window = nullptr;
 		SDL_GLContext context;
+		vr::IVRSystem *vrSystem = nullptr;
+
 		std::vector<std::string> pipelineNames;
 		std::vector<pipelinenode> nodes;
 		std::unordered_multiset<std::shared_ptr<model_p>> modelPropertyPool;
@@ -41,6 +44,7 @@ namespace polar::system::renderer {
 
 		GLuint viewportVAO;
 		GLuint spriteProgram;
+		GLuint identityProgram;
 
 		core::ref fpsDtor;
 		IDType fpsID = 0;
@@ -55,8 +59,9 @@ namespace polar::system::renderer {
 
 		void init() override;
 		void update(DeltaTicks &) override;
-		void rendersprite(IDType);
-		void rendertext(IDType);
+		void rendersprite(IDType, Mat4 = Mat4());
+		void rendertext(IDType, Mat4 = Mat4());
+		void render(Mat4 proj, Mat4 view, float alpha);
 
 		std::shared_ptr<model_p> getpooledmodelproperty(const GLsizei required);
 
@@ -70,6 +75,7 @@ namespace polar::system::renderer {
 		void project(GLuint programID);
 
 		void initGL();
+		void initVR();
 		void handleSDL(SDL_Event &);
 		void makepipeline(const std::vector<std::string> &) override;
 		GLuint makeprogram(std::shared_ptr<polar::asset::shaderprogram>);
@@ -79,7 +85,9 @@ namespace polar::system::renderer {
 
 		static bool supported();
 		gl32(core::polar *engine, const std::vector<std::string> &names)
-		    : base(engine), pipelineNames(names) {}
+		    : base(engine) {
+			setpipeline(names);
+		}
 		~gl32();
 
 		void setmousecapture(bool capture) override;

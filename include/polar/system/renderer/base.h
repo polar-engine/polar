@@ -13,6 +13,8 @@ namespace polar::system::renderer {
 		Decimal zNear                   = Decimal(47.0 / 100000.0);
 		Decimal zFar                    = Decimal(48.0 / 100000.0);
 		Decimal pixelDistanceFromScreen = Decimal(1000.0);
+		Mat4 headView = Mat4();
+
 		virtual void makepipeline(const std::vector<std::string> &) = 0;
 
 	  public:
@@ -25,6 +27,8 @@ namespace polar::system::renderer {
 
 		inline uint16_t getwidth() { return width; }
 		inline uint16_t getheight() { return height; }
+
+		inline Mat4 getheadview() const { return headView; }
 
 		virtual void setmousecapture(bool)                                  = 0;
 		virtual void setfullscreen(bool)                                    = 0;
