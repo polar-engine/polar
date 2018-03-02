@@ -166,7 +166,7 @@ namespace polar::system {
 		 * i = size - (origin - 50) / spacing - 1
 		 */
 		auto i = int(glm::floor(size - (origin - 50) / spacing));
-		if(i >= 0 && i < size) { navigate_to(i); }
+		if(i >= 0 && i < int(size)) { navigate_to(i); }
 	}
 
 	void menu::init() {
@@ -192,7 +192,7 @@ namespace polar::system {
 		}));
 
 		keep(act->bind<mse::position_y>([this](Decimal y) {
-			if(y != 0) { on_cursor(y); }
+			if(int(y) != 0) { on_cursor(int(y)); }
 		}));
 
 		keep(tw->tween(0.0f, 1.0f, 0.25, true, [this](auto, const float &x) {
