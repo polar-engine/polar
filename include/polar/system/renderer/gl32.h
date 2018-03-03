@@ -72,7 +72,8 @@ namespace polar::system::renderer {
 		void componentremoved(IDType id, std::type_index ti) override;
 
 		Mat4 calculate_projection();
-		void project(GLuint programID);
+		void project(GLuint programID, Mat4 proj);
+		inline void project(GLuint programID) { project(programID, calculate_projection()); }
 
 		void initGL();
 		void initVR();
