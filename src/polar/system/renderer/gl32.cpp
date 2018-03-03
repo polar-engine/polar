@@ -443,6 +443,21 @@ namespace polar::system::renderer {
 			auto vrProj = vrSystem->GetProjectionMatrix(vr::Eye_Left, zNear, zFar);
 			auto proj = glm::transpose(glm::make_mat4(&vrProj.m[0][0]));
 
+			/* XXX: Oculus Rift does not support hidden area meshes due to
+			 *      Asynchronous Time Warp, but we should still implement this
+			 *      for other HMDs such as HTC Vive
+			 */
+			/*
+			auto hidden = vrSystem->GetHiddenAreaMesh(vr::Eye_Left);
+			if(hidden.pVertexData) {
+				//debugmanager()->debug("left  pVertexData = ", hidden.pVertexData, ", unTriangleCount = ", hidden.unTriangleCount);
+			}
+			hidden = vrSystem->GetHiddenAreaMesh(vr::Eye_Right);
+			if(hidden.pVertexData) {
+				//debugmanager()->debug("right pVertexData = ", hidden.pVertexData, ", unTriangleCount = ", hidden.unTriangleCount);
+			}
+			*/
+
 			render(proj, cameraView, alpha);
 
 			auto testTexture = nodes.back().outs.at("color");
