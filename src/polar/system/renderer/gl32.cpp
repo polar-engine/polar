@@ -177,6 +177,7 @@ namespace polar::system::renderer {
 		std::unordered_map<std::string, GLuint> globals;
 		for(unsigned int i = 0; i < nodes.size(); ++i) {
 			auto &node = nodes[i];
+			project(node.program, proj);
 
 			GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 			GL(glUseProgram(node.program));
@@ -1476,8 +1477,8 @@ namespace polar::system::renderer {
 		return projection;
 	}
 
-	void gl32::project(GLuint programID) {
+	void gl32::project(GLuint programID, Mat4 proj) {
 		GL(glUseProgram(programID));
-		uploaduniform(programID, "u_projection", calculate_projection());
+		uploaduniform(programID, "u_projection", proj);
 	}
 } // namespace polar::system::renderer
