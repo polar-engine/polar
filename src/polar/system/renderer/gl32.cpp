@@ -14,6 +14,7 @@
 #include <polar/system/asset.h>
 #include <polar/system/integrator.h>
 #include <polar/system/renderer/gl32.h>
+#include <polar/system/vr.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -108,38 +109,12 @@ namespace polar::system::renderer {
 		GL(glCullFace(GL_BACK));
 	}
 
-	void gl32::initVR() {
-		if(!vr::VR_IsHmdPresent()) { return; }
-
-		debugmanager()->verbose("initializing OpenVR");
-
-		vr::HmdError err;
-		vrSystem = vr::VR_Init(&err, vr::VRApplication_Scene);
-		if(vrSystem == nullptr) {
-			auto errString = vr::VR_GetVRInitErrorAsSymbol(err);
-			debugmanager()->critical("failed to initialize OpenVR: ", errString, " (", err, ')');
-			return;
-		}
-
-		if(!vr::VRCompositor()) {
-			debugmanager()->critical("failed to initialize VR compositor");
-			if(vrSystem != nullptr) {
-				vr::VR_Shutdown();
-				vrSystem = nullptr;
-			}
-			return;
-		}
-
-		uint32_t w, h;
-		vrSystem->GetRecommendedRenderTargetSize(&w, &h);
-		width = w;
-		height = h;
-
-		debugmanager()->verbose("initialized OpenVR (width=", w, ", height=", h, ')');
-	}
-
 	void gl32::init() {
-		initVR();
+		auto vr = engine->get<system::vr>().lock();
+		if(vr && vr->ready()) {
+			width = vr->width();
+			height = vr->height();
+		}
 		initGL();
 
 		setclearcolor(Point4(0.0f));
@@ -427,58 +402,15 @@ namespace polar::system::renderer {
 			}
 		}
 
-		if(vrSystem) {
-			vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-			vr::VRCompositor()->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+		auto vr = engine->get<system::vr>().lock();
+		if(vr && vr->ready()) {
+			using eye = support::vr::eye;
+			cameraView = vr->calc_head_view() * cameraView;
 
-			auto vrHeadView = trackedDevicePose[0].mDeviceToAbsoluteTracking;
-			headView = Mat4(vrHeadView.m[0][0], vrHeadView.m[1][0], vrHeadView.m[2][0], 0,
-			                vrHeadView.m[0][1], vrHeadView.m[1][1], vrHeadView.m[2][1], 0,
-			                vrHeadView.m[0][2], vrHeadView.m[1][2], vrHeadView.m[2][2], 0,
-			                vrHeadView.m[0][3], vrHeadView.m[1][3], vrHeadView.m[2][3], 1);
-			headView = glm::transpose(headView);
-			cameraView = headView * cameraView;
-
-			// left eye
-			auto vrProj = vrSystem->GetProjectionMatrix(vr::Eye_Left, zNear, zFar);
-			auto proj = glm::transpose(glm::make_mat4(&vrProj.m[0][0]));
-
-			/* XXX: Oculus Rift does not support hidden area meshes due to
-			 *      Asynchronous Time Warp, but we should still implement this
-			 *      for other HMDs such as HTC Vive
-			 */
-			/*
-			auto hidden = vrSystem->GetHiddenAreaMesh(vr::Eye_Left);
-			if(hidden.pVertexData) {
-				//debugmanager()->debug("left  pVertexData = ", hidden.pVertexData, ", unTriangleCount = ", hidden.unTriangleCount);
-			}
-			hidden = vrSystem->GetHiddenAreaMesh(vr::Eye_Right);
-			if(hidden.pVertexData) {
-				//debugmanager()->debug("right pVertexData = ", hidden.pVertexData, ", unTriangleCount = ", hidden.unTriangleCount);
-			}
-			*/
-
-			render(proj, cameraView, alpha);
-
-			auto testTexture = nodes.back().outs.at("color");
-			vr::Texture_t leftEyeTexture = {(void *)(uintptr_t)testTexture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
-			auto err = vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-			if(err) {
-				debugmanager()->critical("failed to submit left eye to VR compositor (", err, ')');
-			}
-
-			// right eye
-			vrProj = vrSystem->GetProjectionMatrix(vr::Eye_Right, zNear, zFar);
-			proj = glm::transpose(glm::make_mat4(&vrProj.m[0][0]));
-
-			render(proj, cameraView, alpha);
-
-			testTexture = nodes.back().outs.at("color");
-			vr::Texture_t rightEyeTexture = {(void *)(uintptr_t)testTexture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
-			err = vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
-			if(err) {
-				debugmanager()->critical("failed to submit right eye to VR compositor (", err, ')');
-			}
+			render(vr->projection(eye::left, zNear, zFar), cameraView, alpha);
+			vr->submit_gl(eye::left, nodes.back().outs.at("color"));
+			render(vr->projection(eye::right, zNear, zFar), cameraView, alpha);
+			vr->submit_gl(eye::right, nodes.back().outs.at("color"));
 		} else {
 			render(calculate_projection(), cameraView, alpha);
 		}
@@ -568,7 +500,8 @@ namespace polar::system::renderer {
 
 		// scale down for VR viewing
 		Decimal uiScale = 1;
-		if(vrSystem) { uiScale /= 2; }
+		auto vr = engine->get<system::vr>().lock();
+		if(vr && vr->ready()) { uiScale /= 2; }
 		transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
 
 		// translate to bottom left corner
@@ -718,7 +651,8 @@ namespace polar::system::renderer {
 
 		// scale down for VR viewing
 		Decimal uiScale = 1;
-		if(vrSystem) { uiScale /= 2; }
+		auto vr = engine->get<system::vr>().lock();
+		if(vr && vr->ready()) { uiScale /= 2; }
 		transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
 
 		// translate to bottom left corner
@@ -770,9 +704,6 @@ namespace polar::system::renderer {
 	}
 
 	gl32::~gl32() {
-		if(vrSystem != nullptr) {
-			vr::VR_Shutdown();
-		}
 		SDL(SDL_GL_DeleteContext(context));
 		SDL(SDL_DestroyWindow(window));
 		SDL(SDL_GL_ResetAttributes());
