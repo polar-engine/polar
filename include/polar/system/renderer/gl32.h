@@ -3,7 +3,6 @@
 #include <array>
 #include <boost/container/flat_set.hpp>
 #include <functional>
-#include <openvr.h>
 #include <polar/asset/font.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/component/model.h>
@@ -34,7 +33,6 @@ namespace polar::system::renderer {
 
 		SDL_Window *window = nullptr;
 		SDL_GLContext context;
-		vr::IVRSystem *vrSystem = nullptr;
 
 		std::vector<std::string> pipelineNames;
 		std::vector<pipelinenode> nodes;
@@ -76,7 +74,6 @@ namespace polar::system::renderer {
 		inline void project(GLuint programID) { project(programID, calculate_projection()); }
 
 		void initGL();
-		void initVR();
 		void handleSDL(SDL_Event &);
 		void makepipeline(const std::vector<std::string> &) override;
 		GLuint makeprogram(std::shared_ptr<polar::asset::shaderprogram>);
