@@ -405,7 +405,10 @@ namespace polar::system::renderer {
 		auto vr = engine->get<system::vr>().lock();
 		if(vr && vr->ready()) {
 			using eye = support::vr::eye;
-			cameraView = vr->calc_head_view() * cameraView;
+
+			vr->update_poses();
+
+			cameraView = vr->head_view() * cameraView;
 
 			render(vr->projection(eye::left, zNear, zFar), cameraView, alpha);
 			vr->submit_gl(eye::left, nodes.back().outs.at("color"));
