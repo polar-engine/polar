@@ -1,6 +1,7 @@
 #pragma once
 
 #include <openvr.h>
+#include <polar/support/action/vr.h>
 #include <polar/support/vr/eye.h>
 #include <polar/system/base.h>
 
@@ -145,6 +146,48 @@ namespace polar::system {
 
 		void update(DeltaTicks &) {
 			load_render_models();
+
+			::vr::VREvent_t ev;
+			while(vr_system->PollNextEvent(&ev, sizeof(ev))) {
+				// TODO: handle OpenVR events
+			}
+
+			auto action = engine->get<system::action>().lock();
+			if(action) {
+				namespace a_vr = support::action::vr;
+
+				::vr::VRControllerState_t state;
+
+				bool any_app_menu = false;
+				bool any_a = false;
+
+				auto left_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_LeftHand);
+				if(vr_system->GetControllerState(left_hand, &state, sizeof(state))) {
+					bool app_menu = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_ApplicationMenu);
+					bool a        = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_A);
+
+					any_app_menu |= app_menu;
+					any_a        |= a;
+
+					action->trigger<a_vr::app_menu<a_vr::type::left_hand>>(app_menu);
+					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a);
+				}
+
+				auto right_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_RightHand);
+				if(vr_system->GetControllerState(right_hand, &state, sizeof(state))) {
+					bool app_menu = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_ApplicationMenu);
+					bool a        = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_A);
+
+					any_app_menu |= app_menu;
+					any_a        |= a;
+
+					action->trigger<a_vr::app_menu<a_vr::type::right_hand>>(app_menu);
+					action->trigger<a_vr::a       <a_vr::type::right_hand>>(a);
+				}
+
+				action->trigger<a_vr::app_menu<a_vr::type::any>>(any_app_menu);
+				action->trigger<a_vr::a       <a_vr::type::any>>(any_a);
+			}
 		}
 
 		void update_poses() {
