@@ -6,7 +6,7 @@ endif()
 
 if(WIN32)
 	find_library(OpenVR_LIBRARY_TEMP "openvr_api" PATH_SUFFIXES lib/win32 PATHS ${OpenVR_ROOT_DIR})
-	find_file(OpenVR_DYLIB "openvr_api.dll"PATH_SUFFIXES bin/win32 PATHS ${OpenVR_ROOT_DIR} NO_DEFAULT_PATH)
+	find_file(OpenVR_DYLIB "openvr_api.dll" PATH_SUFFIXES bin/win32 PATHS ${OpenVR_ROOT_DIR} NO_DEFAULT_PATH)
 endif()
 
 if(OpenVR_LIBRARY_TEMP)
