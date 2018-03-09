@@ -4,10 +4,23 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <polar/core/types.h>
 #include <polar/support/debug/priority.h>
 #include <string>
 
 namespace polar::core {
+	inline std::ostream & operator<<(std::ostream &os, const Point2 &p) {
+		return os << "Point2(" << p.x << ", " << p.y << ')';
+	}
+	
+	inline std::ostream & operator<<(std::ostream &os, const Point3 &p) {
+		return os << "Point3(" << p.x << ", " << p.y << ", " << p.z << ')';
+	}
+	
+	inline std::ostream & operator<<(std::ostream &os, const Point4 &p) {
+		return os << "Point4(" << p.x << ", " << p.y << ", " << p.z << ", " << p.w << ')';
+	}
+
 	class debugmanager_class {
 		using priority_t = support::debug::priority;
 
