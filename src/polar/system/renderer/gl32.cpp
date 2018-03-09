@@ -408,7 +408,7 @@ namespace polar::system::renderer {
 
 			vr->update_poses();
 
-			cameraView = vr->head_view() * cameraView;
+			cameraView = glm::transpose(vr->head_view()) * cameraView;
 
 			render(vr->projection(eye::left, zNear, zFar), cameraView, alpha);
 			vr->submit_gl(eye::left, nodes.back().outs.at("color"));

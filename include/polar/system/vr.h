@@ -21,7 +21,14 @@ namespace polar::system {
 		bool _ready = false;
 		uint32_t _width = 0;
 		uint32_t _height = 0;
+
 		Mat4 _head_view = Mat4();
+		Mat4 _left_hand_view = Mat4();
+		Mat4 _right_hand_view = Mat4();
+
+		Mat4 _last_head_view = Mat4();
+		Mat4 _last_left_hand_view = Mat4();
+		Mat4 _last_right_hand_view = Mat4();
 
 		std::string tracked_device_str(::vr::TrackedDeviceIndex_t i, ::vr::TrackedDeviceProperty p) {
 			::vr::TrackedPropertyError err;
@@ -67,10 +74,27 @@ namespace polar::system {
 	public:
 		static bool supported() { return true; }
 
-		inline auto ready() const { return _ready; }
-		inline auto width() const { return _width; }
-		inline auto height() const { return _height; }
-		inline auto head_view() const { return _head_view; }
+		static Mat4 pose_view(::vr::TrackedDevicePose_t pose) {
+			auto vr_view = pose.mDeviceToAbsoluteTracking;
+			return Mat4(vr_view.m[0][0], vr_view.m[1][0], vr_view.m[2][0], 0,
+			            vr_view.m[0][1], vr_view.m[1][1], vr_view.m[2][1], 0,
+			            vr_view.m[0][2], vr_view.m[1][2], vr_view.m[2][2], 0,
+			            vr_view.m[0][3], vr_view.m[1][3], vr_view.m[2][3], 1);
+			return Mat4(vr_view.m[0][0], vr_view.m[0][1], vr_view.m[0][2], vr_view.m[0][3],
+			            vr_view.m[1][0], vr_view.m[1][1], vr_view.m[1][2], vr_view.m[1][3],
+			            vr_view.m[2][0], vr_view.m[2][1], vr_view.m[2][2], vr_view.m[2][3],
+			            0, 0, 0, 1);
+		}
+
+		inline auto ready()                const { return _ready; }
+		inline auto width()                const { return _width; }
+		inline auto height()               const { return _height; }
+		inline auto head_view()            const { return _head_view; }
+		inline auto left_hand_view()       const { return _left_hand_view; }
+		inline auto right_hand_view()      const { return _right_hand_view; }
+		inline auto last_head_view()       const { return _last_head_view; }
+		inline auto last_left_hand_view()  const { return _last_left_hand_view; }
+		inline auto last_right_hand_view() const { return _last_right_hand_view; }
 
 		vr(core::polar *engine) : base(engine) {
 			if(!::vr::VR_IsHmdPresent()) { return; }
@@ -145,6 +169,8 @@ namespace polar::system {
 		}
 
 		void update(DeltaTicks &) {
+			if(!ready()) { return; }
+
 			load_render_models();
 
 			::vr::VREvent_t ev;
@@ -159,60 +185,62 @@ namespace polar::system {
 				::vr::VRControllerState_t state;
 
 				bool any_app_menu = false;
-				bool any_a = false;
+				bool any_a        = false;
+				bool any_trigger  = false;
 
 				auto left_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_LeftHand);
 				if(vr_system->GetControllerState(left_hand, &state, sizeof(state))) {
 					bool app_menu = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_ApplicationMenu);
 					bool a        = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_A);
+					bool trigger  = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_SteamVR_Trigger);
 
 					any_app_menu |= app_menu;
 					any_a        |= a;
+					any_trigger  |= trigger;
 
 					action->trigger<a_vr::app_menu<a_vr::type::left_hand>>(app_menu);
 					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a);
+					action->trigger<a_vr::trigger <a_vr::type::left_hand>>(trigger);
 				}
 
 				auto right_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_RightHand);
 				if(vr_system->GetControllerState(right_hand, &state, sizeof(state))) {
 					bool app_menu = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_ApplicationMenu);
 					bool a        = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_A);
+					bool trigger  = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_SteamVR_Trigger);
 
 					any_app_menu |= app_menu;
 					any_a        |= a;
+					any_trigger  |= trigger;
 
 					action->trigger<a_vr::app_menu<a_vr::type::right_hand>>(app_menu);
 					action->trigger<a_vr::a       <a_vr::type::right_hand>>(a);
+					action->trigger<a_vr::trigger <a_vr::type::right_hand>>(trigger);
 				}
 
 				action->trigger<a_vr::app_menu<a_vr::type::any>>(any_app_menu);
 				action->trigger<a_vr::a       <a_vr::type::any>>(any_a);
+				action->trigger<a_vr::trigger <a_vr::type::any>>(any_trigger);
 			}
 		}
 
 		void update_poses() {
 			auto vr_comp = ::vr::VRCompositor();
 			if(ready() && vr_comp) {
-				::vr::TrackedDevicePose_t trackedDevicePose[::vr::k_unMaxTrackedDeviceCount];
-				vr_comp->WaitGetPoses(trackedDevicePose, ::vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+				::vr::TrackedDevicePose_t poses[::vr::k_unMaxTrackedDeviceCount];
+				vr_comp->WaitGetPoses(poses, ::vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 
-				update_head_view();
+				auto left_hand  = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_LeftHand);
+				auto right_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_RightHand);
+
+				_last_head_view       = head_view();
+				_last_left_hand_view  = left_hand_view();
+				_last_right_hand_view = right_hand_view();
+
+				_head_view       = pose_view(poses[::vr::k_unTrackedDeviceIndex_Hmd]);
+				_left_hand_view  = pose_view(poses[left_hand]);
+				_right_hand_view = pose_view(poses[right_hand]);
 			}
-		}
-
-		const Mat4 update_head_view() {
-			auto vr_comp = ::vr::VRCompositor();
-			if(ready() && vr_comp) {
-				::vr::TrackedDevicePose_t pose;
-				vr_comp->GetLastPoseForTrackedDeviceIndex(::vr::k_unTrackedDeviceIndex_Hmd, &pose, nullptr);
-
-				auto vr_head_view = pose.mDeviceToAbsoluteTracking;
-				_head_view = Mat4(vr_head_view.m[0][0], vr_head_view.m[0][1], vr_head_view.m[0][2], vr_head_view.m[0][3],
-								  vr_head_view.m[1][0], vr_head_view.m[1][1], vr_head_view.m[1][2], vr_head_view.m[1][3],
-								  vr_head_view.m[2][0], vr_head_view.m[2][1], vr_head_view.m[2][2], vr_head_view.m[2][3],
-								  0, 0, 0, 1);
-			}
-			return head_view();
 		}
 
 		Mat4 projection(eye e, Decimal zNear, Decimal zFar) const {
