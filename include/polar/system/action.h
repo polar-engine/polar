@@ -15,6 +15,7 @@ namespace polar::system {
 
 		using digital_function_t = std::function<void()>;
 		using analog_function_t  = std::function<void(Decimal)>;
+		using analog_predicate_t = std::function<bool(Decimal)>;
 
 		struct digital_data {
 			bool state = false;
@@ -35,12 +36,15 @@ namespace polar::system {
 
 			std::variant<digital_wrapper, analog_wrapper> source;
 		  public:
-			std::variant <digital_wrapper, analog_wrapper,
-			              digital_function_t, analog_function_t> target;
+			std::variant<digital_wrapper, analog_wrapper,
+			             digital_function_t, analog_function_t> target;
 			Decimal passthrough;
+			analog_predicate_t predicate;
 
 			binding(decltype(source) src, decltype(target) tgt, Decimal pt = 0)
 				: source(src), target(tgt), passthrough(pt) {}
+			binding(decltype(source) src, decltype(target) tgt, decltype(predicate) p)
+				: source(src), target(tgt), predicate(p) {}
 
 			// digital -> digital function
 			template<typename Src,
@@ -76,12 +80,21 @@ namespace polar::system {
 			}
 
 			// analog -> analog function
-			template<typename Src,
-			         typename = typename std::enable_if<
-			             std::is_base_of<analog, Src>::value>::type>
-			static binding create(analog_function_t f) {
+			template<typename Src>
+			static binding create(analog_function_t f,
+			                      typename std::enable_if<std::is_base_of<analog, Src>::value>::type* = 0) {
 				auto src = analog_wrapper{typeid(Src)};
 				return binding(src, f);
+			}
+
+			// analog -> digital
+			template<typename Src, typename Tgt>
+			static binding create(analog_predicate_t p,
+			                      typename std::enable_if<std::is_base_of<analog,  Src>::value>::type* = 0,
+			                      typename std::enable_if<std::is_base_of<digital, Tgt>::value>::type* = 0) {
+				auto src = analog_wrapper{typeid(Src)};
+				auto tgt = digital_wrapper{typeid(Tgt)};
+				return binding(src, tgt, p);
 			}
 
 			// analog -> analog
@@ -221,13 +234,26 @@ namespace polar::system {
 		}
 
 		// analog -> analog function
-		template<typename Src,
-		         typename = typename std::enable_if<
-		             std::is_base_of<analog, Src>::value>::type>
-		auto bind(analog_function_t f) {
+		template<typename Src>
+		auto bind(analog_function_t f,
+		          typename std::enable_if<std::is_base_of<analog, Src>::value>::type* = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto v  = binding_bimap::value_type(ti, id, binding::create<Src>(f));
+			bindings.insert(v);
+			return core::ref([this, id] {
+				bindings.right.erase(id);
+			});
+		}
+
+		// analog -> digital
+		template<typename Src, typename Tgt>
+		auto bind(analog_predicate_t p,
+		          typename std::enable_if<std::is_base_of<analog, Src>::value>::type* = 0,
+		          typename std::enable_if<std::is_base_of<digital, Tgt>::value>::type* = 0) {
+			std::type_index ti = typeid(Src);
+			auto id = nextID++;
+			auto v  = binding_bimap::value_type(ti, id, binding::create<Src, Tgt>(p));
 			bindings.insert(v);
 			return core::ref([this, id] {
 				bindings.right.erase(id);
@@ -300,6 +326,9 @@ namespace polar::system {
 				auto &binding = it->info;
 				if(auto f = binding.get_if_tgt_analog_f()) {
 					(*f)(data.value);
+				} else if(auto wrapper = binding.get_if_tgt_digital()) {
+					auto result = binding.predicate(data.value);
+					trigger_digital(wrapper->ti, result);
 				}
 			}
 		}
