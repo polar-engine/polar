@@ -357,10 +357,6 @@ namespace polar::system::renderer {
 			engine->add<component::scale>(fpsID, Point3(0.125));
 		}
 
-		SDL_Event event;
-		while(SDL_PollEvent(&event)) { handleSDL(event); }
-		SDL_ClearError();
-
 		auto integrator_s = engine->get<integrator>().lock();
 		float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
 
@@ -419,6 +415,11 @@ namespace polar::system::renderer {
 		}
 
 		SDL(SDL_GL_SwapWindow(window));
+
+		// handle input at beginning of frame to reduce delays in other systems
+		SDL_Event event;
+		while(SDL_PollEvent(&event)) { handleSDL(event); }
+		SDL_ClearError();
 	}
 
 	void gl32::rendersprite(IDType id, Mat4 proj) {
