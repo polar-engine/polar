@@ -165,6 +165,9 @@ namespace polar::system::renderer {
 		vulkan(core::polar *engine) : base(engine) {}
 
 		~vulkan() {
+			if(enableValidationLayers) {
+				vkDestroyDebugReportCallbackEXT(instance, debugCallback, nullptr);
+			}
 			vkDestroyInstance(instance, nullptr);
 			SDL(SDL_DestroyWindow(window));
 			SDL(SDL_Vulkan_UnloadLibrary());
