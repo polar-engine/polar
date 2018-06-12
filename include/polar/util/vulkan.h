@@ -4,10 +4,13 @@
 #include <vulkan/vulkan.h>
 
 #define POLAR_VK_FNS \
+	POLAR_VK_DEVICE_FN(vkCreateImageView)                           \
 	POLAR_VK_DEVICE_FN(vkCreateSwapchainKHR)                        \
 	POLAR_VK_DEVICE_FN(vkDestroyDevice)                             \
+	POLAR_VK_DEVICE_FN(vkDestroyImageView)                          \
 	POLAR_VK_DEVICE_FN(vkDestroySwapchainKHR)                       \
 	POLAR_VK_DEVICE_FN(vkGetDeviceQueue)                            \
+	POLAR_VK_DEVICE_FN(vkGetSwapchainImagesKHR)                     \
 	POLAR_VK_GLOBAL_FN(vkCreateInstance)                            \
 	POLAR_VK_INSTANCE_FN(vkCreateDebugReportCallbackEXT)            \
 	POLAR_VK_INSTANCE_FN(vkCreateDevice)                            \

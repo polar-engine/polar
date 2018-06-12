@@ -38,6 +38,10 @@ namespace polar::system::renderer {
 		VkQueue graphicsQueue = VK_NULL_HANDLE;
 		VkQueue presentQueue = VK_NULL_HANDLE;
 		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+		std::vector<VkImage> swapchainImages;
+		VkFormat swapchainImageFormat;
+		VkExtent2D swapchainExtent;
+		std::vector<VkImageView> swapchainImageViews;
 
 		const std::vector<const char *> validationLayers = {
 			"VK_LAYER_LUNARG_standard_validation"
@@ -71,6 +75,8 @@ namespace polar::system::renderer {
 			init_logical_device();
 			init_device_fns();
 			init_swapchain();
+			init_image_views();
+			init_pipeline();
 
 			vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 			vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
@@ -311,6 +317,43 @@ namespace polar::system::renderer {
 				debugmanager()->fatal("Vulkan: failed to create swapchain");
 			}
 			debugmanager()->verbose("Vulkan: created swapchain");
+
+			vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, nullptr);
+			swapchainImages.resize(imageCount);
+			vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, swapchainImages.data());
+
+			swapchainImageFormat = format.format;
+			swapchainExtent = extent;
+		}
+
+		void init_image_views() {
+			swapchainImageViews.resize(swapchainImages.size());
+
+			for(size_t i = 0; i < swapchainImages.size(); ++i) {
+				VkImageViewCreateInfo createInfo = {};
+				createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+				createInfo.image = swapchainImages[i];
+				createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+				createInfo.format = swapchainImageFormat;
+				createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+				createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+				createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+				createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+				createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				createInfo.subresourceRange.baseMipLevel = 0;
+				createInfo.subresourceRange.levelCount = 1;
+				createInfo.subresourceRange.baseArrayLayer = 0;
+				createInfo.subresourceRange.layerCount = 1;
+
+				VkResult result = vkCreateImageView(logicalDevice, &createInfo, nullptr, &swapchainImageViews[i]);
+				if(result != VK_SUCCESS) {
+					debugmanager()->fatal("Vulkan: failed to create image view");
+				}
+				debugmanager()->verbose("Vulkan: created image view");
+			}
+		}
+
+		void init_pipeline() {
 		}
 
 		int device_score(const VkPhysicalDevice &device) {
@@ -463,12 +506,15 @@ namespace polar::system::renderer {
 		vulkan(core::polar *engine) : base(engine) {}
 
 		~vulkan() {
-			if(enableValidationLayers) {
-				vkDestroyDebugReportCallbackEXT(instance, debugCallback, nullptr);
+			for(auto &view : swapchainImageViews) {
+				vkDestroyImageView(logicalDevice, view, nullptr);
 			}
 			vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
 			vkDestroyDevice(logicalDevice, nullptr);
 			vkDestroySurfaceKHR(instance, surface, nullptr);
+			if(enableValidationLayers) {
+				vkDestroyDebugReportCallbackEXT(instance, debugCallback, nullptr);
+			}
 			vkDestroyInstance(instance, nullptr);
 			SDL(SDL_DestroyWindow(window));
 			SDL(SDL_Vulkan_UnloadLibrary());
