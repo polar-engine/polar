@@ -1100,7 +1100,7 @@ namespace polar::system::renderer {
 	}
 
 	std::shared_ptr<gl32::model_p>
-	gl32::getpooledmodelproperty(const GLsizei required) {
+	gl32::getpooledmodelproperty(const GLsizei) {
 		if(modelPropertyPool.empty()) {
 			model_p prop;
 
@@ -1127,14 +1127,7 @@ namespace polar::system::renderer {
 
 			return std::make_shared<model_p>(prop);
 		} else {
-			auto dummy      = std::make_shared<model_p>();
-			dummy->capacity = required;
-
-			auto it = modelPropertyPool.lower_bound(dummy);
-			if(it == modelPropertyPool.cend()) {
-				it = modelPropertyPool.begin();
-			}
-
+			auto it = modelPropertyPool.begin();
 			auto prop = *it;
 			modelPropertyPool.erase(it);
 			return prop;
@@ -1145,7 +1138,7 @@ namespace polar::system::renderer {
 		auto normals     = model->calculate_normals();
 		auto numVertices = normals.size();
 		auto dataSize    = sizeof(component::model::point_t) * numVertices;
-		auto prop        = getpooledmodelproperty(numVertices);
+		auto prop        = getpooledmodelproperty((GLsizei)numVertices);
 
 		if(numVertices > 0) {
 			if(GLsizei(numVertices) > prop->capacity) {
@@ -1157,7 +1150,7 @@ namespace polar::system::renderer {
 				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(),
 				                GL_DYNAMIC_DRAW));
 
-				prop->capacity = numVertices;
+				prop->capacity = (GLsizei)numVertices;
 			} else {
 				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
 				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize,
@@ -1169,7 +1162,7 @@ namespace polar::system::renderer {
 			}
 		}
 
-		prop->numVertices = numVertices;
+		prop->numVertices = (GLsizei)numVertices;
 
 		model->add<model_p>(prop);
 		// model->points.clear();

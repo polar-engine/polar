@@ -12,7 +12,7 @@ namespace polar::asset {
 		}
 
 		SDL_RWops *rwopts;
-		SDL(rwopts = SDL_RWFromConstMem(buffer, data.size()));
+		SDL(rwopts = SDL_RWFromConstMem(buffer, (int)data.size()));
 		SDL(asset.ttf = TTF_OpenFontRW(rwopts, false, 144));
 
 		SDL(asset.lineSkip = TTF_FontLineSkip(asset.ttf));

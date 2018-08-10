@@ -3,6 +3,7 @@
 #include <iostream>
 #include <tuple>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_RADIANS
 //#define GLM_FORCE_SWIZZLE
 #include <glm/glm.hpp>

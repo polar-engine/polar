@@ -41,7 +41,6 @@ namespace polar::system {
 
 	void menu::navigate(int down, int right, bool force) {
 		auto &item = current_at(current);
-		auto size = current_size();
 
 		bool playBeep = false;
 
@@ -73,7 +72,7 @@ namespace polar::system {
 						return;
 					}
 				} else {
-					current = stack.back();
+					current = (int)stack.back();
 					stack.pop_back();
 					++right;
 					playBeep = true;
@@ -146,7 +145,7 @@ namespace polar::system {
 			IDType controlID;
 			auto offset = Point2(uiTextWidth / uiBase * scale, 0);
 			offset.y -= 12 * scale;
-			controlDtors[i] = item.control->render(engine, controlID,
+			controlDtors[(int)i] = item.control->render(engine, controlID,
 			                                       origin + offset, 8 * scale);
 		}
 	}
