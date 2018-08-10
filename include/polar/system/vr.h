@@ -120,7 +120,7 @@ namespace polar::system {
 
 			debugmanager()->verbose("initialized OpenVR (width=", width(), ", height=", height(), ')');
 
-			for(auto i = 0; i < ::vr::k_unMaxTrackedDeviceCount; ++i) {
+			for(uint32_t i = 0; i < ::vr::k_unMaxTrackedDeviceCount; ++i) {
 				if(vr_system->IsTrackedDeviceConnected(i)) {
 					auto dev_class = vr_system->GetTrackedDeviceClass(i);
 
