@@ -2,6 +2,7 @@
 
 #include <polar/support/ui/menuitem.h>
 #include <polar/system/base.h>
+#include <polar/system/vr.h>
 #include <stdint.h>
 #include <vector>
 
@@ -64,9 +65,6 @@ namespace polar::system {
 
 	  public:
 		const Decimal uiBase = 0.3125;
-
-		// max 8 items on screen at max scale of uiBase
-		const Decimal uiHeight     = 8 * uiBase;
 		const Decimal uiTextHeight = 160;
 		const Decimal uiTextWidth  = 550;
 
@@ -82,6 +80,31 @@ namespace polar::system {
 			itemDtors.clear();
 			controlDtors.clear();
 			for(size_t i = 0; i < size; ++i) { render(i); }
+		}
+
+		inline auto actual_scale() const {
+			auto scale = uiScale;
+
+			auto vr = engine->get<polar::system::vr>().lock();
+			if(vr && vr->ready()) {
+				scale *= 2;
+			}
+
+			return scale;
+		}
+
+		inline size_t max_items() const {
+			auto vr = engine->get<polar::system::vr>().lock();
+			if(vr && vr->ready()) {
+				return 14;
+			} else {
+				// max 8 items on screen at max scale of uiBase
+				return 8;
+			}
+		}
+
+		inline Decimal actual_height() const {
+			return max_items() * uiBase;
 		}
 	};
 } // namespace polar::system
