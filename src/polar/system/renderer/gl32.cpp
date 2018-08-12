@@ -156,6 +156,7 @@ namespace polar::system::renderer {
 
 			GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 			GL(glUseProgram(node.program));
+
 			GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 			uploaduniform(node.program, "u_view", view);
@@ -193,7 +194,7 @@ namespace polar::system::renderer {
 
 					auto property = model->get<model_p>().lock();
 					if(property) {
-						Mat4 modelMatrix;
+						Mat4 modelMatrix(1);
 
 						if(pos != nullptr) {
 							modelMatrix = glm::translate(
@@ -360,7 +361,7 @@ namespace polar::system::renderer {
 		auto integrator_s = engine->get<integrator>().lock();
 		float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
 
-		Mat4 cameraView;
+		Mat4 cameraView(1);
 		auto pairRight =
 		    engine->objects.right.equal_range(typeid(component::playercamera));
 		for(auto itRight = pairRight.first; itRight != pairRight.second;
@@ -495,7 +496,7 @@ namespace polar::system::renderer {
 			}
 		}
 
-		Mat4 transform;
+		Mat4 transform(1);
 
 		// translate to near plane
 		auto pz = proj * Point4(0, 0, -zNear, 1);
@@ -646,7 +647,7 @@ namespace polar::system::renderer {
 			}
 		}
 
-		Mat4 transform;
+		Mat4 transform(1);
 
 		// translate to near plane
 		auto pz = proj * Point4(0, 0, -zNear, 1);

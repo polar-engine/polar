@@ -18,7 +18,7 @@ namespace polar::support::level {
 		Decimal waveTicks;
 		Decimal wavePower;
 		Decimal waveStrength;
-		Point3 worldScale;
+		Point3 worldScale{1};
 		uint64_t colorTicks;
 		std::array<Point3, 3> colors;
 
