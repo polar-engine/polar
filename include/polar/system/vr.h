@@ -60,7 +60,7 @@ namespace polar::system {
 			for(auto it = render_models_loading.begin(); it != render_models_loading.end();) {
 				auto vr_model = load_render_model(*it);
 				if(vr_model) {
-					render_models_loading.erase(it);
+					it = render_models_loading.erase(it);
 					debugmanager()->verbose(vr_model->unVertexCount);
 					/* XXX: we need support for indexed rendering and textured
 					 *      rendering, and we also need to be able to specify
