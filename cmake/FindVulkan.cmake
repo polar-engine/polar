@@ -1,11 +1,12 @@
-find_path(VULKAN_INCLUDE_DIR "vulkan/vulkan.h" PATH_SUFFIXES Include PATHS ${VULKAN_ROOT_DIR})
+find_path(VULKAN_INCLUDE_DIR "vulkan/vulkan.h" PATH_SUFFIXES include Include PATHS ${VULKAN_ROOT_DIR})
+find_library(VULKAN_LIBRARY_TEMP NAMES "vulkan" "vulkan-1" PATH_SUFFIXES lib Lib32 PATHS ${VULKAN_ROOT_DIR})
 
 if(VULKAN_INCLUDE_DIR)
 	set(VULKAN_INCLUDE_DIR ${VULKAN_INCLUDE_DIR} CACHE STRING "Where the Vulkan header can be found")
 endif()
 
-if(WIN32)
-	find_library(VULKAN_LIBRARY_TEMP "vulkan-1" PATH_SUFFIXES Lib32 PATHS ${VULKAN_ROOT_DIR})
+if(APPLE)
+	set(VULKAN_DYLIB ${VULKAN_LIBRARY_TEMP})
 endif()
 
 if(VULKAN_LIBRARY_TEMP)
