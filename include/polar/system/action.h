@@ -15,7 +15,7 @@ namespace polar::system {
 
 		using digital_function_t = std::function<void()>;
 		using analog_function_t  = std::function<void(Decimal)>;
-		using analog_predicate_t = std::function<bool(Decimal)>;
+		using analog_predicate_t = std::function<bool(Decimal, Decimal)>;
 
 		struct digital_data {
 			bool state = false;
@@ -23,6 +23,7 @@ namespace polar::system {
 
 		struct analog_data {
 			const Decimal initial = 0;
+			Decimal previous = 0;
 			Decimal value = 0;
 		};
 
@@ -166,6 +167,7 @@ namespace polar::system {
 				/* reset value immediately after triggering
 				 * this allows the value to accumulate across the entire frame
 				 */
+				pair.second.previous = pair.second.value;
 				pair.second.value = pair.second.initial;
 			}
 		}
@@ -175,7 +177,7 @@ namespace polar::system {
 		}
 
 		void reg_analog(std::type_index ti, Decimal initial = 0) {
-			analogs.emplace(ti, analog_data{initial, initial});
+			analogs.emplace(ti, analog_data{initial, initial, initial});
 		}
 
 		template<typename T>
@@ -327,7 +329,7 @@ namespace polar::system {
 				if(auto f = binding.get_if_tgt_analog_f()) {
 					(*f)(data.value);
 				} else if(auto wrapper = binding.get_if_tgt_digital()) {
-					auto result = binding.predicate(data.value);
+					auto result = binding.predicate(data.previous, data.value);
 					trigger_digital(wrapper->ti, result);
 				}
 			}
