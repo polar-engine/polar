@@ -201,6 +201,12 @@ namespace polar::system {
 					action->trigger<a_vr::app_menu<a_vr::type::left_hand>>(app_menu);
 					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a);
 					action->trigger<a_vr::trigger <a_vr::type::left_hand>>(trigger);
+
+					// TODO: enumerate axes for k_eControllerAxis_Joystick
+					action->accumulate<a_vr::axis_x<a_vr::type::left_hand>>(state.rAxis[0].x);
+					action->accumulate<a_vr::axis_y<a_vr::type::left_hand>>(state.rAxis[0].y);
+					action->accumulate<a_vr::axis_x<a_vr::type::any      >>(state.rAxis[0].x);
+					action->accumulate<a_vr::axis_y<a_vr::type::any      >>(state.rAxis[0].y);
 				}
 
 				auto right_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_RightHand);
@@ -216,6 +222,12 @@ namespace polar::system {
 					action->trigger<a_vr::app_menu<a_vr::type::right_hand>>(app_menu);
 					action->trigger<a_vr::a       <a_vr::type::right_hand>>(a);
 					action->trigger<a_vr::trigger <a_vr::type::right_hand>>(trigger);
+
+					// TODO: enumerate axes for k_eControllerAxis_Joystick
+					action->accumulate<a_vr::axis_x<a_vr::type::right_hand>>(state.rAxis[0].x);
+					action->accumulate<a_vr::axis_y<a_vr::type::right_hand>>(state.rAxis[0].y);
+					action->accumulate<a_vr::axis_x<a_vr::type::any       >>(state.rAxis[0].x);
+					action->accumulate<a_vr::axis_y<a_vr::type::any       >>(state.rAxis[0].y);
 				}
 
 				action->trigger<a_vr::app_menu<a_vr::type::any>>(any_app_menu);
