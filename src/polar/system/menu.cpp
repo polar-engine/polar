@@ -129,7 +129,7 @@ namespace polar::system {
 		}
 
 		Decimal scale =
-		    glm::min(Decimal(uiHeight) / Decimal(size), Decimal(uiScale));
+		    glm::min(actual_height() / Decimal(size), actual_scale());
 		Decimal spacing = uiTextHeight * scale;
 		Point2 origin   = Point2(60, 50 + spacing * (size - i - 1));
 
@@ -153,7 +153,7 @@ namespace polar::system {
 	void menu::on_cursor(int y) {
 		auto size = current_size();
 
-		auto scale = glm::min(uiHeight / Decimal(size), uiScale);
+		auto scale = glm::min(actual_height() / Decimal(size), actual_scale());
 		auto spacing = uiTextHeight * scale;
 
 		auto height = engine->get<renderer::base>().lock()->getheight();

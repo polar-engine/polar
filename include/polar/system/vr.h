@@ -4,6 +4,7 @@
 #include <polar/support/action/vr.h>
 #include <polar/support/vr/eye.h>
 #include <polar/system/base.h>
+#include <unordered_set>
 
 namespace polar::system {
 	/* XXX: Oculus Rift does not support hidden area meshes due to
