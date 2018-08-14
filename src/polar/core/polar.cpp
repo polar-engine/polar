@@ -12,6 +12,8 @@ namespace polar::core {
 		std::mt19937_64 rng(time(nullptr));
 
 		for(auto &arg : args) {
+			arguments.emplace(arg);
+
 			if(arg == "-console") {
 #if defined(_WIN32)
 				AllocConsole();

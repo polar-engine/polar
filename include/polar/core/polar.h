@@ -13,6 +13,7 @@
 #include <polar/core/types.h>
 #include <polar/util/buildinfo.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 // define types in explicit order to stop loops
@@ -53,6 +54,8 @@ namespace polar::core {
 		bimap objects;
 		IDType nextID = 1;
 		std::string transition;
+
+		std::unordered_set<std::string> arguments;
 
 		polar(std::vector<std::string> args);
 

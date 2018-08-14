@@ -523,6 +523,7 @@ namespace polar::system::renderer {
 			//rot *= glm::pow(delta, Decimal(0.002));
 
 			// map to plane in 3D space
+			transform = proj;
 			if(!sprite->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
 			//transform = glm::rotate(transform, theta, Point3(0, 1, 0));
 			transform = glm::translate(transform, Point3(0, 0, -(zNear + zFar) / 2.0));
@@ -552,7 +553,6 @@ namespace polar::system::renderer {
 
 		uploaduniform(spriteProgram, "u_color",
 		              color ? color->col.get() : Point4(1));
-		uploaduniform(spriteProgram, "u_projection", proj);
 
 		// scale to sprite size
 		auto sc   = Point3(sprite->surface->w, sprite->surface->h, 1);
@@ -690,6 +690,7 @@ namespace polar::system::renderer {
 			//rot *= glm::pow(delta, Decimal(0.002));
 
 			// map to plane in 3D space
+			transform = proj;
 			if(!text->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
 			//transform = glm::rotate(transform, theta, Point3(0, 1, 0));
 			transform = glm::translate(transform, Point3(0, 0, -(zNear + zFar) / 2.0));
@@ -719,7 +720,6 @@ namespace polar::system::renderer {
 
 		uploaduniform(spriteProgram, "u_color",
 		              color ? color->col.get() : Point4(1));
-		uploaduniform(spriteProgram, "u_projection", proj);
 
 		Decimal pen = 0;
 		for(auto c : text->str) {
