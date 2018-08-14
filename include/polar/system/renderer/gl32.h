@@ -40,6 +40,8 @@ namespace polar::system::renderer {
 		std::unordered_map<std::shared_ptr<polar::asset::font>, fontcache_t>
 		    fontCache;
 
+		std::vector<glm::vec2> viewportPoints;
+
 		GLuint viewportVAO;
 		GLuint spriteProgram;
 		GLuint identityProgram;
@@ -57,8 +59,8 @@ namespace polar::system::renderer {
 
 		void init() override;
 		void update(DeltaTicks &) override;
-		void rendersprite(IDType, Mat4 = Mat4(1));
-		void rendertext(IDType, Mat4 = Mat4(1));
+		void rendersprite(IDType, Mat4 = Mat4(1), Mat4 view = Mat4(1));
+		void rendertext(IDType, Mat4 proj = Mat4(1), Mat4 view = Mat4(1));
 		void render(Mat4 proj, Mat4 view, float alpha);
 
 		std::shared_ptr<model_p> getpooledmodelproperty(const GLsizei required);
