@@ -1,4 +1,5 @@
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <polar/asset/shaderprogram.h>
 #include <polar/component/color.h>
 #include <polar/component/orientation.h>
@@ -125,11 +126,21 @@ namespace polar::system::renderer {
 		GLuint vbo;
 		GL(glGenBuffers(1, &vbo));
 
-		std::vector<glm::vec2> points = {Point2(-1, -1), Point2(1, -1),
-		                                 Point2(-1, 1), Point2(1, 1)};
+		viewportPoints.clear();
+		const float step = 0.1;
+		for(float x = -1.0; x < 1.0; x += step) {
+			for(float y = -1.0; y < 1.0; y += step) {
+				viewportPoints.emplace_back(Point2(x, y));
+				viewportPoints.emplace_back(Point2(x + step, y));
+				viewportPoints.emplace_back(Point2(x, y + step));
+				viewportPoints.emplace_back(Point2(x, y + step));
+				viewportPoints.emplace_back(Point2(x + step, y));
+				viewportPoints.emplace_back(Point2(x + step, y + step));
+			}
+		}
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 4, points.data(),
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * viewportPoints.size(), viewportPoints.data(),
 		                GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
 
@@ -259,7 +270,7 @@ namespace polar::system::renderer {
 				}
 
 				GL(glBindVertexArray(viewportVAO));
-				GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+				GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
 
 				break;
 			}
@@ -278,14 +289,14 @@ namespace polar::system::renderer {
 			    typeid(component::sprite::base));
 			for(auto itRight = pairRight.first; itRight != pairRight.second;
 			    ++itRight) {
-				rendersprite(itRight->get_left(), proj);
+				rendersprite(itRight->get_left(), proj, view);
 			}
 
 			pairRight =
 			    engine->objects.right.equal_range(typeid(component::text));
 			for(auto itRight = pairRight.first; itRight != pairRight.second;
 			    ++itRight) {
-				rendertext(itRight->get_left(), proj);
+				rendertext(itRight->get_left(), proj, view);
 			}
 		}
 		GL(glDisable(GL_BLEND));
@@ -298,7 +309,7 @@ namespace polar::system::renderer {
 		GL(glBindTexture(GL_TEXTURE_2D, nodes.back().outs.at("color")));
 		uploaduniform(identityProgram, "u_colorBuffer", 0);
 		GL(glBindVertexArray(viewportVAO));
-		GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+		GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
 	}
 
 	void gl32::update(DeltaTicks &dt) {
@@ -423,7 +434,7 @@ namespace polar::system::renderer {
 		SDL_ClearError();
 	}
 
-	void gl32::rendersprite(IDType id, Mat4 proj) {
+	void gl32::rendersprite(IDType id, Mat4 proj, Mat4 view) {
 		using origin_t = support::ui::origin;
 
 		auto sprite    = engine->get<component::sprite::base>(id);
@@ -498,16 +509,31 @@ namespace polar::system::renderer {
 
 		Mat4 transform(1);
 
-		// translate to near plane
-		auto pz = proj * Point4(0, 0, -zNear, 1);
-		pz /= pz.w; // perspective divide
-		transform = glm::translate(transform, Point3(pz));
-
-		// scale down for VR viewing
-		Decimal uiScale = 1;
 		auto vr = engine->get<system::vr>().lock();
-		if(vr && vr->ready()) { uiScale /= 2; }
-		transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
+		if(vr && vr->ready()) {
+			glm::vec3 mScale;
+			glm::quat mRotation;
+			glm::vec3 mTranslation;
+			glm::vec3 mSkew;
+			glm::vec4 mPerspective;
+			glm::decompose(view, mScale, mRotation, mTranslation, mSkew, mPerspective);
+
+			//static glm::quat rot{1, 0, 0, 0};
+			//auto delta = glm::inverse(rot) * mRotation;
+			//rot *= glm::pow(delta, Decimal(0.002));
+
+			// map to plane in 3D space
+			if(!sprite->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
+			//transform = glm::rotate(transform, theta, Point3(0, 1, 0));
+			transform = glm::translate(transform, Point3(0, 0, -(zNear + zFar) / 2.0));
+			transform = glm::scale(transform, Point3(2.0 / width, 2.0 / height, 1));
+
+			// scale down for VR viewing
+			Decimal uiScale = 1;
+			uiScale /= 8;
+			transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
+			transform = glm::scale(transform, Point3(1, 1, (zFar - zNear) / 4.0));
+		}
 
 		// translate to bottom left corner
 		transform = glm::translate(transform, Point3(-1, -1, 0));
@@ -526,6 +552,7 @@ namespace polar::system::renderer {
 
 		uploaduniform(spriteProgram, "u_color",
 		              color ? color->col.get() : Point4(1));
+		uploaduniform(spriteProgram, "u_projection", proj);
 
 		// scale to sprite size
 		auto sc   = Point3(sprite->surface->w, sprite->surface->h, 1);
@@ -537,10 +564,10 @@ namespace polar::system::renderer {
 		uploaduniform(spriteProgram, "u_transform", transform);
 
 		GL(glBindTexture(GL_TEXTURE_2D, prop->texture));
-		GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+		GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
 	}
 
-	void gl32::rendertext(IDType id, Mat4 proj) {
+	void gl32::rendertext(IDType id, Mat4 proj, Mat4 view) {
 		using origin_t = support::ui::origin;
 
 		auto text      = engine->get<component::text>(id);
@@ -649,16 +676,31 @@ namespace polar::system::renderer {
 
 		Mat4 transform(1);
 
-		// translate to near plane
-		auto pz = proj * Point4(0, 0, -zNear, 1);
-		pz /= pz.w; // perspective divide
-		transform = glm::translate(transform, Point3(pz));
-
-		// scale down for VR viewing
-		Decimal uiScale = 1;
 		auto vr = engine->get<system::vr>().lock();
-		if(vr && vr->ready()) { uiScale /= 2; }
-		transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
+		if(vr && vr->ready()) {
+			glm::vec3 mScale;
+			glm::quat mRotation;
+			glm::vec3 mTranslation;
+			glm::vec3 mSkew;
+			glm::vec4 mPerspective;
+			glm::decompose(view, mScale, mRotation, mTranslation, mSkew, mPerspective);
+
+			//static glm::quat rot{1, 0, 0, 0};
+			//auto delta = glm::inverse(rot) * mRotation;
+			//rot *= glm::pow(delta, Decimal(0.002));
+
+			// map to plane in 3D space
+			if(!text->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
+			//transform = glm::rotate(transform, theta, Point3(0, 1, 0));
+			transform = glm::translate(transform, Point3(0, 0, -(zNear + zFar) / 2.0));
+			transform = glm::scale(transform, Point3(2.0 / width, 2.0 / height, 1));
+
+			// scale down for VR viewing
+			Decimal uiScale = 1;
+			uiScale /= 8;
+			transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
+			transform = glm::scale(transform, Point3(1, 1, (zFar - zNear) / 4.0));
+		}
 
 		// translate to bottom left corner
 		transform = glm::translate(transform, Point3(-1, -1, 0));
@@ -677,6 +719,7 @@ namespace polar::system::renderer {
 
 		uploaduniform(spriteProgram, "u_color",
 		              color ? color->col.get() : Point4(1));
+		uploaduniform(spriteProgram, "u_projection", proj);
 
 		Decimal pen = 0;
 		for(auto c : text->str) {
@@ -702,7 +745,7 @@ namespace polar::system::renderer {
 
 			GL(glBindTexture(GL_TEXTURE_2D,
 			                 fontCache[text->as].entries[c].texture));
-			GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+			GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
 
 			pen += text->as->glyphs[c].advance;
 		}

@@ -8,6 +8,7 @@ namespace polar::component::sprite {
 	  public:
 		SDL_Surface *surface = nullptr;
 		bool freeSurface     = true;
+		bool fixedToViewport = false;
 
 		virtual ~base() {
 			if(surface && freeSurface) { SDL(SDL_FreeSurface(surface)); }

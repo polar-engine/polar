@@ -8,6 +8,7 @@ namespace polar::component {
 	  public:
 		std::shared_ptr<asset::font> as;
 		std::string str;
+		bool fixedToViewport = false;
 
 		text(std::shared_ptr<asset::font> as, std::string str)
 		    : as(as), str(str) {}
