@@ -23,13 +23,13 @@ namespace polar::system {
 		uint32_t _width = 0;
 		uint32_t _height = 0;
 
-		Mat4 _head_view = Mat4();
-		Mat4 _left_hand_view = Mat4();
-		Mat4 _right_hand_view = Mat4();
+		Mat4 _head_view = Mat4(1);
+		Mat4 _left_hand_view = Mat4(1);
+		Mat4 _right_hand_view = Mat4(1);
 
-		Mat4 _last_head_view = Mat4();
-		Mat4 _last_left_hand_view = Mat4();
-		Mat4 _last_right_hand_view = Mat4();
+		Mat4 _last_head_view = Mat4(1);
+		Mat4 _last_left_hand_view = Mat4(1);
+		Mat4 _last_right_hand_view = Mat4(1);
 
 		std::string tracked_device_str(::vr::TrackedDeviceIndex_t i, ::vr::TrackedDeviceProperty p) {
 			::vr::TrackedPropertyError err;
@@ -257,7 +257,7 @@ namespace polar::system {
 		}
 
 		Mat4 projection(eye e, Decimal zNear, Decimal zFar) const {
-			if(!ready()) { return Mat4(); }
+			if(!ready()) { return Mat4(1); }
 
 			auto vr_eye = (e == eye::left) ? ::vr::Eye_Left : ::vr::Eye_Right;
 			auto vr_proj = vr_system->GetProjectionMatrix(vr_eye, zNear, zFar);
