@@ -24,6 +24,12 @@
 #endif
 
 namespace polar::system::renderer {
+	void APIENTRY debugCB(GLenum source, GLenum type, GLuint id, GLenum severity,
+	                      GLsizei length, const GLchar* message,
+	                      const void* userParam) {
+		debugmanager()->debug("OPENGL DEBUG OUTPUT: ", message);
+	}
+
 	bool gl32::supported() {
 		gl32 renderer(nullptr, {});
 		try {
@@ -62,6 +68,9 @@ namespace polar::system::renderer {
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) {
 			debugmanager()->fatal("failed to set double buffer attribute");
+		}
+		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG))) {
+			debugmanager()->fatal("failed to set context flags");
 		}
 		if(!SDL(window = SDL_CreateWindow(
 		            "Polar Engine", SDL_WINDOWPOS_CENTERED,
@@ -109,6 +118,11 @@ namespace polar::system::renderer {
 		GL(glEnable(GL_CULL_FACE));
 		GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL(glCullFace(GL_BACK));
+
+		GL(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
+		GL(glDebugMessageCallback(debugCB, nullptr));
+		GL(glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
+		                         0, nullptr, GL_TRUE));
 	}
 
 	void gl32::init() {
