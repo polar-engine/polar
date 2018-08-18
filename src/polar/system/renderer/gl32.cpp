@@ -434,9 +434,9 @@ namespace polar::system::renderer {
 			cameraView = glm::transpose(vr->head_view()) * cameraView;
 
 			render(vr->projection(eye::left, zNear, zFar), cameraView, alpha);
-			vr->submit_gl(eye::left, nodes.back().outs.at("color"));
+			GL(vr->submit_gl(eye::left, nodes.back().outs.at("color")));
 			render(vr->projection(eye::right, zNear, zFar), cameraView, alpha);
-			vr->submit_gl(eye::right, nodes.back().outs.at("color"));
+			GL(vr->submit_gl(eye::right, nodes.back().outs.at("color")));
 		} else {
 			render(calculate_projection(), cameraView, alpha);
 		}
@@ -780,7 +780,8 @@ namespace polar::system::renderer {
 
 		support::input::key key;
 
-		auto act  = engine->get<action>().lock();
+		auto act = engine->get<action>().lock();
+		auto vr  = engine->get<system::vr>().lock();
 
 		switch(ev.type) {
 		case SDL_QUIT:
@@ -791,6 +792,12 @@ namespace polar::system::renderer {
 			case SDL_WINDOWEVENT_RESIZED:
 				width  = ev.window.data1;
 				height = ev.window.data2;
+
+				if(vr && vr->ready()) {
+					width = vr->width();
+					height = vr->height();
+				}
+
 				GL(glViewport(0, 0, width, height));
 				debugmanager()->trace("MakePipeline from SDL_WINDOWEVENT");
 				makepipeline(pipelineNames);
