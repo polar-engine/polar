@@ -203,11 +203,21 @@ namespace polar::system {
 					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a);
 					action->trigger<a_vr::trigger <a_vr::type::left_hand>>(trigger);
 
-					// TODO: enumerate axes for k_eControllerAxis_Joystick
-					action->accumulate<a_vr::axis_x<a_vr::type::left_hand>>(state.rAxis[0].x);
-					action->accumulate<a_vr::axis_y<a_vr::type::left_hand>>(state.rAxis[0].y);
-					action->accumulate<a_vr::axis_x<a_vr::type::any      >>(state.rAxis[0].x);
-					action->accumulate<a_vr::axis_y<a_vr::type::any      >>(state.rAxis[0].y);
+					for(int i = 0; i < ::vr::k_unControllerStateAxisCount; ++i) {
+						auto prop = ::vr::ETrackedDeviceProperty(::vr::Prop_Axis0Type_Int32 + i);
+						auto type = vr_system->GetInt32TrackedDeviceProperty(left_hand, prop);
+						switch(type) {
+						default:
+							break;
+						case ::vr::k_eControllerAxis_TrackPad:
+						case ::vr::k_eControllerAxis_Joystick:
+							action->accumulate<a_vr::axis_x<a_vr::type::left_hand>>(state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::left_hand>>(state.rAxis[i].y);
+							action->accumulate<a_vr::axis_x<a_vr::type::any      >>(state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::any      >>(state.rAxis[i].y);
+							break;
+						}
+					}
 				}
 
 				auto right_hand = vr_system->GetTrackedDeviceIndexForControllerRole(::vr::TrackedControllerRole_RightHand);
@@ -224,11 +234,21 @@ namespace polar::system {
 					action->trigger<a_vr::a       <a_vr::type::right_hand>>(a);
 					action->trigger<a_vr::trigger <a_vr::type::right_hand>>(trigger);
 
-					// TODO: enumerate axes for k_eControllerAxis_Joystick
-					action->accumulate<a_vr::axis_x<a_vr::type::right_hand>>(state.rAxis[0].x);
-					action->accumulate<a_vr::axis_y<a_vr::type::right_hand>>(state.rAxis[0].y);
-					action->accumulate<a_vr::axis_x<a_vr::type::any       >>(state.rAxis[0].x);
-					action->accumulate<a_vr::axis_y<a_vr::type::any       >>(state.rAxis[0].y);
+					for(size_t i = 0; i < ::vr::k_unControllerStateAxisCount; ++i) {
+						auto prop = ::vr::ETrackedDeviceProperty(::vr::Prop_Axis0Type_Int32 + i);
+						auto type = vr_system->GetInt32TrackedDeviceProperty(right_hand, prop);
+						switch(type) {
+						default:
+							break;
+						case ::vr::k_eControllerAxis_TrackPad:
+						case ::vr::k_eControllerAxis_Joystick:
+							action->accumulate<a_vr::axis_x<a_vr::type::right_hand>>(state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::right_hand>>(state.rAxis[i].y);
+							action->accumulate<a_vr::axis_x<a_vr::type::any       >>(state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::any       >>(state.rAxis[i].y);
+							break;
+						}
+					}
 				}
 
 				action->trigger<a_vr::app_menu<a_vr::type::any>>(any_app_menu);
