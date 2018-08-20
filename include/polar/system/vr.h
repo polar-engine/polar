@@ -193,14 +193,15 @@ namespace polar::system {
 				if(vr_system->GetControllerState(left_hand, &state, sizeof(state))) {
 					bool app_menu = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_ApplicationMenu);
 					bool a        = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_A);
+					bool touchpad = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_SteamVR_Touchpad);
 					bool trigger  = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_SteamVR_Trigger);
 
 					any_app_menu |= app_menu;
-					any_a        |= a;
+					any_a        |= a | touchpad;
 					any_trigger  |= trigger;
 
 					action->trigger<a_vr::app_menu<a_vr::type::left_hand>>(app_menu);
-					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a);
+					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a | touchpad);
 					action->trigger<a_vr::trigger <a_vr::type::left_hand>>(trigger);
 
 					for(int i = 0; i < ::vr::k_unControllerStateAxisCount; ++i) {
@@ -224,14 +225,15 @@ namespace polar::system {
 				if(vr_system->GetControllerState(right_hand, &state, sizeof(state))) {
 					bool app_menu = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_ApplicationMenu);
 					bool a        = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_A);
+					bool touchpad = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_SteamVR_Touchpad);
 					bool trigger  = state.ulButtonPressed & ::vr::ButtonMaskFromId(::vr::k_EButton_SteamVR_Trigger);
 
 					any_app_menu |= app_menu;
-					any_a        |= a;
+					any_a        |= a | touchpad;
 					any_trigger  |= trigger;
 
 					action->trigger<a_vr::app_menu<a_vr::type::right_hand>>(app_menu);
-					action->trigger<a_vr::a       <a_vr::type::right_hand>>(a);
+					action->trigger<a_vr::a       <a_vr::type::right_hand>>(a | touchpad);
 					action->trigger<a_vr::trigger <a_vr::type::right_hand>>(trigger);
 
 					for(size_t i = 0; i < ::vr::k_unControllerStateAxisCount; ++i) {
