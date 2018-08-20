@@ -204,7 +204,7 @@ namespace polar::system {
 					action->trigger<a_vr::a       <a_vr::type::left_hand>>(a | touchpad);
 					action->trigger<a_vr::trigger <a_vr::type::left_hand>>(trigger);
 
-					for(int i = 0; i < ::vr::k_unControllerStateAxisCount; ++i) {
+					for(size_t i = 0; i < ::vr::k_unControllerStateAxisCount; ++i) {
 						auto prop = ::vr::ETrackedDeviceProperty(::vr::Prop_Axis0Type_Int32 + i);
 						auto type = vr_system->GetInt32TrackedDeviceProperty(left_hand, prop);
 						switch(type) {

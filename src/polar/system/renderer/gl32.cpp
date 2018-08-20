@@ -24,9 +24,15 @@
 #endif
 
 namespace polar::system::renderer {
-	void APIENTRY debugCB(GLenum source, GLenum type, GLuint id, GLenum severity,
+	void debugCB(GLenum source, GLenum type, GLuint id, GLenum severity,
 	                      GLsizei length, const GLchar* message,
 	                      const void* userParam) {
+		(void)source;
+		(void)type;
+		(void)id;
+		(void)severity;
+		(void)length;
+		(void)userParam;
 		debugmanager()->debug("OPENGL DEBUG OUTPUT: ", message);
 	}
 
