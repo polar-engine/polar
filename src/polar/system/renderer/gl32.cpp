@@ -125,10 +125,12 @@ namespace polar::system::renderer {
 		GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL(glCullFace(GL_BACK));
 
-		GL(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
-		GL(glDebugMessageCallback(debugCB, nullptr));
-		GL(glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
-		                         0, nullptr, GL_TRUE));
+		if(glewIsExtensionSupported("KHR_debug")) {
+			GL(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
+			GL(glDebugMessageCallback(debugCB, nullptr));
+			GL(glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
+			                         0, nullptr, GL_TRUE));
+		}
 	}
 
 	void gl32::init() {
