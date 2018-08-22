@@ -24,9 +24,9 @@
 #endif
 
 namespace polar::system::renderer {
-	void debugCB(GLenum source, GLenum type, GLuint id, GLenum severity,
-	                      GLsizei length, const GLchar* message,
-	                      const void* userParam) {
+	void GLAPIENTRY debugCB(GLenum source, GLenum type, GLuint id, GLenum severity,
+	                        GLsizei length, const GLchar* message,
+	                        const void* userParam) {
 		(void)source;
 		(void)type;
 		(void)id;
