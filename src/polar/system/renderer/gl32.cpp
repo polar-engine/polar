@@ -78,12 +78,14 @@ namespace polar::system::renderer {
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG))) {
 			debugmanager()->fatal("failed to set context flags");
 		}
+		Uint32 window_flags = SDL_WINDOW_OPENGL
+		                    | SDL_WINDOW_SHOWN
+		                    | SDL_WINDOW_RESIZABLE
+		//                    | SDL_WINDOW_ALLOW_HIGHDPI
+		                    | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 		if(!SDL(window = SDL_CreateWindow(
 		            "Polar Engine", SDL_WINDOWPOS_CENTERED,
-		            SDL_WINDOWPOS_CENTERED, width, height,
-		            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN |
-		                SDL_WINDOW_RESIZABLE |
-		                (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)))) {
+		            SDL_WINDOWPOS_CENTERED, width, height, window_flags))) {
 			debugmanager()->fatal("failed to create window");
 		}
 		if(!SDL(context = SDL_GL_CreateContext(window))) {
@@ -804,6 +806,11 @@ namespace polar::system::renderer {
 				if(vr && vr->ready()) {
 					width = vr->width();
 					height = vr->height();
+				} else {
+					int w, h;
+					SDL(SDL_GL_GetDrawableSize(window, &w, &h));
+					width = w;
+					height = h;
 				}
 
 				GL(glViewport(0, 0, width, height));
