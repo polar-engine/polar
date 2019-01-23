@@ -21,7 +21,7 @@ namespace polar::component {
 
 		audiosource(std::shared_ptr<asset::audio> as, sourcetype type,
 		            const bool looping = false)
-		    : asset(as), type(type), looping(looping), loopIn(0),
+		    : asset(as), type(type), looping(looping), loopIn(asset->loopPoint),
 		      loopOut(as->samples.size()) {}
 		audiosource(std::shared_ptr<asset::audio> as, sourcetype type,
 		            const loopin &in)
@@ -29,7 +29,7 @@ namespace polar::component {
 		      loopOut(as->samples.size()) {}
 		audiosource(std::shared_ptr<asset::audio> as, sourcetype type,
 		            const loopout &out)
-		    : asset(as), type(type), looping(true), loopIn(0),
+		    : asset(as), type(type), looping(true), loopIn(asset->loopPoint),
 		      loopOut(out.value) {}
 		audiosource(std::shared_ptr<asset::audio> as, sourcetype type,
 		            const loopin &in, const loopout &out)
@@ -45,7 +45,7 @@ namespace polar::component {
 			if(looping) {
 				if(currentSample == loopOut ||
 				   currentSample >= asset->samples.size()) {
-					currentSample = loopIn;
+					currentSample = loopIn * (asset->stereo ? 2 : 1);
 				}
 			} else if(currentSample >= asset->samples.size()) {
 				return false;
