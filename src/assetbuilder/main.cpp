@@ -467,6 +467,30 @@ int main(int argc, char **argv) {
 					iss.ignore(1);
 					++riffSizeAccum;
 				}
+			} else if(chunkHeader == "cue ") {
+				uint32_t numCues;
+				iss.read(reinterpret_cast<char *>(&numCues), sizeof(numCues));
+				numCues = swaple(numCues);
+
+				for(uint32_t i = 0; i < numCues; ++i) {
+					uint32_t id;
+					iss.read(reinterpret_cast<char *>(&id), sizeof(id));
+					id = swaple(id);
+
+					uint32_t pos;
+					iss.read(reinterpret_cast<char *>(&pos), sizeof(pos));
+					pos = swaple(pos);
+
+					asset.loopPoint = pos;
+					debugmanager()->info("pos = ", pos);
+
+					iss.ignore(4);
+					iss.ignore(4);
+					iss.ignore(4);
+					iss.ignore(4);
+				}
+
+				riffSizeAccum += chunkSize;
 			} else if(chunkHeader == "fact") {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
@@ -480,9 +504,6 @@ int main(int argc, char **argv) {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
 			} else if(chunkHeader == "id3 ") {
-				iss.ignore(chunkSize);
-				riffSizeAccum += chunkSize;
-			} else if(chunkHeader == "cue ") {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
 			} else if(chunkHeader == "INFO") {

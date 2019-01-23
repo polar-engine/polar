@@ -394,7 +394,7 @@ namespace polar::system::renderer {
 			engine->add<component::scale>(fpsID, Point3(0.125));
 		}
 
-		auto integrator_s = engine->get<integrator>().lock();
+		auto integrator_s = engine->get<integrator>().lock(); // need to check if we have an integrator or not
 		float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
 
 		Mat4 cameraView(1);
