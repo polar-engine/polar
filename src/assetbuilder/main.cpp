@@ -364,6 +364,8 @@ int main(int argc, char **argv) {
 		}
 		riffSizeAccum += 4;
 
+		uint16_t bitsPerSample = 0;
+
 		while(riffSize - riffSizeAccum > 0) {
 			if(riffSize - riffSizeAccum < 8) {
 				debugmanager()->fatal(
@@ -427,12 +429,11 @@ int main(int argc, char **argv) {
 				blockAlign = swaple(blockAlign);
 				riffSizeAccum += sizeof(blockAlign);
 
-				uint16_t bitsPerSample;
 				iss.read(reinterpret_cast<char *>(&bitsPerSample),
 				         sizeof(bitsPerSample));
 				bitsPerSample = swaple(bitsPerSample);
-				if(bitsPerSample != 16) {
-					debugmanager()->fatal("bits per sample must be 16");
+				if(bitsPerSample != 16 && bitsPerSample != 24) {
+					debugmanager()->fatal("bits per sample must be 16 or 24");
 				}
 				riffSizeAccum += sizeof(bitsPerSample);
 
@@ -449,11 +450,13 @@ int main(int argc, char **argv) {
 				iss.read(&data[0], chunkSize);
 				riffSizeAccum += chunkSize;
 
-				asset.samples.resize(chunkSize / 2);
-				for(uint32_t i = 0; i < chunkSize; i += 2) {
-					auto sample = *reinterpret_cast<int16_t *>(&data[i]);
-					sample      = swaple(sample);
-					asset.samples[i / 2] = sample;
+				int bytesPerSample = bitsPerSample >> 3;
+
+				asset.samples.resize(chunkSize / bytesPerSample);
+				for(uint32_t i = 0; i < chunkSize; i += bytesPerSample) {
+					int16_t sample = *(int16_t *)&data[i + 1];
+					sample = swaple(sample);
+					asset.samples[i / bytesPerSample] = sample;
 				}
 
 				if(chunkSize % 2 == 1) {
@@ -473,7 +476,13 @@ int main(int argc, char **argv) {
 			} else if(chunkHeader == "acid") {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "tlst") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
 			} else if(chunkHeader == "id3 ") {
+				iss.ignore(chunkSize);
+				riffSizeAccum += chunkSize;
+			} else if(chunkHeader == "cue ") {
 				iss.ignore(chunkSize);
 				riffSizeAccum += chunkSize;
 			} else if(chunkHeader == "INFO") {
