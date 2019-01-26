@@ -181,6 +181,28 @@ namespace polar::system::renderer {
 		identityProgram =
 		    makeprogram(assetM->get<polar::asset::shaderprogram>("identity"));
 
+		/* 8x8 Bayer ordered dithering pattern
+		 * each input pixel is scared to the range of 0->63 before lookup
+		 */
+		static const char ditherPattern[] = {
+			 0, 32,  8, 40,  2, 34, 10, 42,
+			48, 16, 56, 24, 50, 18, 58, 26,
+			12, 44,  4, 36, 14, 46,  6, 38,
+			60, 28, 52, 20, 62, 30, 54, 22,
+			 3, 35, 11, 43,  1, 33,  9, 41,
+			51, 19, 59, 27, 49, 17, 57, 25,
+			15, 47,  7, 39, 13, 45,  5, 37,
+			63, 31, 55, 23, 61, 29, 53, 21
+		};
+
+		GL(glGenTextures(1, &ditherTex));
+		GL(glBindTexture(GL_TEXTURE_2D, ditherTex));
+		GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+		GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+		GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+		GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 8, 8, 0, GL_RED, GL_UNSIGNED_BYTE, ditherPattern));
+
 		inited = true;
 	}
 
@@ -198,6 +220,13 @@ namespace polar::system::renderer {
 			uploaduniform(node.program, "u_view", view);
 			uploaduniform(node.program, "u_invViewProj",
 			              glm::inverse(proj * view));
+
+			unsigned int texPos = 0;
+			GL(glActiveTexture(GL_TEXTURE0 + texPos));
+			GL(glBindTexture(GL_TEXTURE_2D, ditherTex));
+
+			uploaduniform(node.program, "u_ditherTex", glm::int32(texPos));
+			++texPos;
 
 			switch(i) {
 			case 0: {
@@ -276,22 +305,21 @@ namespace polar::system::renderer {
 				        .globalOuts) { /* for each previous global output */
 					globals.emplace(pair);
 				}
-				unsigned int b = 0;
 				for(auto &pair : node.ins) { /* for each input */
 					auto buffer = nodes[i - 1].outs[pair.first];
-					GL(glActiveTexture(GL_TEXTURE0 + b));
+					GL(glActiveTexture(GL_TEXTURE0 + texPos));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-					uploaduniform(node.program, pair.second, glm::int32(b));
-					++b;
+					uploaduniform(node.program, pair.second, glm::int32(texPos));
+					++texPos;
 				}
 				for(auto &pair : node.globalIns) { /* for each global input */
 					auto buffer = globals[pair.first];
-					GL(glActiveTexture(GL_TEXTURE0 + b));
+					GL(glActiveTexture(GL_TEXTURE0 + texPos));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));
 
-					uploaduniform(node.program, pair.second, glm::int32(b));
-					++b;
+					uploaduniform(node.program, pair.second, glm::int32(texPos));
+					++texPos;
 				}
 
 				GL(glBindVertexArray(viewportVAO));
