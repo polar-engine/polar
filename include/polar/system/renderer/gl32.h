@@ -45,6 +45,7 @@ namespace polar::system::renderer {
 		GLuint viewportVAO;
 		GLuint spriteProgram;
 		GLuint identityProgram;
+		GLuint ditherTex;
 
 		core::ref fpsDtor;
 		IDType fpsID = 0;
