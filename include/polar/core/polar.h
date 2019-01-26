@@ -88,8 +88,8 @@ namespace polar::core {
 		template<typename T, typename... Ts,
 		         typename = typename std::enable_if<
 		             std::is_base_of<component::base, T>::value>::type>
-		inline void add(IDType id, Ts &&... args) {
-			add_as<T, T>(id, std::forward<Ts>(args)...);
+		inline std::shared_ptr<T> add(IDType id, Ts &&... args) {
+			return add_as<T, T>(id, std::forward<Ts>(args)...);
 		}
 
 		template<typename B, typename T, typename... Ts,
@@ -97,20 +97,23 @@ namespace polar::core {
 		             std::is_base_of<component::base, T>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<B, T>::value>::type>
-		inline void add_as(IDType id, Ts &&... args) {
-			insert<B>(id, new T(std::forward<Ts>(args)...));
+		inline std::shared_ptr<B> add_as(IDType id, Ts &&... args) {
+			return insert<B>(id, new T(std::forward<Ts>(args)...));
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<
 		                         component::base, T>::value>::type>
-		inline void insert(IDType id, T *component) {
-			insert(id, std::shared_ptr<T>(component));
+		inline std::shared_ptr<T> insert(IDType id, T *component) {
+			auto ptr = std::shared_ptr<T>(component);
+			insert(id, ptr);
+			return ptr;
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<
 		                         component::base, T>::value>::type>
-		inline void insert(IDType id, std::shared_ptr<T> component) {
+		inline std::shared_ptr<T> insert(IDType id, std::shared_ptr<T> component) {
 			insert(id, component, typeid(T));
+			return component;
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<
