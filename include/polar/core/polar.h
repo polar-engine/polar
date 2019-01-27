@@ -49,6 +49,7 @@ namespace polar::core {
 		component::base *get(IDType id, std::type_index ti);
 		void insert(IDType id, std::shared_ptr<component::base> component,
 		            std::type_index ti);
+		void remove(IDType id, std::type_index ti);
 
 	  public:
 		bimap objects;
@@ -120,6 +121,12 @@ namespace polar::core {
 		                         component::base, T>::value>::type>
 		inline T *get(IDType id) {
 			return static_cast<T *>(get(id, typeid(T)));
+		}
+
+		template<typename T, typename = typename std::enable_if<std::is_base_of<
+		                         component::base, T>::value>::type>
+		inline void remove(IDType id) {
+			remove(id, typeid(T));
 		}
 	};
 } // namespace polar::core
