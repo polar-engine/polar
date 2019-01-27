@@ -149,4 +149,11 @@ namespace polar::core {
 		}
 		objects.left.erase(id);
 	}
+
+	void polar::remove(IDType id, std::type_index ti) {
+		for(auto &state : stack) {
+			state.component_removed(id, ti);
+		}
+		objects.erase(bimap::value_type(id, ti));
+	}
 } // namespace polar::core
