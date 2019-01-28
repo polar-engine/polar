@@ -51,13 +51,24 @@ namespace polar::component {
 			point_vec normals;
 			normals.resize(points.size());
 
+			bool reverse = false;
+			debugmanager()->trace("calculate_normals:");
+
 			point_vec::size_type i = 0;
-			while(i < points.size() - 3) {
-				auto normal =
-				    calculate_normal(points[i], points[i + 1], points[i + 2]);
+			while(i <= points.size() - 3) {
+				auto normal = reverse
+					? calculate_normal(points[i], points[i + 2], points[i + 1])
+					: calculate_normal(points[i], points[i + 1], points[i + 2]);
 				normals[i + 0] = normal;
 				normals[i + 1] = normal;
 				normals[i + 2] = normal;
+
+				debugmanager()->trace("points [", i, "] = ",     points [i]);
+				debugmanager()->trace("normals[", i, "] = ",     normals[i]);
+				debugmanager()->trace("points [", i + 1, "] = ", points [i + 1]);
+				debugmanager()->trace("normals[", i + 1, "] = ", normals[i + 1]);
+				debugmanager()->trace("points [", i + 2, "] = ", points [i + 2]);
+				debugmanager()->trace("normals[", i + 2, "] = ", normals[i + 2]);
 
 				switch(type) {
 				case GeometryType::Triangles:
@@ -65,6 +76,7 @@ namespace polar::component {
 					break;
 				case GeometryType::TriangleStrip:
 					++i;
+					reverse = !reverse;
 					break;
 				default:
 					debugmanager()->fatal(
