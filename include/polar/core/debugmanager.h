@@ -16,6 +16,10 @@ namespace polar::core {
 	inline std::ostream & operator<<(std::ostream &os, const Point3 &p) {
 		return os << "Point3(" << p.x << ", " << p.y << ", " << p.z << ')';
 	}
+
+	inline std::ostream & operator<<(std::ostream &os, const Point3i &p) {
+		return os << "Point3i(" << p.x << ", " << p.y << ", " << p.z << ')';
+	}
 	
 	inline std::ostream & operator<<(std::ostream &os, const Point4 &p) {
 		return os << "Point4(" << p.x << ", " << p.y << ", " << p.z << ", " << p.w << ')';
