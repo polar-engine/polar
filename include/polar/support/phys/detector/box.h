@@ -7,5 +7,7 @@ namespace polar::support::phys::detector {
 	class box : public base {
 	  public:
 		Point3 size{1};
+
+		box(Point3 size) : size(size) {}
 	};
 } // namespace polar::support::phys::detector
