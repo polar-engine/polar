@@ -121,9 +121,10 @@ namespace polar::system::renderer {
 		 */
 		glGetError();
 
-		GL(glDisable(GL_DEPTH_TEST));
-		GL(glDisable(GL_BLEND));
+		GL(glEnable(GL_DEPTH_TEST)); // XXX: optionally disable
+		GL(glEnable(GL_BLEND));      // XXX: optionally disable
 		GL(glEnable(GL_CULL_FACE));
+		GL(glDepthFunc(GL_LESS));
 		GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL(glCullFace(GL_BACK));
 
@@ -352,7 +353,7 @@ namespace polar::system::renderer {
 				rendertext(itRight->get_left(), proj, view);
 			}
 		}
-		GL(glDisable(GL_BLEND));
+		GL(glEnable(GL_BLEND)); // XXX: optionally disable
 
 		// mirror
 		GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));

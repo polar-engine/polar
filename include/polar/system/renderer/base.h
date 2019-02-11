@@ -10,8 +10,8 @@ namespace polar::system::renderer {
 		uint16_t width                  = 1280;
 		uint16_t height                 = 720;
 		Decimal fovPlus                 = Decimal(glm::radians(10.0));
-		Decimal zNear                   = Decimal( 1.0 / 100000.0);
-		Decimal zFar                    = Decimal(48.0 / 100000.0);
+		Decimal zNear                   = Decimal( 1.0);
+		Decimal zFar                    = Decimal(48.0);
 		Decimal pixelDistanceFromScreen = Decimal(1000.0);
 
 		virtual void makepipeline(const std::vector<std::string> &) = 0;
