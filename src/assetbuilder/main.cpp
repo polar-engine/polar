@@ -450,6 +450,10 @@ int main(int argc, char **argv) {
 				iss.read(&data[0], chunkSize);
 				riffSizeAccum += chunkSize;
 
+				if(bitsPerSample == 0) {
+					debugmanager()->fatal("bitsPerSample should not be 0");
+				}
+
 				int bytesPerSample = bitsPerSample >> 3;
 
 				asset.samples.resize(chunkSize / bytesPerSample);
