@@ -229,6 +229,9 @@ namespace polar::system::renderer {
 			uploaduniform(node.program, "u_ditherTex", glm::int32(texPos));
 			++texPos;
 
+			bool firstModelMatrix = true;
+			Mat4 lastModelMatrix(1);
+
 			switch(i) {
 			case 0: {
 				auto pairRight =
@@ -292,7 +295,11 @@ namespace polar::system::renderer {
 							break;
 						}
 
-						uploaduniform(node.program, "u_model", modelMatrix);
+						if(firstModelMatrix == true || modelMatrix != lastModelMatrix) {
+							uploaduniform(node.program, "u_model", modelMatrix);
+							lastModelMatrix = modelMatrix;
+							firstModelMatrix = false;
+						}
 
 						GL(glBindVertexArray(property->vao));
 						GL(glDrawArrays(drawMode, 0, property->numVertices));
