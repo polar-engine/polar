@@ -13,6 +13,7 @@
 #include <polar/asset/font.h>
 #include <polar/asset/image.h>
 #include <polar/asset/level.h>
+#include <polar/asset/model.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/asset/text.h>
 #include <polar/core/debugmanager.h>
@@ -522,6 +523,61 @@ int main(int argc, char **argv) {
 
 		s << asset;
 		return asset::name<asset::audio>();
+	};
+	converters["obj"] = [](const std::string &data, core::serializer &s) {
+		asset::model asset;
+		std::vector<asset::vertex> vertices;
+
+		std::istringstream iss(data);
+		std::string line;
+		for(int iLine = 1; getline(iss, line); ++iLine) {
+			std::istringstream ls(line);
+
+			std::string directive;
+			std::getline(ls, directive, ' ');
+			if(directive == "v") {
+				asset::vertex v;
+				ls >> v.x >> v.y >> v.z;
+				vertices.emplace_back(v);
+			} else if(directive == "f") {
+				std::string pstr, qstr, rstr;
+				ls >> pstr >> qstr >> rstr;
+
+				std::istringstream ps(pstr);
+				std::istringstream qs(qstr);
+				std::istringstream rs(rstr);
+
+				int p, q, r;
+				ps >> p;
+				qs >> q;
+				rs >> r;
+
+				asset::triangle triangle;
+				triangle.p = vertices[p - 1];
+				triangle.q = vertices[q - 1];
+				triangle.r = vertices[r - 1];
+
+				asset.triangles.emplace_back(triangle);
+
+				while(ls.good()) {
+					std::string sstr;
+					ls >> sstr;
+
+					std::istringstream ss(sstr);
+
+					int s;
+					ss >> s;
+
+					triangle.q = triangle.r;
+					triangle.r = vertices[s - 1];
+
+					asset.triangles.emplace_back(triangle);
+				}
+			}
+		}
+
+		s << asset;
+		return asset::name<asset::model>();
 	};
 	converters["gls"] = [](const std::string &data, core::serializer &s) {
 		asset::shaderprogram asset;

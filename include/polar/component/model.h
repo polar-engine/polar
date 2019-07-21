@@ -1,5 +1,6 @@
 #pragma once
 
+#include <polar/asset/model.h>
 #include <polar/component/base.h>
 #include <polar/core/debugmanager.h>
 #include <vector>
@@ -16,8 +17,10 @@ namespace polar::component {
 		point_vec points;
 
 		model() : type(GeometryType::None) {}
+
 		model(GeometryType type, point_vec points)
 		    : type(type), points(points) {}
+
 		model(tri_vec triangles) : type(GeometryType::Triangles) {
 			auto size = triangles.size() * 3;
 			points.resize(size);
@@ -26,6 +29,16 @@ namespace polar::component {
 				points[i * 3 + 0] = std::get<0>(triangle);
 				points[i * 3 + 1] = std::get<1>(triangle);
 				points[i * 3 + 2] = std::get<2>(triangle);
+			}
+		}
+
+		model(std::shared_ptr<asset::model> asset) : type(GeometryType::Triangles) {
+			auto size = asset->triangles.size() * 3;
+			points.resize(size);
+			for(auto &tri : asset->triangles) {
+				points.emplace_back(tri.p.x, tri.p.y, tri.p.z);
+				points.emplace_back(tri.q.x, tri.q.y, tri.q.z);
+				points.emplace_back(tri.r.x, tri.r.y, tri.r.z);
 			}
 		}
 
