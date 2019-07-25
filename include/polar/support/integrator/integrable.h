@@ -1,9 +1,32 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <polar/core/deltaticks.h>
 
 namespace polar::support::integrator {
+	inline Point2 ease_towards(Point2 value, Point2 target, Decimal factor) {
+		return glm::mix(value, target, factor);
+	}
+
+	inline Point3 ease_towards(Point3 value, Point3 target, Decimal factor) {
+		return glm::mix(value, target, factor);
+	}
+
+	inline Point4 ease_towards(Point4 value, Point4 target, Decimal factor) {
+		return glm::mix(value, target, factor);
+	}
+
+	enum class target_type {
+		ease_towards
+	};
+
+	template<typename T> struct target_t {
+		target_type type;
+		T value;
+		Decimal factor;
+	};
+
 	class integrable_base {
 	  public:
 		virtual ~integrable_base() {}
@@ -19,11 +42,16 @@ namespace polar::support::integrator {
 		T previousValue;
 		T value;
 		derivative_t deriv;
+		std::optional<target_t<T>> _target;
 
 	  public:
 		template<typename... Ts>
 		integrable(Ts &&... args) : value(std::forward<Ts>(args)...) {
 			previousValue = value;
+		}
+
+		inline void target(T value, Decimal factor) {
+			_target = target_t<T>{target_type::ease_towards, value, factor};
 		}
 
 		inline operator const T &() const { return get(); }
@@ -86,6 +114,14 @@ namespace polar::support::integrator {
 					value += derivative().value * seconds;
 				}
 				derivative().integrate(seconds);
+			}
+
+			if(_target) {
+				switch(_target->type) {
+				case target_type::ease_towards:
+					value = ease_towards(value, _target->value, _target->factor);
+					break;
+				}
 			}
 		}
 
