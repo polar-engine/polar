@@ -62,7 +62,7 @@ namespace polar::system::renderer {
 		void update(DeltaTicks &) override;
 		void rendersprite(IDType, Mat4 = Mat4(1), Mat4 view = Mat4(1));
 		void rendertext(IDType, Mat4 proj = Mat4(1), Mat4 view = Mat4(1));
-		void render(Mat4 proj, Mat4 view, float alpha);
+		void render(Mat4 proj, Mat4 view, float delta);
 
 		std::shared_ptr<model_p> getpooledmodelproperty(const GLsizei required);
 

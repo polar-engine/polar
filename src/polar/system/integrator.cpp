@@ -13,8 +13,7 @@ namespace polar::system {
 			accumulator -= timestep;
 		}
 
-		alphaMicroseconds =
-		    static_cast<uint32_t>(accumulator.Seconds() * 1000000.0f);
+		deltaMicroseconds = static_cast<uint_fast32_t>(accumulator.Seconds() * 1000000.0f);
 	}
 
 	void integrator::tick(DeltaTicks::seconds_type seconds) {

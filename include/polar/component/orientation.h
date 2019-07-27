@@ -1,16 +1,20 @@
 #pragma once
 
 #include <polar/component/base.h>
+#include <polar/property/integrable.h>
 
 namespace polar::component {
 	class orientation : public base {
+		template<typename... Ts>
+		using integrable = support::integrator::integrable<Ts...>;
 	  public:
-		Quat orient{1, 0, 0, 0};
+		integrable<Quat, Point3> orient;
 
-		orientation() {}
-		orientation(const Quat &orient) : orient(orient) {}
-		orientation(const Quat &&orient) : orient(orient) {}
-		orientation(const Point3 &euler) : orient(euler) {}
-		orientation(const Point3 &&euler) : orient(euler) {}
+		orientation(const Quat orient = Quat{1, 0, 0, 0}) : orient(orient) {
+			add<property::integrable>();
+			get<property::integrable>().lock()->add(&this->orient);
+		}
+
+		orientation(const Point3 euler) : orientation(euler) {}
 	};
 } // namespace polar::component

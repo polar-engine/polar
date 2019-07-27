@@ -206,7 +206,7 @@ namespace polar::system::renderer {
 		inited = true;
 	}
 
-	void gl32::render(Mat4 proj, Mat4 view, float alpha) {
+	void gl32::render(Mat4 proj, Mat4 view, float delta) {
 		std::unordered_map<std::string, GLuint> globals;
 		for(unsigned int i = 0; i < nodes.size(); ++i) {
 			auto &node = nodes[i];
@@ -264,16 +264,16 @@ namespace polar::system::renderer {
 						if(pos != nullptr) {
 							modelMatrix = glm::translate(
 							    modelMatrix,
-							    pos->pos.temporal(alpha).to<Point3>());
+							    pos->pos.temporal(delta).to<Point3>());
 						}
 						if(orient != nullptr) {
 							modelMatrix *=
-							    glm::toMat4(glm::inverse(orient->orient));
+							    glm::toMat4(glm::inverse(orient->orient.temporal(delta).to<Quat>()));
 						}
 						if(sc != nullptr) {
 							modelMatrix =
 							    glm::scale(modelMatrix,
-							               sc->sc.temporal(alpha).to<Point3>());
+							               sc->sc.temporal(delta).to<Point3>());
 						}
 
 						GLenum drawMode = GL_TRIANGLES;
@@ -423,7 +423,7 @@ namespace polar::system::renderer {
 		}
 
 		auto integrator_s = engine->get<integrator>().lock(); // need to check if we have an integrator or not
-		float alpha       = integrator_s->alphaMicroseconds / 1000000.0f;
+		float delta       = integrator_s->deltaMicroseconds / 1000000.0f;
 
 		Mat4 cameraView(1);
 		auto pairRight =
@@ -452,14 +452,14 @@ namespace polar::system::renderer {
 			}
 
 			cameraView = glm::translate(
-			    cameraView, -camera->distance.temporal(alpha).to<Point3>());
+			    cameraView, -camera->distance.temporal(delta).to<Point3>());
 			cameraView *= glm::toMat4(camera->orientation);
-			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient); }
+			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient.temporal(delta).to<Quat>()); }
 			cameraView = glm::translate(
-			    cameraView, -camera->position.temporal(alpha).to<Point3>());
+			    cameraView, -camera->position.temporal(delta).to<Point3>());
 			if(pos != nullptr) {
 				cameraView = glm::translate(
-				    cameraView, -pos->pos.temporal(alpha).to<Point3>());
+				    cameraView, -pos->pos.temporal(delta).to<Point3>());
 			}
 		}
 
@@ -471,12 +471,12 @@ namespace polar::system::renderer {
 
 			cameraView = glm::transpose(vr->head_view()) * cameraView;
 
-			render(vr->projection(eye::left, zNear, zFar), cameraView, alpha);
+			render(vr->projection(eye::left, zNear, zFar), cameraView, delta);
 			GL(vr->submit_gl(eye::left, nodes.back().outs.at("color")));
-			render(vr->projection(eye::right, zNear, zFar), cameraView, alpha);
+			render(vr->projection(eye::right, zNear, zFar), cameraView, delta);
 			GL(vr->submit_gl(eye::right, nodes.back().outs.at("color")));
 		} else {
-			render(calculate_projection(), cameraView, alpha);
+			render(calculate_projection(), cameraView, delta);
 		}
 
 		SDL(SDL_GL_SwapWindow(window));

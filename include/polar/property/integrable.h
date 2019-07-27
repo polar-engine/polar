@@ -9,8 +9,8 @@ namespace polar {
 		class integrable : public base {
 			using su_integrable_base =
 			    polar::support::integrator::integrable_base;
-			template<typename T>
-			using su_integrable = polar::support::integrator::integrable<T>;
+			template<typename... Ts>
+			using su_integrable = polar::support::integrator::integrable<Ts...>;
 
 		  public:
 			typedef std::vector<su_integrable_base *> integrable_vector_t;
@@ -19,8 +19,8 @@ namespace polar {
 			integrable_vector_t integrables;
 
 		  public:
-			template<typename _Integrable>
-			inline void add(su_integrable<_Integrable> *i) {
+			template<typename _Integrable, typename _Deriv>
+			inline void add(su_integrable<_Integrable, _Deriv> *i) {
 				integrables.emplace_back(i);
 			}
 

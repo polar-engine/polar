@@ -5,16 +5,32 @@
 #include <polar/core/deltaticks.h>
 
 namespace polar::support::integrator {
-	inline Point2 ease_towards(Point2 value, Point2 target, Decimal factor) {
-		return glm::mix(value, target, factor);
+	template<typename T> inline T integrable_id() {
+		return T(0);
 	}
 
-	inline Point3 ease_towards(Point3 value, Point3 target, Decimal factor) {
-		return glm::mix(value, target, factor);
+	template<> inline Quat integrable_id() {
+		return Quat{1, 0, 0, 0};
 	}
 
-	inline Point4 ease_towards(Point4 value, Point4 target, Decimal factor) {
-		return glm::mix(value, target, factor);
+	template<typename T, typename D = T> inline T integrable_sum(T a, D b) {
+		return a + b;
+	}
+
+	template<> inline Quat integrable_sum(Quat a, Quat b) {
+		return glm::normalize(b * a);
+	}
+
+	template<> inline Quat integrable_sum(Quat a, Point3 b) {
+		return glm::normalize(Quat(b) * a);
+	}
+
+	template<typename T> inline T integrable_interp(T value, T target, Decimal alpha) {
+		return glm::mix(value, target, alpha);
+	}
+
+	template<> inline Quat integrable_interp(Quat value, Quat target, Decimal alpha) {
+		return glm::normalize(glm::slerp(value, target, alpha));
 	}
 
 	enum class target_type {
@@ -36,9 +52,9 @@ namespace polar::support::integrator {
 		virtual void revert()                                           = 0;
 	};
 
-	template<typename T> class integrable : public integrable_base {
+	template<typename T, class D = T> class integrable : public integrable_base {
 	  private:
-		typedef std::unique_ptr<integrable<T>> derivative_t;
+		typedef std::unique_ptr<integrable<D>> derivative_t;
 		T previousValue;
 		T value;
 		derivative_t deriv;
@@ -78,48 +94,51 @@ namespace polar::support::integrator {
 		inline integrable_base &
 		getderivative(const unsigned char n = 0) override {
 			if(n == 0) {
-				if(!deriv) { deriv = derivative_t(new integrable<T>()); }
+				if(!deriv) { deriv = derivative_t(new integrable<D>()); }
 				return *deriv;
 			} else {
 				return derivative().derivative(n - 1);
 			}
 		}
 
-		inline integrable<T> &derivative(const unsigned char n = 0) {
+		inline integrable<D> &derivative(const unsigned char n = 0) {
 			if(n == 0) {
-				if(!deriv) { deriv = derivative_t(new integrable<T>()); }
+				if(!deriv) { deriv = derivative_t(new integrable<D>()); }
 				return *deriv;
 			} else {
 				return derivative().derivative(n - 1);
 			}
 		}
 
-		inline integrable<T> temporal(const DeltaTicks::seconds_type alpha) {
-			T newValue(value);
-			if(hasderivative()) { newValue += derivative().value; }
-			return integrable<T>(newValue * alpha + value * (1 - alpha));
+		inline integrable<T> temporal(const Decimal seconds) {
+			if(hasderivative()) {
+				D delta = integrable_interp<D>(integrable_id<D>(), *derivative().temporal(seconds), seconds);
+				return integrable_sum(value, delta);
+			} else {
+				return *this;
+			}
 		}
 
 		inline void integrate(const DeltaTicks::seconds_type seconds) override {
 			if(hasderivative()) {
 				previousValue = value;
 
-				/* if second-order derivative exists, integrate polynomially
-				 */
+				D delta = integrable_interp<D>(integrable_id<D>(), *derivative(), seconds);
+				value = integrable_sum(value, delta);
+
+				// if second-order derivative exists, integrate polynomially
 				if(hasderivative(1)) {
-					value += derivative().value * seconds +
-					         derivative().derivative().value * seconds *
-					             seconds / Decimal(2);
-				} else {
-					value += derivative().value * seconds;
+					D delta = integrable_interp<D>(integrable_id<D>(), *derivative(1), seconds * seconds / Decimal(2));
+					value = integrable_sum(value, delta);
 				}
+
 				derivative().integrate(seconds);
 			}
 
 			if(_target) {
 				switch(_target->type) {
 				case target_type::ease_towards:
-					value = ease_towards(value, _target->value, _target->factor);
+					value = integrable_interp(value, _target->value, _target->factor);
 					break;
 				}
 			}
@@ -148,11 +167,11 @@ namespace polar::support::integrator {
 		inline integrable<T> &operator+=(const integrable<T> &rhs) {
 			return *this += rhs.value;
 		}
-		inline friend integrable<T> operator+(integrable<T> lhs, const T &rhs) {
+		inline friend integrable operator+(integrable lhs, const T &rhs) {
 			return lhs += rhs;
 		}
-		inline friend integrable<T> operator+(integrable<T> lhs,
-		                                      const integrable<T> &rhs) {
+		inline friend integrable operator+(integrable lhs,
+		                                   const integrable &rhs) {
 			return lhs += rhs;
 		}
 
@@ -167,11 +186,11 @@ namespace polar::support::integrator {
 		inline integrable<T> &operator-=(const integrable<T> &rhs) {
 			return *this -= rhs.value;
 		}
-		inline friend integrable<T> operator-(integrable<T> lhs, const T &rhs) {
+		inline friend integrable operator-(integrable lhs, const T &rhs) {
 			return lhs -= rhs;
 		}
-		inline friend integrable<T> operator-(integrable<T> lhs,
-		                                      const integrable<T> &rhs) {
+		inline friend integrable operator-(integrable lhs,
+		                                   const integrable &rhs) {
 			return lhs -= rhs;
 		}
 
@@ -186,11 +205,11 @@ namespace polar::support::integrator {
 		inline integrable<T> &operator*=(const integrable<T> &rhs) {
 			return *this *= rhs.value;
 		}
-		inline friend integrable<T> operator*(integrable<T> lhs, const T &rhs) {
+		inline friend integrable operator*(integrable lhs, const T &rhs) {
 			return lhs *= rhs;
 		}
-		inline friend integrable<T> operator*(integrable<T> lhs,
-		                                      const integrable<T> &rhs) {
+		inline friend integrable operator*(integrable lhs,
+		                                   const integrable &rhs) {
 			return lhs *= rhs;
 		}
 	};
