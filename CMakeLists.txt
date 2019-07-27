@@ -101,7 +101,7 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -118,6 +118,10 @@ set(POLAR_INCLUDE_DIRS
 	${SDL2TTF_INCLUDE_DIR}
 	${OpenVR_INCLUDE_DIR}
 	${VULKAN_INCLUDE_DIR}
+)
+
+set(POLAR_LIBRARY_DIRS
+	${Boost_LIBRARY_DIRS}
 )
 
 set(POLAR_LIBS ${POLAR_LIBS}
@@ -157,6 +161,7 @@ add_custom_target(invalidate_buildinfo ALL
 # Polar Engine
 add_library(polar STATIC ${POLAR_SRCS})
 target_include_directories(polar PRIVATE ${POLAR_INCLUDE_DIRS})
+target_link_directories(polar PRIVATE ${POLAR_LIBRARY_DIRS})
 target_link_libraries(polar ${POLAR_LIBS})
 set_property(TARGET polar PROPERTY CXX_STANDARD 17)
 set_property(TARGET polar PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -189,6 +194,7 @@ endif()
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if(HAS_PARENT)
 	set(POLAR_INCLUDE_DIRS ${POLAR_INCLUDE_DIRS} PARENT_SCOPE)
+	set(POLAR_LIBRARY_DIRS ${POLAR_LIBRARY_DIRS} PARENT_SCOPE)
 	set(POLAR_LIBS         ${POLAR_LIBS} PARENT_SCOPE)
 	set(POLAR_DYLIBS       ${POLAR_DYLIBS} PARENT_SCOPE)
 	set(POLAR_FRAMEWORKS   ${POLAR_FRAMEWORKS} PARENT_SCOPE)
