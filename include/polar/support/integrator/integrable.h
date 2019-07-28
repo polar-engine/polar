@@ -70,6 +70,10 @@ namespace polar::support::integrator {
 			_target = target_t<T>{target_type::ease_towards, value, factor};
 		}
 
+		inline std::optional<target_t<T>> gettarget() const {
+			return _target;
+		}
+
 		inline operator const T &() const { return get(); }
 
 		inline const T &get() const { return value; }
