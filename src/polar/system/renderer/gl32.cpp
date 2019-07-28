@@ -48,7 +48,7 @@ namespace polar::system::renderer {
 				debugmanager()->fatal("failed to get OpenGL minor version");
 			}
 			/* if OpenGL version is 3.2 or greater */
-			if(!(major > 3 || (major == 3 && minor >= 2))) {
+			if(!(major > 3 || (major == 3 && minor >= 1))) {
 				std::stringstream msg;
 				msg << "actual OpenGL version is " << major << '.' << minor;
 				debugmanager()->fatal(msg.str());
@@ -65,7 +65,7 @@ namespace polar::system::renderer {
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) {
 			debugmanager()->fatal("failed to set major version attribute");
 		}
-		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2))) {
+		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1))) {
 			debugmanager()->fatal("failed to set minor version attribute");
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
