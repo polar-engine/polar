@@ -15,6 +15,6 @@ namespace polar::component {
 			get<property::integrable>().lock()->add(&this->orient);
 		}
 
-		orientation(const Point3 euler) : orientation(euler) {}
+		orientation(const Point3 euler) : orientation(Quat(euler)) {}
 	};
 } // namespace polar::component

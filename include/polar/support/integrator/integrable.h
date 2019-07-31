@@ -117,7 +117,11 @@ namespace polar::support::integrator {
 		inline integrable<T> temporal(const Decimal seconds) {
 			if(hasderivative()) {
 				D delta = integrable_interp<D>(integrable_id<D>(), *derivative().temporal(seconds), seconds);
-				return integrable_sum(value, delta);
+				integrable<T> ret(integrable_sum(value, delta));
+				if(auto t = _target) {
+					ret.target(t->value, t->factor);
+				}
+				return ret;
 			} else {
 				return *this;
 			}
