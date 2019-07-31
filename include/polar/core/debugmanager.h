@@ -25,6 +25,10 @@ namespace polar::core {
 		return os << "Point4(" << p.x << ", " << p.y << ", " << p.z << ", " << p.w << ')';
 	}
 
+	inline std::ostream & operator<<(std::ostream &os, const Quat &q) {
+		return os << "Quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ')';
+	}
+
 	class debugmanager_class {
 		using priority_t = support::debug::priority;
 
