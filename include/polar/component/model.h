@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/gtc/random.hpp>
 #include <polar/asset/model.h>
 #include <polar/component/base.h>
 #include <polar/core/debugmanager.h>
@@ -64,9 +65,16 @@ namespace polar::component {
 			point_vec normals;
 			normals.resize(points.size());
 
-			bool reverse = false;
 			debugmanager()->trace("calculate_normals:");
 
+			if(type == GeometryType::Points) {
+				for(point_vec::size_type i = 0; i < points.size(); ++i) {
+					normals[i] = glm::normalize(glm::sphericalRand(Decimal(1)));
+				}
+				return normals;
+			}
+
+			bool reverse = false;
 			point_vec::size_type i = 0;
 			while(i <= points.size() - 3) {
 				auto normal = reverse

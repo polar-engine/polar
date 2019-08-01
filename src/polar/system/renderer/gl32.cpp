@@ -278,6 +278,8 @@ namespace polar::system::renderer {
 
 						GLenum drawMode = GL_TRIANGLES;
 						switch(model->type) {
+						case GeometryType::Points:
+							drawMode = GL_POINTS;
 						case GeometryType::Lines:
 							drawMode = GL_LINES;
 							break;
@@ -300,12 +302,13 @@ namespace polar::system::renderer {
 				break;
 			}
 			default:
-				for(auto &pair :
-				    nodes[i - 1]
-				        .globalOuts) { /* for each previous global output */
+				// for each previous global output
+				for(auto &pair : nodes[i - 1].globalOuts) {
 					globals.emplace(pair);
 				}
-				for(auto &pair : node.ins) { /* for each input */
+
+				// for each input
+				for(auto &pair : node.ins) {
 					auto buffer = nodes[i - 1].outs[pair.first];
 					GL(glActiveTexture(GL_TEXTURE0 + texPos));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));
@@ -313,7 +316,9 @@ namespace polar::system::renderer {
 					uploaduniform(node.program, pair.second, glm::int32(texPos));
 					++texPos;
 				}
-				for(auto &pair : node.globalIns) { /* for each global input */
+
+				// for each globla input
+				for(auto &pair : node.globalIns) {
 					auto buffer = globals[pair.first];
 					GL(glActiveTexture(GL_TEXTURE0 + texPos));
 					GL(glBindTexture(GL_TEXTURE_2D, buffer));

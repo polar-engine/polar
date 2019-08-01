@@ -29,7 +29,13 @@ typedef glm::tmat4x4<Decimal, glm::highp> Mat4;
 typedef std::tuple<Point3, Point3, Point3> EngineTriangle;
 #define Triangle EngineTriangle
 
-enum class GeometryType : uint8_t { None, Lines, Triangles, TriangleStrip };
+enum class GeometryType : uint8_t {
+	None,
+	Points,
+	Lines,
+	Triangles,
+	TriangleStrip
+};
 
 typedef std::uint_fast64_t IDType;
 #define INVALID_ID std::numeric_limits<IDType>::max
