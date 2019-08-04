@@ -212,10 +212,10 @@ namespace polar::system {
 							break;
 						case ::vr::k_eControllerAxis_TrackPad:
 						case ::vr::k_eControllerAxis_Joystick:
-							action->accumulate<a_vr::axis_x<a_vr::type::left_hand>>(state.rAxis[i].x);
-							action->accumulate<a_vr::axis_y<a_vr::type::left_hand>>(state.rAxis[i].y);
-							action->accumulate<a_vr::axis_x<a_vr::type::any      >>(state.rAxis[i].x);
-							action->accumulate<a_vr::axis_y<a_vr::type::any      >>(state.rAxis[i].y);
+							action->accumulate<a_vr::axis_x<a_vr::type::left_hand>>(INVALID_ID(), state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::left_hand>>(INVALID_ID(), state.rAxis[i].y);
+							action->accumulate<a_vr::axis_x<a_vr::type::any      >>(INVALID_ID(), state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::any      >>(INVALID_ID(), state.rAxis[i].y);
 							break;
 						}
 					}
@@ -244,10 +244,10 @@ namespace polar::system {
 							break;
 						case ::vr::k_eControllerAxis_TrackPad:
 						case ::vr::k_eControllerAxis_Joystick:
-							action->accumulate<a_vr::axis_x<a_vr::type::right_hand>>(state.rAxis[i].x);
-							action->accumulate<a_vr::axis_y<a_vr::type::right_hand>>(state.rAxis[i].y);
-							action->accumulate<a_vr::axis_x<a_vr::type::any       >>(state.rAxis[i].x);
-							action->accumulate<a_vr::axis_y<a_vr::type::any       >>(state.rAxis[i].y);
+							action->accumulate<a_vr::axis_x<a_vr::type::right_hand>>(INVALID_ID(), state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::right_hand>>(INVALID_ID(), state.rAxis[i].y);
+							action->accumulate<a_vr::axis_x<a_vr::type::any       >>(INVALID_ID(), state.rAxis[i].x);
+							action->accumulate<a_vr::axis_y<a_vr::type::any       >>(INVALID_ID(), state.rAxis[i].y);
 							break;
 						}
 					}

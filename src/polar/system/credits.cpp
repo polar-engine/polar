@@ -40,7 +40,7 @@ namespace polar::system {
 		auto act = engine->get<action>().lock();
 
 		if(act) {
-			keep(act->bind<support::action::credits::back>(lifetime::on, [this] {
+			keep(act->bind<support::action::credits::back>(lifetime::on, [this](auto) {
 				engine->transition = "back";
 			}));
 		}

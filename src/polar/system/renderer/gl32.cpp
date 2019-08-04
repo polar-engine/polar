@@ -851,7 +851,7 @@ namespace polar::system::renderer {
 				makepipeline(pipelineNames);
 				debugmanager()->trace("MakePipeline done");
 				if(act) {
-					act->trigger<action_resize>();
+					act->trigger<action_resize>(INVALID_ID());
 				}
 				break;
 			}
@@ -860,68 +860,68 @@ namespace polar::system::renderer {
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
 				if(act) {
-					act->trigger_digital(kb::key_ti(key), true);
+					act->trigger_digital(INVALID_ID(), kb::key_ti(key), true);
 				}
 			}
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
 			if(act) {
-				act->trigger_digital(kb::key_ti(key), false);
+				act->trigger_digital(INVALID_ID(), kb::key_ti(key), false);
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);
 			if(act) {
-				act->trigger_digital(kb::key_ti(key), true);
+				act->trigger_digital(INVALID_ID(), kb::key_ti(key), true);
 			}
 			break;
 		case SDL_MOUSEBUTTONUP:
 			key = mkMouseButtonFromSDL(ev.button.button);
 			if(act) {
-				act->trigger_digital(kb::key_ti(key), false);
+				act->trigger_digital(INVALID_ID(), kb::key_ti(key), false);
 			}
 			break;
 		case SDL_MOUSEMOTION:
 			if(act) {
 				// XXX: this is hacky
-				act->accumulate<mouse::position_x>(ev.motion.x);
-				act->accumulate<mouse::position_y>(ev.motion.y);
+				act->accumulate<mouse::position_x>(INVALID_ID(), ev.motion.x);
+				act->accumulate<mouse::position_y>(INVALID_ID(), ev.motion.y);
 
-				act->accumulate<mouse::motion_x>(ev.motion.xrel);
-				act->accumulate<mouse::motion_y>(ev.motion.yrel);
+				act->accumulate<mouse::motion_x>(INVALID_ID(), ev.motion.xrel);
+				act->accumulate<mouse::motion_y>(INVALID_ID(), ev.motion.yrel);
 			}
 			break;
 		case SDL_MOUSEWHEEL:
 			if(act) {
-				act->accumulate<mouse::wheel_x>(ev.wheel.x);
-				act->accumulate<mouse::wheel_y>(ev.wheel.y);
+				act->accumulate<mouse::wheel_x>(INVALID_ID(), ev.wheel.x);
+				act->accumulate<mouse::wheel_y>(INVALID_ID(), ev.wheel.y);
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
 			if(act) {
-				act->trigger_digital(kb::key_ti(key), true);
+				act->trigger_digital(INVALID_ID(), kb::key_ti(key), true);
 			}
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
 			if(act) {
-				act->trigger_digital(kb::key_ti(key), false);
+				act->trigger_digital(INVALID_ID(), kb::key_ti(key), false);
 			}
 			break;
 		case SDL_CONTROLLERAXISMOTION:
 			switch(ev.caxis.axis) {
 			case 0: // x axis
 				if(act) {
-					act->accumulate<controller::motion_x>(ev.caxis.value);
+					act->accumulate<controller::motion_x>(INVALID_ID(), ev.caxis.value);
 				}
 				break;
 			case 1: // y axis
 				if(act) {
-					act->accumulate<controller::motion_y>(ev.caxis.value);
+					act->accumulate<controller::motion_y>(INVALID_ID(), ev.caxis.value);
 				}
 				break;
 			}

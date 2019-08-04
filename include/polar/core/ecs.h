@@ -15,29 +15,30 @@ namespace polar::core {
 	  public:
 		inline void clear() { components.clear(); }
 
-		template<typename T> inline void add() {
-			if(!has<T>()) { add(new T()); }
+		template<typename T> inline auto add() {
+			if(!has<T>()) { return add(new T()); }
 		}
 
-		template<typename T, typename... Ts> inline void add(Ts &&... args) {
-			add_as<T, T>(std::forward<Ts>(args)...);
+		template<typename T, typename... Ts> inline auto add(Ts &&... args) {
+			return add_as<T, T>(std::forward<Ts>(args)...);
 		}
 
 		template<typename B, typename T, typename... Ts>
-		inline void add_as(Ts &&... args) {
+		inline auto add_as(Ts &&... args) {
 			static_assert(std::is_base_of<C, T>::value,
 			              "ecs::add_as requires base class and sub class");
-			add(std::shared_ptr<B>(new T(std::forward<Ts>(args)...)));
+			return add(std::shared_ptr<B>(new T(std::forward<Ts>(args)...)));
 		}
 
 		template<typename T> inline void add(T *component) {
 			add(std::shared_ptr<T>(component));
 		}
 
-		template<typename T> inline void add(std::shared_ptr<T> ptr) {
+		template<typename T> inline auto add(std::shared_ptr<T> ptr) {
 			static_assert(std::is_base_of<C, T>::value,
 			              "ecs::add requires object of correct type");
 			components.emplace(typeid(T), std::static_pointer_cast<C>(ptr));
+			return ptr;
 		}
 
 		template<typename T> inline void remove() {

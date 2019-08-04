@@ -181,16 +181,16 @@ namespace polar::system {
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");
 
-		keep(act->bind<a::down   >(lifetime::on, [this] { navigate( 1);    }));
-		keep(act->bind<a::up     >(lifetime::on, [this] { navigate(-1);    }));
-		keep(act->bind<a::right  >(lifetime::on, [this] { navigate(0,  1); }));
-		keep(act->bind<a::left   >(lifetime::on, [this] { navigate(0, -1); }));
-		keep(act->bind<a::forward>(lifetime::on, [this] { activate();      }));
-		keep(act->bind<a::back   >(lifetime::on, [this] {
+		keep(act->bind<a::down   >(lifetime::on, [this](auto) { navigate( 1);    }));
+		keep(act->bind<a::up     >(lifetime::on, [this](auto) { navigate(-1);    }));
+		keep(act->bind<a::right  >(lifetime::on, [this](auto) { navigate(0,  1); }));
+		keep(act->bind<a::left   >(lifetime::on, [this](auto) { navigate(0, -1); }));
+		keep(act->bind<a::forward>(lifetime::on, [this](auto) { activate();      }));
+		keep(act->bind<a::back   >(lifetime::on, [this](auto) {
 			navigate(0, -1, true);
 		}));
 
-		keep(act->bind<mse::position_y>([this](Decimal y) {
+		keep(act->bind<mse::position_y>([this](auto, Decimal y) {
 			if(int(y) != 0) { on_cursor(int(y)); }
 		}));
 

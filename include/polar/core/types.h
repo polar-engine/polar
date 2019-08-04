@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <limits>
 #include <tuple>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -10,6 +11,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
+
+#ifdef max
+#undef max
+#endif
 
 typedef float Decimal;
 typedef glm::tvec2<Decimal, glm::highp> EnginePoint2;
@@ -38,4 +43,4 @@ enum class GeometryType : uint8_t {
 };
 
 typedef std::uint_fast64_t IDType;
-#define INVALID_ID std::numeric_limits<IDType>::max
+#define INVALID_ID (std::numeric_limits<IDType>::max)

@@ -46,8 +46,8 @@ namespace polar::core {
 		template<typename T, typename... Ts,
 		         typename = typename std::enable_if<
 		             std::is_base_of<system::base, T>::value>::type>
-		inline void add(Ts &&... args) {
-			add_as<T, T>(std::forward<Ts>(args)...);
+		inline auto add(Ts &&... args) {
+			return add_as<T, T>(std::forward<Ts>(args)...);
 		}
 
 		template<typename B, typename T, typename... Ts,
@@ -55,14 +55,16 @@ namespace polar::core {
 		             std::is_base_of<system::base, T>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<B, T>::value>::type>
-		inline void add_as(Ts &&... args) {
+		inline auto add_as(Ts &&... args) {
 #ifdef _DEBUG
 			if(!T::supported()) {
 				debugmanager()->fatal("unsupported system: ", typeid(T).name());
+				return std::shared_ptr<T>();
 			} else {
 #endif
-				systems.add_as<B, T>(engine, std::forward<Ts>(args)...);
+				auto ptr = systems.add_as<B, T>(engine, std::forward<Ts>(args)...);
 				orderedSystems.emplace_back(systems.get<B>());
+				return ptr;
 #ifdef _DEBUG
 			}
 #endif
