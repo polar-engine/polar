@@ -11,7 +11,7 @@ namespace polar::component {
 	  public:
 		integrable<Point3> distance;
 		integrable<Point3> position;
-		Quat orientation{1, 0, 0, 0};
+		integrable<Quat> orientation;
 		playercamera(const Point3 &distance = Point3(0, 0, 0),
 		             const Point3 &position = Point3(0, 0, 0),
 		             const Point3 &euler    = Point3(0, 0, 0))
@@ -22,6 +22,7 @@ namespace polar::component {
 			if(prop) {
 				prop->add(&this->distance);
 				prop->add(&this->position);
+				prop->add(&this->orientation);
 			}
 		}
 	};

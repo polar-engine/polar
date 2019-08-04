@@ -458,7 +458,7 @@ namespace polar::system::renderer {
 
 			cameraView = glm::translate(
 			    cameraView, -camera->distance.temporal(delta).to<Point3>());
-			cameraView *= glm::toMat4(camera->orientation);
+			cameraView *= glm::toMat4(camera->orientation.temporal(delta).to<Quat>());
 			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient.temporal(delta).to<Quat>()); }
 			cameraView = glm::translate(
 			    cameraView, -camera->position.temporal(delta).to<Point3>());
