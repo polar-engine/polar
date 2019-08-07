@@ -59,7 +59,7 @@ namespace polar::core {
 #ifdef _DEBUG
 			if(!T::supported()) {
 				debugmanager()->fatal("unsupported system: ", typeid(T).name());
-				return std::shared_ptr<T>();
+				return std::shared_ptr<B>();
 			} else {
 #endif
 				auto ptr = systems.add_as<B, T>(engine, std::forward<Ts>(args)...);
