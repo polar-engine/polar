@@ -35,6 +35,7 @@ namespace polar::system {
 		};
 
 		struct frame {
+			digital_map digitals;
 			std::vector<frame_action> actions;
 		};
 
@@ -86,10 +87,14 @@ namespace polar::system {
 				}
 			}
 
+			framebuffer.back().digitals = digitals;
 			framebuffer.push_back();
 		}
 
 		void apply_frame(frame f) {
+			auto tmp = digitals;
+			digitals = f.digitals;
+
 			// save accumulated analog values before applying frame
 			for(auto &pair : analogs) {
 				for(auto &state : pair.second.states) {
@@ -101,7 +106,6 @@ namespace polar::system {
 				trigger_digital(a.objectID, a.ti, a.lt);
 			}
 
-			// XXX: this will still trigger `when` actions active before the revert
 			force_tick();
 
 			// load accumulated analog values again
@@ -110,6 +114,8 @@ namespace polar::system {
 					state.second.value = state.second.saved;
 				}
 			}
+
+			digitals = tmp;
 		}
 
 		void reg_digital(IDType objectID, std::type_index ti, bool state = false) {
