@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <optional>
+#include <boost/circular_buffer.hpp>
 #include <polar/core/deltaticks.h>
 
 namespace polar::support::integrator {
@@ -49,22 +50,28 @@ namespace polar::support::integrator {
 		virtual bool hasderivative(const unsigned char = 0)             = 0;
 		virtual integrable_base &getderivative(const unsigned char = 0) = 0;
 		virtual void integrate(const DeltaTicks::seconds_type)          = 0;
-		virtual void revert()                                           = 0;
+		virtual bool revert_by(size_t = 0)                              = 0;
+		virtual bool revert_to(size_t = 0)                              = 0;
 	};
 
 	template<typename T, class D = T> class integrable : public integrable_base {
 	  private:
-		typedef std::unique_ptr<integrable<D>> derivative_t;
-		T previousValue;
+		using derivative_t = std::unique_ptr<integrable<D>>;
+
+		struct history_entry {
+			T value;
+			std::optional<target_t<T>> target;
+		};
+
+		boost::circular_buffer<history_entry> history;
+
 		T value;
 		derivative_t deriv;
 		std::optional<target_t<T>> _target;
 
 	  public:
 		template<typename... Ts>
-		integrable(Ts &&... args) : value(std::forward<Ts>(args)...) {
-			previousValue = value;
-		}
+		integrable(Ts &&... args) : value(std::forward<Ts>(args)...), history(100, {value, _target}) {}
 
 		inline void target(T value, Decimal factor) {
 			_target = target_t<T>{target_type::ease_towards, value, factor};
@@ -128,9 +135,9 @@ namespace polar::support::integrator {
 		}
 
 		inline void integrate(const DeltaTicks::seconds_type seconds) override {
-			if(hasderivative()) {
-				previousValue = value;
+			history.push_back({value, _target});
 
+			if(hasderivative()) {
 				D delta = integrable_interp<D>(integrable_id<D>(), *derivative(), seconds);
 				value = integrable_sum(value, delta);
 
@@ -152,7 +159,28 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline void revert() override { value = previousValue; }
+		inline bool revert_by(size_t n = 0) override {
+			auto size = history.size();
+			if(n >= size) {
+				return false;
+			} else {
+				auto &entry = history[size - n - 1];
+				value   = entry.value;
+				_target = entry.target;
+				return hasderivative() ? derivative().revert_by(n) : true;
+			}
+		}
+
+		inline bool revert_to(size_t n = 0) override {
+			if(n >= history.size()) {
+				return false;
+			} else {
+				auto &entry = history[n];
+				value   = entry.value;
+				_target = entry.target;
+				return hasderivative() ? derivative().revert_to(n) : true;
+			}
+		}
 
 		inline T &operator*() { return value; }
 		inline T *operator->() { return &value; }

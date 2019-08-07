@@ -28,4 +28,28 @@ namespace polar::system {
 		}
 		engine->get<event>().lock()->firein("integrator", "ticked", seconds);
 	}
+
+	void integrator::revert_by(size_t n) {
+		for(auto it = engine->objects.left.begin();
+		    it != engine->objects.left.end(); ++it) {
+			auto property = it->info->get<property::integrable>().lock();
+			if(property) {
+				for(auto integrable : *property->get()) {
+					integrable->revert_by(n);
+				}
+			}
+		}
+	}
+
+	void integrator::revert_to(size_t n) {
+		for(auto it = engine->objects.left.begin();
+		    it != engine->objects.left.end(); ++it) {
+			auto property = it->info->get<property::integrable>().lock();
+			if(property) {
+				for(auto integrable : *property->get()) {
+					integrable->revert_to(n);
+				}
+			}
+		}
+	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/circular_buffer.hpp>
 #include <polar/support/action/binding.h>
 #include <polar/support/action/lifetime.h>
 #include <polar/system/base.h>
@@ -12,26 +13,32 @@ namespace polar::system {
 		using digital_function_t = support::action::digital_function_t;
 		using analog_function_t  = support::action::analog_function_t;
 		using analog_predicate_t = support::action::analog_predicate_t;
-
-		struct digital_data {
-			std::unordered_map<IDType, bool> states;
-		};
-
-		struct analog_state {
-			const Decimal initial = 0;
-			Decimal previous = 0;
-			Decimal value = 0;
-		};
-
-		struct analog_data {
-			std::unordered_map<IDType, analog_state> states;
-		};
-
-		using digital_map = std::unordered_map<std::type_index, digital_data>;
-		using analog_map  = std::unordered_map<std::type_index, analog_data>;
 	private:
-		using binding  = support::action::binding;
-		using lifetime = support::action::lifetime;
+		using binding      = support::action::binding;
+		using lifetime     = support::action::lifetime;
+		using digital_data = support::action::digital_data;
+		using analog_state = support::action::analog_state;
+		using analog_data  = support::action::analog_data;
+		using digital_map  = support::action::digital_map;
+		using analog_map   = support::action::analog_map;
+
+		const int fps = 50;
+		const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
+		DeltaTicks accumulator;
+
+		struct frame_action {
+			IDType objectID;
+			std::type_index ti;
+			lifetime lt;
+
+			frame_action(IDType objectID, std::type_index ti, lifetime lt) : objectID(objectID), ti(ti), lt(lt) {}
+		};
+
+		struct frame {
+			std::vector<frame_action> actions;
+		};
+
+		boost::circular_buffer<frame> framebuffer = boost::circular_buffer<frame>(100);
 
 		digital_map digitals;
 		analog_map analogs;
@@ -40,13 +47,13 @@ namespace polar::system {
 		binding::bimap bindings;
 
 		IDType nextID = 1;
-
-		const int fps = 60;
-		const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
-		DeltaTicks accumulator;
 	public:
 		static bool supported() { return true; }
 		action(core::polar *engine) : base(engine) {}
+
+		inline auto get_framebuffer() const { return framebuffer; }
+
+		inline void force_tick() { tick(); }
 
 		void update(DeltaTicks &dt) override {
 			accumulator += dt;
@@ -61,9 +68,9 @@ namespace polar::system {
 		void tick() {
 			for(auto &pair : digitals) {
 				for(auto &state : pair.second.states) {
-					trigger_digital(state.first, pair.first,
-					                state.second ? lifetime::when
-					                             : lifetime::unless);
+					trigger_digital<false>(state.first, pair.first,
+					                       state.second ? lifetime::when
+					                                    : lifetime::unless);
 				}
 			}
 
@@ -76,6 +83,31 @@ namespace polar::system {
 					 */
 					state.second.previous = state.second.value;
 					state.second.value = state.second.initial;
+				}
+			}
+
+			framebuffer.push_back();
+		}
+
+		void apply_frame(frame f) {
+			// save accumulated analog values before applying frame
+			for(auto &pair : analogs) {
+				for(auto &state : pair.second.states) {
+					state.second.saved = state.second.value;
+				}
+			}
+
+			for(auto &a : f.actions) {
+				trigger_digital(a.objectID, a.ti, a.lt);
+			}
+
+			// XXX: this will still trigger `when` actions active before the revert
+			force_tick();
+
+			// load accumulated analog values again
+			for(auto &pair : analogs) {
+				for(auto &state : pair.second.states) {
+					state.second.value = state.second.saved;
 				}
 			}
 		}
@@ -267,6 +299,7 @@ namespace polar::system {
 			});
 		}
 
+		template<bool source = true>
 		void trigger_digital(IDType objectID, std::type_index ti, lifetime lt) {
 			debugmanager()->trace("triggering digital ", ti.name(), " for ", lt);
 
@@ -281,7 +314,7 @@ namespace polar::system {
 					if(binding.objectID) { objectID = *binding.objectID; }
 
 					if(auto wrapper = binding.get_if_tgt_digital()) {
-						trigger_digital(objectID, wrapper->ti, true);
+						trigger_digital<false>(objectID, wrapper->ti, true);
 					}
 				}
 			} else if(lt == lifetime::after) {
@@ -291,7 +324,7 @@ namespace polar::system {
 					if(binding.objectID) { objectID = *binding.objectID; }
 
 					if(auto wrapper = binding.get_if_tgt_digital()) {
-						trigger_digital(objectID, wrapper->ti, false);
+						trigger_digital<false>(objectID, wrapper->ti, false);
 					}
 				}
 			}
@@ -303,7 +336,7 @@ namespace polar::system {
 
 				if(auto wrapper = binding.get_if_tgt_digital()) {
 					if(lt != lifetime::when) {
-						trigger_digital(objectID, wrapper->ti);
+						trigger_digital<false>(objectID, wrapper->ti);
 					}
 				} else if(auto wrapper = binding.get_if_tgt_analog()) {
 					accumulate_analog(objectID, wrapper->ti, binding.passthrough);
@@ -311,30 +344,36 @@ namespace polar::system {
 					(*f)(objectID);
 				}
 			}
+
+			if(source) {
+				framebuffer.back().actions.emplace_back(objectID, ti, lt);
+			}
 		}
 
+		template<bool source = true>
 		void trigger_digital(IDType objectID, std::type_index ti, bool state) {
 			// force registration of digital
 			reg_digital(objectID, ti);
 
 			if(state != digitals[ti].states[objectID]) {
 				if(state) {
-					trigger_digital(objectID, ti, lifetime::on);
+					trigger_digital<source>(objectID, ti, lifetime::on);
 					digitals[ti].states[objectID] = state;
 				} else {
 					digitals[ti].states[objectID] = state;
-					trigger_digital(objectID, ti, lifetime::after);
+					trigger_digital<source>(objectID, ti, lifetime::after);
 				}
 			}
 		}
 
+		template<bool source = true>
 		void trigger_digital(IDType objectID, std::type_index ti) {
-			// XXX: TEMPORARY FIX, need to keep state continuously >:(
-			trigger_digital(objectID, ti, true);
-			trigger_digital(objectID, ti, lifetime::when);
-			trigger_digital(objectID, ti, false);
+			trigger_digital<source>(objectID, ti, true);
+			trigger_digital<source>(objectID, ti, lifetime::when);
+			trigger_digital<source>(objectID, ti, false);
 		}
 
+		template<bool source = true>
 		void trigger_analog(IDType objectID, std::type_index ti) {
 			// force registration of analog
 			reg_analog(objectID, ti);
@@ -350,7 +389,7 @@ namespace polar::system {
 					(*f)(objectID, data.states[objectID].value);
 				} else if(auto wrapper = binding.get_if_tgt_digital()) {
 					auto result = binding.predicate(objectID, data.states[objectID].previous, data.states[objectID].value);
-					trigger_digital(objectID, wrapper->ti, result);
+					trigger_digital<false>(objectID, wrapper->ti, result);
 				}
 			}
 		}

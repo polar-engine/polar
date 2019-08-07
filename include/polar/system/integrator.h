@@ -21,6 +21,12 @@ namespace polar::system {
 
 		static bool supported() { return true; }
 		integrator(core::polar *engine) : base(engine) {}
+
 		const inline DeltaTicks &getaccumulator() const { return accumulator; }
+
+		inline void force_tick() { tick(timestep.Seconds()); }
+
+		void revert_by(size_t = 0);
+		void revert_to(size_t = 0);
 	};
 } // namespace polar::system
