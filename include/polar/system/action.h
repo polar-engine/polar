@@ -130,11 +130,11 @@ namespace polar::system {
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<digital, T>::value>::type
-		reg_digital(bool state = false) { reg_digital(typeid(T), state); }
+		reg_digital(IDType objectID, bool state = false) { reg_digital(objectID, typeid(T), state); }
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<analog, T>::value>::type
-		reg_analog(Decimal initial = 0) { reg_analog(typeid(T), initial); }
+		reg_analog(IDType objectID, Decimal initial = 0) { reg_analog(objectID, typeid(T), initial); }
 
 		// digital -> digital function
 		template<typename Src,

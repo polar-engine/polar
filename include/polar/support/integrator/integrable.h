@@ -71,7 +71,9 @@ namespace polar::support::integrator {
 
 	  public:
 		template<typename... Ts>
-		integrable(Ts &&... args) : value(std::forward<Ts>(args)...), history(100, {value, _target}) {}
+		integrable(Ts &&... args) : value(std::forward<Ts>(args)...) {
+			history = boost::circular_buffer<history_entry>(100, {value, _target});
+		}
 
 		inline void target(T value, Decimal factor) {
 			_target = target_t<T>{target_type::ease_towards, value, factor};
@@ -84,12 +86,12 @@ namespace polar::support::integrator {
 		inline operator const T &() const { return get(); }
 
 		inline const T &get() const { return value; }
-		inline const T &getprevious() const { return previousValue; }
+		inline const T &get_previous() const { return history.back().value; }
 		template<typename _To> inline _To to() {
 			return static_cast<_To>(value);
 		}
 		template<typename _To> inline _To to_previous() {
-			return static_cast<_To>(previousValue);
+			return static_cast<_To>(history.back().value);
 		}
 
 		inline bool hasderivative(const unsigned char n = 0) override {
