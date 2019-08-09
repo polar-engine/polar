@@ -39,7 +39,7 @@ namespace polar::system {
 			std::vector<frame_action> actions;
 		};
 
-		boost::circular_buffer<frame> framebuffer = boost::circular_buffer<frame>(100);
+		boost::circular_buffer<frame> framebuffer = boost::circular_buffer<frame>(100, frame{});
 
 		digital_map digitals;
 		analog_map analogs;
