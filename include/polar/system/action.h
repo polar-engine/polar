@@ -81,17 +81,22 @@ namespace polar::system {
 			for(auto &pair : cf.analogs) {
 				for(auto &state : pair.second.states) {
 					trigger_analog(state.first, pair.first);
-
-					/* reset value immediately after triggering
-					 * this allows the value to accumulate across the entire frame
-					 */
-					state.second.previous = state.second.value;
-					state.second.value = state.second.initial;
 				}
 			}
 
 			if(frame_offset == 0) {
 				framebuffer.push_back(frame{cf.digitals, cf.analogs, {}});
+
+				auto &nf = current_frame();
+
+				// reset analog values immediately after triggering
+				// this allows them to accumulate across the entire frame
+				for(auto &pair : nf.analogs) {
+					for(auto &state : pair.second.states) {
+						state.second.previous = state.second.value;
+						state.second.value = state.second.initial;
+					}
+				}
 			} else {
 				--frame_offset;
 			}
