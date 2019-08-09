@@ -36,13 +36,12 @@ namespace polar::system {
 
 		struct frame {
 			digital_map digitals;
+			analog_map analogs;
 			std::vector<frame_action> actions;
 		};
 
 		boost::circular_buffer<frame> framebuffer = boost::circular_buffer<frame>(100, frame{});
-
-		digital_map digitals;
-		analog_map analogs;
+		size_t frame_offset = 0;
 
 		std::array<binding::bimap, size_t(lifetime::SIZE)> lt_bindings;
 		binding::bimap bindings;
@@ -53,6 +52,7 @@ namespace polar::system {
 		action(core::polar *engine) : base(engine) {}
 
 		inline auto get_framebuffer() const { return framebuffer; }
+		inline auto & current_frame() { return framebuffer[framebuffer.size() - 1 - frame_offset]; }
 
 		inline void force_tick() { tick(); }
 
@@ -67,7 +67,9 @@ namespace polar::system {
 		}
 
 		void tick() {
-			for(auto &pair : digitals) {
+			auto &cf = current_frame();
+
+			for(auto &pair : cf.digitals) {
 				for(auto &state : pair.second.states) {
 					trigger_digital<false>(state.first, pair.first,
 					                       state.second ? lifetime::when
@@ -75,7 +77,7 @@ namespace polar::system {
 				}
 			}
 
-			for(auto &pair : analogs) {
+			for(auto &pair : cf.analogs) {
 				for(auto &state : pair.second.states) {
 					trigger_analog(state.first, pair.first);
 
@@ -87,16 +89,17 @@ namespace polar::system {
 				}
 			}
 
-			framebuffer.back().digitals = digitals;
-			framebuffer.push_back();
+			framebuffer.push_back(frame{cf.digitals, cf.analogs, {}});
 		}
 
 		void apply_frame(frame f) {
-			auto tmp = digitals;
-			digitals = f.digitals;
+			auto &cf = current_frame();
+
+			auto tmp = cf.digitals;
+			cf.digitals = f.digitals;
 
 			// save accumulated analog values before applying frame
-			for(auto &pair : analogs) {
+			for(auto &pair : cf.analogs) {
 				for(auto &state : pair.second.states) {
 					state.second.saved = state.second.value;
 				}
@@ -109,29 +112,33 @@ namespace polar::system {
 			force_tick();
 
 			// load accumulated analog values again
-			for(auto &pair : analogs) {
+			for(auto &pair : cf.analogs) {
 				for(auto &state : pair.second.states) {
 					state.second.value = state.second.saved;
 				}
 			}
 
-			digitals = tmp;
+			cf.digitals = tmp;
 		}
 
 		void reg_digital(IDType objectID, std::type_index ti, bool state = false) {
-			auto it = digitals.find(ti);
-			if(it == digitals.end()) {
-				digitals.emplace(ti, digital_data{});
+			auto &cf = current_frame();
+
+			auto it = cf.digitals.find(ti);
+			if(it == cf.digitals.end()) {
+				cf.digitals.emplace(ti, digital_data{});
 			}
-			digitals[ti].states.emplace(objectID, state);
+			cf.digitals[ti].states.emplace(objectID, state);
 		}
 
 		void reg_analog(IDType objectID, std::type_index ti, Decimal initial = 0) {
-			auto it = analogs.find(ti);
-			if(it == analogs.end()) {
-				analogs.emplace(ti, analog_data{});
+			auto &cf = current_frame();
+
+			auto it = cf.analogs.find(ti);
+			if(it == cf.analogs.end()) {
+				cf.analogs.emplace(ti, analog_data{});
 			}
-			analogs[ti].states.emplace(objectID, analog_state{initial, initial, initial});
+			cf.analogs[ti].states.emplace(objectID, analog_state{initial, initial, initial});
 		}
 
 		template<typename T>
@@ -358,15 +365,17 @@ namespace polar::system {
 
 		template<bool source = true>
 		void trigger_digital(IDType objectID, std::type_index ti, bool state) {
+			auto &cf = current_frame();
+
 			// force registration of digital
 			reg_digital(objectID, ti);
 
-			if(state != digitals[ti].states[objectID]) {
+			if(state != cf.digitals[ti].states[objectID]) {
 				if(state) {
 					trigger_digital<source>(objectID, ti, lifetime::on);
-					digitals[ti].states[objectID] = state;
+					cf.digitals[ti].states[objectID] = state;
 				} else {
-					digitals[ti].states[objectID] = state;
+					cf.digitals[ti].states[objectID] = state;
 					trigger_digital<source>(objectID, ti, lifetime::after);
 				}
 			}
@@ -381,10 +390,12 @@ namespace polar::system {
 
 		template<bool source = true>
 		void trigger_analog(IDType objectID, std::type_index ti) {
+			auto &cf = current_frame();
+
 			// force registration of analog
 			reg_analog(objectID, ti);
 
-			auto &data = analogs.at(ti);
+			auto &data = cf.analogs.at(ti);
 
 			debugmanager()->trace("triggering analog ", ti.name(), '(', data.states[objectID].value, ')');
 
@@ -401,10 +412,12 @@ namespace polar::system {
 		}
 
 		void accumulate_analog(IDType objectID, std::type_index ti, Decimal passthrough) {
+			auto &cf = current_frame();
+
 			// force registration of analog
 			reg_analog(objectID, ti);
 
-			analogs[ti].states[objectID].value += passthrough;
+			cf.analogs[ti].states[objectID].value += passthrough;
 
 			auto pair = bindings.left.equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
