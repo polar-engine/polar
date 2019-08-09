@@ -30,6 +30,8 @@ namespace polar::system {
 	}
 
 	void integrator::revert_by(size_t n) {
+		if(n == 0) { return; }
+
 		for(auto it = engine->objects.left.begin();
 		    it != engine->objects.left.end(); ++it) {
 			auto property = it->info->get<property::integrable>().lock();

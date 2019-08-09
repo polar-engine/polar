@@ -26,7 +26,7 @@ namespace polar::system {
 
 		inline void force_tick() { tick(timestep.Seconds()); }
 
-		void revert_by(size_t = 0);
+		void revert_by(size_t = 1);
 		void revert_to(size_t = 0);
 	};
 } // namespace polar::system

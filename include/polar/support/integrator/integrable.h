@@ -161,7 +161,9 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline bool revert_by(size_t n = 0) override {
+		inline bool revert_by(size_t n = 1) override {
+			if(n == 0) { return true; }
+
 			auto size = history.size();
 			if(n >= size) {
 				return false;

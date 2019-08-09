@@ -52,6 +52,7 @@ namespace polar::system {
 		action(core::polar *engine) : base(engine) {}
 
 		inline auto get_framebuffer() const { return framebuffer; }
+		inline auto get_frame_offset() const { return frame_offset; }
 		inline auto & current_frame() { return framebuffer[framebuffer.size() - 1 - frame_offset]; }
 
 		inline void force_tick() { tick(); }
@@ -89,36 +90,23 @@ namespace polar::system {
 				}
 			}
 
-			framebuffer.push_back(frame{cf.digitals, cf.analogs, {}});
+			if(frame_offset == 0) {
+				framebuffer.push_back(frame{cf.digitals, cf.analogs, {}});
+			} else {
+				--frame_offset;
+			}
 		}
 
-		void apply_frame(frame f) {
-			auto &cf = current_frame();
+		inline bool revert_by(size_t n = 1) {
+			if(n == 0) { return true; }
 
-			auto tmp = cf.digitals;
-			cf.digitals = f.digitals;
-
-			// save accumulated analog values before applying frame
-			for(auto &pair : cf.analogs) {
-				for(auto &state : pair.second.states) {
-					state.second.saved = state.second.value;
-				}
+			auto size = framebuffer.size();
+			if(n >= size) {
+				return false;
+			} else {
+				frame_offset = n;
+				return true;
 			}
-
-			for(auto &a : f.actions) {
-				trigger_digital(a.objectID, a.ti, a.lt);
-			}
-
-			force_tick();
-
-			// load accumulated analog values again
-			for(auto &pair : cf.analogs) {
-				for(auto &state : pair.second.states) {
-					state.second.value = state.second.saved;
-				}
-			}
-
-			cf.digitals = tmp;
 		}
 
 		void reg_digital(IDType objectID, std::type_index ti, bool state = false) {

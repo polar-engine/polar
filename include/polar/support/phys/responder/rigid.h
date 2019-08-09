@@ -11,7 +11,7 @@ namespace polar::support::phys::responder {
 
 		void respond(core::polar *engine, IDType id, DeltaTicks) override {
 			if(auto p = engine->get<component::position>(id)) {
-				p->pos.revert_by();
+				p->pos.revert_by(1);
 				p->pos.derivative() *= -bounce;
 			}
 		}
