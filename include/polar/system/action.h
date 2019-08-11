@@ -99,6 +99,28 @@ namespace polar::system {
 				}
 			} else {
 				--frame_offset;
+
+				auto &nf = current_frame();
+
+				auto tmp = nf.digitals;
+				nf.digitals = cf.digitals;
+
+				for(auto &pair : tmp) {
+					auto it = nf.digitals.find(pair.first);
+					if(it == nf.digitals.end()) {
+						nf.digitals.emplace(pair.first, pair.second);
+					}
+				}
+
+				auto tmp2 = nf.analogs;
+				nf.analogs = cf.analogs;
+
+				for(auto &pair : tmp2) {
+					auto it = nf.analogs.find(pair.first);
+					if(it == nf.analogs.end()) {
+						nf.analogs.emplace(pair.first, pair.second);
+					}
+				}
 			}
 		}
 
