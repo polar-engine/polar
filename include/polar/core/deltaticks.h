@@ -9,11 +9,10 @@ typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>>
     DeltaTicksBase;
 
 class DeltaTicks {
-  private:
-	DeltaTicksBase value;
-
   public:
 	using seconds_type = Decimal;
+
+	DeltaTicksBase value;
 
 	DeltaTicks() {}
 	DeltaTicks(DeltaTicksBase value) : value(value) {}

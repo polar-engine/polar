@@ -1,5 +1,6 @@
 #include <polar/core/polar.h>
 #include <random>
+#include <thread>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -65,10 +66,9 @@ namespace polar::core {
 
 		uint64_t frameID = 0;
 		while(running) {
-			then = now;
-			now  = std::chrono::high_resolution_clock::now();
-			DeltaTicks dt =
-			    std::chrono::duration_cast<DeltaTicksBase>(now - then);
+			now = std::chrono::high_resolution_clock::now();
+			DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
+			then += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(dt.value);
 
 			debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
 
@@ -107,6 +107,7 @@ namespace polar::core {
 					}
 				}
 			}
+			std::this_thread::yield();
 		}
 	}
 
