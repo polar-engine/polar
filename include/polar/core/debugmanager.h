@@ -39,7 +39,7 @@ namespace polar::core {
 	  public:
 		priority_t priority;
 
-		static auto get() {
+		static inline auto get() {
 			if(!instance) { instance = std::make_shared<debugmanager_class>(); }
 			return instance;
 		}
@@ -48,19 +48,19 @@ namespace polar::core {
 
 		void msgbox(std::string, std::string);
 
-		template<typename T> void write(T arg) {
+		template<typename T> inline void write(T arg) {
 			std::cout << arg;
 			file << arg;
 		}
 
-		void log_base(priority_t) {}
+		inline void log_base(priority_t) {}
 		template<typename T, typename... Ts>
-		void log_base(priority_t p, T arg, Ts &&... args) {
+		inline void log_base(priority_t p, T arg, Ts &&... args) {
 			write(arg);
 			log_base(p, std::forward<Ts>(args)...);
 		}
 
-		template<typename... Ts> void log(priority_t p, Ts &&... args) {
+		template<typename... Ts> inline void log(priority_t p, Ts &&... args) {
 			static const std::array<std::string, size_t(priority_t::_size)>
 			    uppers = {{"TRACE", "DEBUG", "VERBOSE", "INFO", "NOTICE",
 			               "WARNING", "ERROR", "CRITICAL", "FATAL"}};
@@ -88,7 +88,9 @@ namespace polar::core {
 		}
 
 		template<typename... Ts> inline void trace(Ts &&... args) {
+#ifdef _DEBUG
 			log(priority_t::trace, std::forward<Ts>(args)...);
+#endif
 		}
 		template<typename... Ts> inline void debug(Ts &&... args) {
 			log(priority_t::debug, std::forward<Ts>(args)...);

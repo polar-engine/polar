@@ -11,13 +11,19 @@ namespace polar::core {
 	}
 
 	void state::update(DeltaTicks &dt) {
-		/* copy ordered systems vector to avoid invalidation */
-		auto tmpSystems = orderedSystems;
-		for(auto &system : tmpSystems) {
+		for(auto &system : orderedSystems) {
 			auto &deref = *system;
 			debugmanager()->trace("updating system: ", typeid(deref).name());
 			system->update(dt);
 			debugmanager()->trace("updated system");
+		}
+
+		if(!toErase.empty()) {
+			for(auto &system : toErase) {
+				orderedSystems.erase(std::remove(orderedSystems.begin(),
+				                                 orderedSystems.end(), system));
+			}
+			toErase.clear();
 		}
 	}
 

@@ -54,6 +54,8 @@ namespace polar::core {
 	}
 
 	void polar::run(const std::string &initialState) {
+		using namespace std::chrono_literals;
+
 		running = true;
 
 		stack.emplace_back(initialState, this);
@@ -67,47 +69,51 @@ namespace polar::core {
 		uint64_t frameID = 0;
 		while(running) {
 			now = std::chrono::high_resolution_clock::now();
-			DeltaTicks dt = std::chrono::duration_cast<DeltaTicksBase>(now - then);
-			then += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(dt.value);
+			DeltaTicksBase dtb = std::chrono::duration_cast<DeltaTicksBase>(now - then);
 
-			debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
+			// skip frame if no time elapsed
+			if(dtb.count() > 0) {
+				then += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(dtb);
+				DeltaTicks dt(dtb);
 
-			for(auto &state : stack) { state.update(dt); }
+				debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
 
-			/* perform transition at end of iteration to avoid invalidation
-			 */
-			if(transition != "") {
-				auto actions = stack.back().transitions[transition];
-				transition   = "";
-				for(auto &action : actions) {
-					switch(action.type) {
-					case StackActionType::Push:
-						debugmanager()->debug("pushing state: ", action.name);
-						stack.emplace_back(action.name, this);
-						{
-							debugmanager()->debug("calling state initializer");
-							state &st = stack.back();
-							debugmanager()->debug("calling state initializer");
-							states[action.name].first(this, st);
+				for(auto &state : stack) { state.update(dt); }
+
+				// perform transition at end of iteration to avoid invalidation
+				if(transition != "") {
+					auto actions = stack.back().transitions[transition];
+					transition   = "";
+					for(auto &action : actions) {
+						switch(action.type) {
+						case StackActionType::Push:
+							debugmanager()->debug("pushing state: ", action.name);
+							stack.emplace_back(action.name, this);
+							{
+								debugmanager()->debug("calling state initializer");
+								state &st = stack.back();
+								debugmanager()->debug("calling state initializer");
+								states[action.name].first(this, st);
+							}
+							debugmanager()->debug("pushed state");
+							stack.back().init();
+							break;
+						case StackActionType::Pop: {
+							auto &state = stack.back();
+							debugmanager()->debug("popping state: ", state.name);
+							states[state.name].second(this, state);
+							stack.pop_back();
+							debugmanager()->debug("popped state");
+							break;
 						}
-						debugmanager()->debug("pushed state");
-						stack.back().init();
-						break;
-					case StackActionType::Pop: {
-						auto &state = stack.back();
-						debugmanager()->debug("popping state: ", state.name);
-						states[state.name].second(this, state);
-						stack.pop_back();
-						debugmanager()->debug("popped state");
-						break;
-					}
-					case StackActionType::Quit:
-						quit();
-						break;
+						case StackActionType::Quit:
+							quit();
+							break;
+						}
 					}
 				}
 			}
-			std::this_thread::yield();
+			std::this_thread::sleep_for(1ms);
 		}
 	}
 

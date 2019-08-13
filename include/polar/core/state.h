@@ -16,6 +16,7 @@ namespace polar::core {
 		polar *engine;
 		ecs<system::base> systems;
 		std::vector<std::shared_ptr<system::base>> orderedSystems;
+		std::vector<std::shared_ptr<system::base>> toErase;
 		std::vector<core::ref> dtors;
 
 	  public:
@@ -73,8 +74,17 @@ namespace polar::core {
 		template<typename T, typename = typename std::enable_if<
 		                         std::is_base_of<system::base, T>::value>::type>
 		inline void remove() {
-			auto sys =
-			    std::static_pointer_cast<system::base>(systems.get<T>().lock());
+			auto sys = std::static_pointer_cast<system::base>(systems.get<T>().lock());
+			if(sys) {
+				systems.remove<T>();
+				toErase.emplace_back(sys);
+			}
+		}
+
+		template<typename T, typename = typename std::enable_if<
+		                         std::is_base_of<system::base, T>::value>::type>
+		inline void remove_now() {
+			auto sys = std::static_pointer_cast<system::base>(systems.get<T>().lock());
 			if(sys) {
 				orderedSystems.erase(std::remove(orderedSystems.begin(),
 				                                 orderedSystems.end(), sys));
