@@ -15,7 +15,7 @@ namespace polar::support::action {
 	};
 
 	struct analog_state {
-		const Decimal initial = 0;
+		Decimal initial = 0;
 		Decimal previous = 0;
 		Decimal value = 0;
 		Decimal saved = 0;

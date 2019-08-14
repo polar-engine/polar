@@ -87,11 +87,14 @@ namespace polar::core {
 			}
 		}
 
-		template<typename... Ts> inline void trace(Ts &&... args) {
 #ifdef _DEBUG
+		template<typename... Ts> inline void trace(Ts &&... args) {
 			log(priority_t::trace, std::forward<Ts>(args)...);
-#endif
 		}
+#else
+		// duplicated to avoid unused parameter warning
+		template<typename... Ts> inline void trace(Ts &&...) {}
+#endif
 		template<typename... Ts> inline void debug(Ts &&... args) {
 			log(priority_t::debug, std::forward<Ts>(args)...);
 		}
