@@ -29,9 +29,9 @@ namespace polar::system {
 		struct frame_action {
 			IDType objectID;
 			std::type_index ti;
-			lifetime lt;
+			bool value;
 
-			frame_action(IDType objectID, std::type_index ti, lifetime lt) : objectID(objectID), ti(ti), lt(lt) {}
+			frame_action(IDType objectID, std::type_index ti, bool value) : objectID(objectID), ti(ti), value(value) {}
 		};
 
 		struct frame {
@@ -53,7 +53,9 @@ namespace polar::system {
 
 		inline auto get_framebuffer() const { return framebuffer; }
 		inline auto get_frame_offset() const { return frame_offset; }
-		inline auto & current_frame() { return framebuffer[framebuffer.size() - 1 - frame_offset]; }
+		inline auto & current_frame(size_t n = 0) {
+			return framebuffer[framebuffer.size() - 1 - frame_offset - n];
+		}
 
 		inline void force_tick() { tick(); }
 
@@ -69,6 +71,12 @@ namespace polar::system {
 
 		void tick() {
 			auto &cf = current_frame();
+
+			if(frame_offset > 0) {
+				for(auto &a : cf.actions) {
+					trigger_digital(a.objectID, a.ti, a.value ? lifetime::on : lifetime::unless);
+				}
+			}
 
 			for(auto &pair : cf.digitals) {
 				for(auto &state : pair.second.states) {
@@ -110,6 +118,7 @@ namespace polar::system {
 					if(it == nf.digitals.end()) {
 						nf.digitals.emplace(pair.first, pair.second);
 					}
+					//nf.digitals[pair.first] = pair.second;
 				}
 
 				auto tmp2 = nf.analogs;
@@ -374,7 +383,11 @@ namespace polar::system {
 			}
 
 			if(source) {
-				framebuffer.back().actions.emplace_back(objectID, ti, lt);
+				if(lt == lifetime::on) {
+					framebuffer.back().actions.emplace_back(objectID, ti, true);
+				} else if(lt == lifetime::after) {
+					framebuffer.back().actions.emplace_back(objectID, ti, false);
+				}
 			}
 		}
 
