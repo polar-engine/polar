@@ -93,6 +93,7 @@ namespace polar::system::renderer {
 
 		void setmousecapture(bool capture) override;
 		void setfullscreen(bool fullscreen) override;
+		void setdepthtest(bool depthtest) override;
 		void setpipeline(const std::vector<std::string> &names) override;
 		void setclearcolor(const Point4 &color) override;
 

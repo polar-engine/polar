@@ -121,7 +121,7 @@ namespace polar::system::renderer {
 		 */
 		glGetError();
 
-		GL(glDisable(GL_DEPTH_TEST));
+		GL(glEnable(GL_DEPTH_TEST));
 		GL(glDisable(GL_BLEND));
 		GL(glEnable(GL_CULL_FACE));
 		GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -1378,6 +1378,14 @@ namespace polar::system::renderer {
 			       window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) {
 				debugmanager()->critical("failed to set fullscreen mode");
 			}
+		}
+	}
+
+	void gl32::setdepthtest(bool depthtest) {
+		if(depthtest) {
+			GL(glEnable(GL_DEPTH_TEST));
+		} else {
+			GL(glDisable(GL_DEPTH_TEST));
 		}
 	}
 

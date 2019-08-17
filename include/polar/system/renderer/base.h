@@ -10,14 +10,15 @@ namespace polar::system::renderer {
 		uint16_t width                  = 1280;
 		uint16_t height                 = 720;
 		Decimal fovPlus                 = Decimal(glm::radians(10.0));
-		Decimal zNear                   = Decimal( 1.0 / 100000.0);
-		Decimal zFar                    = Decimal(48.0 / 100000.0);
-		Decimal pixelDistanceFromScreen = Decimal(1000.0);
 
 		virtual void makepipeline(const std::vector<std::string> &) = 0;
 
 	  public:
 		struct action_resize : action::digital {};
+
+		Decimal zNear                   = Decimal(0.1);
+		Decimal zFar                    = Decimal(1000.0);
+		Decimal pixelDistanceFromScreen = Decimal(1000.0);
 
 		bool showFPS = false;
 
@@ -29,6 +30,7 @@ namespace polar::system::renderer {
 
 		virtual void setmousecapture(bool)                                  = 0;
 		virtual void setfullscreen(bool)                                    = 0;
+		virtual void setdepthtest(bool)                                     = 0;
 		virtual void setpipeline(const std::vector<std::string> &)          = 0;
 		virtual void setclearcolor(const Point4 &)                          = 0;
 		virtual Decimal getuniform_decimal(const std::string &,
