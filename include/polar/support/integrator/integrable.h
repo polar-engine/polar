@@ -63,13 +63,14 @@ namespace polar::support::integrator {
 			std::optional<target_t<T>> target;
 		};
 
-		boost::circular_buffer<history_entry> history;
-
 		T value;
 		derivative_t deriv;
 		std::optional<target_t<T>> _target;
 
 	  public:
+		boost::circular_buffer<history_entry> history;
+
+
 		template<typename... Ts>
 		integrable(Ts &&... args) : value(std::forward<Ts>(args)...) {
 			history = boost::circular_buffer<history_entry>(100, {value, _target});

@@ -72,13 +72,9 @@ namespace polar::system {
 		void tick() {
 			auto &cf = current_frame();
 
-			if(frame_offset > 0) {
-				for(auto &a : cf.actions) {
-					trigger_digital(a.objectID, a.ti, a.value ? lifetime::on : lifetime::unless);
-				}
-			}
-
-			for(auto &pair : cf.digitals) {
+			// copy to avoid invalidation
+			auto digitals = cf.digitals;
+			for(auto &pair : digitals) {
 				for(auto &state : pair.second.states) {
 					trigger_digital<false>(state.first, pair.first,
 					                       state.second ? lifetime::when
@@ -119,6 +115,10 @@ namespace polar::system {
 						nf.digitals.emplace(pair.first, pair.second);
 					}
 					//nf.digitals[pair.first] = pair.second;
+				}
+
+				for(auto &a : cf.actions) {
+					trigger_digital<false>(a.objectID, a.ti, a.value);
 				}
 
 				auto tmp2 = nf.analogs;
@@ -340,9 +340,7 @@ namespace polar::system {
 		void trigger_digital(IDType objectID, std::type_index ti, lifetime lt) {
 			debugmanager()->trace("triggering digital ", ti.name(), " for ", lt);
 
-			if(lt == lifetime::when) {
-				debugmanager()->trace("asdf");
-			}
+			auto sourceObjectID = objectID;
 
 			if(lt == lifetime::on) {
 				auto whenPair = lt_bindings[size_t(lifetime::when)].left.equal_range(ti);
@@ -384,9 +382,9 @@ namespace polar::system {
 
 			if(source) {
 				if(lt == lifetime::on) {
-					framebuffer.back().actions.emplace_back(objectID, ti, true);
+					framebuffer.back().actions.emplace_back(sourceObjectID, ti, true);
 				} else if(lt == lifetime::after) {
-					framebuffer.back().actions.emplace_back(objectID, ti, false);
+					framebuffer.back().actions.emplace_back(sourceObjectID, ti, false);
 				}
 			}
 		}
