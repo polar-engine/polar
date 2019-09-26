@@ -1,5 +1,4 @@
 #include <polar/core/polar.h>
-#include <random>
 #include <thread>
 
 #if defined(_WIN32)
@@ -10,7 +9,6 @@
 namespace polar::core {
 	polar::polar(std::vector<std::string> args) {
 		srand((unsigned int)time(nullptr));
-		std::mt19937_64 rng(time(nullptr));
 
 		for(auto &arg : args) {
 			arguments.emplace(arg);
