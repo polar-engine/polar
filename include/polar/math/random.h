@@ -33,9 +33,18 @@ namespace polar::math {
 
 		inline Point2 disc(Decimal radius) {
 			auto length = glm::sqrt(Decimal(*this)) * radius;
-			auto angle = Decimal(*this) * 3.14159265358979f * 2;
+			auto angle = linear(0, 3.14159265358979f * 2);
 			auto p = Point2(0, length);
 			return glm::rotate(p, angle);
+		}
+
+		inline Point3 ball(Decimal radius) {
+			auto length = glm::sqrt(Decimal(*this)) * radius;
+			auto yaw   = linear(0, 3.14159265358979f * 2);
+			auto pitch = linear(-3.14159265358979f, 3.14159265358979f);
+			auto p = Point3(0, 0,  -length);
+			auto yp = glm::rotate(p, yaw, Point3(0, 1, 0));
+			return glm::rotate(yp, pitch, Point3(1, 0, 0));
 		}
 	};
 } // nammespace polar::math
