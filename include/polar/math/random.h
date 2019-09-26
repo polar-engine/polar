@@ -7,6 +7,10 @@ namespace polar::math {
 	class random {
 		std::mt19937_64 engine;
 	  public:
+		random(uint64_t seed = 0) {
+			engine.seed(seed);
+		}
+
 		inline explicit operator uint64_t() {
 			return engine();
 		}
@@ -22,9 +26,14 @@ namespace polar::math {
 			return Decimal(double(*this));
 		}
 
+		inline Decimal linear(Decimal min = 0, Decimal max = 1) {
+			auto range = max - min;
+			return Decimal(*this) * range + min;
+		}
+
 		inline Point2 disc(Decimal radius) {
 			auto length = glm::sqrt(Decimal(*this)) * radius;
-			auto angle = Decimal(*this) * 3.141592f * 2;
+			auto angle = Decimal(*this) * 3.14159265358979f * 2;
 			auto p = Point2(0, length);
 			return glm::rotate(p, angle);
 		}
