@@ -39,7 +39,7 @@ namespace polar::math {
 		}
 
 		inline Point3 ball(Decimal radius) {
-			auto length = glm::sqrt(Decimal(*this)) * radius;
+			auto length = glm::sqrt(Decimal(*this)) * radius; // XXX: CUBE ROOT
 			auto yaw   = linear(0, 3.14159265358979f * 2);
 			auto pitch = linear(-3.14159265358979f, 3.14159265358979f);
 			auto p = Point3(0, 0,  -length);

@@ -264,16 +264,16 @@ namespace polar::system::renderer {
 						if(pos != nullptr) {
 							modelMatrix = glm::translate(
 							    modelMatrix,
-							    pos->pos.temporal(delta).to<Point3>());
+							    pos->pos.temporal(delta));
 						}
 						if(orient != nullptr) {
 							modelMatrix *=
-							    glm::toMat4(glm::inverse(orient->orient.temporal(delta).to<Quat>()));
+							    glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
 						}
 						if(sc != nullptr) {
 							modelMatrix =
 							    glm::scale(modelMatrix,
-							               sc->sc.temporal(delta).to<Point3>());
+							               sc->sc.temporal(delta));
 						}
 
 						GLenum drawMode = GL_TRIANGLES;
@@ -457,14 +457,14 @@ namespace polar::system::renderer {
 			}
 
 			cameraView = glm::translate(
-			    cameraView, -camera->distance.temporal(delta).to<Point3>());
-			cameraView *= glm::toMat4(camera->orientation.temporal(delta).to<Quat>());
-			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient.temporal(delta).to<Quat>()); }
+			    cameraView, -camera->distance.temporal(delta));
+			cameraView *= glm::toMat4(camera->orientation.temporal(delta));
+			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient.temporal(delta)); }
 			cameraView = glm::translate(
-			    cameraView, -camera->position.temporal(delta).to<Point3>());
+			    cameraView, -camera->position.temporal(delta));
 			if(pos != nullptr) {
 				cameraView = glm::translate(
-				    cameraView, -pos->pos.temporal(delta).to<Point3>());
+				    cameraView, -pos->pos.temporal(delta));
 			}
 		}
 

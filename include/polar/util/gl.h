@@ -16,10 +16,10 @@ inline bool _GL_real(const char *file, const long line, const char *code) {
 
 #define ENGINE_GL(CODE) ((CODE), _GL_real(BASEFILE, __LINE__, #CODE))
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #define GL ENGINE_GL
 #define IGNORE_GL(CODE) ((CODE), glGetError());
-//#else
-//#define GL(CODE) ((CODE), true)
-//#define IGNORE_GL GL
-//#endif
+#else
+#define GL(CODE) ((CODE), true)
+#define IGNORE_GL GL
+#endif
