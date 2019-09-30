@@ -7,12 +7,15 @@ namespace polar::support::phys::responder {
 	  public:
 		Point3 bounce{1};
 
+		rigid() = default;
 		rigid(Point3 bounce) : bounce(bounce) {}
 
 		void respond(core::polar *engine, IDType id, DeltaTicks) override {
 			if(auto p = engine->get<component::position>(id)) {
 				p->pos.revert_by(1);
-				p->pos.derivative() *= -bounce;
+				if(p->pos.hasderivative()) {
+					p->pos.derivative() *= -bounce;
+				}
 			}
 		}
 	};

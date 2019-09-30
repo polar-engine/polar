@@ -35,7 +35,7 @@ namespace polar::system {
                                 engine, {id1, phys1->detector},
                                 {id2, phys2->detector});
                             if(b) {
-                                debugmanager()->info("collision!");
+                                //debugmanager()->info("collision!");
                                 phys1->responder->respond(engine, id1, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
                                 phys2->responder->respond(engine, id2, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
                             }
@@ -48,7 +48,8 @@ namespace polar::system {
 
 		add<support::phys::detector::box, support::phys::detector::box>(
 		    [](core::polar *engine, auto a, auto b) {
-			    Point3 originA, originB;
+			    Point3 originA{0};
+			    Point3 originB{0};
 			    if(auto p = engine->get<component::position>(a.id)) {
 				    originA += p->pos.get();
 			    }
