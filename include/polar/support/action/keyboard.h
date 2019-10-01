@@ -59,6 +59,7 @@ namespace polar::support::action::keyboard {
 			CASE(Down)
 			CASE(Left)
 			CASE(Right)
+			CASE(Tilde)
 			CASE(MouseLeft)
 			CASE(MouseMiddle)
 			CASE(MouseRight)

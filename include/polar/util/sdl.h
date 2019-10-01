@@ -123,6 +123,8 @@ inline polar::support::input::key mkKeyFromSDL(SDL_Keycode k) {
 		return key::Left;
 	case SDLK_RIGHT:
 		return key::Right;
+	case SDLK_BACKQUOTE:
+		return key::Tilde;
 	default:
 		return key::None;
 	}

@@ -49,6 +49,7 @@ namespace polar::support::input {
 		Down,
 		Left,
 		Right,
+		Tilde,
 		MouseLeft,
 		MouseMiddle,
 		MouseRight,
