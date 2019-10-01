@@ -181,17 +181,34 @@ namespace polar::system {
 
 		font = assetM->get<polar::asset::font>("nasalization-rg");
 
-		keep(act->bind<a::down   >(lifetime::on, [this](auto) { navigate( 1);    }));
-		keep(act->bind<a::up     >(lifetime::on, [this](auto) { navigate(-1);    }));
-		keep(act->bind<a::right  >(lifetime::on, [this](auto) { navigate(0,  1); }));
-		keep(act->bind<a::left   >(lifetime::on, [this](auto) { navigate(0, -1); }));
-		keep(act->bind<a::forward>(lifetime::on, [this](auto) { activate();      }));
+		keep(act->bind<a::down   >(lifetime::on, [this](auto) {
+			navigate( 1);
+			return true;
+		}));
+		keep(act->bind<a::up     >(lifetime::on, [this](auto) {
+			navigate(-1);
+			return true;
+		}));
+		keep(act->bind<a::right  >(lifetime::on, [this](auto) {
+			navigate(0,  1);
+			return true;
+		}));
+		keep(act->bind<a::left   >(lifetime::on, [this](auto) {
+			navigate(0, -1);
+			return true;
+		}));
+		keep(act->bind<a::forward>(lifetime::on, [this](auto) {
+			activate();
+			return true;
+		}));
 		keep(act->bind<a::back   >(lifetime::on, [this](auto) {
 			navigate(0, -1, true);
+			return true;
 		}));
 
 		keep(act->bind<mse::position_y>([this](auto, Decimal y) {
 			if(int(y) != 0) { on_cursor(int(y)); }
+			return true;
 		}));
 
 		keep(tw->tween(0.0f, 1.0f, 0.25, true, [this](auto, const float &x) {
