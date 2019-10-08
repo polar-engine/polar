@@ -180,7 +180,7 @@ namespace polar::system {
 		auto bind(lifetime lt, digital_function_t f) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create<Src>(f);
+			auto b  = binding::create<Src>(f);
 			auto v  = binding::bimap::value_type(ti, id, b);
 			lt_bindings[size_t(lt)].insert(v);
 			return core::ref([this, lt, id] {
@@ -195,7 +195,7 @@ namespace polar::system {
 		auto bind(IDType objectID, lifetime lt, digital_function_t f) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create<Src>(f);
+			auto b  = binding::create<Src>(f);
 			b.objectID = objectID;
 			auto v  = binding::bimap::value_type(ti, id, b);
 			lt_bindings[size_t(lt)].insert(v);
@@ -213,7 +213,7 @@ namespace polar::system {
 		auto bind(lifetime lt) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create_digital<Src, Tgt>();
+			auto b  = binding::create_digital<Src, Tgt>();
 			auto v  = binding::bimap::value_type(ti, id, b);
 			lt_bindings[size_t(lt)].insert(v);
 			return core::ref([this, lt, id] {
@@ -230,7 +230,7 @@ namespace polar::system {
 		auto bind(IDType objectID, lifetime lt) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create_digital<Src, Tgt>();
+			auto b  = binding::create_digital<Src, Tgt>();
 			b.objectID = objectID;
 			auto v  = binding::bimap::value_type(ti, id, b);
 			lt_bindings[size_t(lt)].insert(v);
@@ -248,7 +248,7 @@ namespace polar::system {
 		auto bind(lifetime lt, Decimal passthrough) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create<Src, Tgt>(passthrough);
+			auto b  = binding::create<Src, Tgt>(passthrough);
 			auto v  = binding::bimap::value_type(ti, id, b);
 			lt_bindings[size_t(lt)].insert(v);
 			return core::ref([this, lt, id] {
@@ -265,7 +265,7 @@ namespace polar::system {
 		auto bind(IDType objectID, lifetime lt, Decimal passthrough) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create<Src, Tgt>(passthrough);
+			auto b  = binding::create<Src, Tgt>(passthrough);
 			b.objectID = objectID;
 			auto v  = binding::bimap::value_type(ti, id, b);
 			lt_bindings[size_t(lt)].insert(v);
@@ -280,7 +280,8 @@ namespace polar::system {
 		          typename std::enable_if<std::is_base_of<analog, Src>::value>::type* = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto v  = binding::bimap::value_type(ti, id, binding::create<Src>(f));
+			auto b  = binding::create<Src>(f);
+			auto v  = binding::bimap::value_type(ti, id, b);
 			bindings.insert(v);
 			return core::ref([this, id] {
 				bindings.right.erase(id);
@@ -294,7 +295,8 @@ namespace polar::system {
 		          typename std::enable_if<std::is_base_of<digital, Tgt>::value>::type* = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto v  = binding::bimap::value_type(ti, id, binding::create<Src, Tgt>(p));
+			auto b  = binding::create<Src, Tgt>(p);
+			auto v  = binding::bimap::value_type(ti, id, b);
 			bindings.insert(v);
 			return core::ref([this, id] {
 				bindings.right.erase(id);
@@ -310,7 +312,7 @@ namespace polar::system {
 		auto bind() {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create_analog<Src, Tgt>();
+			auto b  = binding::create_analog<Src, Tgt>();
 			auto v  = binding::bimap::value_type(ti, id, b);
 			bindings.insert(v);
 			return core::ref([this, id] {
@@ -327,7 +329,7 @@ namespace polar::system {
 		auto bind(IDType objectID) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b = binding::create_analog<Src, Tgt>();
+			auto b  = binding::create_analog<Src, Tgt>();
 			b.objectID = objectID;
 			auto v  = binding::bimap::value_type(ti, id, b);
 			bindings.insert(v);
