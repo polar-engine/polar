@@ -370,6 +370,8 @@ namespace polar::system {
 
 			auto pair = lt_bindings[size_t(lt)].get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
+			//auto &view = lt_bindings[size_t(lt)].get<tag_ti>();
+			//for(auto it = view.lower_bound(ti); it != view.end() && it->ti == ti; ++it) {
 				if(it->binding.objectID) { objectID = *it->binding.objectID; }
 
 				if(auto wrapper = it->binding.get_if_tgt_digital()) {

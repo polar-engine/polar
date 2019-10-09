@@ -121,6 +121,24 @@ namespace polar::support::action {
 	} // namespace tag
 
 	struct relation {
+		struct ti_comp {
+			inline bool operator()(const relation &lhs, const relation &rhs) const {
+				if(lhs.ti != rhs.ti) {
+					return lhs.ti < rhs.ti;
+				} else {
+					return lhs.priority < rhs.priority;
+				}
+			}
+
+			inline bool operator()(const relation &lhs, const std::type_index &rhs) const {
+				return lhs.ti < rhs;
+			}
+
+			inline bool operator()(const std::type_index &lhs, const relation &rhs) const {
+				return lhs < rhs.ti;
+			}
+		};
+
 		IDType id;
 		std::type_index ti;
 		priority_t priority;
@@ -130,8 +148,8 @@ namespace polar::support::action {
 	using bimap = boost::multi_index_container<
 		relation,
 		boost::multi_index::indexed_by<
-			boost::multi_index::hashed_unique    <boost::multi_index::tag<tag::id>, boost::multi_index::member<relation, IDType,          &relation::id>>,
-			boost::multi_index::hashed_non_unique<boost::multi_index::tag<tag::ti>, boost::multi_index::member<relation, std::type_index, &relation::ti>>
+			boost::multi_index::hashed_unique     <boost::multi_index::tag<tag::id>, boost::multi_index::member<relation, IDType, &relation::id>>,
+			boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag::ti>, boost::multi_index::identity<relation>, relation::ti_comp>
 		>
 	>;
 } // namespace polar::support::action
