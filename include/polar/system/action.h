@@ -14,7 +14,11 @@ namespace polar::system {
 		using analog_function_t  = support::action::analog_function_t;
 		using analog_predicate_t = support::action::analog_predicate_t;
 	private:
-		using binding      = support::action::binding;
+		using tag_id       = support::action::tag::id;
+		using tag_ti       = support::action::tag::ti;
+		using relation     = support::action::relation;
+		using bimap        = support::action::bimap;
+		using binding_t    = support::action::binding_t;
 		using lifetime     = support::action::lifetime;
 		using digital_data = support::action::digital_data;
 		using analog_state = support::action::analog_state;
@@ -43,8 +47,8 @@ namespace polar::system {
 		boost::circular_buffer<frame> framebuffer = boost::circular_buffer<frame>(100, frame{});
 		size_t frame_offset = 0;
 
-		std::array<binding::bimap, size_t(lifetime::SIZE)> lt_bindings;
-		binding::bimap bindings;
+		std::array<bimap, size_t(lifetime::SIZE)> lt_bindings;
+		bimap bindings;
 
 		IDType nextID = 1;
 	public:
@@ -177,14 +181,14 @@ namespace polar::system {
 		template<typename Src,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Src>::value>::type>
-		auto bind(lifetime lt, digital_function_t f) {
+		auto bind(lifetime lt, digital_function_t f, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create<Src>(f);
-			auto v  = binding::bimap::value_type(ti, id, b);
-			lt_bindings[size_t(lt)].insert(v);
+			auto b  = binding_t::create<Src>(f);
+			auto r  = relation{id, ti, priority, b};
+			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
-				lt_bindings[size_t(lt)].right.erase(id);
+				lt_bindings[size_t(lt)].get<tag_id>().erase(id);
 			});
 		}
 
@@ -192,15 +196,15 @@ namespace polar::system {
 		template<typename Src,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Src>::value>::type>
-		auto bind(IDType objectID, lifetime lt, digital_function_t f) {
+		auto bind(IDType objectID, lifetime lt, digital_function_t f, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create<Src>(f);
+			auto b  = binding_t::create<Src>(f);
 			b.objectID = objectID;
-			auto v  = binding::bimap::value_type(ti, id, b);
-			lt_bindings[size_t(lt)].insert(v);
+			auto r  = relation{id, ti, priority, b};
+			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
-				lt_bindings[size_t(lt)].right.erase(id);
+				lt_bindings[size_t(lt)].get<tag_id>().erase(id);
 			});
 		}
 
@@ -210,14 +214,14 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Tgt>::value>::type>
-		auto bind(lifetime lt) {
+		auto bind(lifetime lt, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create_digital<Src, Tgt>();
-			auto v  = binding::bimap::value_type(ti, id, b);
-			lt_bindings[size_t(lt)].insert(v);
+			auto b  = binding_t::create_digital<Src, Tgt>();
+			auto r  = relation{id, ti, priority, b};
+			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
-				lt_bindings[size_t(lt)].right.erase(id);
+				lt_bindings[size_t(lt)].get<tag_id>().erase(id);
 			});
 		}
 
@@ -227,15 +231,15 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Tgt>::value>::type>
-		auto bind(IDType objectID, lifetime lt) {
+		auto bind(IDType objectID, lifetime lt, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create_digital<Src, Tgt>();
+			auto b  = binding_t::create_digital<Src, Tgt>();
 			b.objectID = objectID;
-			auto v  = binding::bimap::value_type(ti, id, b);
-			lt_bindings[size_t(lt)].insert(v);
+			auto r  = relation{id, ti, priority, b};
+			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
-				lt_bindings[size_t(lt)].right.erase(id);
+				lt_bindings[size_t(lt)].get<tag_id>().erase(id);
 			});
 		}
 
@@ -245,14 +249,14 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(lifetime lt, Decimal passthrough) {
+		auto bind(lifetime lt, Decimal passthrough, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create<Src, Tgt>(passthrough);
-			auto v  = binding::bimap::value_type(ti, id, b);
-			lt_bindings[size_t(lt)].insert(v);
+			auto b  = binding_t::create<Src, Tgt>(passthrough);
+			auto r  = relation{id, ti, priority, b};
+			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
-				lt_bindings[size_t(lt)].right.erase(id);
+				lt_bindings[size_t(lt)].get<tag_id>().erase(id);
 			});
 		}
 
@@ -262,44 +266,44 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(IDType objectID, lifetime lt, Decimal passthrough) {
+		auto bind(IDType objectID, lifetime lt, Decimal passthrough, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create<Src, Tgt>(passthrough);
+			auto b  = binding_t::create<Src, Tgt>(passthrough);
 			b.objectID = objectID;
-			auto v  = binding::bimap::value_type(ti, id, b);
-			lt_bindings[size_t(lt)].insert(v);
+			auto r  = relation{id, ti, priority, b};
+			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
-				lt_bindings[size_t(lt)].right.erase(id);
+				lt_bindings[size_t(lt)].get<tag_id>().erase(id);
 			});
 		}
 
 		// analog -> analog function
 		template<typename Src>
-		auto bind(analog_function_t f,
+		auto bind(analog_function_t f, priority_t priority = 0,
 		          typename std::enable_if<std::is_base_of<analog, Src>::value>::type* = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create<Src>(f);
-			auto v  = binding::bimap::value_type(ti, id, b);
-			bindings.insert(v);
+			auto b  = binding_t::create<Src>(f);
+			auto r  = relation{id, ti, priority, b};
+			bindings.insert(r);
 			return core::ref([this, id] {
-				bindings.right.erase(id);
+				bindings.get<tag_id>().erase(id);
 			});
 		}
 
 		// analog -> digital
 		template<typename Src, typename Tgt>
-		auto bind(analog_predicate_t p,
+		auto bind(analog_predicate_t p, priority_t priority = 0,
 		          typename std::enable_if<std::is_base_of<analog, Src>::value>::type* = 0,
 		          typename std::enable_if<std::is_base_of<digital, Tgt>::value>::type* = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create<Src, Tgt>(p);
-			auto v  = binding::bimap::value_type(ti, id, b);
-			bindings.insert(v);
+			auto b  = binding_t::create<Src, Tgt>(p);
+			auto r  = relation{id, ti, priority, b};
+			bindings.insert(r);
 			return core::ref([this, id] {
-				bindings.right.erase(id);
+				bindings.get<tag_id>().erase(id);
 			});
 		}
 
@@ -309,14 +313,14 @@ namespace polar::system {
 		             std::is_base_of<analog, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind() {
+		auto bind(priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create_analog<Src, Tgt>();
-			auto v  = binding::bimap::value_type(ti, id, b);
-			bindings.insert(v);
+			auto b  = binding_t::create_analog<Src, Tgt>();
+			auto r = relation{id, ti, priority, b};
+			bindings.insert(r);
 			return core::ref([this, id] {
-				bindings.right.erase(id);
+				bindings.get<tag_id>().erase(id);
 			});
 		}
 
@@ -326,15 +330,15 @@ namespace polar::system {
 		             std::is_base_of<analog, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(IDType objectID) {
+		auto bind(IDType objectID, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
-			auto b  = binding::create_analog<Src, Tgt>();
+			auto b  = binding_t::create_analog<Src, Tgt>();
 			b.objectID = objectID;
-			auto v  = binding::bimap::value_type(ti, id, b);
-			bindings.insert(v);
+			auto r  = relation{id, ti, priority, b};
+			bindings.insert(r);
 			return core::ref([this, id] {
-				bindings.right.erase(id);
+				bindings.get<tag_id>().erase(id);
 			});
 		}
 
@@ -345,39 +349,36 @@ namespace polar::system {
 			auto sourceObjectID = objectID;
 
 			if(lt == lifetime::on) {
-				auto whenPair = lt_bindings[size_t(lifetime::when)].left.equal_range(ti);
+				auto whenPair = lt_bindings[size_t(lifetime::when)].get<tag_ti>().equal_range(ti);
 				for(auto whenIt = whenPair.first; whenIt != whenPair.second; ++whenIt) {
-					auto &binding = whenIt->info;
-					if(binding.objectID) { objectID = *binding.objectID; }
+					if(whenIt->binding.objectID) { objectID = *whenIt->binding.objectID; }
 
-					if(auto wrapper = binding.get_if_tgt_digital()) {
+					if(auto wrapper = whenIt->binding.get_if_tgt_digital()) {
 						trigger_digital<false>(objectID, wrapper->ti, true);
 					}
 				}
 			} else if(lt == lifetime::after) {
-				auto whenPair = lt_bindings[size_t(lifetime::when)].left.equal_range(ti);
+				auto whenPair = lt_bindings[size_t(lifetime::when)].get<tag_ti>().equal_range(ti);
 				for(auto whenIt = whenPair.first; whenIt != whenPair.second; ++whenIt) {
-					auto &binding = whenIt->info;
-					if(binding.objectID) { objectID = *binding.objectID; }
+					if(whenIt->binding.objectID) { objectID = *whenIt->binding.objectID; }
 
-					if(auto wrapper = binding.get_if_tgt_digital()) {
+					if(auto wrapper = whenIt->binding.get_if_tgt_digital()) {
 						trigger_digital<false>(objectID, wrapper->ti, false);
 					}
 				}
 			}
 
-			auto pair = lt_bindings[size_t(lt)].left.equal_range(ti);
+			auto pair = lt_bindings[size_t(lt)].get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
-				auto &binding = it->info;
-				if(binding.objectID) { objectID = *binding.objectID; }
+				if(it->binding.objectID) { objectID = *it->binding.objectID; }
 
-				if(auto wrapper = binding.get_if_tgt_digital()) {
+				if(auto wrapper = it->binding.get_if_tgt_digital()) {
 					if(lt != lifetime::when) {
 						trigger_digital<false>(objectID, wrapper->ti);
 					}
-				} else if(auto wrapper = binding.get_if_tgt_analog()) {
-					accumulate_analog(objectID, wrapper->ti, binding.passthrough);
-				} else if(auto f = binding.get_if_tgt_digital_f()) {
+				} else if(auto wrapper = it->binding.get_if_tgt_analog()) {
+					accumulate_analog(objectID, wrapper->ti, it->binding.passthrough);
+				} else if(auto f = it->binding.get_if_tgt_digital_f()) {
 					(*f)(objectID);
 				}
 			}
@@ -427,13 +428,12 @@ namespace polar::system {
 
 			debugmanager()->trace("triggering analog ", ti.name(), '(', data.states[objectID].value, ')');
 
-			auto pair = bindings.left.equal_range(ti);
+			auto pair = bindings.get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
-				auto &binding = it->info;
-				if(auto f = binding.get_if_tgt_analog_f()) {
+				if(auto f = it->binding.get_if_tgt_analog_f()) {
 					(*f)(objectID, data.states[objectID].value);
-				} else if(auto wrapper = binding.get_if_tgt_digital()) {
-					auto result = binding.predicate(objectID, data.states[objectID].previous, data.states[objectID].value);
+				} else if(auto wrapper = it->binding.get_if_tgt_digital()) {
+					auto result = it->binding.predicate(objectID, data.states[objectID].previous, data.states[objectID].value);
 					trigger_digital<false>(objectID, wrapper->ti, result);
 				}
 			}
@@ -447,12 +447,11 @@ namespace polar::system {
 
 			cf.analogs[ti].states[objectID].value += passthrough;
 
-			auto pair = bindings.left.equal_range(ti);
+			auto pair = bindings.get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
-				auto &binding = it->info;
-				if(binding.objectID) { objectID = *binding.objectID; }
+				if(it->binding.objectID) { objectID = *it->binding.objectID; }
 
-				if(auto wrapper = binding.get_if_tgt_analog()) {
+				if(auto wrapper = it->binding.get_if_tgt_analog()) {
 					accumulate_analog(objectID, wrapper->ti, passthrough);
 				}
 			}

@@ -3,18 +3,22 @@
 #include <stdint.h>
 
 namespace polar {
+	using priority_t = int_fast32_t;
+
 	template<typename T> struct prioritized {
 		T value;
-		int_fast32_t priority;
+		priority_t priority;
 
-		prioritized(T value, int_fast32_t priority = 0) : value(value), priority(priority) {}
-
-		friend inline bool operator<(const prioritized &lhs, const prioritized &rhs) {
-			return lhs.value < rhs.value || lhs.priority || rhs.priority;
-		}
+		prioritized(T value, priority_t priority = 0) : value(value), priority(priority) {}
 
 		friend inline bool operator==(const prioritized &lhs, const prioritized &rhs) {
 			return lhs.value == rhs.value;
+		}
+
+		friend inline bool operator<(const prioritized &lhs, const prioritized &rhs) {
+			//return lhs.value < rhs.value;
+			return lhs.priority < rhs.priority;
+			//return lhs.value < rhs.value || lhs.priority < rhs.priority;
 		}
 	};
 
@@ -22,6 +26,13 @@ namespace polar {
 		boost::hash<T> hasher;
 		return hasher(p.value);
 	}
+
+	template<typename T>
+	struct priority_comp {
+		inline bool operator()(prioritized<T> lhs, prioritized<T> rhs) const {
+			return lhs.priority < rhs.priority;
+		}
+	};
 } // namespace polar
 
 namespace std {
