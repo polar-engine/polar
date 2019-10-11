@@ -181,10 +181,11 @@ namespace polar::system {
 		template<typename Src,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Src>::value>::type>
-		auto bind(lifetime lt, digital_function_t f, priority_t priority = 0) {
+		auto bind(lifetime lt, digital_function_t f, priority_t priority = 0, bool cont = true) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create<Src>(f);
+			b.cont = cont;
 			auto r  = relation{id, ti, priority, b};
 			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
@@ -356,6 +357,10 @@ namespace polar::system {
 					if(auto wrapper = whenIt->binding.get_if_tgt_digital()) {
 						trigger_digital<false>(objectID, wrapper->ti, true);
 					}
+
+					if(!whenIt->binding.should_continue(objectID)) {
+						break;
+					}
 				}
 			} else if(lt == lifetime::after) {
 				auto whenPair = lt_bindings[size_t(lifetime::when)].get<tag_ti>().equal_range(ti);
@@ -364,6 +369,10 @@ namespace polar::system {
 
 					if(auto wrapper = whenIt->binding.get_if_tgt_digital()) {
 						trigger_digital<false>(objectID, wrapper->ti, false);
+					}
+
+					if(!whenIt->binding.should_continue(objectID)) {
+						break;
 					}
 				}
 			}
@@ -379,9 +388,13 @@ namespace polar::system {
 						trigger_digital<false>(objectID, wrapper->ti);
 					}
 				} else if(auto wrapper = it->binding.get_if_tgt_analog()) {
-					accumulate_analog(objectID, wrapper->ti, it->binding.passthrough);
+					accumulate_analog(objectID, wrapper->ti, it->binding.passthrough.value_or(0));
 				} else if(auto f = it->binding.get_if_tgt_digital_f()) {
 					(*f)(objectID);
+				}
+
+				if(!it->binding.should_continue(objectID)) {
+					break;
 				}
 			}
 
@@ -438,6 +451,10 @@ namespace polar::system {
 					auto result = it->binding.predicate(objectID, data.states[objectID].previous, data.states[objectID].value);
 					trigger_digital<false>(objectID, wrapper->ti, result);
 				}
+
+				if(!it->binding.should_continue(objectID, data.states[objectID].value)) {
+					break;
+				}
 			}
 		}
 
@@ -455,6 +472,10 @@ namespace polar::system {
 
 				if(auto wrapper = it->binding.get_if_tgt_analog()) {
 					accumulate_analog(objectID, wrapper->ti, passthrough);
+				}
+
+				if(!it->binding.should_continue(objectID, passthrough)) {
+					break;
 				}
 			}
 		}

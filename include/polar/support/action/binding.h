@@ -14,18 +14,22 @@ namespace polar::support::action {
 		struct digital_wrapper { std::type_index ti; };
 		struct analog_wrapper  { std::type_index ti; };
 
-		std::variant<digital_wrapper, analog_wrapper> source;
-	  public:
-		std::variant<digital_wrapper, analog_wrapper,
-		             digital_function_t, analog_function_t> target;
-		Decimal passthrough;
-		analog_predicate_t predicate;
-		std::optional<IDType> objectID;
+		using source_type = std::variant<digital_wrapper, analog_wrapper>;
+		using target_type = std::variant<digital_wrapper, analog_wrapper, digital_function_t, analog_function_t>;
+		using cont_type   = std::variant<bool, digital_cont_t, analog_cont_t>;
+		using pred_type   = analog_predicate_t;
 
-		binding_t(decltype(source) src, decltype(target) tgt, Decimal pt = 0)
-			: source(src), target(tgt), passthrough(pt) {}
-		binding_t(decltype(source) src, decltype(target) tgt, decltype(predicate) p)
-			: source(src), target(tgt), predicate(p) {}
+		source_type source;
+
+		binding_t(source_type src, target_type tgt) : source(src), target(tgt) {}
+		binding_t(source_type src, target_type tgt, Decimal pt) : source(src), target(tgt), passthrough(pt) {}
+		binding_t(source_type src, target_type tgt, pred_type p) : source(src), target(tgt), predicate(p) {}
+	  public:
+		target_type target;
+		cont_type cont;
+		pred_type predicate;
+		std::optional<Decimal> passthrough;
+		std::optional<IDType> objectID;
 
 		// digital -> digital function
 		template<typename Src,
@@ -112,6 +116,42 @@ namespace polar::support::action {
 
 		auto get_if_tgt_analog_f() const {
 			return std::get_if<analog_function_t>(&target);
+		}
+
+		auto get_cont_if_bool() const {
+			return std::get_if<bool>(&cont);
+		}
+
+		auto get_cont_if_digital() const {
+			return std::get_if<digital_cont_t>(&cont);
+		}
+
+		auto get_cont_if_analog() const {
+			return std::get_if<analog_cont_t>(&cont);
+		}
+
+		bool should_continue(IDType sourceID) const {
+			sourceID = objectID.value_or(sourceID);
+
+			if(auto b = get_cont_if_bool()) {
+				return *b;
+			} else if(auto f = get_cont_if_digital()) {
+				return (*f)(sourceID);
+			}
+
+			return true;
+		}
+
+		bool should_continue(IDType sourceID, Decimal value) const {
+			value = passthrough.value_or(value);
+
+			if(auto b = get_cont_if_bool()) {
+				return *b;
+			} else if(auto f = get_cont_if_analog()) {
+				return (*f)(sourceID, value);
+			}
+
+			return true;
 		}
 	};
 

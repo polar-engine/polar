@@ -11,8 +11,11 @@ namespace polar::system {
 			auto act = engine->get<action>().lock();
 			keep(act->bind<kb::key<key::Tilde>>(lifetime::on, [this](auto) {
 				engine->transition = "back";
-				return false;
-			}));
+			}, -1, false));
+
+			keep(act->bind<kb::key<key::P>>(lifetime::on, [this](auto) {
+				debugmanager()->verbose("P");
+			}, -1, false));
 		}
 	  public:
 		static bool supported() { return true; }

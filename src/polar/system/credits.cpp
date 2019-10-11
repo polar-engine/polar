@@ -42,7 +42,6 @@ namespace polar::system {
 		if(act) {
 			keep(act->bind<support::action::credits::back>(lifetime::on, [this](auto) {
 				engine->transition = "back";
-				return true;
 			}));
 		}
 
