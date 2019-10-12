@@ -26,7 +26,7 @@ namespace polar::support::action {
 		binding_t(source_type src, target_type tgt, pred_type p) : source(src), target(tgt), predicate(p) {}
 	  public:
 		target_type target;
-		cont_type cont;
+		cont_type cont = true;
 		pred_type predicate;
 		std::optional<Decimal> passthrough;
 		std::optional<IDType> objectID;
