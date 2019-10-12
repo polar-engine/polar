@@ -1,13 +1,66 @@
 #pragma once
 
+#include <polar/asset/font.h>
+#include <polar/component/color.h>
+#include <polar/component/screenposition.h>
+#include <polar/component/text.h>
+
 namespace polar::system {
 	class console : public base {
 	  private:
 		using key      = support::input::key;
 		using lifetime = support::action::lifetime;
 
+		std::ostringstream buffer;
+		core::ref bufferDtor;
+		IDType bufferID;
+
 		void process(key k) {
-			
+			switch(k) {
+			case key::A:     buffer << 'a'; break;
+			case key::B:     buffer << 'b'; break;
+			case key::C:     buffer << 'c'; break;
+			case key::D:     buffer << 'd'; break;
+			case key::E:     buffer << 'e'; break;
+			case key::F:     buffer << 'f'; break;
+			case key::G:     buffer << 'g'; break;
+			case key::H:     buffer << 'h'; break;
+			case key::I:     buffer << 'i'; break;
+			case key::J:     buffer << 'j'; break;
+			case key::K:     buffer << 'k'; break;
+			case key::L:     buffer << 'l'; break;
+			case key::M:     buffer << 'm'; break;
+			case key::N:     buffer << 'n'; break;
+			case key::O:     buffer << 'o'; break;
+			case key::P:     buffer << 'p'; break;
+			case key::Q:     buffer << 'q'; break;
+			case key::R:     buffer << 'r'; break;
+			case key::S:     buffer << 's'; break;
+			case key::T:     buffer << 't'; break;
+			case key::U:     buffer << 'u'; break;
+			case key::V:     buffer << 'v'; break;
+			case key::W:     buffer << 'w'; break;
+			case key::X:     buffer << 'x'; break;
+			case key::Y:     buffer << 'y'; break;
+			case key::Z:     buffer << 'z'; break;
+			case key::Space: buffer << ' '; break;
+			case key::Enter:
+				engine->transition = "back";
+				break;
+			}
+			render();
+		}
+
+		void render() {
+			bufferDtor = engine->add(bufferID);
+
+			auto assetM = engine->get<asset>().lock();
+			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
+
+			engine->add<component::text>(bufferID, font, buffer.str());
+			engine->add<component::screenposition>(bufferID, Point2(5, 5), support::ui::origin::topleft);
+			engine->add<component::color>(bufferID, Point4(1, 1, 1, 0.8));
+			engine->add<component::scale>(bufferID, Point3(0.1));
 		}
 	  protected:
 		void init() override {
