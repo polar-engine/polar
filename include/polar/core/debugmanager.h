@@ -7,6 +7,7 @@
 #include <polar/core/types.h>
 #include <polar/support/debug/priority.h>
 #include <string>
+#include <vector>
 
 namespace polar::core {
 	inline std::ostream & operator<<(std::ostream &os, const Point2 &p) {
@@ -27,6 +28,21 @@ namespace polar::core {
 
 	inline std::ostream & operator<<(std::ostream &os, const Quat &q) {
 		return os << "Quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ')';
+	}
+
+	template<typename T>
+	inline std::ostream & operator<<(std::ostream &os, const std::vector<T> &v) {
+		os << '[';
+
+		auto it = v.begin();
+		if(it != v.end()) {
+			os << *it;
+			for(++it; it != v.end(); ++it) {
+				os << ", " << *it;
+			}
+		}
+
+		return os << ']';
 	}
 
 	class debugmanager_class {
