@@ -9,7 +9,8 @@ namespace polar::api {
 			equals,
 			accessor,
 			number,
-			identifier
+			identifier,
+			invalid
 		};
 
 		class token {
@@ -21,6 +22,8 @@ namespace polar::api {
 
 			token(token_type type, value_type value = {}) : _type(type), _value(value) {}
 		  public:
+			token() : token(token_type::invalid) {}
+
 			static token equals() {
 				return token{token_type::equals};
 			}
@@ -58,6 +61,20 @@ namespace polar::api {
 				default:
 					return os << "token::invalid";
 				}
+			}
+
+			friend inline std::ostream & operator<<(std::ostream &os, const std::basic_string<token> &s) {
+				os << '[';
+
+				auto it = s.begin();
+				if(it != s.end()) {
+					os << *it;
+					for(++it; it != s.end(); ++it) {
+						os << ", " << *it;
+					}
+				}
+
+				return os << ']';
 			}
 		};
 
@@ -231,12 +248,12 @@ namespace polar::api {
 		}
 
 		auto lex(std::string_view str) const {
-			std::vector<token> tokens;
+			std::basic_string<token> tokens;
 
 			while(!str.empty()) {
 				auto [t, s] = lex_one(str);
 				if(t) {
-					tokens.emplace_back(*t);
+					tokens.push_back(*t);
 					str = s;
 				} else {
 					break;
@@ -246,7 +263,7 @@ namespace polar::api {
 			return tokens;
 		}
 
-		auto parse(std::vector<token> tokens) const {
+		auto parse(std::basic_string<token> tokens) const {
 			std::vector<expr> exprs;
 
 			for(auto &t : tokens) {
