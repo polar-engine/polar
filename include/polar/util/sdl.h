@@ -107,6 +107,14 @@ inline polar::support::input::key mkKeyFromSDL(SDL_Keycode k) {
 		return key::Num9;
 	case SDLK_0:
 		return key::Num0;
+	case SDLK_MINUS:
+		return key::Hyphen;
+	case SDLK_EQUALS:
+		return key::Equals;
+	case SDLK_COMMA:
+		return key::Comma;
+	case SDLK_PERIOD:
+		return key::Period;
 	case SDLK_ESCAPE:
 		return key::Escape;
 	case SDLK_SPACE:
