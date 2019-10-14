@@ -633,6 +633,10 @@ namespace polar::system::renderer {
 		auto scale     = engine->get<component::scale>(id);
 		auto color     = engine->get<component::color>(id);
 
+		if(!text || text->str.empty()) {
+			return;
+		}
+
 		// calculate intended width of string
 		Decimal stringWidth = 0;
 		for(auto c : text->str) { stringWidth += text->as->glyphs[c].advance; }
