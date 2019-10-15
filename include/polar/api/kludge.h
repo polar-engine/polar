@@ -63,18 +63,12 @@ namespace polar::api {
 				}
 			}
 
-			friend inline std::ostream & operator<<(std::ostream &os, const std::basic_string<token> &s) {
-				os << '[';
+			friend bool operator==(const token &lhs, const token &rhs) {
+				return lhs.type() == rhs.type() && lhs._value == rhs._value;
+			}
 
-				auto it = s.begin();
-				if(it != s.end()) {
-					os << *it;
-					for(++it; it != s.end(); ++it) {
-						os << ", " << *it;
-					}
-				}
-
-				return os << ']';
+			friend bool operator!=(const token &lhs, const token &rhs) {
+				return !(lhs == rhs);
 			}
 		};
 
@@ -109,6 +103,8 @@ namespace polar::api {
 				return std::get<T>(_value);
 			}
 		};
+
+		using token_range = std::pair<std::vector<token>::const_iterator, std::vector<token>::const_iterator>;
 	  protected:
 		core::polar *engine = nullptr;
 	  public:
@@ -248,7 +244,7 @@ namespace polar::api {
 		}
 
 		auto lex(std::string_view str) const {
-			std::basic_string<token> tokens;
+			std::vector<token> tokens;
 
 			while(!str.empty()) {
 				auto [t, s] = lex_one(str);
@@ -263,18 +259,40 @@ namespace polar::api {
 			return tokens;
 		}
 
-		auto parse(std::basic_string<token> tokens) const {
+		std::pair<std::optional<expr>, token_range>
+		parse_identifier(token_range range) const {
+			auto &t = *range.first;
+			if(t.type() == token_type::identifier) {
+				++range.first;
+				return {{expr::identifier(t.get<std::string>())}, range};
+			} else {
+				return {{}, range};
+			}
+		}
+
+		std::pair<std::optional<expr>, token_range>
+		parse_one(token_range range) const {
+			return parse_identifier(range);
+		}
+
+		auto parse_range(token_range range) const {
 			std::vector<expr> exprs;
 
-			for(auto &t : tokens) {
-				switch(t.type()) {
-				case token_type::identifier:
-					exprs.emplace_back(expr::identifier(t.get<std::string>()));
+			for(;;) {
+				auto [e, i] = parse_one(range);
+				if(e) {
+					exprs.emplace_back(*e);
+					range = i;
+				} else {
 					break;
 				}
 			}
 
 			return exprs;
+		}
+
+		auto parse(const std::vector<token> &tokens) const {
+			return parse_range({tokens.begin(), tokens.end()});
 		}
 
 		auto parse(std::string_view str) const {
