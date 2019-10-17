@@ -77,6 +77,7 @@ namespace polar::system {
 			}
 
 			debugmanager()->verbose(kl.lex(line));
+			debugmanager()->verbose(kl.parse(line));
 		}
 
 		void render() {

@@ -55,9 +55,9 @@ namespace polar::api {
 				case token_type::accessor:
 					return os << "token::accessor";
 				case token_type::number:
-					return os << "token::number{" << t.get<Decimal>() << '}';
+					return os << "token::number { " << t.get<Decimal>() << " }";
 				case token_type::identifier:
-					return os << "token::identifier{\"" << t.get<std::string>() << "\"}";
+					return os << "token::identifier { \"" << t.get<std::string>() << "\" }";
 				default:
 					return os << "token::invalid";
 				}
@@ -74,7 +74,12 @@ namespace polar::api {
 
 		enum class expr_type {
 			number,
-			identifier
+			identifier,
+			assignment,
+			access,
+			builtin_engine,
+			builtin_engine_quit,
+			invalid
 		};
 
 		class expr {
@@ -85,7 +90,7 @@ namespace polar::api {
 			std::vector<expr> _operands;
 			value_type _value;
 
-			expr(expr_type type, std::vector<expr> operands, value_type value) : _type(type), _operands(operands), _value(value) {}
+			expr(expr_type type, std::vector<expr> operands = {}, value_type value = {}) : _type(type), _operands(operands), _value(value) {}
 		  public:
 			static expr number(Decimal x) {
 				return expr{expr_type::number, {}, x};
@@ -95,12 +100,69 @@ namespace polar::api {
 				return expr{expr_type::identifier, {}, x};
 			}
 
+			static expr assignment(expr lhs, expr rhs) {
+				return expr{expr_type::assignment, {lhs, rhs}};
+			}
+
+			static expr access(expr lhs, expr rhs) {
+				return expr{expr_type::access, {lhs, rhs}};
+			}
+
+			static expr builtin_engine() {
+				return expr{expr_type::builtin_engine};
+			}
+
+			static expr builtin_engine_quit() {
+				return expr{expr_type::builtin_engine_quit};
+			}
+
 			auto type() const {
 				return _type;
 			}
 
 			template<typename T> T get() const {
 				return std::get<T>(_value);
+			}
+
+			expr & get(size_t i) {
+				return _operands[i];
+			}
+
+			const expr & get(size_t i) const {
+				return _operands[i];
+			}
+
+			std::ostream & write(std::ostream &os, size_t depth = 0) const {
+				for(size_t i = 0; i < depth; ++i) { os << "  "; }
+
+				switch(type()) {
+				case expr_type::number:
+					return os << "expr::number { " << get<Decimal>() << " }";
+				case expr_type::identifier:
+					return os << "expr::identifier { \"" << get<std::string>() << "\" }";
+				case expr_type::assignment:
+					os << "expr::assignment {\n";
+					get(0).write(os, depth + 1);
+					os << '\n';
+					get(1).write(os, depth + 1);
+					os << "\n";
+					for(size_t i = 0; i < depth; ++i) { os << "  "; }
+					return os << '}';
+				case expr_type::access:
+					os << "expr::access {\n";
+					get(0).write(os, depth + 1);
+					os << '\n';
+					get(1).write(os, depth + 1);
+					os << "\n";
+					for(size_t i = 0; i < depth; ++i) { os << "  "; }
+					return os << '}';
+				default:
+					return os << "expr::invalid";
+				}
+			}
+
+			friend std::ostream & operator<<(std::ostream &os, const expr &e) {
+				return e.write(os);
 			}
 		};
 
@@ -259,30 +321,129 @@ namespace polar::api {
 			return tokens;
 		}
 
-		std::pair<std::optional<expr>, token_range>
-		parse_identifier(token_range range) const {
-			auto &t = *range.first;
-			if(t.type() == token_type::identifier) {
+		std::pair<std::optional<token>, token_range>
+		parse_token(token_range range) const {
+			if(range.first != range.second) {
+				auto t = *range.first;
 				++range.first;
-				return {{expr::identifier(t.get<std::string>())}, range};
+				return {{t}, range};
 			} else {
 				return {{}, range};
 			}
 		}
 
 		std::pair<std::optional<expr>, token_range>
+		parse_number(token_range range) const {
+			auto [x, r_x] = parse_token(range);
+			if(x && x->type() == token_type::number) {
+				return {{expr::number(x->get<Decimal>())}, r_x};
+			} else {
+				return {{}, range};
+			}
+		}
+
+		std::pair<std::optional<expr>, token_range>
+		parse_identifier(token_range range) const {
+			auto [id, r_id] = parse_token(range);
+			if(id && id->type() == token_type::identifier) {
+				return {{expr::identifier(id->get<std::string>())}, r_id};
+			} else {
+				return {{}, range};
+			}
+		}
+
+		std::pair<std::optional<expr>, token_range>
+		parse_assignment(token_range range) const {
+			auto r = range;
+
+			auto [lhs, r_lhs] = parse_access(r);
+			if(lhs) {
+				r = r_lhs;
+			} else {
+				return {{}, range};
+			}
+
+			auto [eq, r_eq] = parse_token(r);
+			if(eq && eq->type() == token_type::equals) {
+				r = r_eq;
+			} else {
+				return {{}, range};
+			}
+
+			auto [rhs, r_rhs] = parse_one(r);
+			if(rhs) {
+				r = r_rhs;
+			} else {
+				return {{}, range};
+			}
+
+			return {{expr::assignment(*lhs, *rhs)}, r};
+		}
+
+		std::pair<std::optional<expr>, token_range>
+		parse_access_rhs(token_range range) const {
+			auto r = range;
+
+			auto [acc, r_acc] = parse_token(r);
+			if(acc && acc->type() == token_type::accessor) {
+				r = r_acc;
+			} else {
+				return {{}, range};
+			}
+
+			auto [rhs, r_rhs] = parse_identifier(r);
+			if(rhs) {
+				return {rhs, r_rhs};
+			} else {
+				return {{}, range};
+			}
+		}
+
+		std::pair<std::optional<expr>, token_range>
+		parse_access(token_range range) const {
+			auto [lhs, r_lhs] = parse_identifier(range);
+			if(lhs) {
+				range = r_lhs;
+			} else {
+				return {{}, range};
+			}
+
+			for(;;) {
+				auto [rhs, r_rhs] = parse_access_rhs(range);
+				if(rhs) {
+					lhs = expr::access(*lhs, *rhs);
+					range = r_rhs;
+				} else {
+					break;
+				}
+			}
+
+			return {lhs, range};
+		}
+
+		std::pair<std::optional<expr>, token_range>
 		parse_one(token_range range) const {
-			return parse_identifier(range);
+			auto [assign, r_assign] = parse_assignment(range);
+			if(assign) {
+				return {assign, r_assign};
+			}
+
+			auto [x, r_x] = parse_number(range);
+			if(x) {
+				return {x, r_x};
+			}
+
+			return parse_access(range);
 		}
 
 		auto parse_range(token_range range) const {
 			std::vector<expr> exprs;
 
 			for(;;) {
-				auto [e, i] = parse_one(range);
+				auto [e, r] = parse_one(range);
 				if(e) {
 					exprs.emplace_back(*e);
-					range = i;
+					range = r;
 				} else {
 					break;
 				}
@@ -299,24 +460,74 @@ namespace polar::api {
 			return parse(lex(str));
 		}
 
-		bool exec(std::vector<expr> exprs) {
+		bool reduce_access(expr &e) const {
 			bool ret = true;
 
-			for(auto &e : exprs) {
-				switch(e.type()) {
-				case expr_type::identifier:
-					if(e.get<std::string>() == "quit") {
-						engine->quit();
-					} else {
-						ret = false;
-					}
-					break;
-				default:
+			auto &lhs = e.get(0);
+			auto &rhs = e.get(1);
+			auto s = rhs.get<std::string>();
+
+			ret &= reduce(lhs);
+
+			switch(lhs.type()) {
+			case expr_type::builtin_engine:
+				if(s == "quit") {
+					e = expr::builtin_engine_quit();
+				} else {
 					ret = false;
-					break;
 				}
+				break;
 			}
 
+			return ret;
+		}
+
+		bool reduce(expr &e) const {
+			bool ret = true;
+
+			switch(e.type()) {
+			case expr_type::identifier: {
+				auto s = e.get<std::string>();
+				if(s == "engine") {
+					e = expr::builtin_engine();
+				//} else if(s == "system") {
+				//	e = expr::builtin_system();
+				//} else if(s == "component") {
+				//	e = expr::builtin_component();
+				}
+				break;
+			}
+			case expr_type::assignment:
+				reduce(e.get(0));
+				reduce(e.get(1));
+				break;
+			case expr_type::access:
+				ret &= reduce_access(e);
+				break;
+			}
+
+			return ret;
+		}
+
+		bool exec_one(expr &e) {
+			bool ret = true;
+
+			ret &= reduce(e);
+
+			switch(e.type()) {
+			case expr_type::builtin_engine_quit:
+				engine->quit();
+				break;
+			}
+
+			return ret;
+		}
+
+		bool exec(std::vector<expr> exprs) {
+			bool ret = true;
+			for(auto &e : exprs) {
+				ret &= exec_one(e);
+			}
 			return ret;
 		}
 
