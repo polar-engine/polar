@@ -13,6 +13,8 @@ namespace polar::component::sprite {
 		slider(const float width, const float height, const float alpha)
 		    : width(width), height(height), alpha(alpha) {}
 
+		virtual std::string name() const override { return "sprite_slider"; }
+
 		void render_me() override;
 	};
 } // namespace polar::component::sprite

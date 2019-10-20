@@ -12,6 +12,7 @@ namespace polar::component {
 		integrable<Point3> distance;
 		integrable<Point3> position;
 		integrable<Quat> orientation;
+
 		playercamera(const Point3 &distance = Point3(0, 0, 0),
 		             const Point3 &position = Point3(0, 0, 0),
 		             const Point3 &euler    = Point3(0, 0, 0))
@@ -25,5 +26,7 @@ namespace polar::component {
 				prop->add(&this->orientation);
 			}
 		}
+
+		virtual std::string name() const override { return "playercamera"; }
 	};
 } // namespace polar::component

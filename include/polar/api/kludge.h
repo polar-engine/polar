@@ -77,27 +77,33 @@ namespace polar::api {
 			identifier,
 			assignment,
 			access,
+			component,
 			builtin_engine,
 			builtin_engine_quit,
+			builtin_system,
+			builtin_component,
 			invalid
 		};
 
 		class expr {
 		  public:
-			using value_type = std::variant<std::monostate, Decimal, std::string>;
+			using value_type = std::variant<std::monostate, Decimal, std::string, std::type_index>;
 		  protected:
 			expr_type _type;
 			std::vector<expr> _operands;
 			value_type _value;
 
-			expr(expr_type type, std::vector<expr> operands = {}, value_type value = {}) : _type(type), _operands(operands), _value(value) {}
+			expr(expr_type type, std::vector<expr> operands, value_type value) : _type(type), _operands(operands), _value(value) {}
+			expr(expr_type type, std::vector<expr> operands) : expr(type, operands, {}) {}
+			expr(expr_type type, value_type value) : expr(type, {}, value) {}
+			expr(expr_type type) : expr(type, {}, {}) {}
 		  public:
 			static expr number(Decimal x) {
-				return expr{expr_type::number, {}, x};
+				return expr{expr_type::number, x};
 			}
 
 			static expr identifier(std::string x) {
-				return expr{expr_type::identifier, {}, x};
+				return expr{expr_type::identifier, x};
 			}
 
 			static expr assignment(expr lhs, expr rhs) {
@@ -108,12 +114,24 @@ namespace polar::api {
 				return expr{expr_type::access, {lhs, rhs}};
 			}
 
+			static expr component(std::type_index ti) {
+				return expr{expr_type::component, ti};
+			}
+
 			static expr builtin_engine() {
 				return expr{expr_type::builtin_engine};
 			}
 
 			static expr builtin_engine_quit() {
 				return expr{expr_type::builtin_engine_quit};
+			}
+
+			static expr builtin_system() {
+				return expr{expr_type::builtin_system};
+			}
+
+			static expr builtin_component() {
+				return expr{expr_type::builtin_component};
 			}
 
 			auto type() const {
@@ -156,6 +174,8 @@ namespace polar::api {
 					os << "\n";
 					for(size_t i = 0; i < depth; ++i) { os << "  "; }
 					return os << '}';
+				case expr_type::component:
+					return os << "expr::component { " << get<std::type_index>().name() << " }";
 				default:
 					return os << "expr::invalid";
 				}
@@ -477,6 +497,13 @@ namespace polar::api {
 					ret = false;
 				}
 				break;
+			case expr_type::builtin_component:
+				if(auto ti = engine->get_component_by_name(s)) {
+					e = expr::component(*ti);
+				} else {
+					ret = false;
+				}
+				break;
 			}
 
 			return ret;
@@ -490,10 +517,10 @@ namespace polar::api {
 				auto s = e.get<std::string>();
 				if(s == "engine") {
 					e = expr::builtin_engine();
-				//} else if(s == "system") {
-				//	e = expr::builtin_system();
-				//} else if(s == "component") {
-				//	e = expr::builtin_component();
+				} else if(s == "system") {
+					e = expr::builtin_system();
+				} else if(s == "component") {
+					e = expr::builtin_component();
 				}
 				break;
 			}
@@ -504,6 +531,16 @@ namespace polar::api {
 			case expr_type::access:
 				ret &= reduce_access(e);
 				break;
+			}
+
+			return ret;
+		}
+
+		bool reduce(std::vector<expr> &exprs) {
+			bool ret = true;
+
+			for(auto &e : exprs) {
+				ret &= reduce(e);
 			}
 
 			return ret;
@@ -523,7 +560,7 @@ namespace polar::api {
 			return ret;
 		}
 
-		bool exec(std::vector<expr> exprs) {
+		bool exec(std::vector<expr> &exprs) {
 			bool ret = true;
 			for(auto &e : exprs) {
 				ret &= exec_one(e);

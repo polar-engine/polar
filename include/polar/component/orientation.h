@@ -16,5 +16,7 @@ namespace polar::component {
 		}
 
 		orientation(const Point3 euler) : orientation(Quat(euler)) {}
+
+		virtual std::string name() const override { return "orientation"; }
 	};
 } // namespace polar::component

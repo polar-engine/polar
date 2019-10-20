@@ -43,6 +43,8 @@ namespace polar::component {
 			}
 		}
 
+		virtual std::string name() const override { return "model"; }
+
 		static auto calculate_normal(const point_t &p1, const point_t &p2,
 		                             const point_t &p3) {
 			auto deltaPos1 = p2 - p1;

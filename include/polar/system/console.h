@@ -72,12 +72,19 @@ namespace polar::system {
 
 		void process(std::string line) {
 			api::kludge kl{engine};
-			if(!kl.exec(line)) {
+
+			auto t = kl.lex(line);
+			debugmanager()->verbose(t);
+
+			auto e = kl.parse(t);
+			debugmanager()->verbose(e);
+
+			kl.reduce(e);
+			debugmanager()->verbose(e);
+
+			if(!kl.exec(e)) {
 				debugmanager()->critical("kludge exec failed");
 			}
-
-			debugmanager()->verbose(kl.lex(line));
-			debugmanager()->verbose(kl.parse(line));
 		}
 
 		void render() {

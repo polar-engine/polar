@@ -36,6 +36,8 @@ namespace polar::component {
 		    : asset(as), type(type), looping(true), loopIn(in.value),
 		      loopOut(out.value) {}
 
+		virtual std::string name() const override { return "audiosource"; }
+
 		void advance(double sampleRate, int delta) {
 			currentSample += size_t(double(delta) * (44100.0 / sampleRate));
 		}

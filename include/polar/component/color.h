@@ -15,5 +15,7 @@ namespace polar::component {
 			add<property::integrable>();
 			get<property::integrable>().lock()->add(&this->col);
 		}
+
+		virtual std::string name() const override { return "color"; }
 	};
 } // namespace polar::component

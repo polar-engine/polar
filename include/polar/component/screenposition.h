@@ -20,5 +20,7 @@ namespace polar::component {
 			add<property::integrable>();
 			get<property::integrable>().lock()->add(&this->position);
 		}
+
+		virtual std::string name() const override { return "screenposition"; }
 	};
 } // namespace polar::component

@@ -45,10 +45,11 @@ namespace polar::core {
 		    states;
 		std::vector<state> stack;
 
+		std::unordered_map<std::string, std::type_index> component_names;
+
 		std::weak_ptr<system::base> get(std::type_index ti);
 		component::base *get(IDType id, std::type_index ti);
-		void insert(IDType id, std::shared_ptr<component::base> component,
-		            std::type_index ti);
+		void insert(IDType id, std::shared_ptr<component::base> component, std::type_index ti);
 		void remove(IDType id, std::type_index ti);
 
 	  public:
@@ -127,6 +128,15 @@ namespace polar::core {
 		                         component::base, T>::value>::type>
 		inline void remove(IDType id) {
 			remove(id, typeid(T));
+		}
+
+		inline std::optional<std::type_index> get_component_by_name(std::string name) const {
+			auto it = component_names.find(name);
+			if(it != component_names.end()) {
+				return it->second;
+			} else {
+				return {};
+			}
 		}
 	};
 } // namespace polar::core

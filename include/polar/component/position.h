@@ -14,5 +14,7 @@ namespace polar::component {
 			add<property::integrable>();
 			get<property::integrable>().lock()->add(&this->pos);
 		}
+
+		virtual std::string name() const override { return "position"; }
 	};
 } // namespace polar::component

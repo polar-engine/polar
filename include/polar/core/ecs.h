@@ -13,6 +13,8 @@ namespace polar::core {
 		component_map_t components;
 
 	  public:
+		virtual ~ecs() {}
+
 		inline void clear() { components.clear(); }
 
 		template<typename T> inline auto add() {

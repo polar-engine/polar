@@ -15,5 +15,7 @@ namespace polar::component {
 			add<property::integrable>();
 			get<property::integrable>().lock()->add(&this->sc);
 		}
+
+		virtual std::string name() const { return "scale"; }
 	};
 } // namespace polar::component

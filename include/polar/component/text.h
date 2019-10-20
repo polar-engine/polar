@@ -10,7 +10,8 @@ namespace polar::component {
 		std::string str;
 		bool fixedToViewport = false;
 
-		text(std::shared_ptr<asset::font> as, std::string str)
-		    : as(as), str(str) {}
+		text(std::shared_ptr<asset::font> as, std::string str) : as(as), str(str) {}
+
+		virtual std::string name() const override { return "text"; }
 	};
 } // namespace polar::component

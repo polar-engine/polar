@@ -23,5 +23,7 @@ namespace polar::component {
 		          std::make_shared<Det>(d))),
 		      responder(std::static_pointer_cast<responder_t>(
 		          std::make_shared<Res>(r))) {}
+
+		virtual std::string name() const override { return "phys"; }
 	};
 } // namespace polar::component
