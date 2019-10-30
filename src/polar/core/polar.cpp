@@ -126,8 +126,6 @@ namespace polar::core {
 		objects.insert(bimap::value_type(id, ti, component));
 		for(auto &state : stack) { state.component_added(id, ti, component); }
 		debugmanager()->trace("inserted component");
-
-		component_names.emplace(component->name(), ti);
 	}
 
 	std::weak_ptr<system::base> polar::get(std::type_index ti) {

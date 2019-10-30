@@ -71,7 +71,7 @@ namespace polar::system {
 		}
 
 		void process(std::string line) {
-			api::kludge kl{engine};
+			polar::api::kludge kl{engine};
 
 			auto t = kl.lex(line);
 			debugmanager()->verbose(t);
@@ -82,7 +82,8 @@ namespace polar::system {
 			kl.reduce(e);
 			debugmanager()->verbose(e);
 
-			if(!kl.exec(e)) {
+			auto r = kl.exec(e);
+			if(std::holds_alternative<polar::api::kludge::exec_error>(r)) {
 				debugmanager()->critical("kludge exec failed");
 			}
 		}
