@@ -77,6 +77,9 @@ namespace polar::api {
 			identifier,
 			assignment,
 			access,
+			system,
+			system_getter,
+			system_setter,
 			component,
 			component_getter,
 			component_setter,
@@ -89,7 +92,14 @@ namespace polar::api {
 
 		class expr {
 		  public:
-			using value_type = std::variant<std::monostate, Decimal, std::string, std::type_index, component::base::accessor_type>;
+			using value_type = std::variant<
+				std::monostate,
+				Decimal,
+				std::string,
+				std::type_index,
+				system::base::accessor_type,
+				component::base::accessor_type
+			>;
 		  protected:
 			expr_type _type;
 			std::vector<expr> _operands;
@@ -114,6 +124,18 @@ namespace polar::api {
 
 			static expr access(expr lhs, expr rhs) {
 				return expr{expr_type::access, {lhs, rhs}};
+			}
+
+			static expr system(std::type_index ti) {
+				return expr{expr_type::system, ti};
+			}
+
+			static expr system_getter(system::base::accessor_type accessor, expr cmp) {
+				return expr{expr_type::system_getter, {cmp}, accessor};
+			}
+
+			static expr system_setter(system::base::accessor_type accessor, expr cmp, expr rhs) {
+				return expr{expr_type::system_setter, {cmp, rhs}, accessor};
 			}
 
 			static expr component(std::type_index ti) {
@@ -178,6 +200,26 @@ namespace polar::api {
 					return os << '}';
 				case expr_type::access:
 					os << "expr::access {\n";
+					get(0).write(os, depth + 1);
+					os << '\n';
+					get(1).write(os, depth + 1);
+					os << '\n';
+					for(size_t i = 0; i < depth; ++i) { os << "  "; }
+					return os << '}';
+				case expr_type::system:
+					return os << "expr::system { " << get<std::type_index>().name() << " }";
+				case expr_type::system_getter:
+					os << "expr::system_getter {\n";
+					for(size_t i = 0; i < depth + 1; ++i) { os << "  "; }
+					os << "...\n";
+					get(0).write(os, depth + 1);
+					os << '\n';
+					for(size_t i = 0; i < depth; ++i) { os << "  "; }
+					return os << '}';
+				case expr_type::system_setter:
+					os << "expr::system_setter {\n";
+					for(size_t i = 0; i < depth + 1; ++i) { os << "  "; }
+					os << "...\n";
 					get(0).write(os, depth + 1);
 					os << '\n';
 					get(1).write(os, depth + 1);
@@ -520,17 +562,10 @@ namespace polar::api {
 			ret &= reduce(lhs);
 
 			switch(lhs.type()) {
-			case expr_type::builtin_engine:
-				if(s == "quit") {
-					e = expr::builtin_engine_quit();
-				} else {
-					ret = false;
-				}
-				break;
-			case expr_type::builtin_component:
+			case expr_type::system:
 				if(api_system) {
-					if(auto ti = api_system->get_component_by_name(s)) {
-						e = expr::component(*ti);
+					if(auto accessor = api_system->get_system_accessor(lhs.get<std::type_index>(), s)) {
+						e = expr::system_getter(*accessor, lhs);
 					} else {
 						ret = false;
 					}
@@ -540,6 +575,31 @@ namespace polar::api {
 				if(api_system) {
 					if(auto accessor = api_system->get_component_accessor(lhs.get<std::type_index>(), s)) {
 						e = expr::component_getter(*accessor, lhs);
+					} else {
+						ret = false;
+					}
+				}
+				break;
+			case expr_type::builtin_engine:
+				if(s == "quit") {
+					e = expr::builtin_engine_quit();
+				} else {
+					ret = false;
+				}
+				break;
+			case expr_type::builtin_system:
+				if(api_system) {
+					if(auto ti = api_system->get_system_by_name(s)) {
+						e = expr::system(*ti);
+					} else {
+						ret = false;
+					}
+				}
+				break;
+			case expr_type::builtin_component:
+				if(api_system) {
+					if(auto ti = api_system->get_component_by_name(s)) {
+						e = expr::component(*ti);
 					} else {
 						ret = false;
 					}
@@ -570,8 +630,13 @@ namespace polar::api {
 				auto &rhs = e.get(1);
 				reduce(lhs);
 				reduce(rhs);
-				if(lhs.type() == expr_type::component_getter) {
-					e = expr::component_setter(lhs.get<component::base::accessor_type>(), e.get(0), rhs);
+				switch(lhs.type()) {
+				case expr_type::system_getter:
+					e = expr::system_setter(lhs.get<system::base::accessor_type>(), lhs, rhs);
+					break;
+				case expr_type::component_getter:
+					e = expr::component_setter(lhs.get<component::base::accessor_type>(), lhs, rhs);
+					break;
 				}
 				break;
 			}
@@ -609,6 +674,29 @@ namespace polar::api {
 			switch(e.type()) {
 			case expr_type::number:
 				return e.get<Decimal>();
+			case expr_type::system_getter:
+				if(auto getter = e.get<system::base::accessor_type>().getter) {
+					auto ti = e.get(0).get<std::type_index>();
+					if(auto sys = engine->get(ti).lock()) {
+						ret = getter.value()(sys.get());
+					}
+				}
+				break;
+			case expr_type::system_setter: {
+				auto rhs = exec_one(e.get(1));
+				if(!std::holds_alternative<Decimal>(rhs)) {
+					return exec_error::type_mismatch;
+				}
+
+				if(auto setter = e.get<system::base::accessor_type>().setter) {
+					auto ti = e.get(0).get(0).get<std::type_index>();
+					auto rhs_value = std::get<Decimal>(rhs);
+					if(auto sys = engine->get(ti).lock()) {
+						setter.value()(sys.get(), rhs_value);
+					}
+				}
+				break;
+			}
 			case expr_type::component_getter:
 				if(auto getter = e.get<component::base::accessor_type>().getter) {
 					auto ti = e.get(0).get<std::type_index>();

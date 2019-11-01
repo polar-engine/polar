@@ -55,6 +55,8 @@ namespace polar::system {
 		static bool supported() { return true; }
 		asset(core::polar *engine) : base(engine) {}
 
+		virtual std::string name() const override { return "asset"; }
+
 		void update(DeltaTicks &) override {
 			for(auto &pair : partials) {
 				auto &partial = pair.second;

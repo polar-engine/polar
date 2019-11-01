@@ -60,6 +60,8 @@ namespace polar::system {
 		static bool supported() { return true; }
 		phys(core::polar *engine) : base(engine) {}
 
+		virtual std::string name() const override { return "phys"; }
+
 		template<typename T, typename U,
 		         typename = typename std::enable_if<
 		             std::is_base_of<detector_base, T>::value>::type,

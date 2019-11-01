@@ -200,5 +200,7 @@ namespace polar::system {
 		static bool supported() { return true; }
 
 		console(core::polar *engine) : base(engine) {}
+
+		virtual std::string name() const override { return "console"; }
 	};
 } // namespace polar::system

@@ -22,6 +22,8 @@ namespace polar::system {
 		static bool supported() { return true; }
 		integrator(core::polar *engine) : base(engine) {}
 
+		virtual std::string name() const override { return "integrator"; }
+
 		const inline DeltaTicks &getaccumulator() const { return accumulator; }
 
 		inline void force_tick() { tick(timestep.Seconds()); }

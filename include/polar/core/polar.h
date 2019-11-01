@@ -45,7 +45,6 @@ namespace polar::core {
 		    states;
 		std::vector<state> stack;
 
-		std::weak_ptr<system::base> get(std::type_index ti);
 		component::base *get(IDType id, std::type_index ti);
 		void insert(IDType id, std::shared_ptr<component::base> component, std::type_index ti);
 		void remove(IDType id, std::type_index ti);
@@ -63,6 +62,8 @@ namespace polar::core {
 			/* release stack in reverse order */
 			while(!stack.empty()) { stack.pop_back(); }
 		}
+
+		std::weak_ptr<system::base> get(std::type_index ti);
 
 		inline void add(const std::string &name, const state_initializer &init,
 		                const state_initializer &destroy = [](polar *,

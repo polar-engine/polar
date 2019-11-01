@@ -30,6 +30,8 @@ namespace polar::system {
 		static bool supported() { return true; }
 		event(core::polar *engine) : base(engine) {}
 
+		virtual std::string name() const override { return "event"; }
+
 		inline auto listen(const global_listener_t &fn) {
 			auto id = nextID++;
 			globalListeners.emplace(id, fn);

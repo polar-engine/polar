@@ -70,6 +70,8 @@ namespace polar::system {
 			                     framesPerBuffer, audio_stream_cb, this);
 		}
 
+		virtual std::string name() const override { return "audio"; }
+
 		~audio() {
 			Pa_CloseStream(stream);
 			Pa_Terminate();

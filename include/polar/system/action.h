@@ -55,6 +55,8 @@ namespace polar::system {
 		static bool supported() { return true; }
 		action(core::polar *engine) : base(engine) {}
 
+		virtual std::string name() const override { return "action"; }
+
 		inline auto get_framebuffer() const { return framebuffer; }
 		inline auto get_frame_offset() const { return frame_offset; }
 		inline auto & current_frame(size_t n = 0) {

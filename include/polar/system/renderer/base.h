@@ -25,6 +25,8 @@ namespace polar::system::renderer {
 		static bool supported() { return false; }
 		base(core::polar *engine) : system::base(engine) {}
 
+		virtual std::string name() const override { return "renderer"; }
+
 		inline uint16_t getwidth() { return width; }
 		inline uint16_t getheight() { return height; }
 
