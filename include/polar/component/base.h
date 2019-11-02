@@ -3,6 +3,8 @@
 #include <polar/core/ecs.h>
 #include <polar/core/types.h>
 #include <polar/property/base.h>
+#include <functional>
+#include <optional>
 #include <vector>
 
 namespace polar::component {
@@ -36,4 +38,4 @@ namespace polar::component {
 			return l;
 		}
 	};
-}
+} // namespace polar::component
