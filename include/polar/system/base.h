@@ -44,12 +44,18 @@ namespace polar::system {
 
 		virtual std::string name() const = 0;
 
+		virtual accessor_list accessors() const {
+			accessor_list l;
+			return l;
+		}
+
 		inline void keep(core::ref r) {
 			dtors.emplace_back(r);
 		}
 
 		virtual void init() {}
 		virtual void update(DeltaTicks &) {}
+		virtual void system_added(std::type_index, std::weak_ptr<system::base>) {}
 		virtual void componentadded(IDType, std::type_index,
 		                            std::weak_ptr<component::base>) {}
 		virtual void componentremoved(IDType, std::type_index) {}

@@ -83,7 +83,7 @@ namespace polar::core {
 		}
 
 		ref add(IDType &inputID);
-
+		void insert(std::type_index ti, std::shared_ptr<system::base>);
 		void remove(IDType id);
 
 		template<typename T, typename... Ts,

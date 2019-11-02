@@ -23,6 +23,16 @@ namespace polar::system {
 		std::unordered_map<std::string, std::type_index> components_by_name;
 		component_accessor_bimap component_accessors;
 	  protected:
+		void system_added(std::type_index ti, std::weak_ptr<system::base> ptr) override {
+			auto sys = ptr.lock();
+
+			systems_by_name.emplace(sys->name(), ti);
+
+			for(auto &[name, accessor] : sys->accessors()) {
+				system_accessors.insert(system_accessor_bimap::value_type(ti, name, accessor));
+			}
+		}
+
 		void componentadded(IDType, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			auto component = ptr.lock();
 

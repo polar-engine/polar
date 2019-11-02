@@ -27,6 +27,22 @@ namespace polar::core {
 		}
 	}
 
+	void state::insert(std::type_index ti, std::shared_ptr<system::base> ptr) {
+		engine->insert(ti, ptr);
+	}
+
+	void state::system_added(std::type_index ti,
+	                         std::shared_ptr<system::base> ptr) {
+		for(auto &pairSystem : *systems.get()) {
+			auto &system = pairSystem.second;
+			auto &deref  = *system;
+			debugmanager()->trace("notifying system of system added: ",
+			                      typeid(deref).name(), ", ", ti.name());
+			system->system_added(ti, ptr);
+			debugmanager()->trace("notified system of system added");
+		}
+	}
+
 	void state::component_added(IDType id, std::type_index ti,
 	                            std::shared_ptr<component::base> ptr) {
 		for(auto &pairSystem : *systems.get()) {

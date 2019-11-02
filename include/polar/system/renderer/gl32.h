@@ -91,6 +91,23 @@ namespace polar::system::renderer {
 		}
 		~gl32();
 
+		void resize(uint16_t w, uint16_t h) override {
+			width = w;
+			height = h;
+
+			SDL(SDL_SetWindowSize(window, width, height));
+			rebuild();
+		}
+
+		void rebuild() {
+			auto act = engine->get<action>().lock();
+			GL(glViewport(0, 0, width, height));
+			makepipeline(pipelineNames);
+			if(act) {
+				act->trigger<action_resize>(INVALID_ID());
+			}
+		}
+
 		void setmousecapture(bool capture) override;
 		void setfullscreen(bool fullscreen) override;
 		void setdepthtest(bool depthtest) override;

@@ -27,9 +27,34 @@ namespace polar::system::renderer {
 
 		virtual std::string name() const override { return "renderer"; }
 
+		virtual accessor_list accessors() const override {
+			accessor_list l;
+			l.emplace_back("width", make_accessor<base>(
+				[] (base *ptr) {
+					return ptr->getwidth();
+				},
+				[] (base *ptr, auto x) {
+					ptr->setwidth(x);
+				}
+			));
+			l.emplace_back("height", make_accessor<base>(
+				[] (base *ptr) {
+					return ptr->getheight();
+				},
+				[] (base *ptr, auto x) {
+					ptr->setheight(x);
+				}
+			));
+			return l;
+		}
+
 		inline uint16_t getwidth() { return width; }
 		inline uint16_t getheight() { return height; }
 
+		inline void setwidth(uint16_t w) { resize(w, height); }
+		inline void setheight(uint16_t h) { resize(width, h); }
+
+		virtual void resize(uint16_t, uint16_t)                             = 0;
 		virtual void setmousecapture(bool)                                  = 0;
 		virtual void setfullscreen(bool)                                    = 0;
 		virtual void setdepthtest(bool)                                     = 0;

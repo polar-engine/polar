@@ -19,6 +19,7 @@ namespace polar::core {
 		std::vector<std::shared_ptr<system::base>> toErase;
 		std::vector<core::ref> dtors;
 
+		void insert(std::type_index, std::shared_ptr<system::base>);
 	  public:
 		const std::string name;
 		std::unordered_map<std::string, Transition> transitions;
@@ -65,6 +66,7 @@ namespace polar::core {
 #endif
 				auto ptr = systems.add_as<B, T>(engine, std::forward<Ts>(args)...);
 				orderedSystems.emplace_back(systems.get<B>());
+				insert(typeid(B), ptr);
 				return ptr;
 #ifdef _DEBUG
 			}
@@ -102,6 +104,7 @@ namespace polar::core {
 			return systems.get(ti);
 		}
 
+		void system_added(std::type_index, std::shared_ptr<system::base>);
 		void component_added(IDType id, std::type_index ti,
 		                     std::shared_ptr<component::base> ptr);
 		void component_removed(IDType id, std::type_index ti);

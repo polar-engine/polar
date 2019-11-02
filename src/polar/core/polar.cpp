@@ -120,6 +120,10 @@ namespace polar::core {
 		return ref([this, inputID] { remove(inputID); });
 	}
 
+	void polar::insert(std::type_index ti, std::shared_ptr<system::base> ptr) {
+		for(auto &state : stack) { state.system_added(ti, ptr); }
+	}
+
 	void polar::insert(IDType id, std::shared_ptr<component::base> component,
 	                   std::type_index ti) {
 		debugmanager()->trace("inserting component: ", ti.name());

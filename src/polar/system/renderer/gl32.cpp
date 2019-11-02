@@ -850,13 +850,8 @@ namespace polar::system::renderer {
 					height = h;
 				}
 
-				GL(glViewport(0, 0, width, height));
-				debugmanager()->trace("MakePipeline from SDL_WINDOWEVENT");
-				makepipeline(pipelineNames);
-				debugmanager()->trace("MakePipeline done");
-				if(act) {
-					act->trigger<action_resize>(INVALID_ID());
-				}
+				rebuild();
+
 				break;
 			}
 			break;
