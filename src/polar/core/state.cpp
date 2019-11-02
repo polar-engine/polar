@@ -50,7 +50,7 @@ namespace polar::core {
 			auto &deref  = *system;
 			debugmanager()->trace("notifying system of component added: ",
 			                      typeid(deref).name(), ", ", ti.name());
-			system->componentadded(id, ti, ptr);
+			system->component_added(id, ti, ptr);
 			debugmanager()->trace("notified system of component added");
 		}
 	}
@@ -61,7 +61,7 @@ namespace polar::core {
 			auto &deref  = *system;
 			debugmanager()->trace("notifying system of component removed: ",
 			                      typeid(deref).name(), ", ", ti.name());
-			system->componentremoved(id, ti);
+			system->component_removed(id, ti);
 			debugmanager()->trace("notified system of component removed");
 		}
 	}

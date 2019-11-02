@@ -1282,7 +1282,7 @@ namespace polar::system::renderer {
 		// model->points.shrink_to_fit();
 	}
 
-	void gl32::componentadded(IDType, std::type_index ti,
+	void gl32::component_added(IDType, std::type_index ti,
 	                          std::weak_ptr<component::base> ptr) {
 		if(ti == typeid(component::model)) {
 			auto model = std::static_pointer_cast<component::model>(ptr.lock());
@@ -1345,7 +1345,7 @@ namespace polar::system::renderer {
 		}
 	}
 
-	void gl32::componentremoved(IDType id, std::type_index ti) {
+	void gl32::component_removed(IDType id, std::type_index ti) {
 		if(ti == typeid(component::model)) {
 			auto model = engine->get<component::model>(id);
 			if(model != nullptr) {

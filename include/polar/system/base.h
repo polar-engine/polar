@@ -56,9 +56,9 @@ namespace polar::system {
 		virtual void init() {}
 		virtual void update(DeltaTicks &) {}
 		virtual void system_added(std::type_index, std::weak_ptr<system::base>) {}
-		virtual void componentadded(IDType, std::type_index,
-		                            std::weak_ptr<component::base>) {}
-		virtual void componentremoved(IDType, std::type_index) {}
+		virtual void component_added(IDType, std::type_index,
+		                             std::weak_ptr<component::base>) {}
+		virtual void component_removed(IDType, std::type_index) {}
 	};
 } // namespace polar::system
 
