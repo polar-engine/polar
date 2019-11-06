@@ -21,6 +21,7 @@ namespace polar::system::renderer {
 		Decimal pixelDistanceFromScreen = Decimal(1000.0);
 
 		bool showFPS = false;
+		bool debug_draw = false;
 
 		static bool supported() { return false; }
 		base(core::polar *engine) : system::base(engine) {}
@@ -29,6 +30,22 @@ namespace polar::system::renderer {
 
 		virtual accessor_list accessors() const override {
 			accessor_list l;
+			l.emplace_back("showfps", make_accessor<base>(
+				[] (base *ptr) {
+					return ptr->showFPS;
+				},
+				[] (base *ptr, auto x) {
+					ptr->showFPS = x ? true : false;
+				}
+			));
+			l.emplace_back("debugdraw", make_accessor<base>(
+				[] (base *ptr) {
+					return ptr->debug_draw;
+				},
+				[] (base *ptr, auto x) {
+					ptr->debug_draw = x ? true : false;
+				}
+			));
 			l.emplace_back("width", make_accessor<base>(
 				[] (base *ptr) {
 					return ptr->getwidth();

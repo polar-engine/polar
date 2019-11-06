@@ -1282,11 +1282,38 @@ namespace polar::system::renderer {
 		// model->points.shrink_to_fit();
 	}
 
+	void gl32::upload(std::shared_ptr<component::phys> phys) {
+		debug_p prop;
+
+		GL(glGenVertexArrays(1, &prop.vao));
+		GL(glBindVertexArray(prop.vao));
+
+		/* location   attribute
+		 *
+		 *        0   vertex
+		 */
+
+		prop.vbos.resize(1);
+		GL(glGenBuffers(1, &prop.vbos[0]));
+
+		GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
+		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+
+		GL(glEnableVertexAttribArray(0));
+	}
+
 	void gl32::component_added(IDType, std::type_index ti,
 	                          std::weak_ptr<component::base> ptr) {
 		if(ti == typeid(component::model)) {
 			auto model = std::static_pointer_cast<component::model>(ptr.lock());
-			if(!model->has<model_p>()) { uploadmodel(model); }
+			if(!model->has<model_p>()) {
+				uploadmodel(model);
+			}
+		} else if(ti == typeid(component::phys)) {
+			auto phys = std::static_pointer_cast<component::phys>(ptr.lock());
+			if(!phys->has<debug_draw_p>()) {
+				upload(phys);
+			}
 		} else if(ti == typeid(component::sprite::base)) {
 			auto sprite =
 			    std::static_pointer_cast<component::sprite::base>(ptr.lock());
