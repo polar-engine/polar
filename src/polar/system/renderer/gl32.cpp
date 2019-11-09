@@ -122,7 +122,7 @@ namespace polar::system::renderer {
 		glGetError();
 
 		GL(glEnable(GL_DEPTH_TEST));
-		GL(glDisable(GL_BLEND));
+		GL(glEnable(GL_BLEND));
 		GL(glEnable(GL_CULL_FACE));
 		GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL(glCullFace(GL_BACK));
@@ -148,8 +148,8 @@ namespace polar::system::renderer {
 		GL(glGenVertexArrays(1, &viewportVAO));
 		GL(glBindVertexArray(viewportVAO));
 
-		GLuint vbo;
-		GL(glGenBuffers(1, &vbo));
+		GLuint viewport_vbo;
+		GL(glGenBuffers(1, &viewport_vbo));
 
 		viewportPoints.clear();
 		const float step = 0.1;
@@ -164,11 +164,70 @@ namespace polar::system::renderer {
 			}
 		}
 
-		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * viewportPoints.size(), viewportPoints.data(),
-		                GL_STATIC_DRAW));
+		GL(glBindBuffer(GL_ARRAY_BUFFER, viewport_vbo));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * viewportPoints.size(), viewportPoints.data(), GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
+		GL(glEnableVertexAttribArray(0));
 
+		GL(glGenVertexArrays(1, &debug_box_vao));
+		GL(glBindVertexArray(debug_box_vao));
+
+		GLuint debug_box_vbo;
+		GL(glGenBuffers(1, &debug_box_vbo));
+
+		debug_box_points.clear();
+
+		// front
+		debug_box_points.emplace_back(Point3(-1, -1,  1));
+		debug_box_points.emplace_back(Point3( 1, -1,  1));
+		debug_box_points.emplace_back(Point3(-1,  1,  1));
+		debug_box_points.emplace_back(Point3(-1,  1,  1));
+		debug_box_points.emplace_back(Point3( 1, -1,  1));
+		debug_box_points.emplace_back(Point3( 1,  1,  1));
+
+		// left
+		debug_box_points.emplace_back(Point3(-1, -1, -1));
+		debug_box_points.emplace_back(Point3(-1, -1,  1));
+		debug_box_points.emplace_back(Point3(-1,  1, -1));
+		debug_box_points.emplace_back(Point3(-1,  1, -1));
+		debug_box_points.emplace_back(Point3(-1, -1,  1));
+		debug_box_points.emplace_back(Point3(-1,  1,  1));
+
+		// back
+		debug_box_points.emplace_back(Point3( 1, -1, -1));
+		debug_box_points.emplace_back(Point3(-1, -1, -1));
+		debug_box_points.emplace_back(Point3( 1,  1, -1));
+		debug_box_points.emplace_back(Point3( 1,  1, -1));
+		debug_box_points.emplace_back(Point3(-1, -1, -1));
+		debug_box_points.emplace_back(Point3(-1,  1, -1));
+
+		// right
+		debug_box_points.emplace_back(Point3( 1, -1,  1));
+		debug_box_points.emplace_back(Point3( 1, -1, -1));
+		debug_box_points.emplace_back(Point3( 1,  1,  1));
+		debug_box_points.emplace_back(Point3( 1,  1,  1));
+		debug_box_points.emplace_back(Point3( 1, -1, -1));
+		debug_box_points.emplace_back(Point3( 1,  1, -1));
+
+		// top
+		debug_box_points.emplace_back(Point3(-1,  1,  1));
+		debug_box_points.emplace_back(Point3( 1,  1,  1));
+		debug_box_points.emplace_back(Point3(-1,  1, -1));
+		debug_box_points.emplace_back(Point3(-1,  1, -1));
+		debug_box_points.emplace_back(Point3( 1,  1,  1));
+		debug_box_points.emplace_back(Point3( 1,  1, -1));
+
+		// bottom
+		debug_box_points.emplace_back(Point3(-1, -1, -1));
+		debug_box_points.emplace_back(Point3( 1, -1, -1));
+		debug_box_points.emplace_back(Point3(-1, -1,  1));
+		debug_box_points.emplace_back(Point3(-1, -1,  1));
+		debug_box_points.emplace_back(Point3( 1, -1, -1));
+		debug_box_points.emplace_back(Point3( 1, -1,  1));
+
+		GL(glBindBuffer(GL_ARRAY_BUFFER, debug_box_vbo));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_box_points.size(), debug_box_points.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
 		debugmanager()->trace("MakePipeline from Init");
@@ -176,10 +235,9 @@ namespace polar::system::renderer {
 		debugmanager()->trace("MakePipeline done");
 
 		auto assetM = engine->get<asset>().lock();
-		spriteProgram =
-		    makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
-		identityProgram =
-		    makeprogram(assetM->get<polar::asset::shaderprogram>("identity"));
+		spriteProgram   = makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
+		identityProgram = makeprogram(assetM->get<polar::asset::shaderprogram>("identity"));
+		debugProgram    = makeprogram(assetM->get<polar::asset::shaderprogram>("debug"));
 
 		/* 8x8 Bayer ordered dithering pattern
 		 * each input pixel is scared to the range of 0->63 before lookup
@@ -230,30 +288,22 @@ namespace polar::system::renderer {
 
 			switch(i) {
 			case 0: {
-				auto pairRight =
-				    engine->objects.right.equal_range(typeid(component::model));
-				for(auto itRight = pairRight.first; itRight != pairRight.second;
-				    ++itRight) {
-					auto model =
-					    static_cast<component::model *>(itRight->info.get());
+				auto pairRight = engine->objects.right.equal_range(typeid(component::model));
+				for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+					auto model = static_cast<component::model *>(itRight->info.get());
 					component::position *pos       = nullptr;
 					component::orientation *orient = nullptr;
 					component::scale *sc           = nullptr;
 
-					auto pairLeft =
-					    engine->objects.left.equal_range(itRight->get_left());
-					for(auto itLeft = pairLeft.first; itLeft != pairLeft.second;
-					    ++itLeft) {
+					auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
+					for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
 						auto type = itLeft->get_right();
 						if(type == typeid(component::position)) {
-							pos = static_cast<component::position *>(
-							    itLeft->info.get());
+							pos = static_cast<component::position *>(itLeft->info.get());
 						} else if(type == typeid(component::orientation)) {
-							orient = static_cast<component::orientation *>(
-							    itLeft->info.get());
+							orient = static_cast<component::orientation *>(itLeft->info.get());
 						} else if(type == typeid(component::scale)) {
-							sc = static_cast<component::scale *>(
-							    itLeft->info.get());
+							sc = static_cast<component::scale *>(itLeft->info.get());
 						}
 					}
 
@@ -262,18 +312,13 @@ namespace polar::system::renderer {
 						Mat4 modelMatrix(1);
 
 						if(pos != nullptr) {
-							modelMatrix = glm::translate(
-							    modelMatrix,
-							    pos->pos.temporal(delta));
+							modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
 						}
 						if(orient != nullptr) {
-							modelMatrix *=
-							    glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
+							modelMatrix *= glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
 						}
 						if(sc != nullptr) {
-							modelMatrix =
-							    glm::scale(modelMatrix,
-							               sc->sc.temporal(delta));
+							modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(delta));
 						}
 
 						GLenum drawMode = GL_TRIANGLES;
@@ -297,6 +342,52 @@ namespace polar::system::renderer {
 
 						GL(glBindVertexArray(property->vao));
 						GL(glDrawArrays(drawMode, 0, property->numVertices));
+					}
+				}
+				{
+					for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+						Mat4 modelMatrix(1);
+
+						auto pos = engine->get<component::position>(itRight->get_left());
+						if(pos != nullptr) {
+							modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
+						}
+
+						uploaduniform(node.program, "u_model", modelMatrix);
+
+						GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
+					}
+				}
+				if(debug_draw) {
+					GL(glUseProgram(debugProgram));
+					GL(glBindVertexArray(debug_box_vao));
+
+					project(debugProgram, proj);
+					uploaduniform(debugProgram, "u_view", view);
+
+					for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+						auto objectID = itRight->get_left();
+						auto phys = engine->get<component::phys    >(objectID);
+						auto pos  = engine->get<component::position>(objectID);
+						auto sc   = engine->get<component::scale   >(objectID);
+
+						if(phys != nullptr) {
+							Mat4 modelMatrix(1);
+
+							if(pos != nullptr) {
+								modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
+							}
+							if(sc != nullptr) {
+								modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(delta));
+							}
+							if(phys->detector) {
+								modelMatrix = glm::scale(modelMatrix, phys->detector->size);
+							}
+
+							uploaduniform(debugProgram, "u_model", modelMatrix);
+
+							GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
+						}
 					}
 				}
 				break;
@@ -335,7 +426,7 @@ namespace polar::system::renderer {
 		}
 
 		// render sprites and text
-		GL(glEnable(GL_BLEND));
+		//GL(glEnable(GL_BLEND));
 		{
 			//GL(glBindFramebuffer(GL_FRAMEBUFFER, nodes.back().fbo));
 			GL(glUseProgram(spriteProgram));
@@ -357,7 +448,7 @@ namespace polar::system::renderer {
 				rendertext(itRight->get_left(), proj, view);
 			}
 		}
-		GL(glDisable(GL_BLEND));
+		//GL(glDisable(GL_BLEND));
 
 		// mirror
 		GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -1282,37 +1373,12 @@ namespace polar::system::renderer {
 		// model->points.shrink_to_fit();
 	}
 
-	void gl32::upload(std::shared_ptr<component::phys> phys) {
-		debug_p prop;
-
-		GL(glGenVertexArrays(1, &prop.vao));
-		GL(glBindVertexArray(prop.vao));
-
-		/* location   attribute
-		 *
-		 *        0   vertex
-		 */
-
-		prop.vbos.resize(1);
-		GL(glGenBuffers(1, &prop.vbos[0]));
-
-		GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
-		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
-
-		GL(glEnableVertexAttribArray(0));
-	}
-
 	void gl32::component_added(IDType, std::type_index ti,
 	                          std::weak_ptr<component::base> ptr) {
 		if(ti == typeid(component::model)) {
 			auto model = std::static_pointer_cast<component::model>(ptr.lock());
 			if(!model->has<model_p>()) {
 				uploadmodel(model);
-			}
-		} else if(ti == typeid(component::phys)) {
-			auto phys = std::static_pointer_cast<component::phys>(ptr.lock());
-			if(!phys->has<debug_draw_p>()) {
-				upload(phys);
 			}
 		} else if(ti == typeid(component::sprite::base)) {
 			auto sprite =

@@ -6,6 +6,7 @@
 #include <polar/asset/font.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/component/model.h>
+#include <polar/component/phys.h>
 #include <polar/component/sprite/base.h>
 #include <polar/component/text.h>
 #include <polar/property/gl32/model.h>
@@ -41,10 +42,13 @@ namespace polar::system::renderer {
 		    fontCache;
 
 		std::vector<glm::vec2> viewportPoints;
+		std::vector<glm::vec3> debug_box_points;
 
 		GLuint viewportVAO;
+		GLuint debug_box_vao;
 		GLuint spriteProgram;
 		GLuint identityProgram;
+		GLuint debugProgram;
 		GLuint ditherTex;
 
 		core::ref fpsDtor;
