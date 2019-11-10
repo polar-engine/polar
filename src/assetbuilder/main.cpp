@@ -328,6 +328,9 @@ int main(int argc, char **argv) {
 				} else if(chunkType == "iTXt") {
 					iss.ignore(dataSize);
 					iss.ignore(4);
+				} else if(chunkType == "tEXt") {
+					iss.ignore(dataSize);
+					iss.ignore(4);
 				} else {
 					std::stringstream ss;
 					ss << "unrecognized chunk type `" << chunkType << '`';
