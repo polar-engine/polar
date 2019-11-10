@@ -37,9 +37,9 @@ namespace polar::component {
 			auto size = asset->triangles.size() * 3;
 			points.resize(size);
 			for(auto &tri : asset->triangles) {
-				points.emplace_back(tri.p.x, tri.p.y, tri.p.z);
-				points.emplace_back(tri.q.x, tri.q.y, tri.q.z);
-				points.emplace_back(tri.r.x, tri.r.y, tri.r.z);
+				points.emplace_back(tri.p.position[0], tri.p.position[1], tri.p.position[2]);
+				points.emplace_back(tri.q.position[0], tri.q.position[1], tri.q.position[2]);
+				points.emplace_back(tri.r.position[0], tri.r.position[1], tri.r.position[2]);
 			}
 		}
 

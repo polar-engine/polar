@@ -529,7 +529,9 @@ int main(int argc, char **argv) {
 	};
 	converters["obj"] = [](const std::string &data, core::serializer &s) {
 		asset::model asset;
-		std::vector<asset::vertex> vertices;
+		std::vector<asset::vertex_attrib<3>> positions;
+		std::vector<asset::vertex_attrib<3>> normals;
+		std::vector<asset::vertex_attrib<2>> texcoords;
 
 		std::istringstream iss(data);
 		std::string line;
@@ -539,9 +541,9 @@ int main(int argc, char **argv) {
 			std::string directive;
 			std::getline(ls, directive, ' ');
 			if(directive == "v") {
-				asset::vertex v;
-				ls >> v.x >> v.y >> v.z;
-				vertices.emplace_back(v);
+				asset::vertex_attrib<3> p;
+				ls >> p[0] >> p[1] >> p[2];
+				positions.emplace_back(p);
 			} else if(directive == "f") {
 				std::string pstr, qstr, rstr;
 				ls >> pstr >> qstr >> rstr;
@@ -556,9 +558,9 @@ int main(int argc, char **argv) {
 				rs >> r;
 
 				asset::triangle triangle;
-				triangle.p = vertices[p - 1];
-				triangle.q = vertices[q - 1];
-				triangle.r = vertices[r - 1];
+				triangle.p.position = positions[p - 1];
+				triangle.q.position = positions[q - 1];
+				triangle.r.position = positions[r - 1];
 
 				asset.triangles.emplace_back(triangle);
 
@@ -572,7 +574,7 @@ int main(int argc, char **argv) {
 					ss >> s;
 
 					triangle.q = triangle.r;
-					triangle.r = vertices[s - 1];
+					triangle.r.position = positions[s - 1];
 
 					asset.triangles.emplace_back(triangle);
 				}
