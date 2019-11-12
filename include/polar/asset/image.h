@@ -3,7 +3,7 @@
 #include <polar/asset/base.h>
 
 namespace polar::asset {
-	struct imagepixel : base {
+	struct imagepixel {
 		uint8_t red;
 		uint8_t green;
 		uint8_t blue;

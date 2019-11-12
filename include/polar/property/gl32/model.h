@@ -12,6 +12,8 @@ namespace polar {
 				GLsizei numVertices = 0;
 				GLsizei capacity    = 0;
 
+				GLuint diffuse_map;
+
 				inline friend bool operator<(const model &left,
 				                             const model &right) {
 					return left.capacity < right.capacity;

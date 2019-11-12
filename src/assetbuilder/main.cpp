@@ -184,27 +184,20 @@ int main(int argc, char **argv) {
 					}
 
 					size_t pos = 0;
-					for(uint32_t scanline = 0; scanline < asset.height;
-					    ++scanline) {
+					for(uint32_t scanline = 0; scanline < asset.height; ++scanline) {
 						uint8_t filterType = filteredBytes[pos++];
 						// INFO(int(filterType));
 
-						for(uint32_t column = 0; column < asset.width;
-						    ++column) {
-							asset::imagepixel &pixel =
-							    asset.pixels[scanline * asset.width + column];
-							for(size_t component = 0; component < 4;
-							    ++component) {
-								const auto paethPredictor = [](
-								    const uint8_t a, const uint8_t b,
-								    const uint8_t c) {
-									uint8_t p =
-									    a + b - c; /* initial estimate */
-									uint8_t pa = abs(p - a); /* distance to a */
-									uint8_t pb = abs(p - b); /* distance to b */
-									uint8_t pc = abs(p - c); /* distance to c */
+						for(uint32_t column = 0; column < asset.width; ++column) {
+							asset::imagepixel &pixel = asset.pixels[scanline * asset.width + column];
+							for(size_t component = 0; component < 4; ++component) {
+								const auto paethPredictor = [](const uint8_t a, const uint8_t b, const uint8_t c) {
+									uint8_t p = a + b - c;   // initial estimate
+									uint8_t pa = abs(p - a); // distance to a
+									uint8_t pb = abs(p - b); // distance to b
+									uint8_t pc = abs(p - c); // distance to c
 
-									/* return nearest of {a, b, c} */
+									// return nearest of {a, b, c}
 									if(pa <= pb && pa <= pc) {
 										return a;
 									} else if(pb <= pc) {
@@ -221,85 +214,51 @@ int main(int argc, char **argv) {
 									break;
 								case 1:
 									if(component > 0) {
-										left =
-										    asset
-										        .pixels[scanline * asset.width +
-										                column][component - 1];
+										left = asset.pixels[scanline * asset.width + column][component - 1];
 									} else if(column > 0) {
-										left =
-										    asset
-										        .pixels[scanline * asset.width +
-										                column - 1][3];
+										left = asset.pixels[scanline * asset.width + column - 1][3];
 									} else {
 										left = 0;
 									}
-									pixel[component] =
-									    filteredBytes[pos++] + left;
+									pixel[component] = filteredBytes[pos++] + left;
 									break;
 								case 2:
 									if(scanline > 0) {
-										up = asset.pixels[(scanline - 1) *
-										                      asset.width +
-										                  column][component];
+										up = asset.pixels[(scanline - 1) * asset.width + column][component];
 									} else {
 										up = 0;
 									}
-									pixel[component] =
-									    filteredBytes[pos++] + up;
+									pixel[component] = filteredBytes[pos++] + up;
 									break;
 								case 3:
 									if(component > 0) {
-										left =
-										    asset
-										        .pixels[scanline * asset.width +
-										                column][component - 1];
+										left = asset.pixels[scanline * asset.width + column][component - 1];
 									} else if(column > 0) {
-										left =
-										    asset
-										        .pixels[scanline * asset.width +
-										                column - 1][3];
+										left = asset.pixels[scanline * asset.width + column - 1][3];
 									} else {
 										left = 0;
 									}
 									if(scanline > 0) {
-										up = asset.pixels[(scanline - 1) *
-										                      asset.width +
-										                  column][component];
+										up = asset.pixels[(scanline - 1) * asset.width + column][component];
 									} else {
 										up = 0;
 									}
-									pixel[component] = filteredBytes[pos++] +
-									                   ((left + up) >> 1);
+									pixel[component] = filteredBytes[pos++] + ((left + up) >> 1);
 									break;
 								case 4:
 									if(component > 0) {
-										left =
-										    asset
-										        .pixels[scanline * asset.width +
-										                column][component - 1];
+										left = asset.pixels[scanline * asset.width + column][component - 1];
 									} else if(column > 0) {
-										left =
-										    asset
-										        .pixels[scanline * asset.width +
-										                column - 1][3];
+										left = asset.pixels[scanline * asset.width + column - 1][3];
 									} else {
 										left = 0;
 									}
 									if(scanline > 0) {
-										up = asset.pixels[(scanline - 1) *
-										                      asset.width +
-										                  column][component];
+										up = asset.pixels[(scanline - 1) * asset.width + column][component];
 										if(component > 0) {
-											upperLeft =
-											    asset.pixels[(scanline - 1) *
-											                     asset.width +
-											                 column]
-											                [component - 1];
+											upperLeft = asset.pixels[(scanline - 1) * asset.width + column][component - 1];
 										} else if(column > 0) {
-											upperLeft =
-											    asset.pixels[(scanline - 1) *
-											                     asset.width +
-											                 column - 1][3];
+											upperLeft = asset.pixels[(scanline - 1) * asset.width + column - 1][3];
 										} else {
 											upperLeft = 0;
 										}
@@ -307,9 +266,7 @@ int main(int argc, char **argv) {
 										up        = 0;
 										upperLeft = 0;
 									}
-									pixel[component] =
-									    filteredBytes[pos++] +
-									    paethPredictor(left, up, upperLeft);
+									pixel[component] = filteredBytes[pos++] + paethPredictor(left, up, upperLeft);
 									break;
 								}
 							}
@@ -718,6 +675,22 @@ int main(int argc, char **argv) {
 				ls >> asset.specular.r >> asset.specular.g >> asset.specular.b;
 			} else if(directive == "Ns") {
 				ls >> asset.specular_exponent;
+			} else if(directive == "map_Kd") {
+				std::string map;
+				ls >> map;
+
+				auto find = map.rfind(".png");
+				if(find != std::string::npos) {
+					asset.diffuse_map.emplace(map.substr(0, find));
+				}
+			} else if(directive == "map_Ks") {
+				std::string map;
+				ls >> map;
+
+				auto find = map.rfind(".png");
+				if(find != std::string::npos) {
+					asset.specular_map.emplace(map.substr(0, find));
+				}
 			}
 		}
 

@@ -1,6 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <polar/asset/image.h>
 #include <polar/asset/material.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/component/color.h>
@@ -289,6 +290,9 @@ namespace polar::system::renderer {
 			uploaduniform(node.program, "u_ditherTex", glm::int32(texPos));
 			++texPos;
 
+			auto diffuse_pos = texPos;
+			++texPos;
+
 			switch(i) {
 			case 0: {
 				auto pairRight = engine->objects.right.equal_range(typeid(component::model));
@@ -335,6 +339,10 @@ namespace polar::system::renderer {
 							uploaduniform(node.program, "u_specular", mat->specular);
 							uploaduniform(node.program, "u_specular_exponent", mat->specular_exponent);
 						}
+
+						GL(glActiveTexture(GL_TEXTURE0 + diffuse_pos));
+						GL(glBindTexture(GL_TEXTURE_2D, property->diffuse_map));
+						uploaduniform(node.program, "u_diffuse_map", glm::int32(diffuse_pos));
 
 						GL(glBindVertexArray(property->vao));
 						GL(glDrawArrays(drawMode, 0, property->numVertices));
@@ -1348,9 +1356,26 @@ namespace polar::system::renderer {
 
 		prop->numVertices = count;
 
+		// textures
+
+		auto assetM = engine->get<asset>().lock();
+		auto mat = assetM->get<polar::asset::material>(*model->asset->material);
+		if(mat->diffuse_map) {
+			auto diffuse_map = assetM->get<polar::asset::image>(*mat->diffuse_map);
+
+			GL(glGenTextures(1, &prop->diffuse_map));
+			GL(glBindTexture(GL_TEXTURE_2D, prop->diffuse_map));
+
+			GLint format = GL_RGBA;
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, diffuse_map->width, diffuse_map->height, 0, format, GL_UNSIGNED_BYTE, diffuse_map->pixels.data()));
+			GL(glGenerateMipmap(GL_TEXTURE_2D));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+		}
+
 		model->add<model_p>(prop);
-		// model->points.clear();
-		// model->points.shrink_to_fit();
 	}
 
 	void gl32::component_added(IDType, std::type_index ti,
@@ -1370,18 +1395,12 @@ namespace polar::system::renderer {
 			GL(glBindTexture(GL_TEXTURE_2D, prop.texture));
 
 			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w,
-			                sprite->surface->h, 0, format, GL_UNSIGNED_BYTE,
-			                sprite->surface->pixels));
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w, sprite->surface->h, 0, format, GL_UNSIGNED_BYTE, sprite->surface->pixels));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-			                   GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-			                   GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-			                   GL_LINEAR));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-			                   GL_LINEAR_MIPMAP_NEAREST));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
 			sprite->add<sprite_p>(prop);
 		} else if(ti == typeid(component::text)) {
