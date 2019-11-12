@@ -63,9 +63,11 @@ int main(int argc, char **argv) {
 
 		int zResult = Z_OK;
 		z_stream inflateStream;
-		inflateStream.zalloc = Z_NULL;
-		inflateStream.zfree  = Z_NULL;
-		inflateStream.opaque = Z_NULL;
+		inflateStream.zalloc   = Z_NULL;
+		inflateStream.zfree    = Z_NULL;
+		inflateStream.opaque   = Z_NULL;
+		inflateStream.avail_in = 0;
+		inflateStream.next_in  = Z_NULL;
 
 		std::vector<uint8_t> filteredBytes;
 		bool atEnd = false;
@@ -83,8 +85,7 @@ int main(int argc, char **argv) {
 
 			if(numChunks == 0) {
 				if(chunkType == "IHDR") {
-					iss.read(reinterpret_cast<char *>(&asset.width),
-					         sizeof(asset.width));
+					iss.read(reinterpret_cast<char *>(&asset.width), sizeof(asset.width));
 					asset.width = swapbe(asset.width);
 					if(asset.width == 0) {
 						debugmanager()->fatal("image width cannot be 0");
@@ -93,68 +94,61 @@ int main(int argc, char **argv) {
 						debugmanager()->fatal("image width exceeds 2^31 bytes");
 					}
 
-					iss.read(reinterpret_cast<char *>(&asset.height),
-					         sizeof(asset.height));
+					iss.read(reinterpret_cast<char *>(&asset.height), sizeof(asset.height));
 					asset.height = swapbe(asset.height);
 					if(asset.height == 0) {
 						debugmanager()->fatal("image height cannot be 0");
 					}
 					if(asset.height > (1u << 31)) {
-						debugmanager()->fatal(
-						    "image height exceeds 2^31 bytes");
+						debugmanager()->fatal("image height exceeds 2^31 bytes");
 					}
 
 					uint8_t bitDepth;
-					iss.read(reinterpret_cast<char *>(&bitDepth),
-					         sizeof(bitDepth));
+					iss.read(reinterpret_cast<char *>(&bitDepth), sizeof(bitDepth));
 					if(bitDepth != 8) {
 						debugmanager()->fatal("bit depth must be 8");
 					}
 
 					uint8_t colorType;
-					iss.read(reinterpret_cast<char *>(&colorType),
-					         sizeof(colorType));
+					iss.read(reinterpret_cast<char *>(&colorType), sizeof(colorType));
 					// 0b110 == 0x6
 					if(!(colorType & 0x6)) {
-						debugmanager()->fatal(
-						    "color type must be color & alpha");
+						debugmanager()->fatal("color type must be color & alpha");
 					}
 
 					uint8_t compressionMethod;
-					iss.read(reinterpret_cast<char *>(&compressionMethod),
-					         sizeof(compressionMethod));
+					iss.read(reinterpret_cast<char *>(&compressionMethod), sizeof(compressionMethod));
 					if(compressionMethod != 0) {
 						debugmanager()->fatal("compression method must be 0");
 					}
 
 					uint8_t filterMethod;
-					iss.read(reinterpret_cast<char *>(&filterMethod),
-					         sizeof(filterMethod));
+					iss.read(reinterpret_cast<char *>(&filterMethod), sizeof(filterMethod));
 					if(filterMethod != 0) {
 						debugmanager()->fatal("filter method must be 0");
 					}
 
 					uint8_t interlaceMethod;
-					iss.read(reinterpret_cast<char *>(&interlaceMethod),
-					         sizeof(interlaceMethod));
+					iss.read(reinterpret_cast<char *>(&interlaceMethod), sizeof(interlaceMethod));
 					if(interlaceMethod != 0) {
 						debugmanager()->fatal("interlace method must be 0");
 					}
 
+					// ignore CRC
 					iss.ignore(4);
 
 					asset.pixels.resize(asset.width * asset.height);
 
-					/* number of pixels in scanline = image width + 1
+					/* number of bytes in scanline = image width + 1
 					 * number of scanlines in image = image height
 					 */
-					uint32_t filteredSize = sizeof(asset::imagepixel) *
-					                        (asset.width + 1) * asset.height;
+					uint32_t scanlineSize = 1 + asset.width * sizeof(asset::imagepixel);
+					uint32_t filteredSize = scanlineSize * asset.height;
 					filteredBytes.resize(filteredSize);
 					inflateStream.avail_out = filteredSize;
 					inflateStream.next_out  = &filteredBytes[0];
 
-					zResult = inflateInit(&inflateStream);
+					zResult = inflateInit2(&inflateStream, -MAX_WBITS);
 					if(zResult != Z_OK) {
 						debugmanager()->fatal("inflateInit failed");
 					}
@@ -164,29 +158,28 @@ int main(int argc, char **argv) {
 			} else {
 				if(chunkType == "IDAT") {
 					std::vector<uint8_t> compressedBytes(dataSize, ' ');
-					iss.read(reinterpret_cast<char *>(&compressedBytes[0]),
-					         dataSize);
+					iss.read(reinterpret_cast<char *>(&compressedBytes[0]), dataSize);
 
 					inflateStream.avail_in = dataSize;
 					inflateStream.next_in  = &compressedBytes[0];
 
 					zResult = inflate(&inflateStream, Z_NO_FLUSH);
 					if(zResult != Z_OK && zResult != Z_STREAM_END) {
-						debugmanager()->fatal("inflate failed");
-						debugmanager()->debug("zResult = ", zResult);
+						debugmanager()->fatal("inflate failed (zResult = ", zResult, ')');
 					}
 
+					// ignore CRC
 					iss.ignore(4);
 				} else if(chunkType == "IEND") {
 					zResult = inflateEnd(&inflateStream);
 					if(zResult != Z_OK) {
-						debugmanager()->fatal("inflate failed");
+						debugmanager()->fatal("inflateEnd failed (zResult = ", zResult, ')');
 					}
 
 					size_t pos = 0;
 					for(uint32_t scanline = 0; scanline < asset.height; ++scanline) {
 						uint8_t filterType = filteredBytes[pos++];
-						// INFO(int(filterType));
+						debugmanager()->info(int(filterType));
 
 						for(uint32_t column = 0; column < asset.width; ++column) {
 							asset::imagepixel &pixel = asset.pixels[scanline * asset.width + column];
@@ -213,10 +206,8 @@ int main(int argc, char **argv) {
 									pixel[component] = filteredBytes[pos++];
 									break;
 								case 1:
-									if(component > 0) {
-										left = asset.pixels[scanline * asset.width + column][component - 1];
-									} else if(column > 0) {
-										left = asset.pixels[scanline * asset.width + column - 1][3];
+									if(column > 0) {
+										left = asset.pixels[scanline * asset.width + column - 1][component];
 									} else {
 										left = 0;
 									}
@@ -267,6 +258,9 @@ int main(int argc, char **argv) {
 										upperLeft = 0;
 									}
 									pixel[component] = filteredBytes[pos++] + paethPredictor(left, up, upperLeft);
+									break;
+								default:
+									debugmanager()->fatal("png: unsupported filter type (", int(filterType), ')');
 									break;
 								}
 							}
