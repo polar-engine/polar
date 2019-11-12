@@ -544,6 +544,14 @@ int main(int argc, char **argv) {
 				Point3 p;
 				ls >> p.x >> p.y >> p.z;
 				positions.emplace_back(p);
+			} else if(directive == "vn") {
+				Point3 n;
+				ls >> n.x >> n.y >> n.z;
+				normals.emplace_back(n);
+			} else if(directive == "vt") {
+				Point2 t;
+				ls >> t.x >> t.y;
+				texcoords.emplace_back(t);
 			} else if(directive == "f") {
 				std::string pstr, qstr, rstr;
 				ls >> pstr >> qstr >> rstr;
@@ -561,6 +569,26 @@ int main(int argc, char **argv) {
 				triangle.p.position = positions[p - 1];
 				triangle.q.position = positions[q - 1];
 				triangle.r.position = positions[r - 1];
+
+				if(normals.size() > p - 1) {
+					triangle.p.normal = normals[p - 1];
+				}
+				if(normals.size() > q - 1) {
+					triangle.q.normal = normals[q - 1];
+				}
+				if(normals.size() > r - 1) {
+					triangle.r.normal = normals[r - 1];
+				}
+
+				if(texcoords.size() > p - 1) {
+					triangle.p.texcoord = texcoords[p - 1];
+				}
+				if(texcoords.size() > q - 1) {
+					triangle.q.texcoord = texcoords[q - 1];
+				}
+				if(texcoords.size() > r - 1) {
+					triangle.r.texcoord = texcoords[r - 1];
+				}
 
 				asset.triangles.emplace_back(triangle);
 
