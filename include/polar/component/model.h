@@ -26,9 +26,15 @@ namespace polar::component {
 				normal.z = delta1.x * delta2.y - delta1.y * delta2.x;
 				normal = glm::normalize(normal);
 
-				tri.p.normal = normal;
-				tri.q.normal = normal;
-				tri.r.normal = normal;
+				if(tri.p.normal == Point3(0, 0, 0)) {
+					tri.p.normal = normal;
+				}
+				if(tri.q.normal == Point3(0, 0, 0)) {
+					tri.q.normal = normal;
+				}
+				if(tri.r.normal == Point3(0, 0, 0)) {
+					tri.r.normal = normal;
+				}
 
 				debugmanager()->trace("position = ", tri.p.position);
 				debugmanager()->trace("normal   = ", tri.p.normal);
