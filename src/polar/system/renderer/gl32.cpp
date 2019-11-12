@@ -2,6 +2,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <polar/asset/shaderprogram.h>
+#include <polar/asset/triangle.h>
 #include <polar/component/color.h>
 #include <polar/component/orientation.h>
 #include <polar/component/playercamera.h>
@@ -47,7 +48,7 @@ namespace polar::system::renderer {
 			if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) {
 				debugmanager()->fatal("failed to get OpenGL minor version");
 			}
-			/* if OpenGL version is 3.2 or greater */
+			/* if OpenGL version is 3.1 or greater */
 			if(!(major > 3 || (major == 3 && minor >= 1))) {
 				std::stringstream msg;
 				msg << "actual OpenGL version is " << major << '.' << minor;
@@ -322,21 +323,6 @@ namespace polar::system::renderer {
 						}
 
 						GLenum drawMode = GL_TRIANGLES;
-						switch(model->type) {
-						case GeometryType::Points:
-							drawMode = GL_POINTS;
-						case GeometryType::Lines:
-							drawMode = GL_LINES;
-							break;
-						case GeometryType::Triangles:
-							drawMode = GL_TRIANGLES;
-							break;
-						case GeometryType::TriangleStrip:
-							drawMode = GL_TRIANGLE_STRIP;
-							break;
-						case GeometryType::None:
-							break;
-						}
 
 						uploaduniform(node.program, "u_model", modelMatrix);
 
@@ -1317,17 +1303,23 @@ namespace polar::system::renderer {
 			 *        1   normal
 			 */
 
-			prop.vbos.resize(2);
-			GL(glGenBuffers(2, &prop.vbos[0]));
+			prop.vbos.resize(1);
+			GL(glGenBuffers(1, &prop.vbos[0]));
 
 			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
-			GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 
-			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[1]));
-			GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+			const GLsizei stride = sizeof(polar::asset::vertex);
+			const GLvoid *p_ptr = NULL;
+			const GLvoid *n_ptr = (GLvoid *)sizeof(Point3);
+			const GLvoid *t_ptr = (GLvoid *)(sizeof(Point3) * 2);
+
+			GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, p_ptr));
+			GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, n_ptr));
+			GL(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, t_ptr));
 
 			GL(glEnableVertexAttribArray(0));
 			GL(glEnableVertexAttribArray(1));
+			GL(glEnableVertexAttribArray(2));
 
 			return std::make_shared<model_p>(prop);
 		} else {
@@ -1339,34 +1331,26 @@ namespace polar::system::renderer {
 	}
 
 	void gl32::uploadmodel(std::shared_ptr<component::model> model) {
-		auto normals     = model->calculate_normals();
-		auto numVertices = normals.size();
-		auto dataSize    = sizeof(component::model::point_t) * numVertices;
-		auto prop        = getpooledmodelproperty((GLsizei)numVertices);
+		model->generate_normals();
 
-		if(numVertices > 0) {
-			if(GLsizei(numVertices) > prop->capacity) {
+		GLsizei count   = model->asset->triangles.size() * 3;
+		GLsizeiptr size = model->asset->triangles.size() * sizeof(polar::asset::triangle);
+		void *data      = model->asset->triangles.data();
+		auto prop       = getpooledmodelproperty(count);
+
+		if(count > 0) {
+			if(count > prop->capacity) {
 				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
-				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, model->points.data(),
-				                GL_DYNAMIC_DRAW));
+				GL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW));
 
-				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
-				GL(glBufferData(GL_ARRAY_BUFFER, dataSize, normals.data(),
-				                GL_DYNAMIC_DRAW));
-
-				prop->capacity = (GLsizei)numVertices;
+				prop->capacity = count;
 			} else {
 				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[0]));
-				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize,
-				                   model->points.data()));
-
-				GL(glBindBuffer(GL_ARRAY_BUFFER, prop->vbos[1]));
-				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize,
-				                   normals.data()));
+				GL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
 			}
 		}
 
-		prop->numVertices = (GLsizei)numVertices;
+		prop->numVertices = count;
 
 		model->add<model_p>(prop);
 		// model->points.clear();

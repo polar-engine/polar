@@ -529,9 +529,9 @@ int main(int argc, char **argv) {
 	};
 	converters["obj"] = [](const std::string &data, core::serializer &s) {
 		asset::model asset;
-		std::vector<asset::vertex_attrib<3>> positions;
-		std::vector<asset::vertex_attrib<3>> normals;
-		std::vector<asset::vertex_attrib<2>> texcoords;
+		std::vector<Point3> positions;
+		std::vector<Point3> normals;
+		std::vector<Point2> texcoords;
 
 		std::istringstream iss(data);
 		std::string line;
@@ -541,8 +541,8 @@ int main(int argc, char **argv) {
 			std::string directive;
 			std::getline(ls, directive, ' ');
 			if(directive == "v") {
-				asset::vertex_attrib<3> p;
-				ls >> p[0] >> p[1] >> p[2];
+				Point3 p;
+				ls >> p.x >> p.y >> p.z;
 				positions.emplace_back(p);
 			} else if(directive == "f") {
 				std::string pstr, qstr, rstr;

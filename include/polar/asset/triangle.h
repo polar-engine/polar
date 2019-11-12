@@ -3,7 +3,7 @@
 #include <polar/asset/vertex.h>
 
 namespace polar::asset {
-	struct triangle : base {
+	struct triangle {
 		vertex p;
 		vertex q;
 		vertex r;
@@ -16,6 +16,4 @@ namespace polar::asset {
 	inline deserializer &operator>>(deserializer &s, triangle &asset) {
 		return s >> asset.p >> asset.q >> asset.r;
 	}
-
-	template<> inline std::string name<triangle>() { return "triangle"; }
 } // namespace polar::asset

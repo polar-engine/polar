@@ -101,6 +101,10 @@ namespace polar::core {
 		return s;
 	}
 
+	inline serializer &operator<<(serializer &s, const Point2 &p) {
+		return s << p.x << p.y;
+	}
+
 	inline serializer &operator<<(serializer &s, const Point3 &p) {
 		return s << p.x << p.y << p.z;
 	}
@@ -208,6 +212,10 @@ namespace polar::core {
 			set.emplace(elem);
 		}
 		return s;
+	}
+
+	inline deserializer &operator>>(deserializer &s, Point2 &p) {
+		return s >> p.x >> p.y;
 	}
 
 	inline deserializer &operator>>(deserializer &s, Point3 &p) {

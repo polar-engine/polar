@@ -9,105 +9,34 @@
 namespace polar::component {
 	class model : public base {
 	  public:
-		using point_t   = glm::vec3;
-		using tri_t     = std::tuple<point_t, point_t, point_t>;
-		using point_vec = std::vector<point_t>;
-		using tri_vec   = std::vector<tri_t>;
+		std::shared_ptr<asset::model> asset;
 
-		GeometryType type;
-		point_vec points;
-
-		model() : type(GeometryType::None) {}
-
-		model(GeometryType type, point_vec points)
-		    : type(type), points(points) {}
-
-		model(tri_vec triangles) : type(GeometryType::Triangles) {
-			auto size = triangles.size() * 3;
-			points.resize(size);
-			for(tri_vec::size_type i = 0; i < triangles.size(); ++i) {
-				auto &triangle    = triangles.at(i);
-				points[i * 3 + 0] = std::get<0>(triangle);
-				points[i * 3 + 1] = std::get<1>(triangle);
-				points[i * 3 + 2] = std::get<2>(triangle);
-			}
-		}
-
-		model(std::shared_ptr<asset::model> asset) : type(GeometryType::Triangles) {
-			auto size = asset->triangles.size() * 3;
-			points.resize(size);
-			for(auto &tri : asset->triangles) {
-				points.emplace_back(tri.p.position[0], tri.p.position[1], tri.p.position[2]);
-				points.emplace_back(tri.q.position[0], tri.q.position[1], tri.q.position[2]);
-				points.emplace_back(tri.r.position[0], tri.r.position[1], tri.r.position[2]);
-			}
-		}
+		model(std::shared_ptr<asset::model> asset) : asset(asset) {}
 
 		virtual std::string name() const override { return "model"; }
 
-		static auto calculate_normal(const point_t &p1, const point_t &p2,
-		                             const point_t &p3) {
-			auto deltaPos1 = p2 - p1;
-			auto deltaPos2 = p3 - p1;
+		void generate_normals() {
+			for(auto &tri : asset->triangles) {
+				auto delta1 = tri.q.position - tri.p.position;
+				auto delta2 = tri.r.position - tri.p.position;
 
-			point_t normal;
-			normal.x = deltaPos1.y * deltaPos2.z - deltaPos1.z * deltaPos2.y;
-			normal.y = deltaPos1.z * deltaPos2.x - deltaPos1.x * deltaPos2.z;
-			normal.z = deltaPos1.x * deltaPos2.y - deltaPos1.y * deltaPos2.x;
-			return glm::normalize(normal);
-		}
+				Point3 normal;
+				normal.x = delta1.y * delta2.z - delta1.z * delta2.y;
+				normal.y = delta1.z * delta2.x - delta1.x * delta2.z;
+				normal.z = delta1.x * delta2.y - delta1.y * delta2.x;
+				normal = glm::normalize(normal);
 
-		static auto calculate_normal(const tri_t &triangle) {
-			return calculate_normal(std::get<0>(triangle),
-			                        std::get<1>(triangle),
-			                        std::get<2>(triangle));
-		}
+				tri.p.normal = normal;
+				tri.q.normal = normal;
+				tri.r.normal = normal;
 
-		auto calculate_normals() const {
-			point_vec normals;
-			normals.resize(points.size());
-
-			debugmanager()->trace("calculate_normals:");
-
-			if(type == GeometryType::Points) {
-				for(point_vec::size_type i = 0; i < points.size(); ++i) {
-					normals[i] = glm::normalize(glm::sphericalRand(Decimal(1)));
-				}
-				return normals;
+				debugmanager()->trace("position = ", tri.p.position);
+				debugmanager()->trace("normal   = ", tri.p.normal);
+				debugmanager()->trace("position = ", tri.q.position);
+				debugmanager()->trace("normal   = ", tri.q.normal);
+				debugmanager()->trace("position = ", tri.r.position);
+				debugmanager()->trace("normal   = ", tri.r.normal);
 			}
-
-			bool reverse = false;
-			point_vec::size_type i = 0;
-			while(i <= points.size() - 3) {
-				auto normal = reverse
-					? calculate_normal(points[i], points[i + 2], points[i + 1])
-					: calculate_normal(points[i], points[i + 1], points[i + 2]);
-				normals[i + 0] = normal;
-				normals[i + 1] = normal;
-				normals[i + 2] = normal;
-
-				debugmanager()->trace("points [", i, "] = ",     points [i]);
-				debugmanager()->trace("normals[", i, "] = ",     normals[i]);
-				debugmanager()->trace("points [", i + 1, "] = ", points [i + 1]);
-				debugmanager()->trace("normals[", i + 1, "] = ", normals[i + 1]);
-				debugmanager()->trace("points [", i + 2, "] = ", points [i + 2]);
-				debugmanager()->trace("normals[", i + 2, "] = ", normals[i + 2]);
-
-				switch(type) {
-				case GeometryType::Triangles:
-					i += 3;
-					break;
-				case GeometryType::TriangleStrip:
-					++i;
-					reverse = !reverse;
-					break;
-				default:
-					debugmanager()->fatal(
-					    "cannot calculate normals for non-triangle geometry");
-					break;
-				}
-			}
-			return normals;
 		}
 	};
 } // namespace polar::component
