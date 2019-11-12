@@ -1,8 +1,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <polar/asset/material.h>
 #include <polar/asset/shaderprogram.h>
-#include <polar/asset/triangle.h>
 #include <polar/component/color.h>
 #include <polar/component/orientation.h>
 #include <polar/component/playercamera.h>
@@ -266,6 +266,8 @@ namespace polar::system::renderer {
 	}
 
 	void gl32::render(Mat4 proj, Mat4 view, float delta) {
+		auto assetM = engine->get<asset>().lock();
+
 		std::unordered_map<std::string, GLuint> globals;
 		for(unsigned int i = 0; i < nodes.size(); ++i) {
 			auto &node = nodes[i];
@@ -325,6 +327,14 @@ namespace polar::system::renderer {
 						GLenum drawMode = GL_TRIANGLES;
 
 						uploaduniform(node.program, "u_model", modelMatrix);
+
+						if(model->asset->material) {
+							auto mat = assetM->get<polar::asset::material>(*model->asset->material);
+							uploaduniform(node.program, "u_ambient",  mat->ambient);
+							uploaduniform(node.program, "u_diffuse",  mat->diffuse);
+							uploaduniform(node.program, "u_specular", mat->specular);
+							uploaduniform(node.program, "u_specular_exponent", mat->specular_exponent);
+						}
 
 						GL(glBindVertexArray(property->vao));
 						GL(glDrawArrays(drawMode, 0, property->numVertices));

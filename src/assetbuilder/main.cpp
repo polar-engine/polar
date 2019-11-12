@@ -13,6 +13,7 @@
 #include <polar/asset/font.h>
 #include <polar/asset/image.h>
 #include <polar/asset/level.h>
+#include <polar/asset/material.h>
 #include <polar/asset/model.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/asset/text.h>
@@ -560,6 +561,78 @@ int main(int argc, char **argv) {
 				std::istringstream qs(qstr);
 				std::istringstream rs(rstr);
 
+				asset::triangle triangle;
+
+				int p_p, p_t, p_n;
+				int q_p, q_t, q_n;
+				int r_p, r_t, r_n;
+
+				ps >> p_p;
+				triangle.p.position = positions[p_p - 1];
+				ps.get(); // remove slash
+				if(ps.peek() != '/') {
+					ps >> p_t;
+					triangle.p.texcoord = texcoords[p_t - 1];
+				}
+				ps.get(); // remove slash
+				ps >> p_n;
+				triangle.p.normal = normals[p_n - 1];
+
+				qs >> q_p;
+				triangle.q.position = positions[q_p - 1];
+				qs.get(); // remove slash
+				if(qs.peek() != '/') {
+					qs >> q_t;
+					triangle.q.texcoord = texcoords[q_t - 1];
+				}
+				qs.get(); // remove slash
+				qs >> q_n;
+				triangle.q.normal = normals[q_n - 1];
+
+				rs >> r_p;
+				triangle.r.position = positions[r_p - 1];
+				rs.get(); // remove slash
+				if(rs.peek() != '/') {
+					rs >> r_t;
+					triangle.r.texcoord = texcoords[r_t - 1];
+				}
+				rs.get(); // remove slash
+				rs >> r_n;
+				triangle.r.normal = normals[r_n - 1];
+
+				asset.triangles.emplace_back(triangle);
+
+				while(ls.good()) {
+					std::string sstr;
+					ls >> sstr;
+
+					std::istringstream ss(sstr);
+
+					triangle.q = triangle.r;
+
+					int s_p, s_t, s_n;
+
+					ss >> s_p;
+					triangle.r.position = positions[s_p - 1];
+					ss.get(); // remove slash
+					if(ss.peek() != '/') {
+						ss >> s_t;
+						triangle.r.texcoord = texcoords[s_t - 1];
+					}
+					ss.get(); // remove slash
+					ss >> s_n;
+					triangle.r.normal = normals[s_n - 1];
+
+					asset.triangles.emplace_back(triangle);
+				}
+			} else if(directive == "f") {
+				std::string pstr, qstr, rstr;
+				ls >> pstr >> qstr >> rstr;
+
+				std::istringstream ps(pstr);
+				std::istringstream qs(qstr);
+				std::istringstream rs(rstr);
+
 				int p, q, r;
 				ps >> p;
 				qs >> q;
@@ -602,15 +675,54 @@ int main(int argc, char **argv) {
 					ss >> s;
 
 					triangle.q = triangle.r;
+
 					triangle.r.position = positions[s - 1];
+					if(normals.size() > s - 1) {
+						triangle.r.normal = normals[s - 1];
+					}
+					if(texcoords.size() > s - 1) {
+						triangle.r.texcoord = texcoords[s - 1];
+					}
 
 					asset.triangles.emplace_back(triangle);
+				}
+			} else if(directive == "mtllib") {
+				std::string mat;
+				ls >> mat;
+
+				auto find = mat.rfind(".mtl");
+				if(find != std::string::npos) {
+					asset.material.emplace(mat.substr(0, find));
 				}
 			}
 		}
 
 		s << asset;
 		return asset::name<asset::model>();
+	};
+	converters["mtl"] = [](const std::string &data, core::serializer &s) {
+		asset::material asset;
+
+		std::istringstream iss(data);
+		std::string line;
+		for(int iLine = 1; getline(iss, line); ++iLine) {
+			std::istringstream ls(line);
+
+			std::string directive;
+			std::getline(ls, directive, ' ');
+			if(directive == "Ka") {
+				ls >> asset.ambient.r >> asset.ambient.g >> asset.ambient.b;
+			} else if(directive == "Kd") {
+				ls >> asset.diffuse.r >> asset.diffuse.g >> asset.diffuse.b;
+			} else if(directive == "Ks") {
+				ls >> asset.specular.r >> asset.specular.g >> asset.specular.b;
+			} else if(directive == "Ns") {
+				ls >> asset.specular_exponent;
+			}
+		}
+
+		s << asset;
+		return asset::name<asset::material>();
 	};
 	converters["gls"] = [](const std::string &data, core::serializer &s) {
 		asset::shaderprogram asset;

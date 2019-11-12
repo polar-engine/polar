@@ -6,7 +6,7 @@
 namespace polar::asset {
 	struct vertex {
 		Point3 position = Point3(0);
-		Point3 normal = Point3(0);
+		Point3 normal   = Point3(0);
 		Point2 texcoord = Point3(0);
 	};
 

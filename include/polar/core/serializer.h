@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <optional>
 #include <polar/core/types.h>
 #include <polar/util/endian.h>
 #include <polar/util/raw_vector.h>
@@ -71,6 +72,15 @@ namespace polar::core {
 	inline serializer &operator<<(serializer &s, const std::string &str) {
 		s << static_cast<const std::uint32_t>(str.length());
 		return s.write(str.data(), str.length());
+	}
+
+	template<typename T>
+	inline serializer &operator<<(serializer &s, const std::optional<T> &opt) {
+		if(opt) {
+			return s << true << *opt;
+		} else {
+			return s << false;
+		}
 	}
 
 	template<typename T, std::size_t N>
@@ -172,7 +182,23 @@ namespace polar::core {
 		s >> len;
 		str.clear();
 		str.resize(len);
-		return s.read(&str.at(0), len);
+		return s.read(str.data(), len);
+	}
+
+	template<typename T>
+	inline deserializer &operator>>(deserializer &s, std::optional<T> &opt) {
+		bool has_value;
+		s >> has_value;
+
+		if(has_value) {
+			T x;
+			s >> x;
+			opt.emplace(x);
+		} else {
+			opt.reset();
+		}
+
+		return s;
 	}
 
 	template<typename T, std::size_t N>
