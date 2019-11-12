@@ -340,20 +340,6 @@ namespace polar::system::renderer {
 						GL(glDrawArrays(drawMode, 0, property->numVertices));
 					}
 				}
-				{
-					for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-						Mat4 modelMatrix(1);
-
-						auto pos = engine->get<component::position>(itRight->get_left());
-						if(pos != nullptr) {
-							modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
-						}
-
-						uploaduniform(node.program, "u_model", modelMatrix);
-
-						GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
-					}
-				}
 				if(debug_draw) {
 					GL(glUseProgram(debugProgram));
 					GL(glBindVertexArray(debug_box_vao));
