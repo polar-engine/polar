@@ -683,6 +683,14 @@ int main(int argc, char **argv) {
 				if(find != std::string::npos) {
 					asset.specular_map.emplace(map.substr(0, find));
 				}
+			} else if(directive == "norm") {
+				std::string map;
+				ls >> map;
+
+				auto find = map.rfind(".png");
+				if(find != std::string::npos) {
+					asset.normal_map.emplace(map.substr(0, find));
+				}
 			}
 		}
 
