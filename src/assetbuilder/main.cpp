@@ -188,11 +188,11 @@ int main(int argc, char **argv) {
 						for(uint32_t column = 0; column < asset.width; ++column) {
 							asset::imagepixel &pixel = asset.pixels[scanline * asset.width + column];
 							for(size_t component = 0; component < numChannels; ++component) {
-								const auto paethPredictor = [](const uint8_t a, const uint8_t b, const uint8_t c) {
-									uint8_t p = a + b - c;   // initial estimate
-									uint8_t pa = abs(p - a); // distance to a
-									uint8_t pb = abs(p - b); // distance to b
-									uint8_t pc = abs(p - c); // distance to c
+								const auto paethPredictor = [](const int a, const int b, const int c) {
+									int p = a + b - c;   // initial estimate
+									int pa = abs(p - a); // distance to a
+									int pb = abs(p - b); // distance to b
+									int pc = abs(p - c); // distance to c
 
 									// return nearest of {a, b, c}
 									if(pa <= pb && pa <= pc) {
