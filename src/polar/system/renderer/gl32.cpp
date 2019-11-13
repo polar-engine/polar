@@ -293,6 +293,9 @@ namespace polar::system::renderer {
 			auto diffuse_pos = texPos;
 			++texPos;
 
+			auto specular_pos = texPos;
+			++texPos;
+
 			switch(i) {
 			case 0: {
 				auto pairRight = engine->objects.right.equal_range(typeid(component::model));
@@ -343,6 +346,10 @@ namespace polar::system::renderer {
 						GL(glActiveTexture(GL_TEXTURE0 + diffuse_pos));
 						GL(glBindTexture(GL_TEXTURE_2D, property->diffuse_map));
 						uploaduniform(node.program, "u_diffuse_map", glm::int32(diffuse_pos));
+
+						GL(glActiveTexture(GL_TEXTURE0 + specular_pos));
+						GL(glBindTexture(GL_TEXTURE_2D, property->specular_map));
+						uploaduniform(node.program, "u_specular_map", glm::int32(specular_pos));
 
 						GL(glBindVertexArray(property->vao));
 						GL(glDrawArrays(drawMode, 0, property->numVertices));
@@ -1368,6 +1375,20 @@ namespace polar::system::renderer {
 
 			GLint format = GL_RGBA;
 			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, diffuse_map->width, diffuse_map->height, 0, format, GL_UNSIGNED_BYTE, diffuse_map->pixels.data()));
+			GL(glGenerateMipmap(GL_TEXTURE_2D));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+		}
+		if(mat->specular_map) {
+			auto specular_map = assetM->get<polar::asset::image>(*mat->specular_map);
+
+			GL(glGenTextures(1, &prop->specular_map));
+			GL(glBindTexture(GL_TEXTURE_2D, prop->specular_map));
+
+			GLint format = GL_RGBA;
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, specular_map->width, specular_map->height, 0, format, GL_UNSIGNED_BYTE, specular_map->pixels.data()));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
