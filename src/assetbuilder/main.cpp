@@ -592,23 +592,23 @@ int main(int argc, char **argv) {
 				triangle.q.position = positions[q - 1];
 				triangle.r.position = positions[r - 1];
 
-				if(normals.size() > p - 1) {
+				if(normals.size() > size_t(p - 1)) {
 					triangle.p.normal = normals[p - 1];
 				}
-				if(normals.size() > q - 1) {
+				if(normals.size() > size_t(q - 1)) {
 					triangle.q.normal = normals[q - 1];
 				}
-				if(normals.size() > r - 1) {
+				if(normals.size() > size_t(r - 1)) {
 					triangle.r.normal = normals[r - 1];
 				}
 
-				if(texcoords.size() > p - 1) {
+				if(texcoords.size() > size_t(p - 1)) {
 					triangle.p.texcoord = texcoords[p - 1];
 				}
-				if(texcoords.size() > q - 1) {
+				if(texcoords.size() > size_t(q - 1)) {
 					triangle.q.texcoord = texcoords[q - 1];
 				}
-				if(texcoords.size() > r - 1) {
+				if(texcoords.size() > size_t(r - 1)) {
 					triangle.r.texcoord = texcoords[r - 1];
 				}
 
@@ -626,10 +626,10 @@ int main(int argc, char **argv) {
 					triangle.q = triangle.r;
 
 					triangle.r.position = positions[s - 1];
-					if(normals.size() > s - 1) {
+					if(normals.size() > size_t(s - 1)) {
 						triangle.r.normal = normals[s - 1];
 					}
-					if(texcoords.size() > s - 1) {
+					if(texcoords.size() > size_t(s - 1)) {
 						triangle.r.texcoord = texcoords[s - 1];
 					}
 
