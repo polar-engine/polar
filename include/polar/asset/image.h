@@ -4,10 +4,10 @@
 
 namespace polar::asset {
 	struct imagepixel {
-		uint8_t red;
-		uint8_t green;
-		uint8_t blue;
-		uint8_t alpha;
+		uint8_t red = 1.0;
+		uint8_t green = 1.0;
+		uint8_t blue = 1.0;
+		uint8_t alpha = 1.0;
 
 		inline uint8_t &operator[](const size_t index) {
 			switch(index) {

@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
 
 		std::vector<uint8_t> filteredBytes;
 		bool atEnd = false;
+		size_t numChannels = 0;
 
 		for(size_t numChunks = 0; !atEnd; ++numChunks) {
 			uint32_t dataSize;
@@ -111,10 +112,13 @@ int main(int argc, char **argv) {
 
 					uint8_t colorType;
 					iss.read(reinterpret_cast<char *>(&colorType), sizeof(colorType));
-					// 0b110 == 0x6
-					if(!(colorType & 0x6)) {
-						debugmanager()->fatal("color type must be color & alpha");
+					if(colorType & 0x1) {
+						debugmanager()->fatal("color type cannot be palette");
 					}
+					if(!(colorType & 0x2)) {
+						debugmanager()->fatal("color type must be true color");
+					}
+					numChannels = (colorType & 0x4) ? 4 : 3;
 
 					uint8_t compressionMethod;
 					iss.read(reinterpret_cast<char *>(&compressionMethod), sizeof(compressionMethod));
@@ -142,13 +146,13 @@ int main(int argc, char **argv) {
 					/* number of bytes in scanline = image width + 1
 					 * number of scanlines in image = image height
 					 */
-					uint32_t scanlineSize = 1 + asset.width * sizeof(asset::imagepixel);
+					uint32_t scanlineSize = 1 + asset.width * numChannels;
 					uint32_t filteredSize = scanlineSize * asset.height;
 					filteredBytes.resize(filteredSize);
 					inflateStream.avail_out = filteredSize;
 					inflateStream.next_out  = &filteredBytes[0];
 
-					zResult = inflateInit2(&inflateStream, -MAX_WBITS);
+					zResult = inflateInit(&inflateStream);
 					if(zResult != Z_OK) {
 						debugmanager()->fatal("inflateInit failed");
 					}
@@ -183,7 +187,7 @@ int main(int argc, char **argv) {
 
 						for(uint32_t column = 0; column < asset.width; ++column) {
 							asset::imagepixel &pixel = asset.pixels[scanline * asset.width + column];
-							for(size_t component = 0; component < 4; ++component) {
+							for(size_t component = 0; component < numChannels; ++component) {
 								const auto paethPredictor = [](const uint8_t a, const uint8_t b, const uint8_t c) {
 									uint8_t p = a + b - c;   // initial estimate
 									uint8_t pa = abs(p - a); // distance to a
@@ -222,10 +226,8 @@ int main(int argc, char **argv) {
 									pixel[component] = filteredBytes[pos++] + up;
 									break;
 								case 3:
-									if(component > 0) {
-										left = asset.pixels[scanline * asset.width + column][component - 1];
-									} else if(column > 0) {
-										left = asset.pixels[scanline * asset.width + column - 1][3];
+									if(column > 0) {
+										left = asset.pixels[scanline * asset.width + column - 1][component];
 									} else {
 										left = 0;
 									}
@@ -237,19 +239,15 @@ int main(int argc, char **argv) {
 									pixel[component] = filteredBytes[pos++] + ((left + up) >> 1);
 									break;
 								case 4:
-									if(component > 0) {
-										left = asset.pixels[scanline * asset.width + column][component - 1];
-									} else if(column > 0) {
-										left = asset.pixels[scanline * asset.width + column - 1][3];
+									if(column > 0) {
+										left = asset.pixels[scanline * asset.width + column - 1][component];
 									} else {
 										left = 0;
 									}
 									if(scanline > 0) {
 										up = asset.pixels[(scanline - 1) * asset.width + column][component];
-										if(component > 0) {
-											upperLeft = asset.pixels[(scanline - 1) * asset.width + column][component - 1];
-										} else if(column > 0) {
-											upperLeft = asset.pixels[(scanline - 1) * asset.width + column - 1][3];
+										if(column > 0) {
+											upperLeft = asset.pixels[(scanline - 1) * asset.width + column - 1][component];
 										} else {
 											upperLeft = 0;
 										}
