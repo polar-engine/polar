@@ -18,6 +18,7 @@
 #include <polar/asset/shaderprogram.h>
 #include <polar/asset/text.h>
 #include <polar/core/debugmanager.h>
+#include <polar/core/deltaticks.h>
 #include <polar/fs/local.h>
 #include <polar/util/debug.h>
 #include <polar/util/endian.h>
@@ -1035,6 +1036,10 @@ int main(int argc, char **argv) {
 		return asset::name<asset::level>();
 	};
 
+	auto before = std::chrono::high_resolution_clock::now();
+
+	std::vector<std::pair<std::string, DeltaTicksBase>> file_timings;
+
 	for(auto &file : files) {
 		debugmanager()->info("processing `", file, '`');
 		auto pos = file.find_last_of('.');
@@ -1047,17 +1052,33 @@ int main(int argc, char **argv) {
 				std::string data = fs::local::read(path + "/" + file);
 				std::stringstream ss;
 				core::serializer serializer(ss);
+
+				auto file_before = std::chrono::high_resolution_clock::now();
+
 				std::string type = converter->second(data, serializer);
+
+				auto file_after = std::chrono::high_resolution_clock::now();
+				file_timings.emplace_back(file, std::chrono::duration_cast<DeltaTicksBase>(file_after - file_before));
 
 				std::string name = file.substr(0, pos);
 				fs::local::createdir(buildPath + '/' + type);
-				fs::local::write(buildPath + "/" + type + "/" + name + ".asset",
-				                 ss);
+				fs::local::write(buildPath + "/" + type + "/" + name + ".asset", ss);
 			} else {
-				debugmanager()->warning(file,
-				                        ": no appropriate converter found");
+				debugmanager()->warning(file, ": no appropriate converter found");
 			}
 		}
 	}
+
+	auto after = std::chrono::high_resolution_clock::now();
+
+	for(auto &timing : file_timings) {
+		DeltaTicks dt(timing.second);
+		debugmanager()->info(timing.first, " took ", dt.Seconds(), " seconds to convert");
+	}
+
+	DeltaTicksBase dtb = std::chrono::duration_cast<DeltaTicksBase>(after - before);
+	DeltaTicks dt(dtb);
+	debugmanager()->info("assetbuilder took ", dt.Seconds(), " seconds to run");
+
 	return 0;
 }
