@@ -43,9 +43,12 @@ namespace polar::system::renderer {
 
 		std::vector<glm::vec2> viewportPoints;
 		std::vector<glm::vec3> debug_box_points;
+		std::vector<glm::vec3> debug_ball_points;
 
 		GLuint viewportVAO;
 		GLuint debug_box_vao;
+		GLuint debug_ball_vao;
+
 		GLuint spriteProgram;
 		GLuint identityProgram;
 		GLuint debugProgram;

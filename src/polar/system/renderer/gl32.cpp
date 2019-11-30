@@ -1,6 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <polar/asset/image.h>
 #include <polar/asset/material.h>
 #include <polar/asset/shaderprogram.h>
@@ -12,9 +13,12 @@
 #include <polar/component/screenposition.h>
 #include <polar/component/text.h>
 #include <polar/core/polar.h>
+#include <polar/math/constants.h>
 #include <polar/support/action/controller.h>
 #include <polar/support/action/keyboard.h>
 #include <polar/support/action/mouse.h>
+#include <polar/support/phys/detector/box.h>
+#include <polar/support/phys/detector/ball.h>
 #include <polar/system/asset.h>
 #include <polar/system/integrator.h>
 #include <polar/system/renderer/gl32.h>
@@ -171,6 +175,8 @@ namespace polar::system::renderer {
 		GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
+		// debug box
+
 		GL(glGenVertexArrays(1, &debug_box_vao));
 		GL(glBindVertexArray(debug_box_vao));
 
@@ -229,6 +235,43 @@ namespace polar::system::renderer {
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, debug_box_vbo));
 		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_box_points.size(), debug_box_points.data(), GL_STATIC_DRAW));
+		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
+		GL(glEnableVertexAttribArray(0));
+
+		// debug ball
+
+		GL(glGenVertexArrays(1, &debug_ball_vao));
+		GL(glBindVertexArray(debug_ball_vao));
+
+		GLuint debug_ball_vbo;
+		GL(glGenBuffers(1, &debug_ball_vbo));
+
+		debug_ball_points.clear();
+
+		Point3 up(0, 1, 0);
+		Point3 right(1, 0, 0);
+		Point3 dir(0, 0, -1);
+
+		constexpr Decimal k = math::PI_OVER_TEN;
+
+		for(Decimal phi = -math::PI_OVER_TWO; phi < math::PI_OVER_TWO; phi += k) {
+			for(Decimal theta = 0; theta < math::TWO_PI; theta += k) {
+				auto p = glm::rotate(glm::rotate(dir, phi,     right), theta,     up);
+				auto q = glm::rotate(glm::rotate(dir, phi,     right), theta + k, up);
+				auto r = glm::rotate(glm::rotate(dir, phi + k, right), theta,     up);
+				auto s = glm::rotate(glm::rotate(dir, phi + k, right), theta + k, up);
+
+				debug_ball_points.emplace_back(p);
+				debug_ball_points.emplace_back(q);
+				debug_ball_points.emplace_back(r);
+				debug_ball_points.emplace_back(r);
+				debug_ball_points.emplace_back(q);
+				debug_ball_points.emplace_back(s);
+			}
+		}
+
+		GL(glBindBuffer(GL_ARRAY_BUFFER, debug_ball_vbo));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_ball_points.size(), debug_ball_points.data(), GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
@@ -364,7 +407,6 @@ namespace polar::system::renderer {
 				}
 				if(debug_draw) {
 					GL(glUseProgram(debugProgram));
-					GL(glBindVertexArray(debug_box_vao));
 
 					project(debugProgram, proj);
 					uploaduniform(debugProgram, "u_view", view);
@@ -390,7 +432,14 @@ namespace polar::system::renderer {
 
 							uploaduniform(debugProgram, "u_model", modelMatrix);
 
-							GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
+							auto ti = std::type_index(typeid(*phys->detector));
+							if(ti == typeid(support::phys::detector::box)) {
+								GL(glBindVertexArray(debug_box_vao));
+								GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
+							} else if(ti == typeid(support::phys::detector::ball)) {
+								GL(glBindVertexArray(debug_ball_vao));
+								GL(glDrawArrays(GL_TRIANGLES, 0, debug_ball_points.size()));
+							}
 						}
 					}
 				}
