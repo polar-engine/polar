@@ -308,7 +308,7 @@ namespace polar::api {
 		std::pair<std::optional<char>, std::string_view>
 		lex_identifier_char(std::string_view str) const {
 			auto [c, s] = lex_char(str);
-			if(c && (*c >= 'a' && *c <= 'z' || *c >= '0' && *c <= '9')) {
+			if(c && ((*c >= 'a' && *c <= 'z') || (*c >= '0' && *c <= '9'))) {
 				return {c, s};
 			} else {
 				return {{}, str};
@@ -605,6 +605,8 @@ namespace polar::api {
 					}
 				}
 				break;
+			default:
+				break;
 			}
 
 			return ret;
@@ -637,11 +639,15 @@ namespace polar::api {
 				case expr_type::component_getter:
 					e = expr::component_setter(lhs.get<component::base::accessor_type>(), lhs, rhs);
 					break;
+				default:
+					break;
 				}
 				break;
 			}
 			case expr_type::access:
 				ret &= reduce_access(e);
+				break;
+			default:
 				break;
 			}
 
@@ -724,6 +730,8 @@ namespace polar::api {
 			}
 			case expr_type::builtin_engine_quit:
 				engine->quit();
+				break;
+			default:
 				break;
 			}
 

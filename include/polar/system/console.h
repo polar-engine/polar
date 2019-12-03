@@ -66,6 +66,8 @@ namespace polar::system {
 			case key::Backspace:
 				if(!buffer.empty()) { buffer.pop_back(); }
 				break;
+			default:
+				break;
 			}
 			render();
 		}
