@@ -432,7 +432,8 @@ namespace polar::system::renderer {
 
 							uploaduniform(debugProgram, "u_model", modelMatrix);
 
-							auto ti = std::type_index(typeid(*phys->detector));
+							auto &det = *phys->detector;
+							auto ti = std::type_index(typeid(det));
 							if(ti == typeid(support::phys::detector::box)) {
 								GL(glBindVertexArray(debug_box_vao));
 								GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
