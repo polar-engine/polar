@@ -5,6 +5,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
+#include <polar/core/id.h>
 #include <polar/support/action/types.h>
 #include <polar/util/prioritized.h>
 
@@ -29,7 +30,7 @@ namespace polar::support::action {
 		cont_type cont = true;
 		pred_type predicate;
 		std::optional<Decimal> passthrough;
-		std::optional<IDType> objectID;
+		std::optional<core::ref> object;
 
 		// digital -> digital function
 		template<typename Src,
@@ -130,25 +131,25 @@ namespace polar::support::action {
 			return std::get_if<analog_cont_t>(&cont);
 		}
 
-		bool should_continue(IDType sourceID) const {
-			sourceID = objectID.value_or(sourceID);
+		bool should_continue(core::ref source) const {
+			source = object.value_or(source);
 
 			if(auto b = get_cont_if_bool()) {
 				return *b;
 			} else if(auto f = get_cont_if_digital()) {
-				return (*f)(sourceID);
+				return (*f)(source);
 			}
 
 			return true;
 		}
 
-		bool should_continue(IDType sourceID, Decimal value) const {
+		bool should_continue(core::ref source, Decimal value) const {
 			value = passthrough.value_or(value);
 
 			if(auto b = get_cont_if_bool()) {
 				return *b;
 			} else if(auto f = get_cont_if_analog()) {
-				return (*f)(sourceID, value);
+				return (*f)(source, value);
 			}
 
 			return true;
@@ -179,7 +180,7 @@ namespace polar::support::action {
 			}
 		};
 
-		IDType id;
+		core::id id;
 		std::type_index ti;
 		priority_t priority;
 		binding_t binding;
@@ -188,7 +189,7 @@ namespace polar::support::action {
 	using bimap = boost::multi_index_container<
 		relation,
 		boost::multi_index::indexed_by<
-			boost::multi_index::hashed_unique     <boost::multi_index::tag<tag::id>, boost::multi_index::member<relation, IDType, &relation::id>>,
+			boost::multi_index::hashed_unique     <boost::multi_index::tag<tag::id>, boost::multi_index::member<relation, core::id, &relation::id>>,
 			boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag::ti>, boost::multi_index::identity<relation>, relation::ti_comp>
 		>
 	>;

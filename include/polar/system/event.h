@@ -3,6 +3,7 @@
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
+#include <polar/core/id.h>
 #include <polar/support/event/arg.h>
 #include <polar/system/base.h>
 #include <unordered_map>
@@ -12,19 +13,19 @@ namespace polar::system {
 		using arg_t = support::event::arg;
 
 	  public:
-		using global_listener_t =
-		    std::function<void(const std::string &, arg_t)>;
+		using global_listener_t = std::function<void(const std::string &, arg_t)>;
 		using listener_t = std::function<void(arg_t)>;
-		using listener_bimap =
-		    boost::bimap<boost::bimaps::multiset_of<std::string>,
-		                 boost::bimaps::unordered_set_of<IDType>,
-		                 boost::bimaps::set_of_relation<>,
-		                 boost::bimaps::with_info<listener_t>>;
+		using listener_bimap = boost::bimap<
+			boost::bimaps::multiset_of<std::string>,
+			boost::bimaps::unordered_set_of<core::id>,
+			boost::bimaps::set_of_relation<>,
+			boost::bimaps::with_info<listener_t>
+		>;
 
 	  private:
-		std::unordered_multimap<IDType, global_listener_t> globalListeners;
+		std::unordered_multimap<core::id, global_listener_t> globalListeners;
 		listener_bimap listeners;
-		IDType nextID = 1;
+		core::id nextID = 1;
 
 	  public:
 		static bool supported() { return true; }

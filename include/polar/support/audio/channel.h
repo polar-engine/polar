@@ -1,6 +1,7 @@
 #pragma once
 
 #include <polar/component/audiosource.h>
+#include <polar/core/ref.h>
 
 namespace polar::support::audio::channel {
 	enum class messagetype { add, remove };
@@ -8,15 +9,15 @@ namespace polar::support::audio::channel {
 	struct message {
 		using audiosource = component::audiosource;
 
-		static auto add(IDType id, std::shared_ptr<audiosource> source) {
-			return message{messagetype::add, id, source};
+		static auto add(core::weak_ref object, std::shared_ptr<audiosource> source) {
+			return message{messagetype::add, object, source};
 		}
-		static auto remove(IDType id) {
-			return message{messagetype::remove, id, nullptr};
+		static auto remove(core::weak_ref object) {
+			return message{messagetype::remove, object, nullptr};
 		}
 
 		messagetype type;
-		IDType id;
+		core::weak_ref object;
 		std::shared_ptr<audiosource> source;
 	};
 } // namespace polar::support::audio::channel

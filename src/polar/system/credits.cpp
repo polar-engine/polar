@@ -13,21 +13,18 @@ namespace polar::system {
 
 		for(auto &section : _credits) {
 			height += pad;
-			keep(engine->add(section.id));
-			engine->add<component::text>(section.id, font, section.value);
-			engine->add<component::screenposition>(
-			    section.id, Point2(0, height), origin_t::top);
-			engine->add<component::scale>(section.id, Point3(0.3125));
+			section.object = engine->add();
+			engine->add<component::text>(section.object, font, section.value);
+			engine->add<component::screenposition>(section.object, Point2(0, height), origin_t::top);
+			engine->add<component::scale>(section.object, Point3(0.3125));
 			height += Decimal(0.3125 * 1.12) * font->lineSkip;
 
 			for(size_t n = 0; n < section.names.size(); ++n) {
 				auto &name = section.names[n];
-				keep(engine->add(section.nameIDs[n]));
-				engine->add<component::text>(section.nameIDs[n], font, name);
-				engine->add<component::screenposition>(
-				    section.nameIDs[n], Point2(0, height), origin_t::top);
-				engine->add<component::scale>(section.nameIDs[n],
-				                              Point3(0.1875));
+				section.name_objects[n] = engine->add();
+				engine->add<component::text>(section.name_objects[n], font, name);
+				engine->add<component::screenposition>(section.name_objects[n], Point2(0, height), origin_t::top);
+				engine->add<component::scale>(section.name_objects[n], Point3(0.1875));
 				height += Decimal(0.1875) * font->lineSkip;
 			}
 		}
@@ -54,29 +51,21 @@ namespace polar::system {
 		Decimal delta = dt.Seconds() * 50;
 
 		for(auto &section : _credits) {
-			auto sectionText = engine->get<component::text>(section.id);
-			auto sectionPos =
-			    engine->get<component::screenposition>(section.id);
-			auto sectionScale = engine->get<component::scale>(section.id);
+			auto sectionText = engine->get<component::text>(section.object);
+			auto sectionPos = engine->get<component::screenposition>(section.object);
+			auto sectionScale = engine->get<component::scale>(section.object);
 
-			auto sectionRealScale =
-			    sectionText->as->lineSkip * sectionScale->sc.get().y;
-			sectionPos->position->y =
-			    glm::mod(sectionPos->position->y - delta + sectionRealScale,
-			             height) -
-			    sectionRealScale;
+			auto sectionRealScale = sectionText->as->lineSkip * sectionScale->sc.get().y;
+			sectionPos->position->y = glm::mod(sectionPos->position->y - delta + sectionRealScale, height)
+			                        - sectionRealScale;
 
-			for(auto nameID : section.nameIDs) {
-				auto nameText  = engine->get<component::text>(nameID);
-				auto namePos   = engine->get<component::screenposition>(nameID);
-				auto nameScale = engine->get<component::scale>(nameID);
+			for(auto object : section.name_objects) {
+				auto nameText  = engine->get<component::text>(object);
+				auto namePos   = engine->get<component::screenposition>(object);
+				auto nameScale = engine->get<component::scale>(object);
 
-				auto nameRealScale =
-				    nameText->as->lineSkip * nameScale->sc.get().y;
-				namePos->position->y =
-				    glm::mod(namePos->position->y - delta + nameRealScale,
-				             height) -
-				    nameRealScale;
+				auto nameRealScale = nameText->as->lineSkip * nameScale->sc.get().y;
+				namePos->position->y = glm::mod(namePos->position->y - delta + nameRealScale, height) - nameRealScale;
 			}
 		}
 	}

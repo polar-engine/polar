@@ -36,16 +36,14 @@ namespace polar::system {
 		using pair_t        = std::pair<ti_t, ti_t>;
 		using detector_base = support::phys::detector::base;
 
-		template<typename T, typename = typename std::enable_if<std::is_base_of<
-		                         detector_base, T>::value>::type>
+		template<typename T, typename = typename std::enable_if<std::is_base_of<detector_base, T>::value>::type>
 		struct wrapped_detector {
-			IDType id;
+			core::weak_ref object;
 			std::shared_ptr<T> detector;
 		};
 
 		template<typename T, typename U>
-		using resolver_t = std::function<bool(
-		    core::polar *, wrapped_detector<T>, wrapped_detector<U>)>;
+		using resolver_t = std::function<bool(core::polar *, wrapped_detector<T>, wrapped_detector<U>)>;
 
 		using resolver_base = resolver_t<detector_base, detector_base>;
 

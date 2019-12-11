@@ -26,11 +26,11 @@ namespace polar::system {
 				render(current, true);
 				if(item.fn(item.control->get())) {
 					auto assetM = engine->get<asset>().lock();
-					IDType soundID;
-					soundDtors[soundIndex++] = engine->add(soundID);
-					soundIndex %= soundDtors.size();
+					auto sound = engine->add();
+					sounds[soundIndex++] = sound;
+					soundIndex %= sounds.size();
 					engine->add<component::audiosource>(
-					    soundID, assetM->get<polar::asset::audio>("menu1"),
+					    sound, assetM->get<polar::asset::audio>("menu1"),
 					    support::audio::sourcetype::effect);
 				}
 			}
@@ -107,11 +107,11 @@ namespace polar::system {
 
 	void menu::beep() {
 		auto assetM = engine->get<asset>().lock();
-		IDType soundID;
-		soundDtors[soundIndex++] = engine->add(soundID);
-		soundIndex %= soundDtors.size();
+		auto sound = engine->add();
+		sounds[soundIndex++] = sound;
+		soundIndex %= sounds.size();
 		engine->add<component::audiosource>(
-		    soundID, assetM->get<polar::asset::audio>("menu1"),
+		    sound, assetM->get<polar::asset::audio>("menu1"),
 		    support::audio::sourcetype::effect);
 	}
 
@@ -121,32 +121,31 @@ namespace polar::system {
 
 		auto &item = current_at(i);
 
-		IDType id;
+		auto item_object = engine->add();
 		if(replace) {
-			itemDtors.at(i) = engine->add(id);
+			items.at(i) = item_object;
 		} else {
-			itemDtors.emplace_back(engine->add(id));
+			items.emplace_back(item_object);
 		}
 
-		Decimal scale =
-		    glm::min(actual_height() / Decimal(size), actual_scale());
+		Decimal scale = glm::min(actual_height() / Decimal(size), actual_scale());
 		Decimal spacing = uiTextHeight * scale;
 		Point2 origin   = Point2(60, 50 + spacing * (size - i - 1));
 
-		engine->add<component::text>(id, font, item.value);
-		engine->add<component::screenposition>(id, origin);
-		engine->add<component::scale>(id, Point3(scale));
+		engine->add<component::text>(item_object, font, item.value);
+		engine->add<component::screenposition>(item_object, origin);
+		engine->add<component::scale>(item_object, Point3(scale));
 
 		if(int(i) == current) {
-			engine->add<component::color>(id, Point4(1, 1, selectionAlpha, 1));
+			engine->add<component::color>(item_object, Point4(1, 1, selectionAlpha, 1));
 		}
 
 		if(item.control) {
-			IDType controlID;
+			auto control = engine->add();
 			auto offset = Point2(uiTextWidth / uiBase * scale, 0);
 			offset.y -= 12 * scale;
-			controlDtors[(int)i] = item.control->render(engine, controlID,
-			                                       origin + offset, 8 * scale);
+			item.control->render(engine, control, origin + offset, 8 * scale);
+			controls[(int)i] = control;
 		}
 	}
 

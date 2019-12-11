@@ -6,7 +6,7 @@
 #include <memory>
 #include <polar/component/base.h>
 #include <polar/core/deltaticks.h>
-#include <polar/core/destructor.h>
+#include <polar/core/ref.h>
 #include <vector>
 
 namespace polar::system {
@@ -56,9 +56,8 @@ namespace polar::system {
 		virtual void init() {}
 		virtual void update(DeltaTicks &) {}
 		virtual void system_added(std::type_index, std::weak_ptr<system::base>) {}
-		virtual void component_added(IDType, std::type_index,
-		                             std::weak_ptr<component::base>) {}
-		virtual void component_removed(IDType, std::type_index) {}
+		virtual void component_added(core::weak_ref, std::type_index, std::weak_ptr<component::base>) {}
+		virtual void component_removed(core::weak_ref, std::type_index) {}
 	};
 } // namespace polar::system
 

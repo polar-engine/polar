@@ -15,11 +15,11 @@ namespace polar::system {
 
 			auto range = engine->objects.right.equal_range(typeid(component::phys));
 			for(auto it1 = range.first; it1 != range.second; ++it1) {
-				auto id1   = it1->get_left();
+				auto obj1  = it1->get_left();
 				auto comp1 = it1->info.get();
 				auto phys1 = static_cast<component::phys *>(comp1);
 				for(auto it2 = std::next(it1); it2 != range.second; ++it2) {
-					auto id2   = it2->get_left();
+					auto obj2  = it2->get_left();
 					auto comp2 = it2->info.get();
 					if(comp1 != comp2) {
 						auto phys2 = static_cast<component::phys *>(comp2);
@@ -28,16 +28,15 @@ namespace polar::system {
 						auto pair = std::make_pair(std::type_index(typeid(det1)), std::type_index(typeid(det2)));
 						auto search = resolvers.find(pair);
 						if(search != resolvers.cend()) {
-							auto b = search->second->operator()(
-							engine, {id1, phys1->detector},
-							{id2, phys2->detector});
+							auto b = search->second->operator()(engine, {obj1, phys1->detector},
+							                                            {obj2, phys2->detector});
 							if(b) {
 								//debugmanager()->info("collision!");
 								for(auto &r : phys1->responders) {
-									r->respond(engine, id1, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
+									r->respond(engine, obj1, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
 								}
 								for(auto &r : phys2->responders) {
-									r->respond(engine, id1, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
+									r->respond(engine, obj2, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
 								}
 							}
 						}
@@ -50,19 +49,19 @@ namespace polar::system {
 		add<support::phys::detector::box, support::phys::detector::box>([](core::polar *engine, auto a, auto b) {
 			Point3 originA{0};
 			Point3 originB{0};
-			if(auto p = engine->get<component::position>(a.id)) {
+			if(auto p = engine->get<component::position>(a.object)) {
 				originA += p->pos.get();
 			}
-			if(auto p = engine->get<component::position>(b.id)) {
+			if(auto p = engine->get<component::position>(b.object)) {
 				originB += p->pos.get();
 			}
 
 			Point3 scaleA = a.detector->size;
 			Point3 scaleB = b.detector->size;
-			if(auto s = engine->get<component::scale>(a.id)) {
+			if(auto s = engine->get<component::scale>(a.object)) {
 				scaleA *= s->sc.get();
 			}
-			if(auto s = engine->get<component::scale>(b.id)) {
+			if(auto s = engine->get<component::scale>(b.object)) {
 				scaleB *= s->sc.get();
 			}
 
@@ -79,19 +78,19 @@ namespace polar::system {
 		add<support::phys::detector::ball, support::phys::detector::ball>([](core::polar *engine, auto a, auto b) {
 			Point3 originA{0};
 			Point3 originB{0};
-			if(auto p = engine->get<component::position>(a.id)) {
+			if(auto p = engine->get<component::position>(a.object)) {
 				originA += p->pos.get();
 			}
-			if(auto p = engine->get<component::position>(b.id)) {
+			if(auto p = engine->get<component::position>(b.object)) {
 				originB += p->pos.get();
 			}
 
 			Point3 scaleA = a.detector->size;
 			Point3 scaleB = b.detector->size;
-			if(auto s = engine->get<component::scale>(a.id)) {
+			if(auto s = engine->get<component::scale>(a.object)) {
 				scaleA *= s->sc.get();
 			}
-			if(auto s = engine->get<component::scale>(b.id)) {
+			if(auto s = engine->get<component::scale>(b.object)) {
 				scaleB *= s->sc.get();
 			}
 

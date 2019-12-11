@@ -22,13 +22,13 @@ namespace polar::system {
 		});
 
 		std::shared_ptr<polar::asset::font> font;
-		std::vector<core::ref> itemDtors;
-		std::unordered_map<int, core::ref> controlDtors;
+		std::vector<core::ref> items;
+		std::unordered_map<int, core::ref> controls;
 		float selectionAlpha = 0.0f;
 
 		// the size of the array determines how many concurrent sounds we can
 		// play at once
-		std::array<core::ref, 4> soundDtors;
+		std::array<core::ref, 4> sounds;
 		size_t soundIndex = 0;
 
 		inline menuitem_vector_t & current_menu() {
@@ -77,8 +77,8 @@ namespace polar::system {
 		inline void render_all() {
 			auto size = current_size();
 
-			itemDtors.clear();
-			controlDtors.clear();
+			items.clear();
+			controls.clear();
 			for(size_t i = 0; i < size; ++i) { render(i); }
 		}
 

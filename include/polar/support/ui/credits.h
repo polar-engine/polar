@@ -8,13 +8,12 @@ namespace polar::support::ui {
 	  public:
 		std::string value;
 		std::vector<std::string> names;
-		IDType id = INVALID_ID();
-		std::vector<IDType> nameIDs;
+		core::ref object;
+		std::vector<core::ref> name_objects;
 
-		credits_section(std::string value, std::vector<std::string> names)
-		    : value(value), names(names) {
+		credits_section(std::string value, std::vector<std::string> names) : value(value), names(names) {
 			for(size_t i = 0; i < names.size(); ++i) {
-				nameIDs.emplace_back(INVALID_ID());
+				name_objects.emplace_back();
 			}
 		}
 	};

@@ -3,8 +3,8 @@
 #else
 #pragma once
 
-#include <polar/core/destructor.h>
 #include <polar/core/polar.h>
+#include <polar/core/ref.h>
 #include <polar/core/stack.h>
 #include <polar/system/base.h>
 #include <unordered_map>
@@ -17,7 +17,7 @@ namespace polar::core {
 		ecs<system::base> systems;
 		std::vector<std::shared_ptr<system::base>> orderedSystems;
 		std::vector<std::shared_ptr<system::base>> toErase;
-		std::vector<core::ref> dtors;
+		std::vector<ref> dtors;
 
 		void insert(std::type_index, std::shared_ptr<system::base>);
 	  public:
@@ -45,18 +45,22 @@ namespace polar::core {
 		void init();
 		void update(DeltaTicks &dt);
 
-		template<typename T, typename... Ts,
-		         typename = typename std::enable_if<
-		             std::is_base_of<system::base, T>::value>::type>
+		template<
+			typename T,
+			typename... Ts,
+			typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type
+		>
 		inline auto add(Ts &&... args) {
 			return add_as<T, T>(std::forward<Ts>(args)...);
 		}
 
-		template<typename B, typename T, typename... Ts,
-		         typename = typename std::enable_if<
-		             std::is_base_of<system::base, T>::value>::type,
-		         typename = typename std::enable_if<
-		             std::is_base_of<B, T>::value>::type>
+		template<
+			typename B,
+			typename T,
+			typename... Ts,
+			typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type,
+			typename = typename std::enable_if<std::is_base_of<B, T>::value>::type
+		>
 		inline auto add_as(Ts &&... args) {
 #ifdef _DEBUG
 			if(!T::supported()) {
@@ -73,8 +77,7 @@ namespace polar::core {
 #endif
 		}
 
-		template<typename T, typename = typename std::enable_if<
-		                         std::is_base_of<system::base, T>::value>::type>
+		template<typename T, typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
 		inline void remove() {
 			auto sys = std::static_pointer_cast<system::base>(systems.get<T>().lock());
 			if(sys) {
@@ -83,8 +86,7 @@ namespace polar::core {
 			}
 		}
 
-		template<typename T, typename = typename std::enable_if<
-		                         std::is_base_of<system::base, T>::value>::type>
+		template<typename T, typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
 		inline void remove_now() {
 			auto sys = std::static_pointer_cast<system::base>(systems.get<T>().lock());
 			if(sys) {
@@ -94,8 +96,7 @@ namespace polar::core {
 			}
 		}
 
-		template<typename T, typename = typename std::enable_if<
-		                         std::is_base_of<system::base, T>::value>::type>
+		template<typename T, typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
 		inline std::weak_ptr<T> get() {
 			return systems.get<T>();
 		}
@@ -105,9 +106,8 @@ namespace polar::core {
 		}
 
 		void system_added(std::type_index, std::shared_ptr<system::base>);
-		void component_added(IDType id, std::type_index ti,
-		                     std::shared_ptr<component::base> ptr);
-		void component_removed(IDType id, std::type_index ti);
+		void component_added(weak_ref, std::type_index, std::shared_ptr<component::base>);
+		void component_removed(weak_ref, std::type_index);
 	};
 } // namespace polar::core
 

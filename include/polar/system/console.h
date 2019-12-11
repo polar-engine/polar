@@ -13,8 +13,7 @@ namespace polar::system {
 		using lifetime = support::action::lifetime;
 
 		std::string buffer;
-		core::ref bufferDtor;
-		IDType bufferID;
+		core::ref buffer_object;
 
 		void handle(key k) {
 			switch(k) {
@@ -91,15 +90,15 @@ namespace polar::system {
 		}
 
 		void render() {
-			bufferDtor = engine->add(bufferID);
+			buffer_object = engine->add();
 
 			auto assetM = engine->get<asset>().lock();
 			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
 
-			engine->add<component::text>(bufferID, font, buffer);
-			engine->add<component::screenposition>(bufferID, Point2(5, 5), support::ui::origin::topleft);
-			engine->add<component::color>(bufferID, Point4(1, 1, 1, 0.8));
-			engine->add<component::scale>(bufferID, Point3(0.1));
+			engine->add<component::text>(buffer_object, font, buffer);
+			engine->add<component::screenposition>(buffer_object, Point2(5, 5), support::ui::origin::topleft);
+			engine->add<component::color>(buffer_object, Point4(1, 1, 1, 0.8));
+			engine->add<component::scale>(buffer_object, Point3(0.1));
 		}
 	  protected:
 		void init() override {

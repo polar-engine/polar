@@ -33,7 +33,7 @@ namespace polar::system {
 			}
 		}
 
-		void component_added(IDType, std::type_index ti, std::weak_ptr<component::base> ptr) override {
+		void component_added(core::weak_ref, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			auto component = ptr.lock();
 
 			components_by_name.emplace(component->name(), ti);

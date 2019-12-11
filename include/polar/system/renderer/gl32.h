@@ -54,8 +54,7 @@ namespace polar::system::renderer {
 		GLuint debugProgram;
 		GLuint ditherTex;
 
-		core::ref fpsDtor;
-		IDType fpsID = 0;
+		core::ref fps_object;
 
 		std::unordered_map<std::string, glm::uint32> uniformsU32;
 		std::unordered_map<std::string, Decimal> uniformsFloat;
@@ -67,17 +66,16 @@ namespace polar::system::renderer {
 
 		void init() override;
 		void update(DeltaTicks &) override;
-		void rendersprite(IDType, Mat4 = Mat4(1), Mat4 view = Mat4(1));
-		void rendertext(IDType, Mat4 proj = Mat4(1), Mat4 view = Mat4(1));
+		void rendersprite(core::weak_ref, Mat4 = Mat4(1), Mat4 view = Mat4(1));
+		void rendertext(core::weak_ref, Mat4 proj = Mat4(1), Mat4 view = Mat4(1));
 		void render(Mat4 proj, Mat4 view, float delta);
 
 		std::shared_ptr<model_p> getpooledmodelproperty(const GLsizei required);
 
 		void uploadmodel(std::shared_ptr<component::model> model);
 
-		void component_added(IDType id, std::type_index ti,
-		                     std::weak_ptr<component::base> ptr) override;
-		void component_removed(IDType id, std::type_index ti) override;
+		void component_added(core::weak_ref, std::type_index, std::weak_ptr<component::base>) override;
+		void component_removed(core::weak_ref, std::type_index) override;
 
 		Mat4 calculate_projection();
 		void project(GLuint programID, Mat4 proj);
@@ -111,7 +109,7 @@ namespace polar::system::renderer {
 			GL(glViewport(0, 0, width, height));
 			makepipeline(pipelineNames);
 			if(act) {
-				act->trigger<action_resize>(INVALID_ID());
+				act->trigger<action_resize>();
 			}
 		}
 

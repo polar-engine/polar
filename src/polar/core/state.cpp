@@ -20,8 +20,7 @@ namespace polar::core {
 
 		if(!toErase.empty()) {
 			for(auto &system : toErase) {
-				orderedSystems.erase(std::remove(orderedSystems.begin(),
-				                                 orderedSystems.end(), system));
+				orderedSystems.erase(std::remove(orderedSystems.begin(), orderedSystems.end(), system));
 			}
 			toErase.clear();
 		}
@@ -36,32 +35,28 @@ namespace polar::core {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
-			debugmanager()->trace("notifying system of system added: ",
-			                      typeid(deref).name(), ", ", ti.name());
+			debugmanager()->trace("notifying system of system added: ", typeid(deref).name(), ", ", ti.name());
 			system->system_added(ti, ptr);
 			debugmanager()->trace("notified system of system added");
 		}
 	}
 
-	void state::component_added(IDType id, std::type_index ti,
-	                            std::shared_ptr<component::base> ptr) {
+	void state::component_added(weak_ref object, std::type_index ti, std::shared_ptr<component::base> ptr) {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
-			debugmanager()->trace("notifying system of component added: ",
-			                      typeid(deref).name(), ", ", ti.name());
-			system->component_added(id, ti, ptr);
+			debugmanager()->trace("notifying system of component added: ", typeid(deref).name(), ", ", ti.name());
+			system->component_added(object, ti, ptr);
 			debugmanager()->trace("notified system of component added");
 		}
 	}
 
-	void state::component_removed(IDType id, std::type_index ti) {
+	void state::component_removed(weak_ref object, std::type_index ti) {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
-			debugmanager()->trace("notifying system of component removed: ",
-			                      typeid(deref).name(), ", ", ti.name());
-			system->component_removed(id, ti);
+			debugmanager()->trace("notifying system of component removed: ", typeid(deref).name(), ", ", ti.name());
+			system->component_removed(object, ti);
 			debugmanager()->trace("notified system of component removed");
 		}
 	}

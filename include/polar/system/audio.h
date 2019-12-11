@@ -26,28 +26,26 @@ namespace polar::system {
 		int channelIndexMain           = 0;
 		int channelIndexStream         = 0;
 
-		std::unordered_map<IDType, std::shared_ptr<audiosource>> sources;
+		std::unordered_map<core::weak_ref, std::shared_ptr<audiosource>> sources;
 
 		PaStream *stream;
 
 	  protected:
 		virtual void init() override { Pa_StartStream(stream); }
 
-		void component_added(IDType id, std::type_index ti,
-		                    std::weak_ptr<component::base> ptr) override {
+		void component_added(core::weak_ref object, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti != typeid(audiosource)) { return; }
 
-			channel[channelIndexMain] = message_t::add(
-			    id, std::static_pointer_cast<audiosource>(ptr.lock()));
+			channel[channelIndexMain] = message_t::add(object, std::static_pointer_cast<audiosource>(ptr.lock()));
 			++channelWaiting;
 			++channelIndexMain;
 			if(channelIndexMain == channelSize) { channelIndexMain = 0; }
 		}
 
-		void component_removed(IDType id, std::type_index ti) override {
+		void component_removed(core::weak_ref object, std::type_index ti) override {
 			if(ti != typeid(audiosource)) { return; }
 
-			channel[channelIndexMain] = message_t::remove(id);
+			channel[channelIndexMain] = message_t::remove(object);
 			++channelWaiting;
 			++channelIndexMain;
 			if(channelIndexMain == channelSize) { channelIndexMain = 0; }
@@ -82,10 +80,10 @@ namespace polar::system {
 				auto msg = channel[channelIndexStream];
 				switch(msg.type) {
 				case messagetype::add:
-					sources.emplace(msg.id, msg.source);
+					sources.emplace(msg.object, msg.source);
 					break;
 				case messagetype::remove:
-					sources.erase(msg.id);
+					sources.erase(msg.object);
 					break;
 				}
 				--channelWaiting;

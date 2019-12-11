@@ -8,14 +8,12 @@ namespace polar::core {
 		std::function<void()> fn;
 
 	  public:
+		destructor() = default;
 		destructor(std::function<void()> fn) : fn(fn) {}
 		~destructor() { fn(); }
-	};
 
-	class ref {
-	private:
-		std::shared_ptr<destructor> dtor;
-	public:
-		ref(std::function<void()> fn = [] {}) : dtor(std::make_shared<destructor>(fn)) {}
+		void set(std::function<void()> f) {
+			fn = f;
+		}
 	};
 } // namespace polar::core

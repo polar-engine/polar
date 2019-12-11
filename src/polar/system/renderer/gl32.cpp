@@ -552,7 +552,7 @@ namespace polar::system::renderer {
 		changedUniformsFloat.clear();
 		changedUniformsPoint3.clear();
 
-		fpsDtor = engine->add(fpsID);
+		fps_object = engine->add();
 
 		if(dt.Seconds() > 0) {
 			fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
@@ -565,11 +565,10 @@ namespace polar::system::renderer {
 			auto assetM = engine->get<asset>().lock();
 			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
 
-			engine->add<component::text>(fpsID, font, oss.str());
-			engine->add<component::screenposition>(
-			    fpsID, Point2(5, 5), support::ui::origin::topleft);
-			engine->add<component::color>(fpsID, Point4(1, 1, 1, 0.8));
-			engine->add<component::scale>(fpsID, Point3(0.125));
+			engine->add<component::text>(fps_object, font, oss.str());
+			engine->add<component::screenposition>(fps_object, Point2(5, 5), support::ui::origin::topleft);
+			engine->add<component::color>(fps_object, Point4(1, 1, 1, 0.8));
+			engine->add<component::scale>(fps_object, Point3(0.125));
 		}
 
 		auto integrator_s = engine->get<integrator>().lock(); // need to check if we have an integrator or not
@@ -637,14 +636,14 @@ namespace polar::system::renderer {
 		SDL_ClearError();
 	}
 
-	void gl32::rendersprite(IDType id, Mat4 proj, Mat4 view) {
+	void gl32::rendersprite(core::weak_ref object, Mat4 proj, Mat4 view) {
 		using origin_t = support::ui::origin;
 
-		auto sprite    = engine->get<component::sprite::base>(id);
+		auto sprite    = engine->get<component::sprite::base>(object);
 		auto prop      = sprite->get<property::gl32::sprite>().lock();
-		auto screenPos = engine->get<component::screenposition>(id);
-		auto scale     = engine->get<component::scale>(id);
-		auto color     = engine->get<component::color>(id);
+		auto screenPos = engine->get<component::screenposition>(object);
+		auto scale     = engine->get<component::scale>(object);
+		auto color     = engine->get<component::color>(object);
 
 		auto coord = Point2(0);
 
@@ -770,13 +769,13 @@ namespace polar::system::renderer {
 		GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
 	}
 
-	void gl32::rendertext(IDType id, Mat4 proj, Mat4 view) {
+	void gl32::rendertext(core::weak_ref object, Mat4 proj, Mat4 view) {
 		using origin_t = support::ui::origin;
 
-		auto text      = engine->get<component::text>(id);
-		auto screenPos = engine->get<component::screenposition>(id);
-		auto scale     = engine->get<component::scale>(id);
-		auto color     = engine->get<component::color>(id);
+		auto text      = engine->get<component::text>(object);
+		auto screenPos = engine->get<component::screenposition>(object);
+		auto scale     = engine->get<component::scale>(object);
+		auto color     = engine->get<component::color>(object);
 
 		if(!text || text->str.empty()) {
 			return;
@@ -1004,68 +1003,68 @@ namespace polar::system::renderer {
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
 				if(act) {
-					act->trigger_digital(INVALID_ID(), kb::key_ti(key), true);
+					act->trigger_digital(kb::key_ti(key), true);
 				}
 			}
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
 			if(act) {
-				act->trigger_digital(INVALID_ID(), kb::key_ti(key), false);
+				act->trigger_digital(kb::key_ti(key), false);
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);
 			if(act) {
-				act->trigger_digital(INVALID_ID(), kb::key_ti(key), true);
+				act->trigger_digital(kb::key_ti(key), true);
 			}
 			break;
 		case SDL_MOUSEBUTTONUP:
 			key = mkMouseButtonFromSDL(ev.button.button);
 			if(act) {
-				act->trigger_digital(INVALID_ID(), kb::key_ti(key), false);
+				act->trigger_digital(kb::key_ti(key), false);
 			}
 			break;
 		case SDL_MOUSEMOTION:
 			if(act) {
 				// XXX: this is hacky
-				act->accumulate<mouse::position_x>(INVALID_ID(), ev.motion.x);
-				act->accumulate<mouse::position_y>(INVALID_ID(), ev.motion.y);
+				act->accumulate<mouse::position_x>(ev.motion.x);
+				act->accumulate<mouse::position_y>(ev.motion.y);
 
-				act->accumulate<mouse::motion_x>(INVALID_ID(), ev.motion.xrel);
-				act->accumulate<mouse::motion_y>(INVALID_ID(), ev.motion.yrel);
+				act->accumulate<mouse::motion_x>(ev.motion.xrel);
+				act->accumulate<mouse::motion_y>(ev.motion.yrel);
 			}
 			break;
 		case SDL_MOUSEWHEEL:
 			if(act) {
-				act->accumulate<mouse::wheel_x>(INVALID_ID(), ev.wheel.x);
-				act->accumulate<mouse::wheel_y>(INVALID_ID(), ev.wheel.y);
+				act->accumulate<mouse::wheel_x>(ev.wheel.x);
+				act->accumulate<mouse::wheel_y>(ev.wheel.y);
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
 			if(act) {
-				act->trigger_digital(INVALID_ID(), kb::key_ti(key), true);
+				act->trigger_digital(kb::key_ti(key), true);
 			}
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			key = mkButtonFromSDL(
 			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
 			if(act) {
-				act->trigger_digital(INVALID_ID(), kb::key_ti(key), false);
+				act->trigger_digital(kb::key_ti(key), false);
 			}
 			break;
 		case SDL_CONTROLLERAXISMOTION:
 			switch(ev.caxis.axis) {
 			case 0: // x axis
 				if(act) {
-					act->accumulate<controller::motion_x>(INVALID_ID(), ev.caxis.value);
+					act->accumulate<controller::motion_x>(ev.caxis.value);
 				}
 				break;
 			case 1: // y axis
 				if(act) {
-					act->accumulate<controller::motion_y>(INVALID_ID(), ev.caxis.value);
+					act->accumulate<controller::motion_y>(ev.caxis.value);
 				}
 				break;
 			}
@@ -1470,8 +1469,7 @@ namespace polar::system::renderer {
 		model->add<model_p>(prop);
 	}
 
-	void gl32::component_added(IDType, std::type_index ti,
-	                          std::weak_ptr<component::base> ptr) {
+	void gl32::component_added(core::weak_ref, std::type_index ti, std::weak_ptr<component::base> ptr) {
 		if(ti == typeid(component::model)) {
 			auto model = std::static_pointer_cast<component::model>(ptr.lock());
 			if(!model->has<model_p>()) {
@@ -1529,15 +1527,15 @@ namespace polar::system::renderer {
 		}
 	}
 
-	void gl32::component_removed(IDType id, std::type_index ti) {
+	void gl32::component_removed(core::weak_ref object, std::type_index ti) {
 		if(ti == typeid(component::model)) {
-			auto model = engine->get<component::model>(id);
+			auto model = engine->get<component::model>(object);
 			if(model != nullptr) {
 				auto prop = model->get<model_p>().lock();
 				if(prop) { modelPropertyPool.emplace(prop); }
 			}
 		} else if(ti == typeid(component::sprite::base)) {
-			auto text = engine->get<component::sprite::base>(id);
+			auto text = engine->get<component::sprite::base>(object);
 			if(text != nullptr) {
 				auto prop = text->get<sprite_p>().lock();
 				if(prop) { GL(glDeleteTextures(1, &prop->texture)); }

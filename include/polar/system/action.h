@@ -31,11 +31,11 @@ namespace polar::system {
 		DeltaTicks accumulator;
 
 		struct frame_action {
-			IDType objectID;
+			core::ref object;
 			std::type_index ti;
 			bool value;
 
-			frame_action(IDType objectID, std::type_index ti, bool value) : objectID(objectID), ti(ti), value(value) {}
+			frame_action(core::ref object, std::type_index ti, bool value) : object(object), ti(ti), value(value) {}
 		};
 
 		struct frame {
@@ -50,7 +50,7 @@ namespace polar::system {
 		std::array<bimap, size_t(lifetime::SIZE)> lt_bindings;
 		bimap bindings;
 
-		IDType nextID = 1;
+		core::id nextID = 1;
 	public:
 		static bool supported() { return true; }
 		action(core::polar *engine) : base(engine) {}
@@ -124,7 +124,7 @@ namespace polar::system {
 				}
 
 				for(auto &a : cf.actions) {
-					trigger_digital<false>(a.objectID, a.ti, a.value);
+					trigger_digital<false>(a.object, a.ti, a.value);
 				}
 
 				auto tmp2 = nf.analogs;
@@ -151,33 +151,33 @@ namespace polar::system {
 			}
 		}
 
-		void reg_digital(IDType objectID, std::type_index ti, bool state = false) {
+		void reg_digital(core::ref object, std::type_index ti, bool state = false) {
 			auto &cf = current_frame();
 
 			auto it = cf.digitals.find(ti);
 			if(it == cf.digitals.end()) {
 				cf.digitals.emplace(ti, digital_data{});
 			}
-			cf.digitals[ti].states.emplace(objectID, state);
+			cf.digitals[ti].states.emplace(object, state);
 		}
 
-		void reg_analog(IDType objectID, std::type_index ti, Decimal initial = 0) {
+		void reg_analog(core::ref object, std::type_index ti, Decimal initial = 0) {
 			auto &cf = current_frame();
 
 			auto it = cf.analogs.find(ti);
 			if(it == cf.analogs.end()) {
 				cf.analogs.emplace(ti, analog_data{});
 			}
-			cf.analogs[ti].states.emplace(objectID, analog_state{initial, initial, initial});
+			cf.analogs[ti].states.emplace(object, analog_state{initial, initial, initial});
 		}
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<digital, T>::value>::type
-		reg_digital(IDType objectID, bool state = false) { reg_digital(objectID, typeid(T), state); }
+		reg_digital(core::ref object, bool state = false) { reg_digital(object, typeid(T), state); }
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<analog, T>::value>::type
-		reg_analog(IDType objectID, Decimal initial = 0) { reg_analog(objectID, typeid(T), initial); }
+		reg_analog(core::ref object, Decimal initial = 0) { reg_analog(object, typeid(T), initial); }
 
 		// digital -> digital function
 		template<typename Src,
@@ -199,11 +199,11 @@ namespace polar::system {
 		template<typename Src,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Src>::value>::type>
-		auto bind(IDType objectID, lifetime lt, digital_function_t f, priority_t priority = 0) {
+		auto bind(core::ref object, lifetime lt, digital_function_t f, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create<Src>(f);
-			b.objectID = objectID;
+			b.object = object;
 			auto r  = relation{id, ti, priority, b};
 			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
@@ -234,11 +234,11 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<digital, Tgt>::value>::type>
-		auto bind(IDType objectID, lifetime lt, priority_t priority = 0) {
+		auto bind(core::ref object, lifetime lt, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create_digital<Src, Tgt>();
-			b.objectID = objectID;
+			b.object = object;
 			auto r  = relation{id, ti, priority, b};
 			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
@@ -269,11 +269,11 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(IDType objectID, lifetime lt, Decimal passthrough, priority_t priority = 0) {
+		auto bind(core::ref object, lifetime lt, Decimal passthrough, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create<Src, Tgt>(passthrough);
-			b.objectID = objectID;
+			b.object = object;
 			auto r  = relation{id, ti, priority, b};
 			lt_bindings[size_t(lt)].insert(r);
 			return core::ref([this, lt, id] {
@@ -333,11 +333,11 @@ namespace polar::system {
 		             std::is_base_of<analog, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(IDType objectID, priority_t priority = 0) {
+		auto bind(core::ref object, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create_analog<Src, Tgt>();
-			b.objectID = objectID;
+			b.object = object;
 			auto r  = relation{id, ti, priority, b};
 			bindings.insert(r);
 			return core::ref([this, id] {
@@ -346,34 +346,34 @@ namespace polar::system {
 		}
 
 		template<bool source = true>
-		void trigger_digital(IDType objectID, std::type_index ti, lifetime lt) {
+		void trigger_digital(core::ref object, std::type_index ti, lifetime lt) {
 			debugmanager()->trace("triggering digital ", ti.name(), " for ", lt);
 
-			auto sourceObjectID = objectID;
+			auto sourceObjectID = object;
 
 			if(lt == lifetime::on) {
 				auto whenPair = lt_bindings[size_t(lifetime::when)].get<tag_ti>().equal_range(ti);
 				for(auto whenIt = whenPair.first; whenIt != whenPair.second; ++whenIt) {
-					if(whenIt->binding.objectID) { objectID = *whenIt->binding.objectID; }
+					if(whenIt->binding.object) { object = *whenIt->binding.object; }
 
 					if(auto wrapper = whenIt->binding.get_if_tgt_digital()) {
-						trigger_digital<false>(objectID, wrapper->ti, true);
+						trigger_digital<false>(object, wrapper->ti, true);
 					}
 
-					if(!whenIt->binding.should_continue(objectID)) {
+					if(!whenIt->binding.should_continue(object)) {
 						break;
 					}
 				}
 			} else if(lt == lifetime::after) {
 				auto whenPair = lt_bindings[size_t(lifetime::when)].get<tag_ti>().equal_range(ti);
 				for(auto whenIt = whenPair.first; whenIt != whenPair.second; ++whenIt) {
-					if(whenIt->binding.objectID) { objectID = *whenIt->binding.objectID; }
+					if(whenIt->binding.object) { object = *whenIt->binding.object; }
 
 					if(auto wrapper = whenIt->binding.get_if_tgt_digital()) {
-						trigger_digital<false>(objectID, wrapper->ti, false);
+						trigger_digital<false>(object, wrapper->ti, false);
 					}
 
-					if(!whenIt->binding.should_continue(objectID)) {
+					if(!whenIt->binding.should_continue(object)) {
 						break;
 					}
 				}
@@ -383,19 +383,19 @@ namespace polar::system {
 			for(auto it = pair.first; it != pair.second; ++it) {
 			//auto &view = lt_bindings[size_t(lt)].get<tag_ti>();
 			//for(auto it = view.lower_bound(ti); it != view.end() && it->ti == ti; ++it) {
-				if(it->binding.objectID) { objectID = *it->binding.objectID; }
+				if(it->binding.object) { object = *it->binding.object; }
 
 				if(auto wrapper = it->binding.get_if_tgt_digital()) {
 					if(lt != lifetime::when) {
-						trigger_digital<false>(objectID, wrapper->ti);
+						trigger_digital<false>(object, wrapper->ti);
 					}
 				} else if(auto wrapper = it->binding.get_if_tgt_analog()) {
-					accumulate_analog(objectID, wrapper->ti, it->binding.passthrough.value_or(0));
+					accumulate_analog(object, wrapper->ti, it->binding.passthrough.value_or(0));
 				} else if(auto f = it->binding.get_if_tgt_digital_f()) {
-					(*f)(objectID);
+					(*f)(object);
 				}
 
-				if(!it->binding.should_continue(objectID)) {
+				if(!it->binding.should_continue(object)) {
 					break;
 				}
 			}
@@ -410,99 +410,127 @@ namespace polar::system {
 		}
 
 		template<bool source = true>
-		void trigger_digital(IDType objectID, std::type_index ti, bool state) {
+		void trigger_digital(core::ref object, std::type_index ti, bool state) {
 			auto &cf = current_frame();
 
 			// force registration of digital
-			reg_digital(objectID, ti);
+			reg_digital(object, ti);
 
-			if(state != cf.digitals[ti].states[objectID]) {
+			if(state != cf.digitals[ti].states[object]) {
 				if(state) {
-					trigger_digital<source>(objectID, ti, lifetime::on);
-					cf.digitals[ti].states[objectID] = state;
+					trigger_digital<source>(object, ti, lifetime::on);
+					cf.digitals[ti].states[object] = state;
 				} else {
-					cf.digitals[ti].states[objectID] = state;
-					trigger_digital<source>(objectID, ti, lifetime::after);
+					cf.digitals[ti].states[object] = state;
+					trigger_digital<source>(object, ti, lifetime::after);
 				}
 			}
 		}
 
 		template<bool source = true>
-		void trigger_digital(IDType objectID, std::type_index ti) {
-			trigger_digital<source>(objectID, ti, true);
-			trigger_digital<source>(objectID, ti, lifetime::when);
-			trigger_digital<source>(objectID, ti, false);
+		void trigger_digital(std::type_index ti, bool state) {
+			return trigger_digital<source>(core::ref(), ti, state);
 		}
 
 		template<bool source = true>
-		void trigger_analog(IDType objectID, std::type_index ti) {
+		void trigger_digital(core::ref object, std::type_index ti) {
+			trigger_digital<source>(object, ti, true);
+			trigger_digital<source>(object, ti, lifetime::when);
+			trigger_digital<source>(object, ti, false);
+		}
+
+		template<bool source = true>
+		void trigger_analog(core::ref object, std::type_index ti) {
 			auto &cf = current_frame();
 
 			// force registration of analog
-			reg_analog(objectID, ti);
+			reg_analog(object, ti);
 
 			auto &data = cf.analogs.at(ti);
 
-			debugmanager()->trace("triggering analog ", ti.name(), '(', data.states[objectID].value, ')');
+			debugmanager()->trace("triggering analog ", ti.name(), '(', data.states[object].value, ')');
 
 			auto pair = bindings.get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
 				if(auto f = it->binding.get_if_tgt_analog_f()) {
-					(*f)(objectID, data.states[objectID].value);
+					(*f)(object, data.states[object].value);
 				} else if(auto wrapper = it->binding.get_if_tgt_digital()) {
-					auto result = it->binding.predicate(objectID, data.states[objectID].previous, data.states[objectID].value);
-					trigger_digital<false>(objectID, wrapper->ti, result);
+					auto result = it->binding.predicate(object, data.states[object].previous, data.states[object].value);
+					trigger_digital<false>(object, wrapper->ti, result);
 				}
 
-				if(!it->binding.should_continue(objectID, data.states[objectID].value)) {
+				if(!it->binding.should_continue(object, data.states[object].value)) {
 					break;
 				}
 			}
 		}
 
-		void accumulate_analog(IDType objectID, std::type_index ti, Decimal passthrough) {
+		void accumulate_analog(std::type_index ti, Decimal passthrough) {
+			accumulate_analog(core::ref(), ti, passthrough);
+		}
+
+		void accumulate_analog(core::ref object, std::type_index ti, Decimal passthrough) {
 			auto &cf = current_frame();
 
 			// force registration of analog
-			reg_analog(objectID, ti);
+			reg_analog(object, ti);
 
-			cf.analogs[ti].states[objectID].value += passthrough;
+			cf.analogs[ti].states[object].value += passthrough;
 
 			auto pair = bindings.get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {
-				if(it->binding.objectID) { objectID = *it->binding.objectID; }
+				if(it->binding.object) { object = *it->binding.object; }
 
 				if(auto wrapper = it->binding.get_if_tgt_analog()) {
-					accumulate_analog(objectID, wrapper->ti, passthrough);
+					accumulate_analog(object, wrapper->ti, passthrough);
 				}
 
-				if(!it->binding.should_continue(objectID, passthrough)) {
+				if(!it->binding.should_continue(object, passthrough)) {
 					break;
 				}
 			}
 		}
 
-		template<typename T,
-		         typename = typename std::enable_if<
-		             std::is_base_of<digital, T>::value>::type>
-		inline void trigger(IDType objectID, lifetime lt) { trigger_digital(objectID, typeid(T), lt); }
+		template<
+			typename T,
+			typename = typename std::enable_if<std::is_base_of<digital, T>::value>::type
+		>
+		inline void trigger(core::ref object, lifetime lt) { trigger_digital(object, typeid(T), lt); }
 
-		template<typename T,
-		         typename = typename std::enable_if<
-		             std::is_base_of<digital, T>::value>::type>
-		inline void trigger(IDType objectID, bool state) { trigger_digital(objectID, typeid(T), state); }
+		template<
+			typename T,
+			typename = typename std::enable_if<std::is_base_of<digital, T>::value>::type
+		>
+		inline void trigger(core::ref object, bool state) { trigger_digital(object, typeid(T), state); }
+
+		template<
+			typename T,
+			typename = typename std::enable_if<std::is_base_of<digital, T>::value>::type
+		>
+		inline void trigger(bool state) { trigger_digital(core::ref(), typeid(T), state); }
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<digital, T>::value>::type
-		trigger(IDType objectID) { trigger_digital(objectID, typeid(T)); }
+		trigger(core::ref object) { trigger_digital(object, typeid(T)); }
+
+		template<typename T>
+		typename std::enable_if<std::is_base_of<digital, T>::value>::type
+		trigger() { trigger_digital(core::ref(), typeid(T)); }
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<analog, T>::value>::type
-		trigger(IDType objectID) { trigger_analog(objectID, typeid(T)); }
+		trigger(core::ref object) { trigger_analog(object, typeid(T)); }
 
-		template<typename T,
-		         typename = typename std::enable_if<
-		             std::is_base_of<analog, T>::value>::type>
-		inline void accumulate(IDType objectID, Decimal x) { accumulate_analog(objectID, typeid(T), x); }
+		template<
+			typename T,
+			typename = typename std::enable_if<std::is_base_of<analog, T>::value>::type
+		>
+		inline void accumulate(core::ref object, Decimal x) { accumulate_analog(object, typeid(T), x); }
+
+		template<
+			typename T,
+			typename = typename std::enable_if<std::is_base_of<analog, T>::value>::type
+		>
+		inline void accumulate(Decimal x) { accumulate_analog(core::ref(), typeid(T), x); }
 	};
 }

@@ -14,9 +14,7 @@ namespace polar::support::ui::control {
 		virtual float get() { return 0; }
 		virtual bool activate() { return false; }
 		virtual bool navigate(int) { return false; }
-		virtual core::ref
-		render(core::polar *engine, IDType &id, Point2, float) {
-			return engine->add(id);
+		virtual void render(core::polar *, core::ref, Point2, float) {
 		}
 	};
 
@@ -45,23 +43,15 @@ namespace polar::support::ui::control {
 			return true;
 		}
 
-		core::ref render(core::polar *engine,
-		                 IDType &id, Point2 origin,
-		                 float scale) override {
-			auto dtor = engine->add(id);
-
+		void render(core::polar *engine, core::ref object, Point2 origin, float scale) override {
 			Decimal pad = 15;
-			Point2 offset =
-			    Point2(4 * scale,
-			           0); // edgeOffset + edgePadding (SliderSprite)s
+			Point2 offset = Point2(4 * scale, 0); // edgeOffset + edgePadding (SliderSprite)s
 			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
 
-			engine->add_as<component::sprite::base, component::sprite::box>(id);
-			engine->add<component::screenposition>(id, origin + pad + offset);
-			engine->add<component::scale>(id, Point3(scale));
-			engine->add<component::color>(id, color);
-
-			return dtor;
+			engine->add_as<component::sprite::base, component::sprite::box>(object);
+			engine->add<component::screenposition>(object, origin + pad + offset);
+			engine->add<component::scale>(object, Point3(scale));
+			engine->add<component::color>(object, color);
 		}
 	};
 
@@ -85,20 +75,13 @@ namespace polar::support::ui::control {
 			return changed;
 		}
 
-		core::ref render(core::polar *engine,
-		                 IDType &id, Point2 origin,
-		                 float scale) override {
-			auto dtor = engine->add(id);
-
+		void render(core::polar *engine, core::ref object, Point2 origin, float scale) override {
 			Decimal pad = 15;
 			float alpha = float(value - min) / float(max - min);
 
-			engine->add_as<component::sprite::base, component::sprite::slider>(
-			    id, 12 * 8, 12, alpha);
-			engine->add<component::screenposition>(id, origin + pad);
-			engine->add<component::scale>(id, Point3(scale));
-
-			return dtor;
+			engine->add_as<component::sprite::base, component::sprite::slider>(object, 12 * 8, 12, alpha);
+			engine->add<component::screenposition>(object, origin + pad);
+			engine->add<component::scale>(object, Point3(scale));
 		}
 	};
 } // namespace polar::support::ui::control

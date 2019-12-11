@@ -1,19 +1,19 @@
 #pragma once
 
-#include <polar/support/action/types.h>
+#include <polar/core/ref.h>
 
 namespace polar::support::action {
 	struct digital {};
 	struct analog {};
 
-	using digital_function_t = std::function<void(IDType)>;
-	using analog_function_t  = std::function<void(IDType, Decimal)>;
-	using analog_predicate_t = std::function<bool(IDType, Decimal, Decimal)>;
-	using digital_cont_t     = std::function<bool(IDType)>;
-	using analog_cont_t      = std::function<bool(IDType, Decimal)>;
+	using digital_function_t = std::function<void(core::ref)>;
+	using analog_function_t  = std::function<void(core::ref, Decimal)>;
+	using analog_predicate_t = std::function<bool(core::ref, Decimal, Decimal)>;
+	using digital_cont_t     = std::function<bool(core::ref)>;
+	using analog_cont_t      = std::function<bool(core::ref, Decimal)>;
 
 	struct digital_data {
-		std::unordered_map<IDType, bool> states;
+		std::unordered_map<core::ref, bool> states;
 	};
 
 	struct analog_state {
@@ -24,7 +24,7 @@ namespace polar::support::action {
 	};
 
 	struct analog_data {
-		std::unordered_map<IDType, analog_state> states;
+		std::unordered_map<core::ref, analog_state> states;
 	};
 
 	using digital_map = std::unordered_map<std::type_index, digital_data>;

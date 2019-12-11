@@ -1,5 +1,6 @@
 #pragma once
 
+#include <polar/core/id.h>
 #include <polar/system/base.h>
 #include <unordered_map>
 #include <vector>
@@ -24,12 +25,12 @@ namespace polar::system {
 		};
 
 	  private:
-		std::unordered_map<IDType, tween_desc> tweens;
-		IDType nextID = 1;
+		std::unordered_map<core::id, tween_desc> tweens;
+		core::id nextID = 1;
 
 	  protected:
 		void update(DeltaTicks &dt) override {
-			std::vector<IDType> toRemove;
+			std::vector<core::id> toRemove;
 			for(auto &tween : tweens) {
 				tween.second.accumulator += dt.Seconds();
 				if(tween.second.accumulator >
