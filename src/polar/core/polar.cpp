@@ -116,7 +116,7 @@ namespace polar::core {
 	}
 
 	ref polar::add() {
-		auto r = ref(true);
+		auto r = ref(std::make_shared<destructor>());
 		auto weak = weak_ref(r);
 		r.dtor()->set([this, weak] {
 			remove(weak);

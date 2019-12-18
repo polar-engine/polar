@@ -6,11 +6,11 @@ namespace polar::support::action {
 	struct digital {};
 	struct analog {};
 
-	using digital_function_t = std::function<void(core::ref)>;
-	using analog_function_t  = std::function<void(core::ref, Decimal)>;
-	using analog_predicate_t = std::function<bool(core::ref, Decimal, Decimal)>;
-	using digital_cont_t     = std::function<bool(core::ref)>;
-	using analog_cont_t      = std::function<bool(core::ref, Decimal)>;
+	using digital_function_t = std::function<void(core::weak_ref)>;
+	using analog_function_t  = std::function<void(core::weak_ref, Decimal)>;
+	using analog_predicate_t = std::function<bool(core::weak_ref, Decimal, Decimal)>;
+	using digital_cont_t     = std::function<bool(core::weak_ref)>;
+	using analog_cont_t      = std::function<bool(core::weak_ref, Decimal)>;
 
 	struct digital_data {
 		std::unordered_map<core::ref, bool> states;
