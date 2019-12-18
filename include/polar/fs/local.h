@@ -17,8 +17,7 @@ namespace polar::fs {
 		static std::string app();
 		static std::string appdir();
 		static std::string savedgamesdir(std::string name);
-		static std::string read(std::string path, size_t offset = 0,
-		                        size_t len = 0, bool *eof = nullptr);
+		static std::string read(std::string path, size_t offset = 0, size_t len = 0, bool *eof = nullptr);
 		static bool write(std::string path, std::istream &is);
 		static uint64_t modifiedtime(std::string path);
 		static std::vector<std::string> listdir(std::string path);
@@ -41,8 +40,7 @@ namespace polar::fs {
 
 		static inline void rename(std::string oldPath, std::string newPath) {
 			if(::rename(oldPath.c_str(), newPath.c_str()) != 0) {
-				debugmanager()->fatal("failed to rename `" + oldPath +
-				                      "` to `" + newPath + '`');
+				debugmanager()->fatal("failed to rename `" + oldPath + "` to `" + newPath + '`');
 			}
 		}
 

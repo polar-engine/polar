@@ -10,28 +10,30 @@
 namespace polar::system {
 	class asset : public base {
 		using partial = support::asset::partial;
-
 	  private:
 		std::unordered_map<std::string, partial> partials;
-
+		std::optional<std::string> assets_dir;
 	  public:
-		static std::string getassetsdir() {
+		std::string getassetsdir() {
+			if(!assets_dir) {
 #if defined(_WIN32) || defined(__linux__)
-			return fs::local::appdir() + "/assets";
+				assets_dir = fs::local::appdir() + "/assets";
 #elif defined(__APPLE__)
-			return fs::local::appdir() + "/Contents/Resources/assets";
+				assets_dir = fs::local::appdir() + "/Contents/Resources/assets";
 #endif
+			}
+
+			return *assets_dir;
 		}
 
-		template<typename T> static std::string getdir() {
+		template<typename T> std::string getdir() {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::getdir requires typename of "
 			              "type polar::asset::base");
 			return getassetsdir() + "/" + polar::asset::name<T>();
 		}
 
-		template<typename T>
-		static std::string getpath(const std::string &name) {
+		template<typename T> std::string getpath(const std::string &name) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::getpath requires typename of "
 			              "type polar::asset::base");
