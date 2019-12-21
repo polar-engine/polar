@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <polar/core/debugmanager.h>
+#include <polar/core/path.h>
 #include <polar/util/debug.h>
 #include <sstream>
 #include <string>
@@ -10,42 +11,37 @@
 namespace polar::fs {
 	class local {
 	  private:
-		static void createdir_impl(std::string path);
+		static void create_dir_impl(core::path path);
 
 	  public:
 		local() = delete;
-		static std::string app();
-		static std::string appdir();
-		static std::string savedgamesdir(std::string name);
-		static std::string read(std::string path, size_t offset = 0, size_t len = 0, bool *eof = nullptr);
-		static bool write(std::string path, std::istream &is);
-		static uint64_t modifiedtime(std::string path);
-		static std::vector<std::string> listdir(std::string path);
-		static void createdir(std::string path);
+		static core::path app();
+		static core::path app_dir();
+		static core::path saved_games_dir(std::string name);
+		static std::string read(core::path path, size_t offset = 0, size_t len = 0, bool *eof = nullptr);
+		static bool write(core::path path, std::istream &is);
+		static uint64_t modified_time(core::path path);
+		static std::vector<std::string> list_dir(core::path path);
+		static void create_dir(core::path path);
 
-		static inline std::string dir_of(std::string path) {
-			std::string::size_type pos = path.find_last_of("\\/");
-			return path.substr(0, pos);
-		}
-
-		static inline bool write(std::string path, std::string s) {
+		static inline bool write(core::path path, std::string s) {
 			std::istringstream iss(s);
 			return write(path, iss);
 		}
 
-		static inline bool exists(std::string path) {
-			std::ifstream file(path);
+		static inline bool exists(core::path path) {
+			std::ifstream file(path.str());
 			return file.good();
 		}
 
-		static inline void rename(std::string oldPath, std::string newPath) {
-			if(::rename(oldPath.c_str(), newPath.c_str()) != 0) {
-				debugmanager()->fatal("failed to rename `" + oldPath + "` to `" + newPath + '`');
+		static inline void rename(core::path old_path, core::path new_path) {
+			if(::rename(old_path.data(), new_path.data()) != 0) {
+				debugmanager()->fatal("failed to rename `", old_path, "` to `", new_path, '`');
 			}
 		}
 
-		static inline void removefile(const std::string &path) {
-			remove(path.c_str());
+		static inline void remove_file(core::path path) {
+			remove(path.data());
 		}
 	};
 } // namespace polar::fs

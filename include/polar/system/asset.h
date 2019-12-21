@@ -1,6 +1,7 @@
 #pragma once
 
 #include <polar/asset/base.h>
+#include <polar/core/path.h>
 #include <polar/core/serializer.h>
 #include <polar/fs/local.h>
 #include <polar/support/asset/partial.h>
@@ -11,40 +12,37 @@ namespace polar::system {
 	class asset : public base {
 		using partial = support::asset::partial;
 	  private:
-		std::unordered_map<std::string, partial> partials;
-		std::optional<std::string> assets_dir;
+		std::unordered_map<core::path, partial> partials;
+		std::optional<core::path> assets_path;
 	  public:
-		std::string getassetsdir() {
-			if(!assets_dir) {
+		auto get_assets_path() {
+			if(!assets_path) {
 #if defined(_WIN32) || defined(__linux__)
-				assets_dir = fs::local::appdir() + "/assets";
+				assets_path = fs::local::app_dir() / "assets";
 #elif defined(__APPLE__)
-				assets_dir = fs::local::appdir() + "/Contents/Resources/assets";
+				assets_path = fs::local::app_dir() / "Contents" / "Resources" / "assets";
 #endif
 			}
-
-			return *assets_dir;
+			return *assets_path;
 		}
 
-		template<typename T> std::string getdir() {
+		template<typename T> auto get_dir() {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
-			              "polar::system::asset::getdir requires typename of "
-			              "type polar::asset::base");
-			return getassetsdir() + "/" + polar::asset::name<T>();
+			              "polar::system::asset::get_dir requires typename of type polar::asset::base");
+			return get_assets_path() / polar::asset::name<T>();
 		}
 
-		template<typename T> std::string getpath(const std::string &name) {
+		template<typename T> auto get_path(std::string name) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
-			              "polar::system::asset::getpath requires typename of "
-			              "type polar::asset::base");
-			return getdir<T>() + "/" + name + ".asset";
+			              "polar::system::asset::get_path requires typename of type polar::asset::base");
+			return get_dir<T>() / (name + ".asset");
 		}
 
 		template<typename T> auto list() {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::list requires typename of "
 			              "type polar::asset::base");
-			auto ls = fs::local::listdir(getdir<T>());
+			auto ls = fs::local::list_dir(get_dir<T>());
 			std::vector<std::string> filtered;
 			for(auto &l : ls) {
 				if(l.size() >= 6 && l.substr(l.size() - 6) == ".asset") {
@@ -79,7 +77,7 @@ namespace polar::system {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::request requires typename of "
 			              "type polar::asset::base");
-			auto path = getpath<T>(name);
+			auto path = get_path<T>(name);
 			if(partials.find(path) == partials.end()) {
 				partials.emplace(path, partial());
 				debugmanager()->verbose("async loading asset ", path);
@@ -90,16 +88,17 @@ namespace polar::system {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::forcepartial requires "
 			              "typename of type polar::asset::base");
-			auto path = getpath<T>(name);
-			if(partials.find(path) == partials.end()) {
+			auto path = get_path<T>(name);
+
+			auto it = partials.find(path);
+			if(it == partials.end()) {
 				debugmanager()->verbose("loading asset ", path);
-				partials.emplace(path, partial());
+				auto [it2, r] = partials.emplace(path, partial());
+				it = it2;
 			}
-			auto &partial = partials[path];
+			auto &partial = it->second;
 			if(!partial.done) {
-				auto test = partials[path];
-				partial.contents +=
-				    fs::local::read(path, partial.contents.size());
+				partial.contents += fs::local::read(path, partial.contents.size());
 				partial.done = true;
 				debugmanager()->verbose("loaded asset ", path);
 			}

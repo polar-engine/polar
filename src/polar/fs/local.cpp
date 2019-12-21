@@ -23,7 +23,7 @@
 #endif
 
 namespace polar::fs {
-	std::string local::app() {
+	core::path local::app() {
 #if defined(_WIN32)
 		char sz[MAX_PATH];
 		GetModuleFileNameA(NULL, sz, MAX_PATH);
@@ -38,9 +38,9 @@ namespace polar::fs {
 #endif
 	}
 
-	std::string local::appdir() {
+	core::path local::app_dir() {
 #if defined(_WIN32) || defined(__linux__)
-		return dir_of(app());
+		return app().dir();
 #elif defined(__APPLE__)
 		CFURLRef url     = CFBundleCopyBundleURL(CFBundleGetMainBundle());
 		CFStringRef path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
@@ -50,16 +50,15 @@ namespace polar::fs {
 		CFRelease(path);
 		return std::string(sz);
 #else
-		debugmanager()->fatal("polar::fs::local::appdir: not implemented");
+		debugmanager()->fatal("polar::fs::local::app_dir: not implemented");
 		return "";
 #endif
 	}
 
-	std::string local::savedgamesdir(std::string name) {
+	core::path local::saved_games_dir(std::string name) {
 #if defined(_WIN32)
 		char szPath[MAX_PATH];
-		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE,
-		                               NULL, 0, szPath);
+		auto result = SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 0, szPath);
 		if(FAILED(result)) {
 			debugmanager()->fatal("CSIDL_PERSONAL: failed to retrieve path");
 		}
@@ -73,20 +72,17 @@ namespace polar::fs {
 		struct passwd *pwd = getpwuid(getuid());
 		return std::string(pwd->pw_dir) + "/Documents/My Games/" + name;
 #else
-		debugmanager()->fatal(
-		    "polar::fs::local::savedgamesdir: not implemented");
+		debugmanager()->fatal("polar::fs::local::saved_games_dir: not implemented");
 		return "";
 #endif
 	}
 
-	std::string local::read(std::string path, size_t offset, size_t len,
-	                        bool *eof) {
-		std::ifstream file(path,
-		                   std::ios::in | std::ios::binary | std::ios::ate);
-		if(file.fail()) { debugmanager()->fatal(path + ": open"); }
+	std::string local::read(core::path path, size_t offset, size_t len, bool *eof) {
+		std::ifstream file(path.str(), std::ios::in | std::ios::binary | std::ios::ate);
+		if(file.fail()) { debugmanager()->fatal(path, ": open"); }
 
 		size_t filelen = size_t(file.tellg());
-		if(file.fail()) { debugmanager()->fatal(path + ": tellg"); }
+		if(file.fail()) { debugmanager()->fatal(path, ": tellg"); }
 
 		if(len == 0 || len > filelen - offset) {
 			len = filelen - offset;
@@ -94,73 +90,72 @@ namespace polar::fs {
 		}
 
 		file.seekg(offset, std::ios::beg);
-		if(file.fail()) { debugmanager()->fatal(path + ": seekg"); }
+		if(file.fail()) { debugmanager()->fatal(path, ": seekg"); }
 
 		auto sz = new char[static_cast<unsigned int>(len + 1)];
 		sz[len]  = '\0';
 
 		file.read(sz, static_cast<unsigned int>(len));
-		if(file.fail()) { debugmanager()->fatal(path + ": read"); }
+		if(file.fail()) { debugmanager()->fatal(path, ": read"); }
 
 		file.close();
-		if(file.fail()) { debugmanager()->fatal(path + ": close"); }
+		if(file.fail()) { debugmanager()->fatal(path, ": close"); }
 
 		std::string s(sz, len);
 		delete[] sz;
 		return s;
 	}
 
-	bool local::write(std::string path, std::istream &is) {
-		createdir(dir_of(path));
+	bool local::write(core::path path, std::istream &is) {
+		create_dir(path.dir());
 
-		std::ofstream file(path,
-		                   std::ios::out | std::ios::binary | std::ios::trunc);
+		std::ofstream file(path.str(), std::ios::out | std::ios::binary | std::ios::trunc);
 		if(file.fail()) {
-			debugmanager()->error(path + ": open");
+			debugmanager()->error(path, ": open");
 			return false;
 		}
 
 		file << is.rdbuf();
 		if(file.fail()) {
-			debugmanager()->error(path + ": write");
+			debugmanager()->error(path, ": write");
 			return false;
 		}
 
 		file.close();
 		if(file.fail()) {
-			debugmanager()->error(path + ": close");
+			debugmanager()->error(path, ": close");
 			return false;
 		}
 
 		return true;
 	}
 
-	uint64_t local::modifiedtime(std::string path) {
+	uint64_t local::modified_time(core::path path) {
 #if defined(_WIN32)
 		struct _stat st;
-		if(_stat(path.c_str(), &st) != 0) {
-			debugmanager()->fatal(path + ": failed to stat");
+		if(_stat(path.data(), &st) != 0) {
+			debugmanager()->fatal(path, ": failed to stat");
 		}
 #else
 		struct stat st;
-		if(stat(path.c_str(), &st) != 0) {
-			debugmanager()->fatal(path + ": failed to stat");
+		if(stat(path.data(), &st) != 0) {
+			debugmanager()->fatal(path, ": failed to stat");
 		}
 #endif
 		return st.st_mtime;
 	}
 
-	std::vector<std::string> local::listdir(std::string path) {
+	std::vector<std::string> local::list_dir(core::path path) {
 		std::vector<std::string> files;
 #if defined(_WIN32)
 		/* append "\*" to path and create wstring */
-		path += "\\*";
-		std::wstring wPath(path.begin(), path.end());
+		path /= "*";
+		std::wstring wPath(path.str().begin(), path.str().end());
 
 		WIN32_FIND_DATAW fdd;
 		HANDLE handle = FindFirstFileW(wPath.c_str(), &fdd);
 		if(handle == INVALID_HANDLE_VALUE) {
-			debugmanager()->fatal(path + ": failed to find first file");
+			debugmanager()->fatal(path, ": failed to find first file");
 		}
 		do {
 			if(!(fdd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
@@ -186,8 +181,7 @@ namespace polar::fs {
 		struct dirent *ep;
 		while((ep = readdir(dp))) {
 			struct stat st;
-			int result =
-			    fstatat(dirfd(dp), ep->d_name, &st, AT_SYMLINK_NOFOLLOW);
+			int result = fstatat(dirfd(dp), ep->d_name, &st, AT_SYMLINK_NOFOLLOW);
 			if(result < 0) {
 				debugmanager()->fatal(path, ": fstatat failed on ", ep->d_name);
 			}
@@ -204,15 +198,14 @@ namespace polar::fs {
 		return files;
 	}
 
-	void local::createdir_impl(std::string path) {
+	void local::create_dir_impl(core::path path) {
 #if defined(_WIN32)
-		std::wstring wPath(path.begin(), path.end());
+		std::wstring wPath(path.str().begin(), path.str().end());
 		SetLastError(ERROR_SUCCESS);
 		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
 			DWORD dwError = GetLastError();
 			if(dwError != ERROR_ALREADY_EXISTS) {
-				debugmanager()->fatal("failed to create directory ", path,
-				                      " (error ", dwError, ')');
+				debugmanager()->fatal("failed to create directory ", path, " (error ", dwError, ')');
 			}
 		}
 #elif defined(__APPLE__) || defined(__linux__)
@@ -220,21 +213,23 @@ namespace polar::fs {
 			debugmanager()->fatal("failed to create directory ", path);
 		}
 #else
-		debugmanager()->fatal("FileSystem::CreateDirImpl: not implemented");
+		debugmanager()->fatal("polar::fs::local::create_dir_impl: not implemented");
 #endif
 	}
 
-	void local::createdir(std::string path) {
+	void local::create_dir(core::path path) {
+		auto str = path.str();
+
 		size_t pos = 0;
 		do {
-			pos          = path.find_first_of("/\\", pos + 1);
-			auto subpath = path.substr(0, pos);
+			pos          = str.find_first_of("/\\", pos + 1);
+			auto subpath = str.substr(0, pos);
 
 			// work around Windows failing to create C:, E:, etc
 			if(subpath[1] != ':' || subpath.size() > 3) {
-				debugmanager()->verbose("creating directory ", path);
-				createdir_impl(subpath);
+				debugmanager()->verbose("creating directory ", subpath);
+				create_dir_impl(subpath);
 			}
-		} while(pos != path.npos);
+		} while(pos != str.npos);
 	}
 }

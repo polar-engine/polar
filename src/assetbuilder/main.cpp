@@ -28,14 +28,15 @@
 int main(int argc, char **argv) {
 	using namespace polar;
 
-	std::string path = (argc >= 2) ? argv[1] : fs::local::appdir() + "/assets";
-	std::string buildPath = (argc >= 3) ? argv[2] : path + "/build";
-	auto files            = fs::local::listdir(path);
+	auto path       = (argc >= 2) ? core::path(argv[1]) : fs::local::app_dir() / "assets";
+	auto build_path = (argc >= 3) ? core::path(argv[2]) : path / "build";
+	auto files = fs::local::list_dir(path);
 
 	std::unordered_map<
-	    std::string,
-	    std::function<std::string(const std::string &, core::serializer &)>>
-	    converters;
+		std::string,
+		std::function<std::string(const std::string &, core::serializer &)>
+	> converters;
+
 	converters["txt"] = [](const std::string &data, core::serializer &s) {
 		s << data;
 		return asset::name<std::string>();
@@ -1049,7 +1050,7 @@ int main(int argc, char **argv) {
 			if(converter != converters.end()) {
 				debugmanager()->info("found converter for `", ext, '`');
 
-				std::string data = fs::local::read(path + "/" + file);
+				std::string data = fs::local::read(path / file);
 				std::stringstream ss;
 				core::serializer serializer(ss);
 
@@ -1061,8 +1062,8 @@ int main(int argc, char **argv) {
 				file_timings.emplace_back(file, std::chrono::duration_cast<DeltaTicksBase>(file_after - file_before));
 
 				std::string name = file.substr(0, pos);
-				fs::local::createdir(buildPath + '/' + type);
-				fs::local::write(buildPath + "/" + type + "/" + name + ".asset", ss);
+				fs::local::create_dir(build_path / type);
+				fs::local::write(build_path / type / (name + ".asset"), ss);
 			} else {
 				debugmanager()->warning(file, ": no appropriate converter found");
 			}

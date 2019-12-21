@@ -7,13 +7,12 @@ namespace polar::core {
 
 	void debugmanager_class::msgbox(std::string title, std::string msg) {
 #if defined(_WIN32)
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.data(), msg.data(),
-		                         NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.data(), msg.data(), NULL);
 #endif
 		std::cerr << title << ": " << msg << std::endl;
 	}
+
 	debugmanager_class::debugmanager_class(priority_t priority)
-	    : file(fs::local::appdir() + "/log.txt",
-	           std::ios::out | std::ios::binary | std::ios::trunc),
-	      priority(priority) {}
+	  : file((fs::local::app_dir() / "log.txt").str(), std::ios::out | std::ios::binary | std::ios::trunc),
+	    priority(priority) {}
 }
