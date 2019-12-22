@@ -1,26 +1,32 @@
 #pragma once
 
+#include <boost/container/small_vector.hpp>
 #include <polar/util/getline.h>
 #include <sstream>
 
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#define POLAR_PATH_MAX MAX_PATH
+#elif defined(_POSIX_VERSION)
+#include <limits.h>
+#define POLAR_PATH_MAX PATH_MAX
+#endif
+
 namespace polar::core {
+	struct path_component {
+		size_t index;
+		size_t count;
+	};
+
 	class path {
 	  private:
-		std::vector<std::string> _components;
+		boost::container::small_vector<path_component, 16> _components;
 		std::string _str;
-
-		void regen_str() {
-			std::ostringstream os;
-			for(size_t i = 0; i < _components.size(); ++i) {
-				if(i > 0) {
-					os << '/';
-				}
-				os << _components[i];
-			}
-			_str = os.str();
-		}
 	  public:
 		path(std::string str) {
+			_str.reserve(POLAR_PATH_MAX);
+
 			std::istringstream is(str);
 
 			std::string component;
@@ -45,16 +51,25 @@ namespace polar::core {
 			return p;
 		}
 
-		void push_back(std::string s) {
-			_components.emplace_back(s);
-			regen_str();
+		void push_back(std::string component) {
+			if(!_components.empty()) {
+				_str.push_back('/');
+			}
+
+			auto index = str().size();
+			_str += component;
+
+			_components.emplace_back(path_component{index, component.size()});
 		}
 
 		std::string pop_back() {
 			auto back = _components.back();
 			_components.pop_back();
-			regen_str();
-			return back;
+
+			auto substr = _str.substr(back.index, back.count);
+			_str.erase(back.index - 1, back.count);
+
+			return substr;
 		}
 
 		friend bool operator==(const path &lhs, const path &rhs) {

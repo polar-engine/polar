@@ -153,7 +153,7 @@ namespace polar::fs {
 		std::wstring wPath(path.str().begin(), path.str().end());
 
 		WIN32_FIND_DATAW fdd;
-		HANDLE handle = FindFirstFileW(wPath.c_str(), &fdd);
+		HANDLE handle = FindFirstFileW(wPath.data(), &fdd);
 		if(handle == INVALID_HANDLE_VALUE) {
 			debugmanager()->fatal(path, ": failed to find first file");
 		}
@@ -173,7 +173,7 @@ namespace polar::fs {
 
 		FindClose(handle);
 #elif defined(__APPLE__) || defined(__linux__)
-		DIR *dp = opendir(path.c_str());
+		DIR *dp = opendir(path.data());
 		if(dp == nullptr) {
 			debugmanager()->fatal(path, ": failed to open directory");
 		}
@@ -202,14 +202,14 @@ namespace polar::fs {
 #if defined(_WIN32)
 		std::wstring wPath(path.str().begin(), path.str().end());
 		SetLastError(ERROR_SUCCESS);
-		if(::CreateDirectoryW(wPath.c_str(), NULL) == 0) {
+		if(::CreateDirectoryW(wPath.data(), NULL) == 0) {
 			DWORD dwError = GetLastError();
 			if(dwError != ERROR_ALREADY_EXISTS) {
 				debugmanager()->fatal("failed to create directory ", path, " (error ", dwError, ')');
 			}
 		}
 #elif defined(__APPLE__) || defined(__linux__)
-		if(mkdir(path.c_str(), 0755) == -1 && errno != EEXIST) {
+		if(mkdir(path.data(), 0755) == -1 && errno != EEXIST) {
 			debugmanager()->fatal("failed to create directory ", path);
 		}
 #else

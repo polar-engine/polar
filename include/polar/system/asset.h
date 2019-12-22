@@ -13,17 +13,20 @@ namespace polar::system {
 		using partial = support::asset::partial;
 	  private:
 		std::unordered_map<core::path, partial> partials;
-		std::optional<core::path> assets_path;
+
+		core::path assets_path = "";
+		bool assets_path_valid = false;
 	  public:
-		auto get_assets_path() {
-			if(!assets_path) {
+		core::path & get_assets_path() {
+			if(!assets_path_valid) {
 #if defined(_WIN32) || defined(__linux__)
 				assets_path = fs::local::app_dir() / "assets";
 #elif defined(__APPLE__)
 				assets_path = fs::local::app_dir() / "Contents" / "Resources" / "assets";
 #endif
+				assets_path_valid = true;
 			}
-			return *assets_path;
+			return assets_path;
 		}
 
 		template<typename T> auto get_dir() {
@@ -35,7 +38,9 @@ namespace polar::system {
 		template<typename T> auto get_path(std::string name) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::get_path requires typename of type polar::asset::base");
-			return get_dir<T>() / (name + ".asset");
+			auto a = get_dir<T>();
+			a /= name + ".asset";
+			return a;
 		}
 
 		template<typename T> auto list() {
