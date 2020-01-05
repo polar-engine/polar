@@ -6,7 +6,9 @@
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
+#undef NOMINMAX
 #define POLAR_PATH_MAX MAX_PATH
 #elif defined(_POSIX_VERSION)
 #include <limits.h>
@@ -67,7 +69,7 @@ namespace polar::core {
 			_components.pop_back();
 
 			auto substr = _str.substr(back.index, back.count);
-			_str.erase(back.index - 1, back.count);
+			_str.erase(back.index - 1, back.count + 1);
 
 			return substr;
 		}
