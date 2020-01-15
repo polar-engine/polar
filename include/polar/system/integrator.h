@@ -3,7 +3,8 @@
 #include <atomic>
 #include <cstdint>
 #include <polar/support/integrator/integrable.h>
-#include <polar/system/base.h>
+#include <polar/support/sched/clock/integrator.h>
+#include <polar/system/sched.h>
 
 namespace polar::system {
 	class integrator : public base {
@@ -12,13 +13,13 @@ namespace polar::system {
 		void tick(DeltaTicks::seconds_type);
 
 	  protected:
-		void update(DeltaTicks &) override;
-
+		void init() override {
+			auto sch = engine->get<sched>().lock();
+			keep(sch->bind<support::sched::clock::integrator>([this] (auto dt) {
+				tick(dt.Seconds());
+			}));
+		}
 	  public:
-		int fps             = 50;
-		DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
-		std::atomic_uint_fast32_t deltaMicroseconds = {0};
-
 		static bool supported() { return true; }
 		integrator(core::polar *engine) : base(engine) {}
 
@@ -26,6 +27,7 @@ namespace polar::system {
 
 		virtual accessor_list accessors() const override {
 			accessor_list l;
+			/*
 			l.emplace_back("fps", make_accessor<integrator>(
 				[] (integrator *ptr) {
 					return ptr->fps;
@@ -35,12 +37,9 @@ namespace polar::system {
 					ptr->timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / x);
 				}
 			));
+			*/
 			return l;
 		}
-
-		const inline DeltaTicks &getaccumulator() const { return accumulator; }
-
-		inline void force_tick() { tick(timestep.Seconds()); }
 
 		void revert_by(size_t = 1);
 		void revert_to(size_t = 0);

@@ -4,18 +4,6 @@
 #include <polar/system/integrator.h>
 
 namespace polar::system {
-	void integrator::update(DeltaTicks &dt) {
-		accumulator += dt;
-		if(accumulator.Seconds() > 1.0f) { accumulator.SetSeconds(1.0f); }
-
-		while(accumulator >= timestep) {
-			tick(timestep.Seconds());
-			accumulator -= timestep;
-		}
-
-		deltaMicroseconds = static_cast<uint_fast32_t>(accumulator.Seconds() * 1000000.0f);
-	}
-
 	void integrator::tick(DeltaTicks::seconds_type seconds) {
 		for(auto it = engine->objects.left.begin();
 		    it != engine->objects.left.end(); ++it) {

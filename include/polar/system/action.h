@@ -3,7 +3,9 @@
 #include <boost/circular_buffer.hpp>
 #include <polar/support/action/binding.h>
 #include <polar/support/action/lifetime.h>
+#include <polar/support/sched/clock/integrator.h>
 #include <polar/system/base.h>
+#include <polar/system/sched.h>
 
 namespace polar::system {
 	class action : public system::base {
@@ -25,10 +27,6 @@ namespace polar::system {
 		using analog_data  = support::action::analog_data;
 		using digital_map  = support::action::digital_map;
 		using analog_map   = support::action::analog_map;
-
-		const int fps = 50;
-		const DeltaTicks timestep = DeltaTicks(ENGINE_TICKS_PER_SECOND / fps);
-		DeltaTicks accumulator;
 
 		struct frame_action {
 			core::ref object;
@@ -65,14 +63,11 @@ namespace polar::system {
 
 		inline void force_tick() { tick(); }
 
-		void update(DeltaTicks &dt) override {
-			accumulator += dt;
-			if(accumulator.Seconds() > 1.0f) { accumulator.SetSeconds(1.0f); }
-
-			while(accumulator >= timestep) {
+		void init() override {
+			auto sch = engine->get<sched>().lock();
+			keep(sch->bind<support::sched::clock::integrator>([this] (auto) {
 				tick();
-				accumulator -= timestep;
-			}
+			}));
 		}
 
 		void tick() {

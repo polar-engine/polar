@@ -22,6 +22,7 @@
 #include <polar/system/asset.h>
 #include <polar/system/integrator.h>
 #include <polar/system/renderer/gl32.h>
+#include <polar/system/sched.h>
 #include <polar/system/vr.h>
 
 #if defined(_WIN32)
@@ -571,8 +572,8 @@ namespace polar::system::renderer {
 			engine->add<component::scale>(fps_object, Point3(0.125));
 		}
 
-		auto integrator_s = engine->get<integrator>().lock(); // need to check if we have an integrator or not
-		float delta       = integrator_s->deltaMicroseconds / 1000000.0f;
+		auto sch = engine->get<sched>().lock();
+		float delta = sch->delta<support::sched::clock::integrator>();
 
 		Mat4 cameraView(1);
 		auto pairRight =
