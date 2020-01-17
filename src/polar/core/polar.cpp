@@ -27,27 +27,27 @@ namespace polar::core {
 				std::cin.clear();
 #endif
 			} else if(arg == "-trace") {
-				debugmanager()->priority = priority_t::trace;
+				log()->priority = priority_t::trace;
 			} else if(arg == "-debug") {
-				debugmanager()->priority = priority_t::debug;
+				log()->priority = priority_t::debug;
 			} else if(arg == "-verbose") {
-				debugmanager()->priority = priority_t::verbose;
+				log()->priority = priority_t::verbose;
 			} else if(arg == "-info") {
-				debugmanager()->priority = priority_t::info;
+				log()->priority = priority_t::info;
 			} else if(arg == "-notice") {
-				debugmanager()->priority = priority_t::notice;
+				log()->priority = priority_t::notice;
 			} else if(arg == "-warning") {
-				debugmanager()->priority = priority_t::warning;
+				log()->priority = priority_t::warning;
 			} else if(arg == "-error") {
-				debugmanager()->priority = priority_t::error;
+				log()->priority = priority_t::error;
 			} else if(arg == "-critical") {
-				debugmanager()->priority = priority_t::critical;
+				log()->priority = priority_t::critical;
 			} else if(arg == "-fatal") {
-				debugmanager()->priority = priority_t::fatal;
+				log()->priority = priority_t::fatal;
 			}
 		}
 
-		debugmanager()->verbose("built on ", buildinfo_date(), " at ",
+		log()->verbose("built on ", buildinfo_date(), " at ",
 		                        buildinfo_time());
 	}
 
@@ -74,7 +74,7 @@ namespace polar::core {
 				then += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(dtb);
 				DeltaTicks dt(dtb);
 
-				debugmanager()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
+				log()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
 
 				for(auto &state : stack) { state.update(dt); }
 
@@ -85,23 +85,23 @@ namespace polar::core {
 					for(auto &action : actions) {
 						switch(action.type) {
 						case StackActionType::Push:
-							debugmanager()->debug("pushing state: ", action.name);
+							log()->debug("pushing state: ", action.name);
 							stack.emplace_back(action.name, this);
 							{
-								debugmanager()->debug("calling state initializer");
+								log()->debug("calling state initializer");
 								state &st = stack.back();
-								debugmanager()->debug("calling state initializer");
+								log()->debug("calling state initializer");
 								states[action.name].first(this, st);
 							}
-							debugmanager()->debug("pushed state");
+							log()->debug("pushed state");
 							stack.back().init();
 							break;
 						case StackActionType::Pop: {
 							auto &state = stack.back();
-							debugmanager()->debug("popping state: ", state.name);
+							log()->debug("popping state: ", state.name);
 							states[state.name].second(this, state);
 							stack.pop_back();
-							debugmanager()->debug("popped state");
+							log()->debug("popped state");
 							break;
 						}
 						case StackActionType::Quit:
@@ -129,10 +129,10 @@ namespace polar::core {
 	}
 
 	void polar::insert(weak_ref object, std::shared_ptr<component::base> component, std::type_index ti) {
-		debugmanager()->trace("inserting component: ", ti.name());
+		log()->trace("inserting component: ", ti.name());
 		objects.insert(bimap::value_type(object, ti, component));
 		for(auto &state : stack) { state.component_added(object, ti, component); }
-		debugmanager()->trace("inserted component");
+		log()->trace("inserted component");
 	}
 
 	std::weak_ptr<system::base> polar::get(std::type_index ti) {

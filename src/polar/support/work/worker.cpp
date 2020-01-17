@@ -1,4 +1,4 @@
-#include <polar/core/debugmanager.h>
+#include <polar/core/log.h>
 #include <polar/support/work/worker.h>
 
 namespace polar::support::work {
@@ -20,8 +20,7 @@ namespace polar::support::work {
 							job.fn();
 							break;
 						case job_type::stop:
-							debugmanager()->verbose(
-							    "worker received stop command");
+							log()->verbose("worker received stop command");
 							return;
 						}
 					}

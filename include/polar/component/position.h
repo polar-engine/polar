@@ -2,7 +2,6 @@
 
 #include <polar/component/base.h>
 #include <polar/property/integrable.h>
-#include <polar/core/debugmanager.h>
 
 namespace polar::component {
 	class position : public base {

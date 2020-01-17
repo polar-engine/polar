@@ -342,7 +342,7 @@ namespace polar::system {
 
 		template<bool source = true>
 		void trigger_digital(core::ref object, std::type_index ti, lifetime lt) {
-			debugmanager()->trace("triggering digital ", ti.name(), " for ", lt);
+			log()->trace("triggering digital ", ti.name(), " for ", lt);
 
 			auto sourceObjectID = object;
 
@@ -443,7 +443,7 @@ namespace polar::system {
 
 			auto &data = cf.analogs.at(ti);
 
-			debugmanager()->trace("triggering analog ", ti.name(), '(', data.states[object].value, ')');
+			log()->trace("triggering analog ", ti.name(), '(', data.states[object].value, ')');
 
 			auto pair = bindings.get<tag_ti>().equal_range(ti);
 			for(auto it = pair.first; it != pair.second; ++it) {

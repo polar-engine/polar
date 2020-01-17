@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL.h>
-#include <polar/core/debugmanager.h>
+#include <polar/core/log.h>
 #include <polar/support/input/key.h>
 #include <polar/util/debug.h>
 #include <polar/util/gl.h>
@@ -15,9 +15,9 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	SDL_ClearError();
 	if(err[0] != '\0') {
-		polar::debugmanager()->warning("SDL: ", err);
-		polar::debugmanager()->debug(file, ' ', line);
-		polar::debugmanager()->trace(code);
+		polar::log()->warning("SDL: ", err);
+		polar::log()->debug(file, ' ', line);
+		polar::log()->trace(code);
 	}
 	return err[0] == '\0';
 }

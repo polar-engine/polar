@@ -1,15 +1,15 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <polar/core/debugmanager.h>
+#include <polar/core/log.h>
 #include <polar/util/debug.h>
 
 inline bool _GL_real(const char *file, const long line, const char *code) {
 	GLenum err = glGetError();
 	if(err != GL_NO_ERROR) {
-		polar::debugmanager()->warning("OpenGL: ", err);
-		polar::debugmanager()->debug(file, ' ', line);
-		polar::debugmanager()->trace(code);
+		polar::log()->warning("OpenGL: ", err);
+		polar::log()->debug(file, ' ', line);
+		polar::log()->trace(code);
 	}
 	return err == GL_NO_ERROR;
 }

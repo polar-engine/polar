@@ -37,7 +37,7 @@ add_definitions(
 )
 
 set(POLAR_SRCS
-	src/polar/core/debugmanager.cpp
+	src/polar/core/log.cpp
 	src/polar/core/polar.cpp
 	src/polar/core/ref.cpp
 	src/polar/core/state.cpp

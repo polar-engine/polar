@@ -31,7 +31,7 @@ namespace polar::system {
 							auto b = search->second->operator()(engine, {obj1, phys1->detector},
 							                                            {obj2, phys2->detector});
 							if(b) {
-								//debugmanager()->info("collision!");
+								//log()->info("collision!");
 								for(auto &r : phys1->responders) {
 									r->respond(engine, obj1, uint16_t(seconds) * ENGINE_TICKS_PER_SECOND);
 								}

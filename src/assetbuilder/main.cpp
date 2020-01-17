@@ -17,7 +17,7 @@
 #include <polar/asset/model.h>
 #include <polar/asset/shaderprogram.h>
 #include <polar/asset/text.h>
-#include <polar/core/debugmanager.h>
+#include <polar/core/log.h>
 #include <polar/core/deltaticks.h>
 #include <polar/fs/local.h>
 #include <polar/util/debug.h>
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		             "\x0D\x0A"
 		             "\x1A"
 		             "\xA") {
-			debugmanager()->fatal("invalid PNG signature");
+			log()->fatal("invalid PNG signature");
 		}
 
 		int zResult = Z_OK;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 			iss.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
 			dataSize = swapbe(dataSize);
 			if(dataSize > (1u << 31)) {
-				debugmanager()->fatal("chunk data size exceeds 2^31 bytes");
+				log()->fatal("chunk data size exceeds 2^31 bytes");
 			}
 
 			std::string chunkType(4, ' ');
@@ -91,53 +91,53 @@ int main(int argc, char **argv) {
 					iss.read(reinterpret_cast<char *>(&asset.width), sizeof(asset.width));
 					asset.width = swapbe(asset.width);
 					if(asset.width == 0) {
-						debugmanager()->fatal("image width cannot be 0");
+						log()->fatal("image width cannot be 0");
 					}
 					if(asset.width > (1u << 31)) {
-						debugmanager()->fatal("image width exceeds 2^31 bytes");
+						log()->fatal("image width exceeds 2^31 bytes");
 					}
 
 					iss.read(reinterpret_cast<char *>(&asset.height), sizeof(asset.height));
 					asset.height = swapbe(asset.height);
 					if(asset.height == 0) {
-						debugmanager()->fatal("image height cannot be 0");
+						log()->fatal("image height cannot be 0");
 					}
 					if(asset.height > (1u << 31)) {
-						debugmanager()->fatal("image height exceeds 2^31 bytes");
+						log()->fatal("image height exceeds 2^31 bytes");
 					}
 
 					uint8_t bitDepth;
 					iss.read(reinterpret_cast<char *>(&bitDepth), sizeof(bitDepth));
 					if(bitDepth != 8) {
-						debugmanager()->fatal("bit depth must be 8");
+						log()->fatal("bit depth must be 8");
 					}
 
 					uint8_t colorType;
 					iss.read(reinterpret_cast<char *>(&colorType), sizeof(colorType));
 					if(colorType & 0x1) {
-						debugmanager()->fatal("color type cannot be palette");
+						log()->fatal("color type cannot be palette");
 					}
 					if(!(colorType & 0x2)) {
-						debugmanager()->fatal("color type must be true color");
+						log()->fatal("color type must be true color");
 					}
 					numChannels = (colorType & 0x4) ? 4 : 3;
 
 					uint8_t compressionMethod;
 					iss.read(reinterpret_cast<char *>(&compressionMethod), sizeof(compressionMethod));
 					if(compressionMethod != 0) {
-						debugmanager()->fatal("compression method must be 0");
+						log()->fatal("compression method must be 0");
 					}
 
 					uint8_t filterMethod;
 					iss.read(reinterpret_cast<char *>(&filterMethod), sizeof(filterMethod));
 					if(filterMethod != 0) {
-						debugmanager()->fatal("filter method must be 0");
+						log()->fatal("filter method must be 0");
 					}
 
 					uint8_t interlaceMethod;
 					iss.read(reinterpret_cast<char *>(&interlaceMethod), sizeof(interlaceMethod));
 					if(interlaceMethod != 0) {
-						debugmanager()->fatal("interlace method must be 0");
+						log()->fatal("interlace method must be 0");
 					}
 
 					// ignore CRC
@@ -156,10 +156,10 @@ int main(int argc, char **argv) {
 
 					zResult = inflateInit(&inflateStream);
 					if(zResult != Z_OK) {
-						debugmanager()->fatal("inflateInit failed");
+						log()->fatal("inflateInit failed");
 					}
 				} else {
-					debugmanager()->fatal("first chunk must be IHDR");
+					log()->fatal("first chunk must be IHDR");
 				}
 			} else {
 				if(chunkType == "IDAT") {
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
 
 					zResult = inflate(&inflateStream, Z_NO_FLUSH);
 					if(zResult != Z_OK && zResult != Z_STREAM_END) {
-						debugmanager()->fatal("inflate failed (zResult = ", zResult, ')');
+						log()->fatal("inflate failed (zResult = ", zResult, ')');
 					}
 
 					// ignore CRC
@@ -179,13 +179,13 @@ int main(int argc, char **argv) {
 				} else if(chunkType == "IEND") {
 					zResult = inflateEnd(&inflateStream);
 					if(zResult != Z_OK) {
-						debugmanager()->fatal("inflateEnd failed (zResult = ", zResult, ')');
+						log()->fatal("inflateEnd failed (zResult = ", zResult, ')');
 					}
 
 					size_t pos = 0;
 					for(uint32_t scanline = 0; scanline < asset.height; ++scanline) {
 						uint8_t filterType = filteredBytes[pos++];
-						//debugmanager()->info(int(filterType));
+						//log()->info(int(filterType));
 
 						for(uint32_t column = 0; column < asset.width; ++column) {
 							asset::imagepixel &pixel = asset.pixels[scanline * asset.width + column];
@@ -260,7 +260,7 @@ int main(int argc, char **argv) {
 									pixel[component] = filteredBytes[pos++] + paethPredictor(left, up, upperLeft);
 									break;
 								default:
-									debugmanager()->fatal("png: unsupported filter type (", int(filterType), ')');
+									log()->fatal("png: unsupported filter type (", int(filterType), ')');
 									break;
 								}
 							}
@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
 				} else {
 					std::stringstream ss;
 					ss << "unrecognized chunk type `" << chunkType << '`';
-					debugmanager()->fatal(ss.str());
+					log()->fatal(ss.str());
 				}
 			}
 		}
@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
 		std::string riffHeader(4, ' ');
 		iss.read(&riffHeader[0], 4);
 		if(riffHeader != "RIFF") {
-			debugmanager()->fatal("missing riff header");
+			log()->fatal("missing riff header");
 		}
 
 		uint32_t riffSize;
@@ -311,12 +311,12 @@ int main(int argc, char **argv) {
 		uint32_t riffSizeAccum = 0;
 
 		if(riffSize - riffSizeAccum < 4) {
-			debugmanager()->fatal("wave header does not fit into riff size");
+			log()->fatal("wave header does not fit into riff size");
 		}
 		std::string waveHeader(4, ' ');
 		iss.read(&waveHeader[0], 4);
 		if(waveHeader != "WAVE") {
-			debugmanager()->fatal("missing wave header");
+			log()->fatal("missing wave header");
 		}
 		riffSizeAccum += 4;
 
@@ -324,8 +324,7 @@ int main(int argc, char **argv) {
 
 		while(riffSize - riffSizeAccum > 0) {
 			if(riffSize - riffSizeAccum < 8) {
-				debugmanager()->fatal(
-				    "chunk header and size do not fit into riff size");
+				log()->fatal("chunk header and size do not fit into riff size");
 			}
 
 			std::string chunkHeader(4, ' ');
@@ -338,13 +337,12 @@ int main(int argc, char **argv) {
 			riffSizeAccum += sizeof(chunkSize);
 
 			if(riffSize - riffSizeAccum < chunkSize) {
-				debugmanager()->fatal(
-				    "data chunk size does not fit into riff size");
+				log()->fatal("data chunk size does not fit into riff size");
 			}
 
 			if(chunkHeader == "fmt ") {
 				if(chunkSize != 16) {
-					debugmanager()->fatal("format chunk size must be 16 (PCM)");
+					log()->fatal("format chunk size must be 16 (PCM)");
 				}
 
 				uint16_t formatTag;
@@ -352,7 +350,7 @@ int main(int argc, char **argv) {
 				         sizeof(formatTag));
 				formatTag = swaple(formatTag);
 				if(formatTag != 1) {
-					debugmanager()->fatal("format tag must be PCM");
+					log()->fatal("format tag must be PCM");
 				}
 				riffSizeAccum += sizeof(formatTag);
 
@@ -361,7 +359,7 @@ int main(int argc, char **argv) {
 				         sizeof(numChannels));
 				numChannels = swaple(numChannels);
 				if(numChannels != 1 && numChannels != 2) {
-					debugmanager()->fatal("number of channels must be 1 or 2");
+					log()->fatal("number of channels must be 1 or 2");
 				}
 				riffSizeAccum += sizeof(numChannels);
 				asset.stereo = numChannels == 2;
@@ -389,17 +387,17 @@ int main(int argc, char **argv) {
 				         sizeof(bitsPerSample));
 				bitsPerSample = swaple(bitsPerSample);
 				if(bitsPerSample != 16 && bitsPerSample != 24) {
-					debugmanager()->fatal("bits per sample must be 16 or 24");
+					log()->fatal("bits per sample must be 16 or 24");
 				}
 				riffSizeAccum += sizeof(bitsPerSample);
 
 				uint8_t bytesPerSample = bitsPerSample >> 3;
 
 				if(blockAlign != numChannels * bytesPerSample) {
-					debugmanager()->fatal("block align is incorrect");
+					log()->fatal("block align is incorrect");
 				}
 				if(avgByteRate != sampleRate * blockAlign) {
-					debugmanager()->fatal("average byte rate is incorrect");
+					log()->fatal("average byte rate is incorrect");
 				}
 			} else if(chunkHeader == "data") {
 				std::string data(chunkSize, ' ');
@@ -417,8 +415,7 @@ int main(int argc, char **argv) {
 
 				if(chunkSize % 2 == 1) {
 					if(riffSize - riffSizeAccum < 1) {
-						debugmanager()->fatal(
-						    "data padding byte does not fit into riff size");
+						log()->fatal("data padding byte does not fit into riff size");
 					}
 					iss.ignore(1);
 					++riffSizeAccum;
@@ -438,7 +435,7 @@ int main(int argc, char **argv) {
 					pos = swaple(pos);
 
 					asset.loopPoint = pos;
-					debugmanager()->info("pos = ", pos);
+					log()->info("pos = ", pos);
 
 					iss.ignore(4);
 					iss.ignore(4);
@@ -472,7 +469,7 @@ int main(int argc, char **argv) {
 				std::stringstream ss;
 				ss << "unrecognized chunk header `" << chunkHeader << "` at 0x"
 				   << std::hex << riffSizeAccum;
-				debugmanager()->fatal(ss.str());
+				log()->fatal(ss.str());
 			}
 		}
 
@@ -719,7 +716,7 @@ int main(int argc, char **argv) {
 					std::string directive;
 					std::getline(ls, directive, ' ');
 					if(!ls.good() && directive.empty()) {
-						debugmanager()->fatal(iLine, ": missing directive");
+						log()->fatal(iLine, ": missing directive");
 					}
 
 					std::vector<std::string> args;
@@ -731,8 +728,7 @@ int main(int argc, char **argv) {
 
 					if(directive == "shader") { /* shader stage */
 						if(args.empty()) {
-							debugmanager()->fatal(iLine,
-							                      ": missing shader type");
+							log()->fatal(iLine, ": missing shader type");
 						}
 
 						if(args[0] == "vertex") {
@@ -744,115 +740,95 @@ int main(int argc, char **argv) {
 							    support::shader::shadertype::fragment,
 							    header.str());
 						} else {
-							debugmanager()->error(
-							    iLine, ": unknown shader type `", args[0], '`');
+							log()->error(iLine, ": unknown shader type `", args[0], '`');
 						}
 					} else if(directive == "uniform") { /* uniform variable */
 						if(args.empty()) {
-							debugmanager()->fatal(iLine,
-							                      ": missing uniform type");
+							log()->fatal(iLine, ": missing uniform type");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(iLine,
-							                      ": missing uniform name");
+							log()->fatal(iLine, ": missing uniform name");
 						}
 						asset.uniforms.emplace_back(args[1]);
 						uniforms.emplace_back(args[0], args[1]);
 					} else if(directive == "attrib") { /* vertex attribute*/
 						if(args.empty()) {
-							debugmanager()->fatal(iLine,
-							                      ": missing attribute type");
+							log()->fatal(iLine, ": missing attribute type");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(iLine,
-							                      ": missing attribute name");
+							log()->fatal(iLine, ": missing attribute name");
 						}
 						attribs.emplace_back(args[0], args[1]);
 					} else if(directive ==
 					          "varying") { /* vertex->fragment interpolable */
 						if(args.empty()) {
-							debugmanager()->fatal(
-							    iLine,
-							    ": missing varying interpolation method");
+							log()->fatal(iLine, ": missing varying interpolation method");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(iLine,
-							                      ": missing varying type");
+							log()->fatal(iLine, ": missing varying type");
 						}
 						if(args.size() < 3) {
-							debugmanager()->fatal(iLine,
-							                      ": missing varying name");
+							log()->fatal(iLine, ": missing varying name");
 						}
 						varyings.emplace_back(args[0], args[1], args[2]);
 					} else if(directive ==
 					          "in") { /* input from previous pipeline stage */
 						if(args.empty()) {
-							debugmanager()->fatal(
-							    iLine, ": missing program input key");
+							log()->fatal(iLine, ": missing program input key");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(
-							    iLine, ": missing program input name");
+							log()->fatal(iLine, ": missing program input name");
 						}
 						asset.ins.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "gin") { /* global input */
 						if(args.empty()) {
-							debugmanager()->fatal(
-							    iLine, ": missing program input key");
+							log()->fatal(iLine, ": missing program input key");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(
-							    iLine, ": missing program input name");
+							log()->fatal(iLine, ": missing program input name");
 						}
 						asset.globalIns.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive ==
 					          "out") { /* output to next pipeline stage */
 						if(args.empty()) {
-							debugmanager()->fatal(
-							    iLine, ": missing program output type");
+							log()->fatal(iLine, ": missing program output type");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(
-							    iLine, ": missing program output key");
+							log()->fatal(iLine, ": missing program output key");
 						}
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine, ": missing program output name");
+								log()->fatal(iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgba8, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb16f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine, ": missing program output name");
+								log()->fatal(iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgb16f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba16f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine, ": missing program output name");
+								log()->fatal(iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgba16f, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb32f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine, ": missing program output name");
+								log()->fatal(iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgb32f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba32f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine, ": missing program output name");
+								log()->fatal(iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgba32f, args[1]);
@@ -861,60 +837,47 @@ int main(int argc, char **argv) {
 							asset.outs.emplace_back(
 							    support::shader::outputtype::depth, args[1]);
 						} else {
-							debugmanager()->error(
-							    iLine, ": unknown program output type `",
+							log()->error(iLine, ": unknown program output type `",
 							    args[0], '`');
 						}
 					} else if(directive == "gout") { /* global output */
 						if(args.empty()) {
-							debugmanager()->fatal(
-							    iLine, ": missing program global output type");
+							log()->fatal(iLine, ": missing program global output type");
 						}
 						if(args.size() < 2) {
-							debugmanager()->fatal(
-							    iLine, ": missing program global output key");
+							log()->fatal(iLine, ": missing program global output key");
 						}
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine,
-								    ": missing program global output name");
+								log()->fatal(iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgba8, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb16f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine,
-								    ": missing program global output name");
+								log()->fatal(iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgb16f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba16f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine,
-								    ": missing program global output name");
+								log()->fatal(iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgba16f, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb32f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine,
-								    ": missing program global output name");
+								log()->fatal(iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgb32f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba32f") {
 							if(args.size() < 3) {
-								debugmanager()->fatal(
-								    iLine,
-								    ": missing program global output name");
+								log()->fatal(iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgba32f, args[1]);
@@ -923,13 +886,11 @@ int main(int argc, char **argv) {
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::depth, args[1]);
 						} else {
-							debugmanager()->error(
-							    iLine, ": unknown program global output type `",
+							log()->error(iLine, ": unknown program global output type `",
 							    args[0], '`');
 						}
 					} else {
-						debugmanager()->error(iLine, ": unknown directive `",
-						                      directive, '`');
+						log()->error(iLine, ": unknown directive `", directive, '`');
 					}
 				} else {
 					if(asset.shaders.empty()) {
@@ -1042,13 +1003,13 @@ int main(int argc, char **argv) {
 	std::vector<std::pair<std::string, DeltaTicksBase>> file_timings;
 
 	for(auto &file : files) {
-		debugmanager()->info("processing `", file, '`');
+		log()->info("processing `", file, '`');
 		auto pos = file.find_last_of('.');
 		if(pos != file.npos && pos < file.length() - 1) {
 			std::string ext = file.substr(pos + 1);
 			auto converter  = converters.find(ext);
 			if(converter != converters.end()) {
-				debugmanager()->info("found converter for `", ext, '`');
+				log()->info("found converter for `", ext, '`');
 
 				std::string data = fs::local::read(path / file);
 				std::stringstream ss;
@@ -1065,7 +1026,7 @@ int main(int argc, char **argv) {
 				fs::local::create_dir(build_path / type);
 				fs::local::write(build_path / type / (name + ".asset"), ss);
 			} else {
-				debugmanager()->warning(file, ": no appropriate converter found");
+				log()->warning(file, ": no appropriate converter found");
 			}
 		}
 	}
@@ -1074,12 +1035,12 @@ int main(int argc, char **argv) {
 
 	for(auto &timing : file_timings) {
 		DeltaTicks dt(timing.second);
-		debugmanager()->info(timing.first, " took ", dt.Seconds(), " seconds to convert");
+		log()->info(timing.first, " took ", dt.Seconds(), " seconds to convert");
 	}
 
 	DeltaTicksBase dtb = std::chrono::duration_cast<DeltaTicksBase>(after - before);
 	DeltaTicks dt(dtb);
-	debugmanager()->info("assetbuilder took ", dt.Seconds(), " seconds to run");
+	log()->info("assetbuilder took ", dt.Seconds(), " seconds to run");
 
 	return 0;
 }

@@ -39,10 +39,10 @@ namespace polar::system {
 
 		void load() {
 			if(!FS::exists(path)) {
-				debugmanager()->verbose("loading ", path, "... not found");
+				log()->verbose("loading ", path, "... not found");
 				return;
 			}
-			debugmanager()->verbose("loading ", path, "... success");
+			log()->verbose("loading ", path, "... success");
 
 			std::string s = FS::read(path);
 
@@ -65,7 +65,7 @@ namespace polar::system {
 				oss << pair.first << ' ' << pair.second << "\r\n";
 			}
 			auto result = FS::write(path, oss.str());
-			debugmanager()->verbose("saving ", path, "... ",
+			log()->verbose("saving ", path, "... ",
 			                        (result ? "success" : "failed"));
 		}
 	};

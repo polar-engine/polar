@@ -75,17 +75,17 @@ namespace polar::system {
 			polar::api::kludge kl{engine};
 
 			auto t = kl.lex(line);
-			debugmanager()->verbose(t);
+			log()->verbose(t);
 
 			auto e = kl.parse(t);
-			debugmanager()->verbose(e);
+			log()->verbose(e);
 
 			kl.reduce(e);
-			debugmanager()->verbose(e);
+			log()->verbose(e);
 
 			auto r = kl.exec(e);
 			if(std::holds_alternative<polar::api::kludge::exec_error>(r)) {
-				debugmanager()->critical("kludge exec failed");
+				log()->critical("kludge exec failed");
 			}
 		}
 

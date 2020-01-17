@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/container_hash/hash.hpp>
-#include <polar/core/debugmanager.h>
 #include <polar/core/destructor.h>
 #include <polar/core/id.h>
 

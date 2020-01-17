@@ -5,7 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <polar/core/types.h>
-#include <polar/support/debug/priority.h>
+#include <polar/support/log/priority.h>
 #include <string>
 #include <vector>
 
@@ -45,22 +45,22 @@ namespace polar::core {
 		return os << ']';
 	}
 
-	class debugmanager_class {
+	class logger {
 		using priority_t = support::debug::priority;
 
 	  private:
-		static std::shared_ptr<debugmanager_class> instance;
+		static std::shared_ptr<logger> instance;
 		std::ofstream file;
 
 	  public:
 		priority_t priority;
 
 		static inline auto get() {
-			if(!instance) { instance = std::make_shared<debugmanager_class>(); }
+			if(!instance) { instance = std::make_shared<logger>(); }
 			return instance;
 		}
 
-		debugmanager_class(priority_t priority = priority_t::info);
+		logger(priority_t priority = priority_t::info);
 
 		void msgbox(std::string, std::string);
 
@@ -139,5 +139,5 @@ namespace polar::core {
 } // namespace polar::core
 
 namespace polar {
-	inline auto debugmanager() { return core::debugmanager_class::get(); }
+	inline auto log() { return core::logger::get(); }
 } // namespace polar

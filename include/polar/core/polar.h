@@ -8,7 +8,7 @@
 #include <boost/bimap/set_of.hpp>
 #include <boost/bimap/unordered_multiset_of.hpp>
 #include <polar/component/base.h>
-#include <polar/core/debugmanager.h>
+#include <polar/core/log.h>
 #include <polar/core/stack.h>
 #include <polar/core/types.h>
 #include <polar/util/buildinfo.h>

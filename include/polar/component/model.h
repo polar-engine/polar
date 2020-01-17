@@ -3,7 +3,7 @@
 #include <glm/gtc/random.hpp>
 #include <polar/asset/model.h>
 #include <polar/component/base.h>
-#include <polar/core/debugmanager.h>
+#include <polar/core/log.h>
 #include <vector>
 
 namespace polar::component {
@@ -36,12 +36,12 @@ namespace polar::component {
 					tri.r.normal = normal;
 				}
 
-				debugmanager()->trace("position = ", tri.p.position);
-				debugmanager()->trace("normal   = ", tri.p.normal);
-				debugmanager()->trace("position = ", tri.q.position);
-				debugmanager()->trace("normal   = ", tri.q.normal);
-				debugmanager()->trace("position = ", tri.r.position);
-				debugmanager()->trace("normal   = ", tri.r.normal);
+				log()->trace("position = ", tri.p.position);
+				log()->trace("normal   = ", tri.p.normal);
+				log()->trace("position = ", tri.q.position);
+				log()->trace("normal   = ", tri.q.normal);
+				log()->trace("position = ", tri.r.position);
+				log()->trace("normal   = ", tri.r.normal);
 			}
 		}
 	};
