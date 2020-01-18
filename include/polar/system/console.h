@@ -98,7 +98,7 @@ namespace polar::system {
 			engine->add<component::text>(buffer_object, font, buffer);
 			engine->add<component::screenposition>(buffer_object, Point2(5, 5), support::ui::origin::topleft);
 			engine->add<component::color>(buffer_object, Point4(1, 1, 1, 0.8));
-			engine->add<component::scale>(buffer_object, Point3(0.1));
+			engine->add<component::scale>(buffer_object, Point3(0.1f));
 		}
 	  protected:
 		void init() override {

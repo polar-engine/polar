@@ -12,7 +12,7 @@ namespace polar::support::sched::clock {
 		virtual ~base() {}
 
 		auto timestep() const {
-			return DeltaTicks(ENGINE_TICKS_PER_SECOND / frequency);
+			return DeltaTicks(DeltaTicksBase::rep(ENGINE_TICKS_PER_SECOND / frequency));
 		}
 
 		auto delta() const {

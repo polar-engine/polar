@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 					/* number of bytes in scanline = image width + 1
 					 * number of scanlines in image = image height
 					 */
-					uint32_t scanlineSize = 1 + asset.width * numChannels;
+					uint32_t scanlineSize = 1 + asset.width * uint32_t(numChannels);
 					uint32_t filteredSize = scanlineSize * asset.height;
 					filteredBytes.resize(filteredSize);
 					inflateStream.avail_out = filteredSize;

@@ -97,9 +97,9 @@ namespace polar::system {
 		auto previous = current;
 		current = to;
 		if(current < 0) {
-			current += sz;
+			current += int(sz);
 		} else {
-			current %= sz;
+			current %= int(sz);
 		}
 		render(previous, true);
 		beep();

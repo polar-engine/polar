@@ -159,9 +159,9 @@ namespace polar::system::renderer {
 		GL(glGenBuffers(1, &viewport_vbo));
 
 		viewportPoints.clear();
-		const float step = 0.1;
-		for(float x = -1.0; x < 1.0; x += step) {
-			for(float y = -1.0; y < 1.0; y += step) {
+		const float step = 0.1f;
+		for(float x = -1; x < 1; x += step) {
+			for(float y = -1; y < 1; y += step) {
 				viewportPoints.emplace_back(Point2(x, y));
 				viewportPoints.emplace_back(Point2(x + step, y));
 				viewportPoints.emplace_back(Point2(x, y + step));
@@ -437,10 +437,10 @@ namespace polar::system::renderer {
 							auto ti = std::type_index(typeid(det));
 							if(ti == typeid(support::phys::detector::box)) {
 								GL(glBindVertexArray(debug_box_vao));
-								GL(glDrawArrays(GL_TRIANGLES, 0, debug_box_points.size()));
+								GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(debug_box_points.size())));
 							} else if(ti == typeid(support::phys::detector::ball)) {
 								GL(glBindVertexArray(debug_ball_vao));
-								GL(glDrawArrays(GL_TRIANGLES, 0, debug_ball_points.size()));
+								GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(debug_ball_points.size())));
 							}
 						}
 					}
@@ -474,7 +474,7 @@ namespace polar::system::renderer {
 				}
 
 				GL(glBindVertexArray(viewportVAO));
-				GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
+				GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(viewportPoints.size())));
 
 				break;
 			}
@@ -513,7 +513,7 @@ namespace polar::system::renderer {
 		GL(glBindTexture(GL_TEXTURE_2D, nodes.back().outs.at("color")));
 		uploaduniform(identityProgram, "u_colorBuffer", 0);
 		GL(glBindVertexArray(viewportVAO));
-		GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
+		GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(viewportPoints.size())));
 	}
 
 	void gl32::update(DeltaTicks &dt) {
@@ -767,7 +767,7 @@ namespace polar::system::renderer {
 		uploaduniform(spriteProgram, "u_transform", transform);
 
 		GL(glBindTexture(GL_TEXTURE_2D, prop->texture));
-		GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
+		GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(viewportPoints.size())));
 	}
 
 	void gl32::rendertext(core::weak_ref object, Mat4 proj, Mat4 view) {
@@ -952,7 +952,7 @@ namespace polar::system::renderer {
 
 			GL(glBindTexture(GL_TEXTURE_2D,
 			                 fontCache[text->as].entries[c].texture));
-			GL(glDrawArrays(GL_TRIANGLES, 0, viewportPoints.size()));
+			GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(viewportPoints.size())));
 
 			pen += text->as->glyphs[c].advance;
 		}
@@ -1029,17 +1029,17 @@ namespace polar::system::renderer {
 		case SDL_MOUSEMOTION:
 			if(act) {
 				// XXX: this is hacky
-				act->accumulate<mouse::position_x>(ev.motion.x);
-				act->accumulate<mouse::position_y>(ev.motion.y);
+				act->accumulate<mouse::position_x>(Decimal(ev.motion.x));
+				act->accumulate<mouse::position_y>(Decimal(ev.motion.y));
 
-				act->accumulate<mouse::motion_x>(ev.motion.xrel);
-				act->accumulate<mouse::motion_y>(ev.motion.yrel);
+				act->accumulate<mouse::motion_x>(Decimal(ev.motion.xrel));
+				act->accumulate<mouse::motion_y>(Decimal(ev.motion.yrel));
 			}
 			break;
 		case SDL_MOUSEWHEEL:
 			if(act) {
-				act->accumulate<mouse::wheel_x>(ev.wheel.x);
-				act->accumulate<mouse::wheel_y>(ev.wheel.y);
+				act->accumulate<mouse::wheel_x>(Decimal(ev.wheel.x));
+				act->accumulate<mouse::wheel_y>(Decimal(ev.wheel.y));
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
@@ -1395,7 +1395,7 @@ namespace polar::system::renderer {
 	void gl32::uploadmodel(std::shared_ptr<component::model> model) {
 		model->generate_normals();
 
-		GLsizei count   = model->asset->triangles.size() * 3;
+		GLsizei count   = GLsizei(model->asset->triangles.size()) * 3;
 		GLsizeiptr size = model->asset->triangles.size() * sizeof(polar::asset::triangle);
 		void *data      = model->asset->triangles.data();
 		auto prop       = getpooledmodelproperty(count);

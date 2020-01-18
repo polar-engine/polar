@@ -6,9 +6,15 @@
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
+
+#if defined(NOMINMAX)
+#include <Windows.h>
+#else
 #define NOMINMAX
 #include <Windows.h>
 #undef NOMINMAX
+#endif
+
 #define POLAR_PATH_MAX MAX_PATH
 #elif defined(_POSIX_VERSION)
 #include <limits.h>

@@ -51,7 +51,7 @@ namespace polar::system::renderer {
 					return ptr->getwidth();
 				},
 				[] (base *ptr, auto x) {
-					ptr->setwidth(x);
+					ptr->setwidth(uint16_t(x));
 				}
 			));
 			l.emplace_back("height", make_accessor<base>(
@@ -59,7 +59,7 @@ namespace polar::system::renderer {
 					return ptr->getheight();
 				},
 				[] (base *ptr, auto x) {
-					ptr->setheight(x);
+					ptr->setheight(uint16_t(x));
 				}
 			));
 			return l;
