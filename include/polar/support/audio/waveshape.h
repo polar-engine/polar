@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <polar/math/constants.h>
 
 class WaveShape {
   public:
@@ -12,7 +13,7 @@ class WaveShape {
 inline WaveShape MkSineWaveShape() {
 	WaveShape waveShape;
 	for(unsigned int i = 0; i < WaveShape::size; ++i) {
-		double sample = sin(i * 2.0 * 3.14159265358979 / WaveShape::size);
+		double sample = sin(i * polar::math::TWO_PI / WaveShape::size);
 		waveShape.table[i] =
 		    static_cast<int16_t>((sample + 1) * 32767.0 - 32768.0);
 	}
