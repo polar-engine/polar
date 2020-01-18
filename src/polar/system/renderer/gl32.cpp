@@ -253,9 +253,9 @@ namespace polar::system::renderer {
 		Point3 right(1, 0, 0);
 		Point3 dir(0, 0, -1);
 
-		constexpr Decimal k = math::PI_OVER_TEN;
+		constexpr Decimal k = math::PI_OVER<10>;
 
-		for(Decimal phi = -math::PI_OVER_TWO; phi < math::PI_OVER_TWO; phi += k) {
+		for(Decimal phi = -math::PI_OVER<2>; phi < math::PI_OVER<2>; phi += k) {
 			for(Decimal theta = 0; theta < math::TWO_PI; theta += k) {
 				auto p = glm::rotate(glm::rotate(dir, phi,     right), theta,     up);
 				auto q = glm::rotate(glm::rotate(dir, phi,     right), theta + k, up);
