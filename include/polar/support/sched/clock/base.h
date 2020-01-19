@@ -7,12 +7,16 @@ namespace polar::support::sched::clock {
 	  private:
 		DeltaTicks accumulator = 0;
 	  public:
-		double frequency = 50;
+		DeltaTicks timestep;
+
+		base(Decimal ts = Decimal(1) / Decimal(50)) {
+			timestep.SetSeconds(ts);
+		}
 
 		virtual ~base() {}
 
-		auto timestep() const {
-			return DeltaTicks(DeltaTicksBase::rep(ENGINE_TICKS_PER_SECOND / frequency));
+		auto frequency() const {
+			return Decimal(1) / timestep.Seconds();
 		}
 
 		auto delta() const {
@@ -21,11 +25,13 @@ namespace polar::support::sched::clock {
 
 		void accumulate(DeltaTicks dt) {
 			accumulator += dt;
-			if(accumulator.Seconds() > 1.0f) { accumulator.SetSeconds(1.0f); }
+
+			auto max = timestep.Seconds() * 10;
+			if(accumulator.Seconds() > max) { accumulator.SetSeconds(max); }
 		}
 
 		bool tick() {
-			auto ts = timestep();
+			auto ts = timestep;
 			if(accumulator >= ts) {
 				accumulator -= ts;
 				return true;

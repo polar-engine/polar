@@ -20,9 +20,16 @@ namespace polar::system {
 	  private:
 		using clock_base = support::sched::clock::base;
 
+		struct timer {
+			clock_base clock;
+			handler_type handler;
+		};
+
 		core::id nextID = 1;
 		bimap bindings;
 		std::unordered_map<std::type_index, std::unique_ptr<clock_base>> clocks;
+
+		std::list<timer> timers;
 	  protected:
 		void update(DeltaTicks &dt) override {
 			for(auto &[ti, clock] : clocks) {
@@ -30,8 +37,20 @@ namespace polar::system {
 				while(clock->tick()) {
 					auto pairRight = bindings.right.equal_range(ti);
 					for(auto it = pairRight.first; it != pairRight.second; ++it) {
-						it->info(clock->timestep());
+						it->info(clock->timestep);
 					}
+				}
+			}
+
+			for(auto it = timers.begin(); it != timers.end();) {
+				auto &timer = *it;
+
+				timer.clock.accumulate(dt);
+				if(timer.clock.tick()) {
+					timer.handler(timer.clock.timestep);
+					it = timers.erase(it);
+				} else {
+					++it;
 				}
 			}
 		}
@@ -54,6 +73,10 @@ namespace polar::system {
 			return core::ref([this, id] {
 				bindings.left.erase(id);
 			});
+		}
+
+		void keep(core::ref r, Decimal seconds) {
+			timers.emplace_back(timer{clock_base(seconds), [r] (auto) {}});
 		}
 
 		template<

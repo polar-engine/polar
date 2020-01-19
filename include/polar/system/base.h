@@ -36,6 +36,11 @@ namespace polar::system {
 		std::vector<core::ref> dtors;
 	  protected:
 		core::polar *engine;
+
+		inline void keep(core::ref r) {
+			dtors.emplace_back(r);
+		}
+
 	  public:
 		static bool supported() { return false; }
 
@@ -47,10 +52,6 @@ namespace polar::system {
 		virtual accessor_list accessors() const {
 			accessor_list l;
 			return l;
-		}
-
-		inline void keep(core::ref r) {
-			dtors.emplace_back(r);
 		}
 
 		virtual void init() {}
