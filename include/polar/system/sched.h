@@ -11,7 +11,7 @@ namespace polar::system {
 	  public:
 		using handler_type = std::function<void(DeltaTicks)>;
 
-		using bimap = boost::bimap<
+		using binding_bimap = boost::bimap<
 			boost::bimaps::set_of<core::id>,
 			boost::bimaps::unordered_multiset_of<std::type_index>,
 			boost::bimaps::set_of_relation<>,
@@ -26,10 +26,10 @@ namespace polar::system {
 		};
 
 		core::id nextID = 1;
-		bimap bindings;
+		binding_bimap bindings;
 		std::unordered_map<std::type_index, std::unique_ptr<clock_base>> clocks;
 
-		std::list<timer> timers;
+		std::unordered_map<core::id, timer> timers;
 	  protected:
 		void update(DeltaTicks &dt) override {
 			for(auto &[ti, clock] : clocks) {
@@ -43,7 +43,7 @@ namespace polar::system {
 			}
 
 			for(auto it = timers.begin(); it != timers.end();) {
-				auto &timer = *it;
+				auto &timer = it->second;
 
 				timer.clock.accumulate(dt);
 				if(timer.clock.tick()) {
@@ -67,7 +67,7 @@ namespace polar::system {
 			std::type_index ti = typeid(Clock);
 			auto id = nextID++;
 
-			bindings.insert(bimap::value_type(id, ti, handler));
+			bindings.insert(binding_bimap::value_type(id, ti, handler));
 			clocks.emplace(ti, std::make_unique<Clock>());
 
 			return core::ref([this, id] {
@@ -75,8 +75,14 @@ namespace polar::system {
 			});
 		}
 
-		void keep(core::ref r, math::decimal seconds) {
-			timers.emplace_back(timer{clock_base(seconds), [r] (auto) {}});
+		auto keep(core::ref r, math::decimal seconds) {
+			auto id = nextID++;
+
+			timers.emplace(id, timer{clock_base(seconds), [r] (auto) {}});
+
+			return core::ref([this, id] {
+				timers.erase(id);
+			});
 		}
 
 		template<
