@@ -2,6 +2,9 @@
 
 #include <map>
 #include <vector>
+#include <polar/support/action/controller.h>
+#include <polar/support/action/keyboard.h>
+#include <polar/support/action/mouse.h>
 #include <polar/system/renderer/base.h>
 #include <polar/util/sdl.h>
 #include <polar/util/vulkan.h>
@@ -52,37 +55,12 @@ namespace polar::system::renderer {
 		};
 
 		const bool enableValidationLayers =
-#ifdef _DEBUG
+//#ifdef _DEBUG
 		true
-#else
-		false
-#endif
+//#else
+//		false
+//#endif
 		;
-
-		void init() override {
-			if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) {
-				log()->fatal("failed to init SDL");
-			}
-			if(!SDL(TTF_Init())) { log()->fatal("failed to init TTF"); }
-			SDL(SDL_Vulkan_LoadLibrary(NULL));
-
-			init_global_fns();
-			init_instance();
-			init_instance_fns();
-			init_debug_callback();
-			init_surface();
-			init_physical_device();
-			init_logical_device();
-			init_device_fns();
-			init_swapchain();
-			init_image_views();
-			init_pipeline();
-
-			vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
-			vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
-		}
-
-		void update(DeltaTicks &) override {}
 
 		void init_global_fns() {
 			vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_Vulkan_GetVkGetInstanceProcAddr();
@@ -501,6 +479,124 @@ namespace polar::system::renderer {
 			return VK_FALSE;
 		}
 
+		void handleSDL(SDL_Event &ev) {
+			namespace kb         = support::action::keyboard;
+			namespace mouse      = support::action::mouse;
+			namespace controller = support::action::controller;
+
+			support::input::key key;
+
+			auto act = engine->get<action>().lock();
+
+			switch(ev.type) {
+			case SDL_QUIT:
+				engine->quit();
+				break;
+			case SDL_WINDOWEVENT:
+				break;
+			case SDL_KEYDOWN:
+				if(ev.key.repeat == 0) {
+					key = mkKeyFromSDL(ev.key.keysym.sym);
+					if(act) {
+						act->trigger_digital(kb::key_ti(key), true);
+					}
+				}
+				break;
+			case SDL_KEYUP:
+				key = mkKeyFromSDL(ev.key.keysym.sym);
+				if(act) {
+					act->trigger_digital(kb::key_ti(key), false);
+				}
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				key = mkMouseButtonFromSDL(ev.button.button);
+				if(act) {
+					act->trigger_digital(kb::key_ti(key), true);
+				}
+				break;
+			case SDL_MOUSEBUTTONUP:
+				key = mkMouseButtonFromSDL(ev.button.button);
+				if(act) {
+					act->trigger_digital(kb::key_ti(key), false);
+				}
+				break;
+			case SDL_MOUSEMOTION:
+				if(act) {
+					// XXX: this is hacky
+					act->accumulate<mouse::position_x>(Decimal(ev.motion.x));
+					act->accumulate<mouse::position_y>(Decimal(ev.motion.y));
+
+					act->accumulate<mouse::motion_x>(Decimal(ev.motion.xrel));
+					act->accumulate<mouse::motion_y>(Decimal(ev.motion.yrel));
+				}
+				break;
+			case SDL_MOUSEWHEEL:
+				if(act) {
+					act->accumulate<mouse::wheel_x>(Decimal(ev.wheel.x));
+					act->accumulate<mouse::wheel_y>(Decimal(ev.wheel.y));
+				}
+				break;
+			case SDL_CONTROLLERBUTTONDOWN:
+				key = mkButtonFromSDL(
+					static_cast<SDL_GameControllerButton>(ev.cbutton.button));
+				if(act) {
+					act->trigger_digital(kb::key_ti(key), true);
+				}
+				break;
+			case SDL_CONTROLLERBUTTONUP:
+				key = mkButtonFromSDL(
+					static_cast<SDL_GameControllerButton>(ev.cbutton.button));
+				if(act) {
+					act->trigger_digital(kb::key_ti(key), false);
+				}
+				break;
+			case SDL_CONTROLLERAXISMOTION:
+				switch(ev.caxis.axis) {
+				case 0: // x axis
+					if(act) {
+						act->accumulate<controller::motion_x>(ev.caxis.value);
+					}
+					break;
+				case 1: // y axis
+					if(act) {
+						act->accumulate<controller::motion_y>(ev.caxis.value);
+					}
+					break;
+				}
+				break;
+			}
+		}
+	  protected:
+		void init() override {
+			if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) {
+				log()->fatal("failed to init SDL");
+			}
+			if(!SDL(TTF_Init())) { log()->fatal("failed to init TTF"); }
+			SDL(SDL_Vulkan_LoadLibrary(NULL));
+
+			init_global_fns();
+			init_instance();
+			init_instance_fns();
+			init_debug_callback();
+			init_surface();
+			init_physical_device();
+			init_logical_device();
+			init_device_fns();
+			init_swapchain();
+			init_image_views();
+			init_pipeline();
+
+			vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
+			vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
+		}
+
+		void update(DeltaTicks &) override {
+			// handle input at beginning of frame to reduce delays in other systems
+			SDL_Event event;
+			while(SDL_PollEvent(&event)) { handleSDL(event); }
+			SDL_ClearError();
+		}
+
 		void makepipeline(const std::vector<std::string> &) override {}
 	  public:
 		vulkan(core::polar *engine) : base(engine) {}
@@ -525,8 +621,16 @@ namespace polar::system::renderer {
 
 		void setmousecapture(bool capture) override {}
 		void setfullscreen(bool fullscreen) override {}
+		void setdepthtest(bool depthtest) override {}
 		void setpipeline(const std::vector<std::string> &names) override {}
 		void setclearcolor(const Point4 &color) override {}
+
+		void resize(uint16_t w, uint16_t h) override {
+			width = w;
+			height = h;
+
+			SDL(SDL_SetWindowSize(window, width, height));
+		}
 
 		Decimal getuniform_decimal(const std::string &name,
 		                           const Decimal def) override { return 0; }
