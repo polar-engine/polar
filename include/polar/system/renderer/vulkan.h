@@ -63,13 +63,14 @@ namespace polar::system::renderer {
 		;
 
 		void init_global_fns() {
-			vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_Vulkan_GetVkGetInstanceProcAddr();
+			SDL(vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_Vulkan_GetVkGetInstanceProcAddr());
 #define POLAR_VK_DEVICE_FN(NAME)
-#define POLAR_VK_GLOBAL_FN(NAME)                                                          \
-			NAME = (PFN_##NAME)vkGetInstanceProcAddr(VK_NULL_HANDLE, #NAME);              \
-			if(!NAME) {                                                                   \
+#define POLAR_VK_GLOBAL_FN(NAME)                                                 \
+			log()->debug("Vulkan: loading global function: ", #NAME);            \
+			NAME = (PFN_##NAME)vkGetInstanceProcAddr(VK_NULL_HANDLE, #NAME);     \
+			if(!NAME) {                                                          \
 				log()->fatal("Vulkan: failed to load global function: ", #NAME); \
-			}                                                                             \
+			}                                                                    \
 			log()->debug("Vulkan: loaded global function: ", #NAME);
 #define POLAR_VK_INSTANCE_FN(NAME)
 			POLAR_VK_FNS
@@ -105,6 +106,11 @@ namespace polar::system::renderer {
 				requiredExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			}
 
+			log()->debug("Vulkan: required extensions:");
+			for(auto &ext : requiredExtensions) {
+				log()->debug("* ", ext);
+			}
+
 			VkInstanceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 			createInfo.pApplicationInfo = &appInfo;
@@ -128,11 +134,12 @@ namespace polar::system::renderer {
 		void init_instance_fns() {
 #define POLAR_VK_DEVICE_FN(NAME)
 #define POLAR_VK_GLOBAL_FN(NAME)
-#define POLAR_VK_INSTANCE_FN(NAME)                                                          \
-			NAME = (PFN_##NAME)vkGetInstanceProcAddr(instance, #NAME);                      \
-			if(!NAME) {                                                                     \
+#define POLAR_VK_INSTANCE_FN(NAME)                                                 \
+			log()->debug("Vulkan: loading instance function: ", #NAME);            \
+			NAME = (PFN_##NAME)vkGetInstanceProcAddr(instance, #NAME);             \
+			if(!NAME) {                                                            \
 				log()->fatal("Vulkan: failed to load instance function: ", #NAME); \
-			}                                                                               \
+			}                                                                      \
 			log()->debug("Vulkan: loaded instance function: ", #NAME);
 			POLAR_VK_FNS
 #undef POLAR_VK_INSTANCE_FN
@@ -236,11 +243,12 @@ namespace polar::system::renderer {
 		}
 
 		void init_device_fns() {
-#define POLAR_VK_DEVICE_FN(NAME)                                                          \
-			NAME = (PFN_##NAME)vkGetDeviceProcAddr(logicalDevice, #NAME);                 \
-			if(!NAME) {                                                                   \
+#define POLAR_VK_DEVICE_FN(NAME)                                                 \
+			log()->debug("Vulkan: loading device function: ", #NAME);            \
+			NAME = (PFN_##NAME)vkGetDeviceProcAddr(logicalDevice, #NAME);        \
+			if(!NAME) {                                                          \
 				log()->fatal("Vulkan: failed to load device function: ", #NAME); \
-			}                                                                             \
+			}                                                                    \
 			log()->debug("Vulkan: loaded device function: ", #NAME);
 #define POLAR_VK_GLOBAL_FN(NAME)
 #define POLAR_VK_INSTANCE_FN(NAME)
