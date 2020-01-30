@@ -83,8 +83,16 @@ namespace polar::core {
 
 			if(p >= priority) {
 				write('[');
-				write(uppers[uint_fast8_t(p)]);
+				auto now = std::chrono::system_clock::now();
+				auto tc = std::chrono::system_clock::to_time_t(now);
+				auto lt = std::localtime(&tc);
+				auto t = std::put_time(lt, "%T");
+				write(t);
 				write("] ");
+
+				write('{');
+				write(uppers[uint_fast8_t(p)]);
+				write("} ");
 				log_base(p, std::forward<Ts>(args)...);
 #if defined(_WIN32)
 				write('\r');
