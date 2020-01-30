@@ -55,11 +55,11 @@ namespace polar::system::renderer {
 		};
 
 		const bool enableValidationLayers =
-//#ifdef _DEBUG
+#ifdef _DEBUG
 		true
-//#else
-//		false
-//#endif
+#else
+		false
+#endif
 		;
 
 		void init_global_fns() {
@@ -139,14 +139,19 @@ namespace polar::system::renderer {
 		void init_instance_fns() {
 #define POLAR_VK_DEVICE_FN(NAME)
 #define POLAR_VK_GLOBAL_FN(NAME)
-#define POLAR_VK_INSTANCE_FN(NAME)                                                 \
+#define POLAR_VK_INSTANCE_FN(NAME) \
 			log()->debug("Vulkan: loading instance function: ", #NAME);            \
 			NAME = (PFN_##NAME)vkGetInstanceProcAddr(instance, #NAME);             \
 			if(!NAME) {                                                            \
 				log()->fatal("Vulkan: failed to load instance function: ", #NAME); \
 			}                                                                      \
 			log()->debug("Vulkan: loaded instance function: ", #NAME);
+
 			POLAR_VK_FNS
+
+			if(enableValidationLayers) {
+				POLAR_VK_DEBUG_FNS
+			}
 #undef POLAR_VK_INSTANCE_FN
 #undef POLAR_VK_GLOBAL_FN
 #undef POLAR_VK_DEVICE_FN
