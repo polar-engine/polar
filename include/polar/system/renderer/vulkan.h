@@ -118,6 +118,11 @@ namespace polar::system::renderer {
 			createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
 			if(enableValidationLayers) {
+				log()->debug("Vulkan: required layers:");
+				for(auto &layer : validationLayers) {
+					log()->debug("* ", layer);
+				}
+
 				createInfo.enabledLayerCount = validationLayers.size();
 				createInfo.ppEnabledLayerNames = validationLayers.data();
 			} else {
@@ -126,7 +131,7 @@ namespace polar::system::renderer {
 
 			VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 			if(result != VK_SUCCESS) {
-				log()->fatal("Vulkan: failed to create instance");
+				log()->fatal("Vulkan: failed to create instance (VkResult = ", result, ')');
 			}
 			log()->verbose("Vulkan: created instance");
 		}
