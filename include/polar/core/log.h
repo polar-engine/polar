@@ -109,14 +109,9 @@ namespace polar::core {
 				write('\n');
 			}
 
-			switch(p) {
-			default:
-				break;
-			case priority_t::fatal:
-				msgbox("Fatal", "A fatal error has occurred. Please refer to "
-				                "the engine log for details.");
+			if(p == priority_t::fatal) {
+				msgbox("Fatal", "A fatal error has occurred. Please refer to the engine log for details.");
 				exit(1);
-				break;
 			}
 		}
 
