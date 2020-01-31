@@ -6,6 +6,7 @@
 #include <memory>
 #include <polar/core/types.h>
 #include <polar/support/log/priority.h>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -83,16 +84,24 @@ namespace polar::core {
 
 			if(p >= priority) {
 				write('[');
+
 				auto now = std::chrono::system_clock::now();
 				auto tc = std::chrono::system_clock::to_time_t(now);
 				auto lt = std::localtime(&tc);
 				auto t = std::put_time(lt, "%T");
 				write(t);
+
+				auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+				std::ostringstream oss;
+				oss << std::setfill('0') << std::setw(3) << ms.count();
+				write('.');
+				write(oss.str());
+
 				write("] ");
 
-				write('{');
+				write('[');
 				write(uppers[uint_fast8_t(p)]);
-				write("} ");
+				write("] ");
 				log_base(p, std::forward<Ts>(args)...);
 #if defined(_WIN32)
 				write('\r');
