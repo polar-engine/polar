@@ -15,9 +15,9 @@ inline bool _SDL_real(const char *file, const long line, const char *code) {
 	const char *err = SDL_GetError();
 	SDL_ClearError();
 	if(err[0] != '\0') {
-		polar::log()->warning("SDL: ", err);
-		polar::log()->debug(file, ' ', line);
-		polar::log()->trace(code);
+		polar::log()->warning("sdl", err);
+		polar::log()->debug("sdl", file, ' ', line);
+		polar::log()->trace("sdl", code);
 	}
 	return err[0] == '\0';
 }

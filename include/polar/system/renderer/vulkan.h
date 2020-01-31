@@ -65,13 +65,13 @@ namespace polar::system::renderer {
 		void init_global_fns() {
 			SDL(vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_Vulkan_GetVkGetInstanceProcAddr());
 #define POLAR_VK_DEVICE_FN(NAME)
-#define POLAR_VK_GLOBAL_FN(NAME)                                                 \
-			log()->debug("Vulkan: loading global function: ", #NAME);            \
-			NAME = (PFN_##NAME)vkGetInstanceProcAddr(VK_NULL_HANDLE, #NAME);     \
-			if(!NAME) {                                                          \
-				log()->fatal("Vulkan: failed to load global function: ", #NAME); \
-			}                                                                    \
-			log()->debug("Vulkan: loaded global function: ", #NAME);
+#define POLAR_VK_GLOBAL_FN(NAME)                                                   \
+			log()->debug("vulkan", "loading global function: ", #NAME);            \
+			NAME = (PFN_##NAME)vkGetInstanceProcAddr(VK_NULL_HANDLE, #NAME);       \
+			if(!NAME) {                                                            \
+				log()->fatal("vulkan", "failed to load global function: ", #NAME); \
+			}                                                                      \
+			log()->debug("vulkan", "loaded global function: ", #NAME);
 #define POLAR_VK_INSTANCE_FN(NAME)
 			POLAR_VK_FNS
 #undef POLAR_VK_INSTANCE_FN
@@ -86,7 +86,7 @@ namespace polar::system::renderer {
 			            SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN |
 			                SDL_WINDOW_RESIZABLE |
 			                (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)))) {
-				log()->fatal("failed to create window");
+				log()->fatal("vulkan", "failed to create window");
 			}
 
 			VkApplicationInfo appInfo = {};
@@ -106,9 +106,9 @@ namespace polar::system::renderer {
 				requiredExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			}
 
-			log()->debug("Vulkan: required extensions:");
+			log()->debug("vulkan", "required extensions:");
 			for(auto &ext : requiredExtensions) {
-				log()->debug("* ", ext);
+				log()->debug("vulkan", "* ", ext);
 			}
 
 			VkInstanceCreateInfo createInfo = {};
@@ -118,9 +118,9 @@ namespace polar::system::renderer {
 			createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
 			if(enableValidationLayers) {
-				log()->debug("Vulkan: required layers:");
+				log()->debug("vulkan", "required layers:");
 				for(auto &layer : validationLayers) {
-					log()->debug("* ", layer);
+					log()->debug("vulkan", "* ", layer);
 				}
 
 				createInfo.enabledLayerCount = validationLayers.size();
@@ -131,21 +131,21 @@ namespace polar::system::renderer {
 
 			VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 			if(result != VK_SUCCESS) {
-				log()->fatal("Vulkan: failed to create instance (VkResult = ", result, ')');
+				log()->fatal("vulkan", "failed to create instance (VkResult = ", result, ')');
 			}
-			log()->verbose("Vulkan: created instance");
+			log()->verbose("vulkan", "created instance");
 		}
 
 		void init_instance_fns() {
 #define POLAR_VK_DEVICE_FN(NAME)
 #define POLAR_VK_GLOBAL_FN(NAME)
 #define POLAR_VK_INSTANCE_FN(NAME) \
-			log()->debug("Vulkan: loading instance function: ", #NAME);            \
-			NAME = (PFN_##NAME)vkGetInstanceProcAddr(instance, #NAME);             \
-			if(!NAME) {                                                            \
-				log()->fatal("Vulkan: failed to load instance function: ", #NAME); \
-			}                                                                      \
-			log()->debug("Vulkan: loaded instance function: ", #NAME);
+			log()->debug("vulkan", "loading instance function: ", #NAME);            \
+			NAME = (PFN_##NAME)vkGetInstanceProcAddr(instance, #NAME);               \
+			if(!NAME) {                                                              \
+				log()->fatal("vulkan", "failed to load instance function: ", #NAME); \
+			}                                                                        \
+			log()->debug("vulkan", "loaded instance function: ", #NAME);
 
 			POLAR_VK_FNS
 
@@ -170,26 +170,26 @@ namespace polar::system::renderer {
 
 				VkResult result = vkCreateDebugReportCallbackEXT(instance, &createInfo, nullptr, &debugCallback);
 				if(result != VK_SUCCESS) {
-					log()->fatal("Vulkan: failed to create debug report callback");
+					log()->fatal("vulkan", "failed to create debug report callback");
 				}
-				log()->verbose("Vulkan: created debug report callback");
+				log()->verbose("vulkan", "created debug report callback");
 			}
 		}
 
 		void init_surface() {
 			if(!SDL(SDL_Vulkan_CreateSurface(window, instance, &surface))) {
-				log()->fatal("Vulkan: failed to create SDL surface");
+				log()->fatal("vulkan", "failed to create SDL surface");
 			}
-			log()->verbose("Vulkan: created SDL surface");
+			log()->verbose("vulkan", "created SDL surface");
 		}
 
 		void init_physical_device() {
 			uint32_t deviceCount = 0;
 			vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 			if(deviceCount == 0) {
-				log()->fatal("Vulkan: failed to find device");
+				log()->fatal("vulkan", "failed to find device");
 			}
-			log()->verbose("Vulkan: found ", deviceCount, " device", deviceCount == 1 ? "" : "s");
+			log()->verbose("vulkan", "found ", deviceCount, " device", deviceCount == 1 ? "" : "s");
 
 			std::vector<VkPhysicalDevice> devices(deviceCount);
 			vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -202,9 +202,9 @@ namespace polar::system::renderer {
 
 			auto it = candidates.rbegin();
 			if(it->first <= 0) {
-				log()->fatal("Vulkan: failed to find suitable device");
+				log()->fatal("vulkan", "failed to find suitable device");
 			}
-			log()->verbose("Vulkan: found suitable device");
+			log()->verbose("vulkan", "found suitable device");
 
 			physicalDevice = it->second;
 			indices = find_queue_families(physicalDevice);
@@ -247,19 +247,19 @@ namespace polar::system::renderer {
 
 			VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice);
 			if(result != VK_SUCCESS) {
-				log()->fatal("Vulkan: failed to create logical device");
+				log()->fatal("vulkan", "failed to create logical device");
 			}
-			log()->verbose("Vulkan: created logical device");
+			log()->verbose("vulkan", "created logical device");
 		}
 
 		void init_device_fns() {
-#define POLAR_VK_DEVICE_FN(NAME)                                                 \
-			log()->debug("Vulkan: loading device function: ", #NAME);            \
-			NAME = (PFN_##NAME)vkGetDeviceProcAddr(logicalDevice, #NAME);        \
-			if(!NAME) {                                                          \
-				log()->fatal("Vulkan: failed to load device function: ", #NAME); \
-			}                                                                    \
-			log()->debug("Vulkan: loaded device function: ", #NAME);
+#define POLAR_VK_DEVICE_FN(NAME)                                                   \
+			log()->debug("vulkan", "loading device function: ", #NAME);            \
+			NAME = (PFN_##NAME)vkGetDeviceProcAddr(logicalDevice, #NAME);          \
+			if(!NAME) {                                                            \
+				log()->fatal("vulkan", "failed to load device function: ", #NAME); \
+			}                                                                      \
+			log()->debug("vulkan", "loaded device function: ", #NAME);
 #define POLAR_VK_GLOBAL_FN(NAME)
 #define POLAR_VK_INSTANCE_FN(NAME)
 			POLAR_VK_FNS
@@ -310,9 +310,9 @@ namespace polar::system::renderer {
 
 			VkResult result = vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain);
 			if(result != VK_SUCCESS) {
-				log()->fatal("Vulkan: failed to create swapchain");
+				log()->fatal("vulkan", "failed to create swapchain");
 			}
-			log()->verbose("Vulkan: created swapchain");
+			log()->verbose("vulkan", "created swapchain");
 
 			vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, nullptr);
 			swapchainImages.resize(imageCount);
@@ -343,9 +343,9 @@ namespace polar::system::renderer {
 
 				VkResult result = vkCreateImageView(logicalDevice, &createInfo, nullptr, &swapchainImageViews[i]);
 				if(result != VK_SUCCESS) {
-					log()->fatal("Vulkan: failed to create image view");
+					log()->fatal("vulkan", "failed to create image view");
 				}
-				log()->verbose("Vulkan: created image view");
+				log()->verbose("vulkan", "created image view");
 			}
 		}
 
@@ -484,15 +484,15 @@ namespace polar::system::renderer {
 		               const char *layerPrefix, const char *msg,
 		               void *userData) {
 			if(flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-				log()->fatal("Vulkan: validation layer: ", msg);
+				log()->fatal("vulkan", "validation layer: ", msg);
 			} else if(flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-				log()->warning("Vulkan: validation layer: ", msg);
+				log()->warning("vulkan", "validation layer: ", msg);
 			} else if(flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
-				log()->warning("Vulkan: validation layer: ", msg);
+				log()->warning("vulkan", "validation layer: ", msg);
 			} else if(flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
-				log()->debug("Vulkan: validation layer: ", msg);
+				log()->debug("vulkan", "validation layer: ", msg);
 			} else if(flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
-				log()->debug("Vulkan: DEBUG validation layer: ", msg);
+				log()->debug("vulkan", "DEBUG validation layer: ", msg);
 			}
 			return VK_FALSE;
 		}
@@ -587,9 +587,9 @@ namespace polar::system::renderer {
 	  protected:
 		void init() override {
 			if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) {
-				log()->fatal("failed to init SDL");
+				log()->fatal("vulkan", "failed to init SDL");
 			}
-			if(!SDL(TTF_Init())) { log()->fatal("failed to init TTF"); }
+			if(!SDL(TTF_Init())) { log()->fatal("vulkan", "failed to init TTF"); }
 			SDL(SDL_Vulkan_LoadLibrary(NULL));
 
 			init_global_fns();

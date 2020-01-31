@@ -6,7 +6,7 @@ namespace polar::asset {
 		s >> data;
 		char *buffer = static_cast<char *>(malloc(data.size()));
 		if(buffer == nullptr) {
-			log()->fatal("failed to allocate memory for font data");
+			log()->fatal("font", "failed to allocate memory for font data");
 		} else {
 			memcpy(buffer, data.data(), data.size());
 		}

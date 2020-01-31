@@ -64,7 +64,7 @@ namespace polar::core {
 		inline auto add_as(Ts &&... args) {
 #ifdef _DEBUG
 			if(!T::supported()) {
-				log()->fatal("unsupported system: ", typeid(T).name());
+				log()->fatal("core", "unsupported system: ", typeid(T).name());
 				return std::shared_ptr<B>();
 			} else {
 #endif

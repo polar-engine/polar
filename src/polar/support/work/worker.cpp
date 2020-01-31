@@ -20,7 +20,7 @@ namespace polar::support::work {
 							job.fn();
 							break;
 						case job_type::stop:
-							log()->verbose("worker received stop command");
+							log()->verbose("work", "worker received stop command");
 							return;
 						}
 					}

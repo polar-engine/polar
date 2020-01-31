@@ -36,7 +36,7 @@ namespace polar::fs {
 
 		static inline void rename(core::path old_path, core::path new_path) {
 			if(::rename(old_path.data(), new_path.data()) != 0) {
-				log()->fatal("failed to rename `", old_path, "` to `", new_path, '`');
+				log()->fatal("fs::local", "failed to rename `", old_path, "` to `", new_path, '`');
 			}
 		}
 

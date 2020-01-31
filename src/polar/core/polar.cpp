@@ -47,7 +47,7 @@ namespace polar::core {
 			}
 		}
 
-		log()->verbose("built on ", buildinfo_date(), " at ",
+		log()->verbose("core", "built on ", buildinfo_date(), " at ",
 		                        buildinfo_time());
 	}
 
@@ -74,7 +74,7 @@ namespace polar::core {
 				then += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(dtb);
 				DeltaTicks dt(dtb);
 
-				log()->trace("frame #", frameID++, " (", dt.Ticks(), ')');
+				log()->trace("core", "frame #", frameID++, " (", dt.Ticks(), ')');
 
 				for(auto &state : stack) { state.update(dt); }
 
@@ -85,23 +85,23 @@ namespace polar::core {
 					for(auto &action : actions) {
 						switch(action.type) {
 						case StackActionType::Push:
-							log()->debug("pushing state: ", action.name);
+							log()->debug("core", "pushing state: ", action.name);
 							stack.emplace_back(action.name, this);
 							{
-								log()->debug("calling state initializer");
+								log()->debug("core", "calling state initializer");
 								state &st = stack.back();
-								log()->debug("calling state initializer");
+								log()->debug("core", "calling state initializer");
 								states[action.name].first(this, st);
 							}
-							log()->debug("pushed state");
+							log()->debug("core", "pushed state");
 							stack.back().init();
 							break;
 						case StackActionType::Pop: {
 							auto &state = stack.back();
-							log()->debug("popping state: ", state.name);
+							log()->debug("core", "popping state: ", state.name);
 							states[state.name].second(this, state);
 							stack.pop_back();
-							log()->debug("popped state");
+							log()->debug("core", "popped state");
 							break;
 						}
 						case StackActionType::Quit:
@@ -129,10 +129,10 @@ namespace polar::core {
 	}
 
 	void polar::insert(weak_ref object, std::shared_ptr<component::base> component, std::type_index ti) {
-		log()->trace("inserting component: ", ti.name());
+		log()->trace("core", "inserting component: ", ti.name());
 		objects.insert(bimap::value_type(object, ti, component));
 		for(auto &state : stack) { state.component_added(object, ti, component); }
-		log()->trace("inserted component");
+		log()->trace("core", "inserted component");
 	}
 
 	std::weak_ptr<system::base> polar::get(std::type_index ti) {

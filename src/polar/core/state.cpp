@@ -4,18 +4,18 @@ namespace polar::core {
 	void state::init() {
 		for(auto &system : orderedSystems) {
 			auto &deref = *system;
-			log()->debug("initing system: ", typeid(deref).name());
+			log()->debug("core", "initing system: ", typeid(deref).name());
 			system->init();
-			log()->debug("inited system");
+			log()->debug("core", "inited system");
 		}
 	}
 
 	void state::update(DeltaTicks &dt) {
 		for(auto &system : orderedSystems) {
 			auto &deref = *system;
-			log()->trace("updating system: ", typeid(deref).name());
+			log()->trace("core", "updating system: ", typeid(deref).name());
 			system->update(dt);
-			log()->trace("updated system");
+			log()->trace("core", "updated system");
 		}
 
 		if(!toErase.empty()) {
@@ -35,9 +35,9 @@ namespace polar::core {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
-			log()->trace("notifying system of system added: ", typeid(deref).name(), ", ", ti.name());
+			log()->trace("core", "notifying system of system added: ", typeid(deref).name(), ", ", ti.name());
 			system->system_added(ti, ptr);
-			log()->trace("notified system of system added");
+			log()->trace("core", "notified system of system added");
 		}
 	}
 
@@ -45,9 +45,9 @@ namespace polar::core {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
-			log()->trace("notifying system of component added: ", typeid(deref).name(), ", ", ti.name());
+			log()->trace("core", "notifying system of component added: ", typeid(deref).name(), ", ", ti.name());
 			system->component_added(object, ti, ptr);
-			log()->trace("notified system of component added");
+			log()->trace("core", "notified system of component added");
 		}
 	}
 
@@ -55,9 +55,9 @@ namespace polar::core {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
-			log()->trace("notifying system of component removed: ", typeid(deref).name(), ", ", ti.name());
+			log()->trace("core", "notifying system of component removed: ", typeid(deref).name(), ", ", ti.name());
 			system->component_removed(object, ti);
-			log()->trace("notified system of component removed");
+			log()->trace("core", "notified system of component removed");
 		}
 	}
 } // namespace polar::core

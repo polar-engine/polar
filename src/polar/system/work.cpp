@@ -17,7 +17,7 @@ namespace polar::system {
 			delete worker;
 		}
 
-		log()->verbose("all workers joined and destructed");
+		log()->verbose("work", "all workers joined and destructed");
 	}
 
 	void work::init() {

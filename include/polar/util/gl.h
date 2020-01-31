@@ -7,9 +7,9 @@
 inline bool _GL_real(const char *file, const long line, const char *code) {
 	GLenum err = glGetError();
 	if(err != GL_NO_ERROR) {
-		polar::log()->warning("OpenGL: ", err);
-		polar::log()->debug(file, ' ', line);
-		polar::log()->trace(code);
+		polar::log()->warning("gl", err);
+		polar::log()->debug("gl", file, ' ', line);
+		polar::log()->trace("gl", code);
 	}
 	return err == GL_NO_ERROR;
 }

@@ -40,7 +40,7 @@ namespace polar::system::renderer {
 		(void)severity;
 		(void)length;
 		(void)userParam;
-		log()->debug("OPENGL DEBUG OUTPUT: ", message);
+		log()->debug("gl", "OPENGL DEBUG OUTPUT: ", message);
 	}
 
 	bool gl32::supported() {
@@ -49,16 +49,16 @@ namespace polar::system::renderer {
 			renderer.initGL();
 			GLint major, minor;
 			if(!GL(glGetIntegerv(GL_MAJOR_VERSION, &major))) {
-				log()->fatal("failed to get OpenGL major version");
+				log()->fatal("gl", "failed to get OpenGL major version");
 			}
 			if(!GL(glGetIntegerv(GL_MINOR_VERSION, &minor))) {
-				log()->fatal("failed to get OpenGL minor version");
+				log()->fatal("gl", "failed to get OpenGL minor version");
 			}
 			/* if OpenGL version is 3.1 or greater */
 			if(!(major > 3 || (major == 3 && minor >= 1))) {
 				std::stringstream msg;
 				msg << "actual OpenGL version is " << major << '.' << minor;
-				log()->fatal(msg.str());
+				log()->fatal("gl", msg.str());
 			}
 			return true;
 		} catch(std::exception &) { return false; }
@@ -66,24 +66,24 @@ namespace polar::system::renderer {
 
 	void gl32::initGL() {
 		if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) {
-			log()->fatal("failed to init SDL");
+			log()->fatal("gl", "failed to init SDL");
 		}
-		if(!SDL(TTF_Init())) { log()->fatal("failed to init TTF"); }
+		if(!SDL(TTF_Init())) { log()->fatal("gl", "failed to init TTF"); }
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) {
-			log()->fatal("failed to set major version attribute");
+			log()->fatal("gl", "failed to set major version attribute");
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1))) {
-			log()->fatal("failed to set minor version attribute");
+			log()->fatal("gl", "failed to set minor version attribute");
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
 		                            SDL_GL_CONTEXT_PROFILE_CORE))) {
-			log()->fatal("failed to set profile mask attribute");
+			log()->fatal("gl", "failed to set profile mask attribute");
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) {
-			log()->fatal("failed to set double buffer attribute");
+			log()->fatal("gl", "failed to set double buffer attribute");
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG))) {
-			log()->fatal("failed to set context flags");
+			log()->fatal("gl", "failed to set context flags");
 		}
 		Uint32 window_flags = SDL_WINDOW_OPENGL
 		                    | SDL_WINDOW_SHOWN
@@ -93,17 +93,17 @@ namespace polar::system::renderer {
 		if(!SDL(window = SDL_CreateWindow(
 		            "Polar Engine", SDL_WINDOWPOS_CENTERED,
 		            SDL_WINDOWPOS_CENTERED, width, height, window_flags))) {
-			log()->fatal("failed to create window");
+			log()->fatal("gl", "failed to create window");
 		}
 		if(!SDL(context = SDL_GL_CreateContext(window))) {
-			log()->fatal("failed to create OpenGL context");
+			log()->fatal("gl", "failed to create OpenGL context");
 		}
 		if(!SDL(SDL_GL_SetSwapInterval(1))) {
-			log()->critical("failed to set swap interval");
+			log()->critical("gl", "failed to set swap interval");
 		}
 
 		if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) {
-			log()->fatal("failed to set relative mouse mode");
+			log()->fatal("gl", "failed to set relative mouse mode");
 		}
 
 		/* set up controller joysticks */
@@ -112,7 +112,7 @@ namespace polar::system::renderer {
 			bool isGameCon;
 			SDL(isGameCon = SDL_IsGameController(i));
 			if(isGameCon) {
-				log()->verbose("SDL detected controller #", i);
+				log()->verbose("gl", "SDL detected controller #", i);
 				SDL(controller = SDL_GameControllerOpen(i));
 			}
 		}
@@ -121,7 +121,7 @@ namespace polar::system::renderer {
 		glewExperimental = GL_TRUE;
 		GLenum err       = glewInit();
 
-		if(err != GLEW_OK) { log()->fatal("GLEW: glewInit failed"); }
+		if(err != GLEW_OK) { log()->fatal("gl", "GLEW: glewInit failed"); }
 
 		/* GLEW cals glGetString(EXTENSIONS) which
 		 * causes GL_INVALID_ENUM on GL 3.2+ core contexts
@@ -276,9 +276,9 @@ namespace polar::system::renderer {
 		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
-		log()->trace("MakePipeline from Init");
+		log()->trace("gl", "MakePipeline from Init");
 		makepipeline(pipelineNames);
-		log()->trace("MakePipeline done");
+		log()->trace("gl", "MakePipeline done");
 
 		auto assetM = engine->get<asset>().lock();
 		spriteProgram   = makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
@@ -1089,7 +1089,7 @@ namespace polar::system::renderer {
 		nodes.clear();
 
 		for(auto &name : names) {
-			log()->verbose("building shader program `", name, '`');
+			log()->verbose("gl", "building shader program `", name, '`');
 			auto as = assetM->get<polar::asset::shaderprogram>(name);
 			assets.emplace_back(as);
 			nodes.emplace_back(makeprogram(as));
@@ -1173,7 +1173,7 @@ namespace polar::system::renderer {
 					attachment     = GL_DEPTH_ATTACHMENT;
 					break;
 				case outputtype::invalid:
-					log()->fatal("invalid program output type");
+					log()->fatal("gl", "invalid program output type");
 					break;
 				}
 
@@ -1202,7 +1202,7 @@ namespace polar::system::renderer {
 				for(auto &in : nextAsset->ins) {
 					auto it = node.outs.find(in.key);
 					if(it == node.outs.end()) {
-						log()->fatal("failed to connect nodes (invalid key `" + in.key + "`)");
+						log()->fatal("gl", "failed to connect nodes (invalid key `" + in.key + "`)");
 					}
 					nextNode.ins.emplace(in.key, in.name);
 				}
@@ -1223,11 +1223,11 @@ namespace polar::system::renderer {
 			case GL_FRAMEBUFFER_COMPLETE:
 				break;
 			case GL_FRAMEBUFFER_UNSUPPORTED:
-				log()->fatal("framebuffer unsupported");
+				log()->fatal("gl", "framebuffer unsupported");
 			default:
 				msg << "framebuffer status incomplete (0x" << std::hex << status
 				    << ')';
-				log()->fatal(msg.str());
+				log()->fatal("gl", msg.str());
 			}
 		}
 
@@ -1263,44 +1263,44 @@ namespace polar::system::renderer {
 				type = GL_FRAGMENT_SHADER;
 				break;
 			case shadertype::invalid:
-				log()->fatal("invalid shader type");
+				log()->fatal("gl", "invalid shader type");
 			}
 
 			GLuint id;
 			if(!GL(id = glCreateShader(type))) {
-				log()->fatal("failed to create shader");
+				log()->fatal("gl", "failed to create shader");
 			}
 
 			const GLchar *src = shader.source.c_str();
 			const GLint len   = static_cast<GLint>(shader.source.length());
 			if(!GL(glShaderSource(id, 1, &src, &len))) {
-				log()->fatal("failed to upload shader source");
+				log()->fatal("gl", "failed to upload shader source");
 			}
 			if(!GL(glCompileShader(id))) {
-				log()->fatal("shader compilation is unsupported on this platform");
+				log()->fatal("gl", "shader compilation is unsupported on this platform");
 			}
 
 			GLint status;
 			if(!GL(glGetShaderiv(id, GL_COMPILE_STATUS, &status))) {
-				log()->fatal("failed to get shader compilation status");
+				log()->fatal("gl", "failed to get shader compilation status");
 			}
 
 			if(status == GL_FALSE) {
 				GLint infoLen;
 				if(!GL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLen))) {
-					log()->fatal("failed to get shader info log length");
+					log()->fatal("gl", "failed to get shader info log length");
 				}
 
 				if(infoLen > 0) {
 					auto infoLog = std::unique_ptr<char[]>(new char[infoLen]);
 					if(!GL(glGetShaderInfoLog(id, infoLen, NULL,
 					                          infoLog.get()))) {
-						log()->fatal("failed to get shader info log");
+						log()->fatal("gl", "failed to get shader info log");
 					}
-					log()->debug("shader info log:");
-					log()->debug(infoLog.get());
+					log()->debug("gl", "shader info log:");
+					log()->debug("gl", infoLog.get());
 				}
-				log()->fatal("failed to compile shader");
+				log()->fatal("gl", "failed to compile shader");
 			}
 
 			ids.push_back(id);
@@ -1308,45 +1308,45 @@ namespace polar::system::renderer {
 
 		GLuint programID;
 		if(!GL(programID = glCreateProgram())) {
-			log()->fatal("failed to create program");
+			log()->fatal("gl", "failed to create program");
 		}
 
 		for(auto id : ids) {
 			if(!GL(glAttachShader(programID, id))) {
-				log()->fatal("failed to attach shader to program");
+				log()->fatal("gl", "failed to attach shader to program");
 			}
 
 			/* flag shader for deletion */
 			if(!GL(glDeleteShader(id))) {
-				log()->fatal("failed to flag shader for deletion");
+				log()->fatal("gl", "failed to flag shader for deletion");
 			}
 		}
 
 		if(!GL(glLinkProgram(programID))) {
-			log()->fatal("program linking is unsupported on this platform");
+			log()->fatal("gl", "program linking is unsupported on this platform");
 		}
 
 		GLint status;
 		if(!GL(glGetProgramiv(programID, GL_LINK_STATUS, &status))) {
-			log()->fatal("failed to get program linking status");
+			log()->fatal("gl", "failed to get program linking status");
 		}
 
 		if(status == GL_FALSE) {
 			GLint infoLen;
 			if(!GL(glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLen))) {
-				log()->fatal("failed to get program info log length");
+				log()->fatal("gl", "failed to get program info log length");
 			}
 
 			if(infoLen > 0) {
 				auto infoLog = std::unique_ptr<char[]>(new char[infoLen]);
 				if(!GL(glGetProgramInfoLog(programID, infoLen, NULL,
 				                           infoLog.get()))) {
-					log()->fatal("failed to get program info log");
+					log()->fatal("gl", "failed to get program info log");
 				}
-				log()->debug("program info log:");
-				log()->debug(infoLog.get());
+				log()->debug("gl", "program info log:");
+				log()->debug("gl", infoLog.get());
 			}
-			log()->fatal("failed to link program");
+			log()->fatal("gl", "failed to link program");
 		}
 		return programID;
 	}
@@ -1542,7 +1542,7 @@ namespace polar::system::renderer {
 		this->capture = capture;
 		if(inited) {
 			if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) {
-				log()->fatal("failed to set relative mouse mode");
+				log()->fatal("gl", "failed to set relative mouse mode");
 			}
 		}
 	}
@@ -1552,7 +1552,7 @@ namespace polar::system::renderer {
 		if(inited) {
 			if(!SDL(SDL_SetWindowFullscreen(
 			       window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) {
-				log()->critical("failed to set fullscreen mode");
+				log()->critical("gl", "failed to set fullscreen mode");
 			}
 		}
 	}
@@ -1568,9 +1568,9 @@ namespace polar::system::renderer {
 	void gl32::setpipeline(const std::vector<std::string> &names) {
 		pipelineNames = names;
 		if(inited) {
-			log()->trace("MakePipeline from SetPipeline");
+			log()->trace("gl", "MakePipeline from SetPipeline");
 			makepipeline(names);
-			log()->trace("MakePipeline done");
+			log()->trace("gl", "MakePipeline done");
 		}
 	}
 
@@ -1642,7 +1642,7 @@ namespace polar::system::renderer {
 			return false;
 		} // -1 if uniform does not exist in program
 		GL(glUniform1ui(loc, x));
-		log()->trace("uniform ", name, " = ", x);
+		log()->trace("gl", "uniform ", name, " = ", x);
 		return true;
 	}
 
@@ -1655,7 +1655,7 @@ namespace polar::system::renderer {
 		} // -1 if uniform does not exist in program
 		auto x2 = float(x);
 		GL(glUniform1f(loc, x2));
-		log()->trace("uniform ", name, " = ", x);
+		log()->trace("gl", "uniform ", name, " = ", x);
 		return true;
 	}
 

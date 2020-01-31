@@ -72,7 +72,7 @@ namespace polar::system {
 					    path, partial.contents.size(), 262144, &eof);
 					if(eof) {
 						partial.done = true;
-						log()->verbose("async loaded asset ", path);
+						log()->verbose("asset", "async loaded asset ", path);
 					}
 				}
 			}
@@ -85,7 +85,7 @@ namespace polar::system {
 			auto path = get_path<T>(name);
 			if(partials.find(path) == partials.end()) {
 				partials.emplace(path, partial());
-				log()->verbose("async loading asset ", path);
+				log()->verbose("asset", "async loading asset ", path);
 			}
 		}
 
@@ -97,7 +97,7 @@ namespace polar::system {
 
 			auto it = partials.find(path);
 			if(it == partials.end()) {
-				log()->verbose("loading asset ", path);
+				log()->verbose("asset", "loading asset ", path);
 				auto [it2, r] = partials.emplace(path, partial());
 				it = it2;
 			}
@@ -105,7 +105,7 @@ namespace polar::system {
 			if(!partial.done) {
 				partial.contents += fs::local::read(path, partial.contents.size());
 				partial.done = true;
-				log()->verbose("loaded asset ", path);
+				log()->verbose("asset", "loaded asset ", path);
 			}
 			return partial;
 		}
@@ -117,7 +117,7 @@ namespace polar::system {
 			              "polar::asset::base");
 			auto &partial = forcepartial<T>(name);
 			if(!partial.asset) {
-				log()->verbose("deserializing asset ", polar::asset::name<T>(), '/', name);
+				log()->verbose("asset", "deserializing asset ", polar::asset::name<T>(), '/', name);
 
 				// deserialize raw asset data to sub-class of polar::asset::base
 				auto asset = std::make_shared<T>(std::forward<Ts>(args)...);
@@ -130,7 +130,7 @@ namespace polar::system {
 				// free up raw asset data
 				std::string().swap(partial.contents);
 
-				log()->verbose("deserialized asset ", polar::asset::name<T>(), '/', name);
+				log()->verbose("asset", "deserialized asset ", polar::asset::name<T>(), '/', name);
 			}
 			return std::static_pointer_cast<T>(partial.asset);
 		}

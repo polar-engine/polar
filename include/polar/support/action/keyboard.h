@@ -13,7 +13,7 @@ namespace polar::support::action::keyboard {
 
 		switch(k) {
 			default:
-				log()->warning("no matching type_index for key=", size_t(k));
+				log()->warning("keyboard", "no matching type_index for key=", size_t(k));
 				return typeid(key<key_t::None>);
 			CASE(A)
 			CASE(B)

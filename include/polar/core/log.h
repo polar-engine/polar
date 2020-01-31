@@ -77,13 +77,13 @@ namespace polar::core {
 			log_base(p, std::forward<Ts>(args)...);
 		}
 
-		template<typename... Ts> inline void log(priority_t p, Ts &&... args) {
+		template<typename... Ts> inline void log(priority_t p, std::string tag, Ts &&... args) {
 			static const std::array<std::string, size_t(priority_t::_size)>
 			    uppers = {{"TRACE", "DEBUG", "VERBOSE", "INFO", "NOTICE",
 			               "WARNING", "ERROR", "CRITICAL", "FATAL"}};
 
 			if(p >= priority) {
-				write('[');
+				write('(');
 
 				auto now = std::chrono::system_clock::now();
 				auto tc = std::chrono::system_clock::to_time_t(now);
@@ -97,11 +97,12 @@ namespace polar::core {
 				write('.');
 				write(oss.str());
 
-				write("] ");
-
-				write('[');
+				write(") [");
 				write(uppers[uint_fast8_t(p)]);
-				write("] ");
+				write("] <");
+				write(tag);
+				write("> ");
+
 				log_base(p, std::forward<Ts>(args)...);
 #if defined(_WIN32)
 				write('\r');

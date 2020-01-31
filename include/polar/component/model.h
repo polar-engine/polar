@@ -36,12 +36,12 @@ namespace polar::component {
 					tri.r.normal = normal;
 				}
 
-				log()->trace("position = ", tri.p.position);
-				log()->trace("normal   = ", tri.p.normal);
-				log()->trace("position = ", tri.q.position);
-				log()->trace("normal   = ", tri.q.normal);
-				log()->trace("position = ", tri.r.position);
-				log()->trace("normal   = ", tri.r.normal);
+				log()->trace("model", "position = ", tri.p.position);
+				log()->trace("model", "normal   = ", tri.p.normal);
+				log()->trace("model", "position = ", tri.q.position);
+				log()->trace("model", "normal   = ", tri.q.normal);
+				log()->trace("model", "position = ", tri.r.position);
+				log()->trace("model", "normal   = ", tri.r.normal);
 			}
 		}
 	};

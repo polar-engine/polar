@@ -48,10 +48,10 @@ namespace polar::system {
 				auto err = vr_models->LoadRenderModel_Async(name.data(), &vr_model);
 				auto err_str = vr_models->GetRenderModelErrorNameFromEnum(err);
 				if(err == ::vr::VRRenderModelError_None) {
-					log()->verbose("loaded render model ", name);
+					log()->verbose("vr", "loaded render model ", name);
 					return vr_model;
 				} else {
-					log()->verbose("failed to load render model ", name, ": ", err_str);
+					log()->verbose("vr", "failed to load render model ", name, ": ", err_str);
 				}
 			}
 			return nullptr;
@@ -62,7 +62,7 @@ namespace polar::system {
 				auto vr_model = load_render_model(*it);
 				if(vr_model) {
 					it = render_models_loading.erase(it);
-					log()->verbose(vr_model->unVertexCount);
+					log()->verbose("vr", vr_model->unVertexCount);
 					/* XXX: we need support for indexed rendering and textured
 					 *      rendering, and we also need to be able to specify
 					 *      which shader (or which stage of the deferred
@@ -104,12 +104,12 @@ namespace polar::system {
 			vr_system = ::vr::VR_Init(&err, ::vr::VRApplication_Scene);
 			if(vr_system == nullptr) {
 				auto err_str = ::vr::VR_GetVRInitErrorAsSymbol(err);
-				log()->critical("failed to initialize OpenVR: ", err_str, " (", err, ')');
+				log()->critical("vr", "failed to initialize OpenVR: ", err_str, " (", err, ')');
 				return;
 			}
 
 			if(!::vr::VRCompositor()) {
-				log()->critical("failed to initialize VR compositor");
+				log()->critical("vr", "failed to initialize VR compositor");
 				if(vr_system != nullptr) {
 					::vr::VR_Shutdown();
 					vr_system = nullptr;
@@ -119,7 +119,7 @@ namespace polar::system {
 
 			vr_system->GetRecommendedRenderTargetSize(&_width, &_height);
 
-			log()->verbose("initialized OpenVR (width=", width(), ", height=", height(), ')');
+			log()->verbose("vr", "initialized OpenVR (width=", width(), ", height=", height(), ')');
 
 			for(uint32_t i = 0; i < ::vr::k_unMaxTrackedDeviceCount; ++i) {
 				if(vr_system->IsTrackedDeviceConnected(i)) {
@@ -147,13 +147,13 @@ namespace polar::system {
 						break;
 					}
 
-					log()->verbose("found VR ", dev_class_str, " device at index ", i);
+					log()->verbose("vr", "found VR ", dev_class_str, " device at index ", i);
 
 					tracked_devices.emplace(i);
 
 					if(dev_class == ::vr::TrackedDeviceClass_Controller) {
 						auto model_str = tracked_device_str(i, ::vr::Prop_RenderModelName_String);
-						log()->verbose("with render model ", model_str);
+						log()->verbose("vr", "with render model ", model_str);
 
 						render_models_loading.emplace_back(model_str);
 					}
@@ -295,7 +295,7 @@ namespace polar::system {
 
 			auto err = vr_comp->Submit(vr_eye, &vr_tex);
 			if(err) {
-				log()->critical("failed to submit texture to VR compositor (", err, ')');
+				log()->critical("vr", "failed to submit texture to VR compositor (", err, ')');
 				return false;
 			} else {
 				return true;

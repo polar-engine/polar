@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		             "\x0D\x0A"
 		             "\x1A"
 		             "\xA") {
-			log()->fatal("invalid PNG signature");
+			log()->fatal("assetbuilder::png", "invalid PNG signature");
 		}
 
 		int zResult = Z_OK;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 			iss.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
 			dataSize = swapbe(dataSize);
 			if(dataSize > (1u << 31)) {
-				log()->fatal("chunk data size exceeds 2^31 bytes");
+				log()->fatal("assetbuilder::png", "chunk data size exceeds 2^31 bytes");
 			}
 
 			std::string chunkType(4, ' ');
@@ -91,53 +91,53 @@ int main(int argc, char **argv) {
 					iss.read(reinterpret_cast<char *>(&asset.width), sizeof(asset.width));
 					asset.width = swapbe(asset.width);
 					if(asset.width == 0) {
-						log()->fatal("image width cannot be 0");
+						log()->fatal("assetbuilder::png", "image width cannot be 0");
 					}
 					if(asset.width > (1u << 31)) {
-						log()->fatal("image width exceeds 2^31 bytes");
+						log()->fatal("assetbuilder::png", "image width exceeds 2^31 bytes");
 					}
 
 					iss.read(reinterpret_cast<char *>(&asset.height), sizeof(asset.height));
 					asset.height = swapbe(asset.height);
 					if(asset.height == 0) {
-						log()->fatal("image height cannot be 0");
+						log()->fatal("assetbuilder::png", "image height cannot be 0");
 					}
 					if(asset.height > (1u << 31)) {
-						log()->fatal("image height exceeds 2^31 bytes");
+						log()->fatal("assetbuilder::png", "image height exceeds 2^31 bytes");
 					}
 
 					uint8_t bitDepth;
 					iss.read(reinterpret_cast<char *>(&bitDepth), sizeof(bitDepth));
 					if(bitDepth != 8) {
-						log()->fatal("bit depth must be 8");
+						log()->fatal("assetbuilder::png", "bit depth must be 8");
 					}
 
 					uint8_t colorType;
 					iss.read(reinterpret_cast<char *>(&colorType), sizeof(colorType));
 					if(colorType & 0x1) {
-						log()->fatal("color type cannot be palette");
+						log()->fatal("assetbuilder::png", "color type cannot be palette");
 					}
 					if(!(colorType & 0x2)) {
-						log()->fatal("color type must be true color");
+						log()->fatal("assetbuilder::png", "color type must be true color");
 					}
 					numChannels = (colorType & 0x4) ? 4 : 3;
 
 					uint8_t compressionMethod;
 					iss.read(reinterpret_cast<char *>(&compressionMethod), sizeof(compressionMethod));
 					if(compressionMethod != 0) {
-						log()->fatal("compression method must be 0");
+						log()->fatal("assetbuilder::png", "compression method must be 0");
 					}
 
 					uint8_t filterMethod;
 					iss.read(reinterpret_cast<char *>(&filterMethod), sizeof(filterMethod));
 					if(filterMethod != 0) {
-						log()->fatal("filter method must be 0");
+						log()->fatal("assetbuilder::png", "filter method must be 0");
 					}
 
 					uint8_t interlaceMethod;
 					iss.read(reinterpret_cast<char *>(&interlaceMethod), sizeof(interlaceMethod));
 					if(interlaceMethod != 0) {
-						log()->fatal("interlace method must be 0");
+						log()->fatal("assetbuilder::png", "interlace method must be 0");
 					}
 
 					// ignore CRC
@@ -156,10 +156,10 @@ int main(int argc, char **argv) {
 
 					zResult = inflateInit(&inflateStream);
 					if(zResult != Z_OK) {
-						log()->fatal("inflateInit failed");
+						log()->fatal("assetbuilder::png", "inflateInit failed");
 					}
 				} else {
-					log()->fatal("first chunk must be IHDR");
+					log()->fatal("assetbuilder::png", "first chunk must be IHDR");
 				}
 			} else {
 				if(chunkType == "IDAT") {
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
 
 					zResult = inflate(&inflateStream, Z_NO_FLUSH);
 					if(zResult != Z_OK && zResult != Z_STREAM_END) {
-						log()->fatal("inflate failed (zResult = ", zResult, ')');
+						log()->fatal("assetbuilder::png", "inflate failed (zResult = ", zResult, ')');
 					}
 
 					// ignore CRC
@@ -179,13 +179,13 @@ int main(int argc, char **argv) {
 				} else if(chunkType == "IEND") {
 					zResult = inflateEnd(&inflateStream);
 					if(zResult != Z_OK) {
-						log()->fatal("inflateEnd failed (zResult = ", zResult, ')');
+						log()->fatal("assetbuilder::png", "inflateEnd failed (zResult = ", zResult, ')');
 					}
 
 					size_t pos = 0;
 					for(uint32_t scanline = 0; scanline < asset.height; ++scanline) {
 						uint8_t filterType = filteredBytes[pos++];
-						//log()->info(int(filterType));
+						//log()->info("assetbuilder::png", int(filterType));
 
 						for(uint32_t column = 0; column < asset.width; ++column) {
 							asset::imagepixel &pixel = asset.pixels[scanline * asset.width + column];
@@ -260,7 +260,7 @@ int main(int argc, char **argv) {
 									pixel[component] = filteredBytes[pos++] + paethPredictor(left, up, upperLeft);
 									break;
 								default:
-									log()->fatal("png: unsupported filter type (", int(filterType), ')');
+									log()->fatal("assetbuilder::png", "png: unsupported filter type (", int(filterType), ')');
 									break;
 								}
 							}
@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
 				} else {
 					std::stringstream ss;
 					ss << "unrecognized chunk type `" << chunkType << '`';
-					log()->fatal(ss.str());
+					log()->fatal("assetbuilder::png", ss.str());
 				}
 			}
 		}
@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
 		std::string riffHeader(4, ' ');
 		iss.read(&riffHeader[0], 4);
 		if(riffHeader != "RIFF") {
-			log()->fatal("missing riff header");
+			log()->fatal("assetbuilder::wav", "missing riff header");
 		}
 
 		uint32_t riffSize;
@@ -311,12 +311,12 @@ int main(int argc, char **argv) {
 		uint32_t riffSizeAccum = 0;
 
 		if(riffSize - riffSizeAccum < 4) {
-			log()->fatal("wave header does not fit into riff size");
+			log()->fatal("assetbuilder::wav", "wave header does not fit into riff size");
 		}
 		std::string waveHeader(4, ' ');
 		iss.read(&waveHeader[0], 4);
 		if(waveHeader != "WAVE") {
-			log()->fatal("missing wave header");
+			log()->fatal("assetbuilder::wav", "missing wave header");
 		}
 		riffSizeAccum += 4;
 
@@ -324,7 +324,7 @@ int main(int argc, char **argv) {
 
 		while(riffSize - riffSizeAccum > 0) {
 			if(riffSize - riffSizeAccum < 8) {
-				log()->fatal("chunk header and size do not fit into riff size");
+				log()->fatal("assetbuilder::wav", "chunk header and size do not fit into riff size");
 			}
 
 			std::string chunkHeader(4, ' ');
@@ -337,12 +337,12 @@ int main(int argc, char **argv) {
 			riffSizeAccum += sizeof(chunkSize);
 
 			if(riffSize - riffSizeAccum < chunkSize) {
-				log()->fatal("data chunk size does not fit into riff size");
+				log()->fatal("assetbuilder::wav", "data chunk size does not fit into riff size");
 			}
 
 			if(chunkHeader == "fmt ") {
 				if(chunkSize != 16) {
-					log()->fatal("format chunk size must be 16 (PCM)");
+					log()->fatal("assetbuilder::wav", "format chunk size must be 16 (PCM)");
 				}
 
 				uint16_t formatTag;
@@ -350,7 +350,7 @@ int main(int argc, char **argv) {
 				         sizeof(formatTag));
 				formatTag = swaple(formatTag);
 				if(formatTag != 1) {
-					log()->fatal("format tag must be PCM");
+					log()->fatal("assetbuilder::wav", "format tag must be PCM");
 				}
 				riffSizeAccum += sizeof(formatTag);
 
@@ -359,7 +359,7 @@ int main(int argc, char **argv) {
 				         sizeof(numChannels));
 				numChannels = swaple(numChannels);
 				if(numChannels != 1 && numChannels != 2) {
-					log()->fatal("number of channels must be 1 or 2");
+					log()->fatal("assetbuilder::wav", "number of channels must be 1 or 2");
 				}
 				riffSizeAccum += sizeof(numChannels);
 				asset.stereo = numChannels == 2;
@@ -387,17 +387,17 @@ int main(int argc, char **argv) {
 				         sizeof(bitsPerSample));
 				bitsPerSample = swaple(bitsPerSample);
 				if(bitsPerSample != 16 && bitsPerSample != 24) {
-					log()->fatal("bits per sample must be 16 or 24");
+					log()->fatal("assetbuilder::wav", "bits per sample must be 16 or 24");
 				}
 				riffSizeAccum += sizeof(bitsPerSample);
 
 				uint8_t bytesPerSample = bitsPerSample >> 3;
 
 				if(blockAlign != numChannels * bytesPerSample) {
-					log()->fatal("block align is incorrect");
+					log()->fatal("assetbuilder::wav", "block align is incorrect");
 				}
 				if(avgByteRate != sampleRate * blockAlign) {
-					log()->fatal("average byte rate is incorrect");
+					log()->fatal("assetbuilder::wav", "average byte rate is incorrect");
 				}
 			} else if(chunkHeader == "data") {
 				std::string data(chunkSize, ' ');
@@ -415,7 +415,7 @@ int main(int argc, char **argv) {
 
 				if(chunkSize % 2 == 1) {
 					if(riffSize - riffSizeAccum < 1) {
-						log()->fatal("data padding byte does not fit into riff size");
+						log()->fatal("assetbuilder::wav", "data padding byte does not fit into riff size");
 					}
 					iss.ignore(1);
 					++riffSizeAccum;
@@ -435,7 +435,7 @@ int main(int argc, char **argv) {
 					pos = swaple(pos);
 
 					asset.loopPoint = pos;
-					log()->info("pos = ", pos);
+					log()->info("assetbuilder::wav", "pos = ", pos);
 
 					iss.ignore(4);
 					iss.ignore(4);
@@ -469,7 +469,7 @@ int main(int argc, char **argv) {
 				std::stringstream ss;
 				ss << "unrecognized chunk header `" << chunkHeader << "` at 0x"
 				   << std::hex << riffSizeAccum;
-				log()->fatal(ss.str());
+				log()->fatal("assetbuilder::wav", ss.str());
 			}
 		}
 
@@ -716,7 +716,7 @@ int main(int argc, char **argv) {
 					std::string directive;
 					std::getline(ls, directive, ' ');
 					if(!ls.good() && directive.empty()) {
-						log()->fatal(iLine, ": missing directive");
+						log()->fatal("assetbuilder::gls", iLine, ": missing directive");
 					}
 
 					std::vector<std::string> args;
@@ -728,7 +728,7 @@ int main(int argc, char **argv) {
 
 					if(directive == "shader") { /* shader stage */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing shader type");
+							log()->fatal("assetbuilder::gls", iLine, ": missing shader type");
 						}
 
 						if(args[0] == "vertex") {
@@ -740,95 +740,95 @@ int main(int argc, char **argv) {
 							    support::shader::shadertype::fragment,
 							    header.str());
 						} else {
-							log()->error(iLine, ": unknown shader type `", args[0], '`');
+							log()->error("assetbuilder::gls", iLine, ": unknown shader type `", args[0], '`');
 						}
 					} else if(directive == "uniform") { /* uniform variable */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing uniform type");
+							log()->fatal("assetbuilder::gls", iLine, ": missing uniform type");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing uniform name");
+							log()->fatal("assetbuilder::gls", iLine, ": missing uniform name");
 						}
 						asset.uniforms.emplace_back(args[1]);
 						uniforms.emplace_back(args[0], args[1]);
 					} else if(directive == "attrib") { /* vertex attribute*/
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing attribute type");
+							log()->fatal("assetbuilder::gls", iLine, ": missing attribute type");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing attribute name");
+							log()->fatal("assetbuilder::gls", iLine, ": missing attribute name");
 						}
 						attribs.emplace_back(args[0], args[1]);
 					} else if(directive ==
 					          "varying") { /* vertex->fragment interpolable */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing varying interpolation method");
+							log()->fatal("assetbuilder::gls", iLine, ": missing varying interpolation method");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing varying type");
+							log()->fatal("assetbuilder::gls", iLine, ": missing varying type");
 						}
 						if(args.size() < 3) {
-							log()->fatal(iLine, ": missing varying name");
+							log()->fatal("assetbuilder::gls", iLine, ": missing varying name");
 						}
 						varyings.emplace_back(args[0], args[1], args[2]);
 					} else if(directive ==
 					          "in") { /* input from previous pipeline stage */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing program input key");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program input key");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing program input name");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program input name");
 						}
 						asset.ins.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive == "gin") { /* global input */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing program input key");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program input key");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing program input name");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program input name");
 						}
 						asset.globalIns.emplace_back(args[0], args[1]);
 						uniforms.emplace_back("sampler2D", args[1]);
 					} else if(directive ==
 					          "out") { /* output to next pipeline stage */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing program output type");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program output type");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing program output key");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program output key");
 						}
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgba8, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb16f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgb16f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba16f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgba16f, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb32f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgb32f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba32f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program output name");
 							}
 							asset.outs.emplace_back(
 							    support::shader::outputtype::rgba32f, args[1]);
@@ -837,47 +837,47 @@ int main(int argc, char **argv) {
 							asset.outs.emplace_back(
 							    support::shader::outputtype::depth, args[1]);
 						} else {
-							log()->error(iLine, ": unknown program output type `",
+							log()->error("assetbuilder::gls", iLine, ": unknown program output type `",
 							    args[0], '`');
 						}
 					} else if(directive == "gout") { /* global output */
 						if(args.empty()) {
-							log()->fatal(iLine, ": missing program global output type");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program global output type");
 						}
 						if(args.size() < 2) {
-							log()->fatal(iLine, ": missing program global output key");
+							log()->fatal("assetbuilder::gls", iLine, ": missing program global output key");
 						}
 						if(args[0] == "rgba8") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program global output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgba8, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb16f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program global output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgb16f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba16f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program global output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgba16f, args[1]);
 							outs.emplace_back("vec4", args[2]);
 						} else if(args[0] == "rgb32f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program global output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgb32f, args[1]);
 							outs.emplace_back("vec3", args[2]);
 						} else if(args[0] == "rgba32f") {
 							if(args.size() < 3) {
-								log()->fatal(iLine, ": missing program global output name");
+								log()->fatal("assetbuilder::gls", iLine, ": missing program global output name");
 							}
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::rgba32f, args[1]);
@@ -886,11 +886,11 @@ int main(int argc, char **argv) {
 							asset.globalOuts.emplace_back(
 							    support::shader::outputtype::depth, args[1]);
 						} else {
-							log()->error(iLine, ": unknown program global output type `",
+							log()->error("assetbuilder::gls", iLine, ": unknown program global output type `",
 							    args[0], '`');
 						}
 					} else {
-						log()->error(iLine, ": unknown directive `", directive, '`');
+						log()->error("assetbuilder::gls", iLine, ": unknown directive `", directive, '`');
 					}
 				} else {
 					if(asset.shaders.empty()) {
@@ -1003,13 +1003,13 @@ int main(int argc, char **argv) {
 	std::vector<std::pair<std::string, DeltaTicksBase>> file_timings;
 
 	for(auto &file : files) {
-		log()->info("processing `", file, '`');
+		log()->info("assetbuilder", "processing `", file, '`');
 		auto pos = file.find_last_of('.');
 		if(pos != file.npos && pos < file.length() - 1) {
 			std::string ext = file.substr(pos + 1);
 			auto converter  = converters.find(ext);
 			if(converter != converters.end()) {
-				log()->info("found converter for `", ext, '`');
+				log()->info("assetbuilder", "found converter for `", ext, '`');
 
 				std::string data = fs::local::read(path / file);
 				std::stringstream ss;
@@ -1026,7 +1026,7 @@ int main(int argc, char **argv) {
 				fs::local::create_dir(build_path / type);
 				fs::local::write(build_path / type / (name + ".asset"), ss);
 			} else {
-				log()->warning(file, ": no appropriate converter found");
+				log()->warning("assetbuilder", file, ": no appropriate converter found");
 			}
 		}
 	}
@@ -1035,12 +1035,12 @@ int main(int argc, char **argv) {
 
 	for(auto &timing : file_timings) {
 		DeltaTicks dt(timing.second);
-		log()->info(timing.first, " took ", dt.Seconds(), " seconds to convert");
+		log()->info("assetbuilder", timing.first, " took ", dt.Seconds(), " seconds to convert");
 	}
 
 	DeltaTicksBase dtb = std::chrono::duration_cast<DeltaTicksBase>(after - before);
 	DeltaTicks dt(dtb);
-	log()->info("assetbuilder took ", dt.Seconds(), " seconds to run");
+	log()->info("assetbuilder", "took ", dt.Seconds(), " seconds to run");
 
 	return 0;
 }

@@ -91,7 +91,7 @@ namespace polar::system {
 
 	void menu::navigate_to(int to) {
 		if(to == current) { return; }
-		log()->debug(to, ' ', current);
+		log()->debug("menu", to, ' ', current);
 
 		auto sz = current_size();
 		auto previous = current;
