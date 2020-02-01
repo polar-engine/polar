@@ -3,10 +3,10 @@
 namespace polar::support::phys::detector {
 	class base {
 	  public:
-		Point3 size{1};
+		math::point3 size{1};
 
 		base() = default;
-		base(Point3 size) : size(size) {}
+		base(math::point3 size) : size(size) {}
 
 		virtual ~base() = default;
 	};

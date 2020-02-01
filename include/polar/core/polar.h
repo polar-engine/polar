@@ -10,7 +10,7 @@
 #include <polar/component/base.h>
 #include <polar/core/log.h>
 #include <polar/core/stack.h>
-#include <polar/core/types.h>
+#include <polar/math/types.h>
 #include <polar/util/buildinfo.h>
 #include <unordered_map>
 #include <unordered_set>

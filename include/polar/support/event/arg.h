@@ -1,13 +1,13 @@
 #pragma once
 
-#include <polar/core/types.h>
+#include <polar/math/types.h>
 
 namespace polar::support::event {
 	union arg {
-		Decimal float_;
+		math::decimal float_;
 		void *pVoid;
 
-		arg(Decimal f) { float_ = f; }
+		arg(math::decimal f) { float_ = f; }
 		arg(std::nullptr_t) { pVoid = nullptr; }
 		template<typename T> arg(T *p) { pVoid = reinterpret_cast<void *>(p); }
 		template<typename T> inline T *get() {

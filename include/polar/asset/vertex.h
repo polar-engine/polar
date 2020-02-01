@@ -5,9 +5,9 @@
 
 namespace polar::asset {
 	struct vertex {
-		Point3 position = Point3(0);
-		Point3 normal   = Point3(0);
-		Point2 texcoord = Point3(0);
+		math::point3 position = math::point3(0);
+		math::point3 normal   = math::point3(0);
+		math::point2 texcoord = math::point2(0);
 	};
 
 	inline serializer &operator<<(serializer &s, const vertex &asset) {

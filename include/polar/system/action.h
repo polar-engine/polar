@@ -156,7 +156,7 @@ namespace polar::system {
 			cf.digitals[ti].states.emplace(object, state);
 		}
 
-		void reg_analog(core::ref object, std::type_index ti, Decimal initial = 0) {
+		void reg_analog(core::ref object, std::type_index ti, math::decimal initial = 0) {
 			auto &cf = current_frame();
 
 			auto it = cf.analogs.find(ti);
@@ -172,7 +172,7 @@ namespace polar::system {
 
 		template<typename T>
 		typename std::enable_if<std::is_base_of<analog, T>::value>::type
-		reg_analog(core::ref object, Decimal initial = 0) { reg_analog(object, typeid(T), initial); }
+		reg_analog(core::ref object, math::decimal initial = 0) { reg_analog(object, typeid(T), initial); }
 
 		// digital -> digital function
 		template<typename Src,
@@ -247,7 +247,7 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(lifetime lt, Decimal passthrough, priority_t priority = 0) {
+		auto bind(lifetime lt, math::decimal passthrough, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create<Src, Tgt>(passthrough);
@@ -264,7 +264,7 @@ namespace polar::system {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		auto bind(core::ref object, lifetime lt, Decimal passthrough, priority_t priority = 0) {
+		auto bind(core::ref object, lifetime lt, math::decimal passthrough, priority_t priority = 0) {
 			std::type_index ti = typeid(Src);
 			auto id = nextID++;
 			auto b  = binding_t::create<Src, Tgt>(passthrough);
@@ -460,11 +460,11 @@ namespace polar::system {
 			}
 		}
 
-		void accumulate_analog(std::type_index ti, Decimal passthrough) {
+		void accumulate_analog(std::type_index ti, math::decimal passthrough) {
 			accumulate_analog(core::ref(), ti, passthrough);
 		}
 
-		void accumulate_analog(core::ref object, std::type_index ti, Decimal passthrough) {
+		void accumulate_analog(core::ref object, std::type_index ti, math::decimal passthrough) {
 			auto &cf = current_frame();
 
 			// force registration of analog
@@ -520,12 +520,12 @@ namespace polar::system {
 			typename T,
 			typename = typename std::enable_if<std::is_base_of<analog, T>::value>::type
 		>
-		inline void accumulate(core::ref object, Decimal x) { accumulate_analog(object, typeid(T), x); }
+		inline void accumulate(core::ref object, math::decimal x) { accumulate_analog(object, typeid(T), x); }
 
 		template<
 			typename T,
 			typename = typename std::enable_if<std::is_base_of<analog, T>::value>::type
 		>
-		inline void accumulate(Decimal x) { accumulate_analog(core::ref(), typeid(T), x); }
+		inline void accumulate(math::decimal x) { accumulate_analog(core::ref(), typeid(T), x); }
 	};
 }

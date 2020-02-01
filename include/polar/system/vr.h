@@ -23,13 +23,13 @@ namespace polar::system {
 		uint32_t _width = 0;
 		uint32_t _height = 0;
 
-		Mat4 _head_view = Mat4(1);
-		Mat4 _left_hand_view = Mat4(1);
-		Mat4 _right_hand_view = Mat4(1);
+		math::mat4x4 _head_view = math::mat4x4(1);
+		math::mat4x4 _left_hand_view = math::mat4x4(1);
+		math::mat4x4 _right_hand_view = math::mat4x4(1);
 
-		Mat4 _last_head_view = Mat4(1);
-		Mat4 _last_left_hand_view = Mat4(1);
-		Mat4 _last_right_hand_view = Mat4(1);
+		math::mat4x4 _last_head_view = math::mat4x4(1);
+		math::mat4x4 _last_left_hand_view = math::mat4x4(1);
+		math::mat4x4 _last_right_hand_view = math::mat4x4(1);
 
 		std::string tracked_device_str(::vr::TrackedDeviceIndex_t i, ::vr::TrackedDeviceProperty p) {
 			::vr::TrackedPropertyError err;
@@ -75,16 +75,16 @@ namespace polar::system {
 	public:
 		static bool supported() { return true; }
 
-		static Mat4 pose_view(::vr::TrackedDevicePose_t pose) {
+		static math::mat4x4 pose_view(::vr::TrackedDevicePose_t pose) {
 			auto vr_view = pose.mDeviceToAbsoluteTracking;
-			return Mat4(vr_view.m[0][0], vr_view.m[1][0], vr_view.m[2][0], 0,
-			            vr_view.m[0][1], vr_view.m[1][1], vr_view.m[2][1], 0,
-			            vr_view.m[0][2], vr_view.m[1][2], vr_view.m[2][2], 0,
-			            vr_view.m[0][3], vr_view.m[1][3], vr_view.m[2][3], 1);
-			return Mat4(vr_view.m[0][0], vr_view.m[0][1], vr_view.m[0][2], vr_view.m[0][3],
-			            vr_view.m[1][0], vr_view.m[1][1], vr_view.m[1][2], vr_view.m[1][3],
-			            vr_view.m[2][0], vr_view.m[2][1], vr_view.m[2][2], vr_view.m[2][3],
-			            0, 0, 0, 1);
+			return math::mat4x4(vr_view.m[0][0], vr_view.m[1][0], vr_view.m[2][0], 0,
+			                    vr_view.m[0][1], vr_view.m[1][1], vr_view.m[2][1], 0,
+			                    vr_view.m[0][2], vr_view.m[1][2], vr_view.m[2][2], 0,
+			                    vr_view.m[0][3], vr_view.m[1][3], vr_view.m[2][3], 1);
+			return math::mat4x4(vr_view.m[0][0], vr_view.m[0][1], vr_view.m[0][2], vr_view.m[0][3],
+			                    vr_view.m[1][0], vr_view.m[1][1], vr_view.m[1][2], vr_view.m[1][3],
+			                    vr_view.m[2][0], vr_view.m[2][1], vr_view.m[2][2], vr_view.m[2][3],
+			                    0, 0, 0, 1);
 		}
 
 		inline auto ready()                const { return _ready; }
@@ -278,8 +278,8 @@ namespace polar::system {
 			}
 		}
 
-		Mat4 projection(eye e, Decimal zNear, Decimal zFar) const {
-			if(!ready()) { return Mat4(1); }
+		math::mat4x4 projection(eye e, math::decimal zNear, math::decimal zFar) const {
+			if(!ready()) { return math::mat4x4(1); }
 
 			auto vr_eye = (e == eye::left) ? ::vr::Eye_Left : ::vr::Eye_Right;
 			auto vr_proj = vr_system->GetProjectionMatrix(vr_eye, zNear, zFar);

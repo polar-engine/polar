@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <iostream>
 #include <optional>
-#include <polar/core/types.h>
+#include <polar/math/types.h>
 #include <polar/util/endian.h>
 #include <polar/util/raw_vector.h>
 #include <set>
@@ -111,11 +111,11 @@ namespace polar::core {
 		return s;
 	}
 
-	inline serializer &operator<<(serializer &s, const Point2 &p) {
+	inline serializer &operator<<(serializer &s, const math::point2 &p) {
 		return s << p.x << p.y;
 	}
 
-	inline serializer &operator<<(serializer &s, const Point3 &p) {
+	inline serializer &operator<<(serializer &s, const math::point3 &p) {
 		return s << p.x << p.y << p.z;
 	}
 
@@ -240,11 +240,11 @@ namespace polar::core {
 		return s;
 	}
 
-	inline deserializer &operator>>(deserializer &s, Point2 &p) {
+	inline deserializer &operator>>(deserializer &s, math::point2 &p) {
 		return s >> p.x >> p.y;
 	}
 
-	inline deserializer &operator>>(deserializer &s, Point3 &p) {
+	inline deserializer &operator>>(deserializer &s, math::point3 &p) {
 		return s >> p.x >> p.y >> p.z;
 	}
 } // namespace polar::core

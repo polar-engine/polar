@@ -4,10 +4,10 @@
 
 namespace polar::asset {
 	struct material : base {
-		Point3 ambient = Point3(0);
-		Point3 diffuse = Point3(1);
-		Point3 specular = Point3(1);
-		Decimal specular_exponent = 64;
+		math::point3 ambient = math::point3(0);
+		math::point3 diffuse = math::point3(1);
+		math::point3 specular = math::point3(1);
+		math::decimal specular_exponent = 64;
 		std::optional<std::string> diffuse_map;
 		std::optional<std::string> specular_map;
 		std::optional<std::string> normal_map;

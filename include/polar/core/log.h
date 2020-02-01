@@ -4,31 +4,32 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <polar/core/types.h>
+#include <polar/math/point.h>
+#include <polar/math/quat.h>
 #include <polar/support/log/priority.h>
 #include <sstream>
 #include <string>
 #include <vector>
 
 namespace polar::core {
-	inline std::ostream & operator<<(std::ostream &os, const Point2 &p) {
-		return os << "Point2(" << p.x << ", " << p.y << ')';
+	inline std::ostream & operator<<(std::ostream &os, const math::point2 &p) {
+		return os << "math::point2(" << p.x << ", " << p.y << ')';
 	}
 	
-	inline std::ostream & operator<<(std::ostream &os, const Point3 &p) {
-		return os << "Point3(" << p.x << ", " << p.y << ", " << p.z << ')';
+	inline std::ostream & operator<<(std::ostream &os, const math::point3 &p) {
+		return os << "math::point3(" << p.x << ", " << p.y << ", " << p.z << ')';
 	}
 
-	inline std::ostream & operator<<(std::ostream &os, const Point3i &p) {
-		return os << "Point3i(" << p.x << ", " << p.y << ", " << p.z << ')';
+	inline std::ostream & operator<<(std::ostream &os, const math::point3i &p) {
+		return os << "math::point3i(" << p.x << ", " << p.y << ", " << p.z << ')';
 	}
 	
-	inline std::ostream & operator<<(std::ostream &os, const Point4 &p) {
-		return os << "Point4(" << p.x << ", " << p.y << ", " << p.z << ", " << p.w << ')';
+	inline std::ostream & operator<<(std::ostream &os, const math::point4 &p) {
+		return os << "math::point4(" << p.x << ", " << p.y << ", " << p.z << ", " << p.w << ')';
 	}
 
-	inline std::ostream & operator<<(std::ostream &os, const Quat &q) {
-		return os << "Quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ')';
+	inline std::ostream & operator<<(std::ostream &os, const math::quat &q) {
+		return os << "math::quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ')';
 	}
 
 	template<typename T>

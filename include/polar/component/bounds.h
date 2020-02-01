@@ -8,7 +8,7 @@ namespace polar::component {
 	  public:
 		support::phys::boundingbox box;
 		bounds() {}
-		bounds(const Point3 &position, const Point3 &size,
+		bounds(const math::point3 &position, const math::point3 &size,
 		       const bool &skipRoot = false)
 		    : box(position, size, skipRoot) {}
 	};

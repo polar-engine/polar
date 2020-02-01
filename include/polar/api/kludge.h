@@ -15,7 +15,7 @@ namespace polar::api {
 
 		class token {
 		  public:
-			using value_type = std::variant<std::monostate, Decimal, std::string>;
+			using value_type = std::variant<std::monostate, math::decimal, std::string>;
 		  protected:
 			token_type _type;
 			value_type _value;
@@ -32,7 +32,7 @@ namespace polar::api {
 				return token{token_type::accessor};
 			}
 
-			static token number(Decimal x) {
+			static token number(math::decimal x) {
 				return token{token_type::number, x};
 			}
 
@@ -55,7 +55,7 @@ namespace polar::api {
 				case token_type::accessor:
 					return os << "token::accessor";
 				case token_type::number:
-					return os << "token::number { " << t.get<Decimal>() << " }";
+					return os << "token::number { " << t.get<math::decimal>() << " }";
 				case token_type::identifier:
 					return os << "token::identifier { \"" << t.get<std::string>() << "\" }";
 				default:
@@ -94,7 +94,7 @@ namespace polar::api {
 		  public:
 			using value_type = std::variant<
 				std::monostate,
-				Decimal,
+				math::decimal,
 				std::string,
 				std::type_index,
 				system::base::accessor_type,
@@ -110,7 +110,7 @@ namespace polar::api {
 			expr(expr_type type, value_type value) : expr(type, {}, value) {}
 			expr(expr_type type) : expr(type, {}, {}) {}
 		  public:
-			static expr number(Decimal x) {
+			static expr number(math::decimal x) {
 				return expr{expr_type::number, x};
 			}
 
@@ -187,7 +187,7 @@ namespace polar::api {
 
 				switch(type()) {
 				case expr_type::number:
-					return os << "expr::number { " << get<Decimal>() << " }";
+					return os << "expr::number { " << get<math::decimal>() << " }";
 				case expr_type::identifier:
 					return os << "expr::identifier { \"" << get<std::string>() << "\" }";
 				case expr_type::assignment:
@@ -319,7 +319,7 @@ namespace polar::api {
 		lex_number(std::string_view str) const {
 			str = lex_whitespace(str);
 
-			Decimal r = 0;
+			math::decimal r = 0;
 
 			auto [d, s] = lex_digit(str);
 			if(d) {
@@ -426,7 +426,7 @@ namespace polar::api {
 		parse_number(token_range range) const {
 			auto [x, r_x] = parse_token(range);
 			if(x && x->type() == token_type::number) {
-				return {{expr::number(x->get<Decimal>())}, r_x};
+				return {{expr::number(x->get<math::decimal>())}, r_x};
 			} else {
 				return {{}, range};
 			}
@@ -668,7 +668,7 @@ namespace polar::api {
 			type_mismatch
 		};
 
-		using exec_type = std::variant<std::monostate, exec_error, Decimal>;
+		using exec_type = std::variant<std::monostate, exec_error, math::decimal>;
 
 		exec_type exec_one(expr &e) {
 			exec_type ret;
@@ -679,7 +679,7 @@ namespace polar::api {
 
 			switch(e.type()) {
 			case expr_type::number:
-				return e.get<Decimal>();
+				return e.get<math::decimal>();
 			case expr_type::system_getter:
 				if(auto getter = e.get<system::base::accessor_type>().getter) {
 					auto ti = e.get(0).get<std::type_index>();
@@ -690,13 +690,13 @@ namespace polar::api {
 				break;
 			case expr_type::system_setter: {
 				auto rhs = exec_one(e.get(1));
-				if(!std::holds_alternative<Decimal>(rhs)) {
+				if(!std::holds_alternative<math::decimal>(rhs)) {
 					return exec_error::type_mismatch;
 				}
 
 				if(auto setter = e.get<system::base::accessor_type>().setter) {
 					auto ti = e.get(0).get(0).get<std::type_index>();
-					auto rhs_value = std::get<Decimal>(rhs);
+					auto rhs_value = std::get<math::decimal>(rhs);
 					if(auto sys = engine->get(ti).lock()) {
 						setter.value()(sys.get(), rhs_value);
 					}
@@ -714,13 +714,13 @@ namespace polar::api {
 				break;
 			case expr_type::component_setter: {
 				auto rhs = exec_one(e.get(1));
-				if(!std::holds_alternative<Decimal>(rhs)) {
+				if(!std::holds_alternative<math::decimal>(rhs)) {
 					return exec_error::type_mismatch;
 				}
 
 				if(auto setter = e.get<component::base::accessor_type>().setter) {
 					auto ti = e.get(0).get(0).get<std::type_index>();
-					auto rhs_value = std::get<Decimal>(rhs);
+					auto rhs_value = std::get<math::decimal>(rhs);
 					auto pair = engine->objects.right.equal_range(ti);
 					for(auto it = pair.first; it != pair.second; ++it) {
 						setter.value()(it->info.get(), rhs_value);

@@ -9,16 +9,16 @@ namespace polar::system::renderer {
 	  protected:
 		uint16_t width                  = 1280;
 		uint16_t height                 = 720;
-		Decimal fovPlus                 = Decimal(glm::radians(10.0));
+		math::decimal fovPlus           = math::decimal(glm::radians(10.0));
 
 		virtual void makepipeline(const std::vector<std::string> &) = 0;
 
 	  public:
 		struct action_resize : action::digital {};
 
-		Decimal zNear                   = Decimal(0.1);
-		Decimal zFar                    = Decimal(1000.0);
-		Decimal pixelDistanceFromScreen = Decimal(1000.0);
+		math::decimal zNear                   = math::decimal(0.1);
+		math::decimal zFar                    = math::decimal(1000.0);
+		math::decimal pixelDistanceFromScreen = math::decimal(1000.0);
 
 		bool showFPS = false;
 		bool debug_draw = false;
@@ -71,19 +71,19 @@ namespace polar::system::renderer {
 		inline void setwidth(uint16_t w) { resize(w, height); }
 		inline void setheight(uint16_t h) { resize(width, h); }
 
-		virtual void resize(uint16_t, uint16_t)                             = 0;
-		virtual void setmousecapture(bool)                                  = 0;
-		virtual void setfullscreen(bool)                                    = 0;
-		virtual void setdepthtest(bool)                                     = 0;
-		virtual void setpipeline(const std::vector<std::string> &)          = 0;
-		virtual void setclearcolor(const Point4 &)                          = 0;
-		virtual Decimal getuniform_decimal(const std::string &,
-		                                   const Decimal = 0)               = 0;
-		virtual Point3 getuniform_point3(const std::string &,
-		                                 const Point3 = Point3(0))          = 0;
+		virtual void resize(uint16_t, uint16_t)                                      = 0;
+		virtual void setmousecapture(bool)                                           = 0;
+		virtual void setfullscreen(bool)                                             = 0;
+		virtual void setdepthtest(bool)                                              = 0;
+		virtual void setpipeline(const std::vector<std::string> &)                   = 0;
+		virtual void setclearcolor(const math::point4 &)                             = 0;
+		virtual math::decimal getuniform_decimal(const std::string &,
+		                                         const math::decimal = 0)            = 0;
+		virtual math::point3 getuniform_point3(const std::string &,
+		                                       const math::point3 = math::point3(0)) = 0;
 		virtual void setuniform(const std::string &, glm::uint32,
-		                        bool = false)                               = 0;
-		virtual void setuniform(const std::string &, Decimal, bool = false) = 0;
-		virtual void setuniform(const std::string &, Point3, bool = false)  = 0;
+		                        bool = false)                                        = 0;
+		virtual void setuniform(const std::string &, math::decimal, bool = false)    = 0;
+		virtual void setuniform(const std::string &, math::point3, bool = false)     = 0;
 	};
 } // namespace polar::system::renderer

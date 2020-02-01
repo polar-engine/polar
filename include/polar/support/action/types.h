@@ -7,20 +7,20 @@ namespace polar::support::action {
 	struct analog {};
 
 	using digital_function_t = std::function<void(core::weak_ref)>;
-	using analog_function_t  = std::function<void(core::weak_ref, Decimal)>;
-	using analog_predicate_t = std::function<bool(core::weak_ref, Decimal, Decimal)>;
+	using analog_function_t  = std::function<void(core::weak_ref, math::decimal)>;
+	using analog_predicate_t = std::function<bool(core::weak_ref, math::decimal, math::decimal)>;
 	using digital_cont_t     = std::function<bool(core::weak_ref)>;
-	using analog_cont_t      = std::function<bool(core::weak_ref, Decimal)>;
+	using analog_cont_t      = std::function<bool(core::weak_ref, math::decimal)>;
 
 	struct digital_data {
 		std::unordered_map<core::ref, bool> states;
 	};
 
 	struct analog_state {
-		Decimal initial = 0;
-		Decimal previous = 0;
-		Decimal value = 0;
-		Decimal saved = 0;
+		math::decimal initial = 0;
+		math::decimal previous = 0;
+		math::decimal value = 0;
+		math::decimal saved = 0;
 	};
 
 	struct analog_data {

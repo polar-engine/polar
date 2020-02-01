@@ -8,14 +8,14 @@ namespace polar::component {
 		template<typename... Ts>
 		using integrable = support::integrator::integrable<Ts...>;
 	  public:
-		integrable<Quat, Point3> orient;
+		integrable<math::quat, math::point3> orient;
 
-		orientation(const Quat orient = Quat{1, 0, 0, 0}) : orient(orient) {
+		orientation(const math::quat orient = math::quat{1, 0, 0, 0}) : orient(orient) {
 			add<property::integrable>();
 			get<property::integrable>().lock()->add(&this->orient);
 		}
 
-		orientation(const Point3 euler) : orientation(Quat(euler)) {}
+		orientation(const math::point3 euler) : orientation(math::quat(euler)) {}
 
 		virtual std::string name() const override { return "orientation"; }
 	};

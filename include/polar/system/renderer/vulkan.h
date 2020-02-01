@@ -541,17 +541,17 @@ namespace polar::system::renderer {
 			case SDL_MOUSEMOTION:
 				if(act) {
 					// XXX: this is hacky
-					act->accumulate<mouse::position_x>(Decimal(ev.motion.x));
-					act->accumulate<mouse::position_y>(Decimal(ev.motion.y));
+					act->accumulate<mouse::position_x>(math::decimal(ev.motion.x));
+					act->accumulate<mouse::position_y>(math::decimal(ev.motion.y));
 
-					act->accumulate<mouse::motion_x>(Decimal(ev.motion.xrel));
-					act->accumulate<mouse::motion_y>(Decimal(ev.motion.yrel));
+					act->accumulate<mouse::motion_x>(math::decimal(ev.motion.xrel));
+					act->accumulate<mouse::motion_y>(math::decimal(ev.motion.yrel));
 				}
 				break;
 			case SDL_MOUSEWHEEL:
 				if(act) {
-					act->accumulate<mouse::wheel_x>(Decimal(ev.wheel.x));
-					act->accumulate<mouse::wheel_y>(Decimal(ev.wheel.y));
+					act->accumulate<mouse::wheel_x>(math::decimal(ev.wheel.x));
+					act->accumulate<mouse::wheel_y>(math::decimal(ev.wheel.y));
 				}
 				break;
 			case SDL_CONTROLLERBUTTONDOWN:
@@ -641,7 +641,7 @@ namespace polar::system::renderer {
 		void setfullscreen(bool fullscreen) override {}
 		void setdepthtest(bool depthtest) override {}
 		void setpipeline(const std::vector<std::string> &names) override {}
-		void setclearcolor(const Point4 &color) override {}
+		void setclearcolor(const math::point4 &color) override {}
 
 		void resize(uint16_t w, uint16_t h) override {
 			width = w;
@@ -650,16 +650,16 @@ namespace polar::system::renderer {
 			SDL(SDL_SetWindowSize(window, width, height));
 		}
 
-		Decimal getuniform_decimal(const std::string &name,
-		                           const Decimal def) override { return 0; }
-		Point3 getuniform_point3(const std::string &name,
-		                         const Point3 def) override { return Point3(0); }
+		math::decimal getuniform_decimal(const std::string &name,
+		                                 const math::decimal def) override { return 0; }
+		math::point3 getuniform_point3(const std::string &name,
+		                               const math::point3 def) override { return math::point3(0); }
 
 		void setuniform(const std::string &name, glm::uint32 x,
 		                bool force = false) override {}
-		void setuniform(const std::string &name, Decimal x,
+		void setuniform(const std::string &name, math::decimal x,
 		                bool force = false) override {}
-		void setuniform(const std::string &name, Point3 p,
+		void setuniform(const std::string &name, math::point3 p,
 		                bool force = false) override {}
 	};
 } // namespace polar::system::renderer

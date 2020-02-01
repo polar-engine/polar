@@ -3,7 +3,7 @@
 #include <array>
 #include <iostream>
 #include <polar/core/serializer.h>
-#include <polar/core/types.h>
+#include <polar/math/types.h>
 
 namespace polar::support::level {
 	using polar::core::deserializer;
@@ -11,16 +11,16 @@ namespace polar::support::level {
 
 	struct keyframe {
 		uint64_t ticks;
-		Decimal baseThreshold;
-		Decimal beatTicks;
-		Decimal beatPower;
-		Decimal beatStrength;
-		Decimal waveTicks;
-		Decimal wavePower;
-		Decimal waveStrength;
-		Point3 worldScale{1};
+		math::decimal baseThreshold;
+		math::decimal beatTicks;
+		math::decimal beatPower;
+		math::decimal beatStrength;
+		math::decimal waveTicks;
+		math::decimal wavePower;
+		math::decimal waveStrength;
+		math::point3 worldScale{1};
 		uint64_t colorTicks;
-		std::array<Point3, 3> colors;
+		std::array<math::point3, 3> colors;
 
 		explicit keyframe(uint64_t t = 0) : ticks(t) {}
 		explicit keyframe(uint64_t t, const keyframe &kf) : keyframe(kf) {
@@ -61,7 +61,7 @@ namespace polar::support::level {
 			return kf;
 		}
 
-		friend keyframe operator*(const keyframe &lhs, const Decimal x) {
+		friend keyframe operator*(const keyframe &lhs, const math::decimal x) {
 			keyframe kf(lhs.ticks);
 			kf.baseThreshold = lhs.baseThreshold * x;
 			kf.beatTicks     = lhs.beatTicks * x;

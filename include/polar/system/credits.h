@@ -1,7 +1,7 @@
 #pragma once
 
 #include <polar/asset/font.h>
-#include <polar/core/types.h>
+#include <polar/math/types.h>
 #include <polar/support/ui/credits.h>
 #include <polar/support/ui/origin.h>
 #include <polar/system/base.h>
@@ -16,7 +16,7 @@ namespace polar::system {
 	  private:
 		credits_vector_t _credits;
 		std::shared_ptr<polar::asset::font> font;
-		Decimal height = 0;
+		math::decimal height = 0;
 
 		void render_all();
 

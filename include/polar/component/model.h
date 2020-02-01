@@ -20,19 +20,19 @@ namespace polar::component {
 				auto delta1 = tri.q.position - tri.p.position;
 				auto delta2 = tri.r.position - tri.p.position;
 
-				Point3 normal;
+				math::point3 normal;
 				normal.x = delta1.y * delta2.z - delta1.z * delta2.y;
 				normal.y = delta1.z * delta2.x - delta1.x * delta2.z;
 				normal.z = delta1.x * delta2.y - delta1.y * delta2.x;
 				normal = glm::normalize(normal);
 
-				if(tri.p.normal == Point3(0, 0, 0)) {
+				if(tri.p.normal == math::point3(0, 0, 0)) {
 					tri.p.normal = normal;
 				}
-				if(tri.q.normal == Point3(0, 0, 0)) {
+				if(tri.q.normal == math::point3(0, 0, 0)) {
 					tri.q.normal = normal;
 				}
-				if(tri.r.normal == Point3(0, 0, 0)) {
+				if(tri.r.normal == math::point3(0, 0, 0)) {
 					tri.r.normal = normal;
 				}
 

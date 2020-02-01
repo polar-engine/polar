@@ -9,14 +9,14 @@ namespace polar::support::sched::clock {
 	  public:
 		DeltaTicks timestep;
 
-		base(Decimal ts = Decimal(1) / Decimal(50)) {
+		base(math::decimal ts = math::decimal(1) / math::decimal(50)) {
 			timestep.SetSeconds(ts);
 		}
 
 		virtual ~base() {}
 
 		auto frequency() const {
-			return Decimal(1) / timestep.Seconds();
+			return math::decimal(1) / timestep.Seconds();
 		}
 
 		auto delta() const {

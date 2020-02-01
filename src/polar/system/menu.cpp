@@ -128,21 +128,21 @@ namespace polar::system {
 			items.emplace_back(item_object);
 		}
 
-		Decimal scale = glm::min(actual_height() / Decimal(size), actual_scale());
-		Decimal spacing = uiTextHeight * scale;
-		Point2 origin   = Point2(60, 50 + spacing * (size - i - 1));
+		math::decimal scale = glm::min(actual_height() / math::decimal(size), actual_scale());
+		math::decimal spacing = uiTextHeight * scale;
+		math::point2 origin = math::point2(60, 50 + spacing * (size - i - 1));
 
 		engine->add<component::text>(item_object, font, item.value);
 		engine->add<component::screenposition>(item_object, origin);
-		engine->add<component::scale>(item_object, Point3(scale));
+		engine->add<component::scale>(item_object, math::point3(scale));
 
 		if(int(i) == current) {
-			engine->add<component::color>(item_object, Point4(1, 1, selectionAlpha, 1));
+			engine->add<component::color>(item_object, math::point4(1, 1, selectionAlpha, 1));
 		}
 
 		if(item.control) {
 			auto control = engine->add();
-			auto offset = Point2(uiTextWidth / uiBase * scale, 0);
+			auto offset = math::point2(uiTextWidth / uiBase * scale, 0);
 			offset.y -= 12 * scale;
 			item.control->render(engine, control, origin + offset, 8 * scale);
 			controls[(int)i] = control;
@@ -152,7 +152,7 @@ namespace polar::system {
 	void menu::on_cursor(int y) {
 		auto size = current_size();
 
-		auto scale = glm::min(actual_height() / Decimal(size), actual_scale());
+		auto scale = glm::min(actual_height() / math::decimal(size), actual_scale());
 		auto spacing = uiTextHeight * scale;
 
 		auto height = engine->get<renderer::base>().lock()->getheight();
@@ -199,7 +199,7 @@ namespace polar::system {
 			navigate(0, -1, true);
 		}));
 
-		keep(act->bind<mse::position_y>([this](auto, Decimal y) {
+		keep(act->bind<mse::position_y>([this](auto, math::decimal y) {
 			if(int(y) != 0) { on_cursor(int(y)); }
 		}));
 

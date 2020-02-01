@@ -75,7 +75,7 @@ namespace polar::system {
 			});
 		}
 
-		void keep(core::ref r, Decimal seconds) {
+		void keep(core::ref r, math::decimal seconds) {
 			timers.emplace_back(timer{clock_base(seconds), [r] (auto) {}});
 		}
 

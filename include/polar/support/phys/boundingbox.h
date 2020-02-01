@@ -5,35 +5,35 @@
 
 namespace polar::support::phys {
 	struct boundingbox {
-		Point3 position;
-		Point3 size;
+		math::point3 position;
+		math::point3 size;
 		bool skipRoot = false;
 		std::vector<boundingbox> children;
 
 		boundingbox() {}
-		boundingbox(const Point3 &position, const Point3 &size,
+		boundingbox(const math::point3 &position, const math::point3 &size,
 		            const bool &skipRoot = false)
 		    : position(position), size(size), skipRoot(skipRoot) {}
 
-		inline Point3 Center() const { return position + size / Decimal(2.0); }
+		inline math::point3 Center() const { return position + size / math::decimal(2.0); }
 
-		inline std::tuple<bool, Decimal, Point3, Point3>
-		TestRay(const Point3 &origin, const Point3 &direction, Decimal tMax,
-		        const Point3 &ownPos) const {
+		inline std::tuple<bool, math::decimal, math::point3, math::point3>
+		TestRay(const math::point3 &origin, const math::point3 &direction, math::decimal tMax,
+		        const math::point3 &ownPos) const {
 			auto failure =
-			    std::make_tuple(false, std::numeric_limits<Decimal>::infinity(),
-			                    Point3(0.0), Point3(0.0));
-			Decimal tMin(0.0);
+			    std::make_tuple(false, std::numeric_limits<math::decimal>::infinity(),
+			                    math::point3(0.0), math::point3(0.0));
+			math::decimal tMin(0.0);
 			auto p             = ownPos + Center() - origin;
-			auto h             = size / Decimal(2.0);
+			auto h             = size / math::decimal(2.0);
 			glm::length_t axis = 0;
-			Point3 tEntry;
-			Point3 tExit;
-			Point3 normal;
+			math::point3 tEntry;
+			math::point3 tExit;
+			math::point3 normal;
 
 			for(glm::length_t i = 0; i < 3; ++i) {
-				if(glm::abs(direction[i]) > Decimal(0.00000000000000000001)) {
-					Decimal invDir = Decimal(1.0) / direction[i];
+				if(glm::abs(direction[i]) > math::decimal(0.00000000000000000001)) {
+					math::decimal invDir = math::decimal(1.0) / direction[i];
 					tEntry[i]      = (p[i] - h[i]) * invDir;
 					tExit[i]       = (p[i] + h[i]) * invDir;
 					if(tEntry[i] > tExit[i]) { std::swap(tEntry[i], tExit[i]); }
@@ -63,21 +63,21 @@ namespace polar::support::phys {
 
 			/* determine normal of collided surface */
 			if(axis == 0) {
-				normal = glm::normalize(Point3(-direction.x, 0, 0));
+				normal = glm::normalize(math::point3(-direction.x, 0, 0));
 			} else if(axis == 1) {
-				normal = glm::normalize(Point3(0, -direction.y, 0));
+				normal = glm::normalize(math::point3(0, -direction.y, 0));
 			} else {
-				normal = glm::normalize(Point3(0, 0, -direction.z));
+				normal = glm::normalize(math::point3(0, 0, -direction.z));
 			}
 
 			return std::make_tuple(true, tMin > 0.0f ? tMin : tMax,
 			                       ownPos + position, normal);
 		}
 
-		inline bool AABBCheck(const boundingbox &b, const Point3 &ownPos,
-		                      const Point3 &bPos) const {
-			Point3 aBegin = position + ownPos;
-			Point3 bBegin = b.position + bPos;
+		inline bool AABBCheck(const boundingbox &b, const math::point3 &ownPos,
+		                      const math::point3 &bPos) const {
+			math::point3 aBegin = position + ownPos;
+			math::point3 bBegin = b.position + bPos;
 			auto aEnd     = aBegin + size;
 			auto bEnd     = bBegin + b.size;
 
@@ -86,21 +86,21 @@ namespace polar::support::phys {
 			         aBegin.y > bEnd.y || aBegin.z > bEnd.z);
 		}
 
-		std::pair<Decimal, Point3>
-		AABBSwept(const boundingbox &b, const Point3 &ownPos,
-		          const std::tuple<Point3, Point3, Point3> &bTuple) const {
-			std::pair<Decimal, Point3> result =
-			    std::make_pair(1.0f, Point3(0.0f));
+		std::pair<math::decimal, math::point3>
+		AABBSwept(const boundingbox &b, const math::point3 &ownPos,
+		          const std::tuple<math::point3, math::point3, math::point3> &bTuple) const {
+			std::pair<math::decimal, math::point3> result =
+			    std::make_pair(1.0f, math::point3(0.0f));
 
 			auto &bPos1 = std::get<0>(bTuple);
 			auto &bPos2 = std::get<1>(bTuple);
 			auto &bVel  = std::get<2>(bTuple);
 
 			boundingbox broadphase(
-			    Point3(bVel.x > 0.0f ? bPos1.x : bPos2.x,
+			    math::point3(bVel.x > 0.0f ? bPos1.x : bPos2.x,
 			           bVel.y > 0.0f ? bPos1.y : bPos2.y,
 			           bVel.z > 0.0f ? bPos1.z : bPos2.z),
-			    Point3(bVel.x > 0.0f ? b.size.x + bVel.x : b.size.x - bVel.x,
+			    math::point3(bVel.x > 0.0f ? b.size.x + bVel.x : b.size.x - bVel.x,
 			           bVel.y > 0.0f ? b.size.y + bVel.y : b.size.y - bVel.y,
 			           bVel.z > 0.0f ? b.size.z + bVel.z : b.size.z - bVel.z));
 
@@ -120,10 +120,10 @@ namespace polar::support::phys {
 			auto bBegin = position + ownPos;
 			auto bEnd   = bBegin + size;
 
-			Point3 inverseEntry;
-			Point3 inverseExit;
-			Point3 entry;
-			Point3 exit;
+			math::point3 inverseEntry;
+			math::point3 inverseExit;
+			math::point3 entry;
+			math::point3 exit;
 
 			for(glm::length_t i = 0; i < 3; ++i) {
 				/* find distance between self and b on near and far sides of
@@ -142,8 +142,8 @@ namespace polar::support::phys {
 				 * infinity and exit time to maximum infinity
 				 */
 				if(bVel[i] == 0.0f) {
-					entry[i] = -std::numeric_limits<Decimal>::infinity();
-					exit[i]  = std::numeric_limits<Decimal>::infinity();
+					entry[i] = -std::numeric_limits<math::decimal>::infinity();
+					exit[i]  = std::numeric_limits<math::decimal>::infinity();
 				} else {
 					entry[i] = inverseEntry[i] / bVel[i];
 					exit[i]  = inverseExit[i] / bVel[i];
@@ -151,10 +151,10 @@ namespace polar::support::phys {
 			}
 
 			/* find time at which all axes have entered b */
-			Decimal entryTime = std::max({entry.x, entry.y, entry.z});
+			math::decimal entryTime = std::max({entry.x, entry.y, entry.z});
 
 			/* find time at which any axis has exited b */
-			Decimal exitTime = std::min({exit.x, exit.y, exit.z});
+			math::decimal exitTime = std::min({exit.x, exit.y, exit.z});
 
 			/* false if entry time is after exit time
 			 * OR if all entry times are less than 0
@@ -171,13 +171,13 @@ namespace polar::support::phys {
 			/* determine normal of collided surface */
 			if(entryTime == entry.x) {
 				std::get<1>(result) =
-				    Point3(inverseEntry.x < 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
+				    math::point3(inverseEntry.x < 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
 			} else if(entryTime == entry.y) {
 				std::get<1>(result) =
-				    Point3(0.0f, inverseEntry.y < 0.0f ? 1.0f : -1.0f, 0.0f);
+				    math::point3(0.0f, inverseEntry.y < 0.0f ? 1.0f : -1.0f, 0.0f);
 			} else {
 				std::get<1>(result) =
-				    Point3(0.0f, 0.0f, inverseEntry.z < 0.0f ? 1.0f : -1.0f);
+				    math::point3(0.0f, 0.0f, inverseEntry.z < 0.0f ? 1.0f : -1.0f);
 			}
 
 			return result;

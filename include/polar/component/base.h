@@ -1,17 +1,18 @@
 #pragma once
 
-#include <polar/core/ecs.h>
-#include <polar/core/types.h>
-#include <polar/property/base.h>
 #include <functional>
 #include <optional>
+#include <polar/core/ecs.h>
+#include <polar/math/types.h>
+#include <polar/property/base.h>
+#include <string>
 #include <vector>
 
 namespace polar::component {
 	class base : public core::ecs<property::base> {
 	  public:
-		template<typename T> using basic_getter_type = std::function<Decimal(T *)>;
-		template<typename T> using basic_setter_type = std::function<void(T *, Decimal)>;
+		template<typename T> using basic_getter_type = std::function<math::decimal(T *)>;
+		template<typename T> using basic_setter_type = std::function<void(T *, math::decimal)>;
 		using getter_type = basic_getter_type<base>;
 		using setter_type = basic_setter_type<base>;
 

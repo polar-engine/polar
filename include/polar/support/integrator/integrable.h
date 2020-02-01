@@ -10,27 +10,27 @@ namespace polar::support::integrator {
 		return T(0);
 	}
 
-	template<> inline Quat integrable_id() {
-		return Quat{1, 0, 0, 0};
+	template<> inline math::quat integrable_id() {
+		return math::quat{1, 0, 0, 0};
 	}
 
 	template<typename T, typename D = T> inline T integrable_sum(T a, D b) {
 		return a + b;
 	}
 
-	template<> inline Quat integrable_sum(Quat a, Quat b) {
+	template<> inline math::quat integrable_sum(math::quat a, math::quat b) {
 		return glm::normalize(b * a);
 	}
 
-	template<> inline Quat integrable_sum(Quat a, Point3 b) {
-		return glm::normalize(Quat(b) * a);
+	template<> inline math::quat integrable_sum(math::quat a, math::point3 b) {
+		return glm::normalize(math::quat(b) * a);
 	}
 
-	template<typename T> inline T integrable_interp(T value, T target, Decimal alpha) {
+	template<typename T> inline T integrable_interp(T value, T target, math::decimal alpha) {
 		return glm::mix(value, target, alpha);
 	}
 
-	template<> inline Quat integrable_interp(Quat value, Quat target, Decimal alpha) {
+	template<> inline math::quat integrable_interp(math::quat value, math::quat target, math::decimal alpha) {
 		return glm::normalize(glm::slerp(value, target, alpha));
 	}
 
@@ -41,7 +41,7 @@ namespace polar::support::integrator {
 	template<typename T> struct target_t {
 		target_type type;
 		T value;
-		Decimal factor;
+		math::decimal factor;
 	};
 
 	class integrable_base {
@@ -76,7 +76,7 @@ namespace polar::support::integrator {
 			history = boost::circular_buffer<history_entry>(100, {value, _target});
 		}
 
-		inline void target(T value, Decimal factor) {
+		inline void target(T value, math::decimal factor) {
 			_target = target_t<T>{target_type::ease_towards, value, factor};
 		}
 
@@ -124,7 +124,7 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline integrable<T> temporal_integrable(const Decimal seconds) {
+		inline integrable<T> temporal_integrable(const math::decimal seconds) {
 			if(hasderivative()) {
 				D delta = integrable_interp<D>(integrable_id<D>(), derivative().temporal(seconds), seconds);
 				integrable<T> ret(integrable_sum(value, delta));
@@ -137,7 +137,7 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline T temporal(const Decimal seconds) {
+		inline T temporal(const math::decimal seconds) {
 			if(hasderivative()) {
 				D delta = integrable_interp<D>(integrable_id<D>(), derivative().temporal(seconds), seconds);
 				integrable<T> ret(integrable_sum(value, delta));
@@ -156,7 +156,7 @@ namespace polar::support::integrator {
 
 				// if second-order derivative exists, integrate polynomially
 				if(hasderivative(1)) {
-					D delta = integrable_interp<D>(integrable_id<D>(), *derivative(1), seconds * seconds / Decimal(2));
+					D delta = integrable_interp<D>(integrable_id<D>(), *derivative(1), seconds * seconds / math::decimal(2));
 					value = integrable_sum(value, delta);
 				}
 

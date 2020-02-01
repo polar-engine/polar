@@ -9,15 +9,15 @@ namespace polar::component {
 		using integrable = support::integrator::integrable<T>;
 
 	  public:
-		integrable<Point3> distance;
-		integrable<Point3> position;
-		integrable<Quat> orientation;
+		integrable<math::point3> distance;
+		integrable<math::point3> position;
+		integrable<math::quat> orientation;
 
-		playercamera(const Point3 &distance = Point3(0, 0, 0),
-		             const Point3 &position = Point3(0, 0, 0),
-		             const Point3 &euler    = Point3(0, 0, 0))
+		playercamera(const math::point3 &distance = math::point3(0, 0, 0),
+		             const math::point3 &position = math::point3(0, 0, 0),
+		             const math::point3 &euler    = math::point3(0, 0, 0))
 		    : distance(distance), position(position),
-		      orientation(Point3(euler)) {
+		      orientation(math::point3(euler)) {
 			add<property::integrable>();
 			auto prop = get<property::integrable>().lock();
 			if(prop) {

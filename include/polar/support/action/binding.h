@@ -23,13 +23,13 @@ namespace polar::support::action {
 		source_type source;
 
 		binding_t(source_type src, target_type tgt) : source(src), target(tgt) {}
-		binding_t(source_type src, target_type tgt, Decimal pt) : source(src), target(tgt), passthrough(pt) {}
+		binding_t(source_type src, target_type tgt, math::decimal pt) : source(src), target(tgt), passthrough(pt) {}
 		binding_t(source_type src, target_type tgt, pred_type p) : source(src), target(tgt), predicate(p) {}
 	  public:
 		target_type target;
 		cont_type cont = true;
 		pred_type predicate;
-		std::optional<Decimal> passthrough;
+		std::optional<math::decimal> passthrough;
 		std::optional<core::ref> object;
 
 		// digital -> digital function
@@ -59,7 +59,7 @@ namespace polar::support::action {
 		             std::is_base_of<digital, Src>::value>::type,
 		         typename = typename std::enable_if<
 		             std::is_base_of<analog, Tgt>::value>::type>
-		static binding_t create(Decimal passthrough) {
+		static binding_t create(math::decimal passthrough) {
 			auto src = digital_wrapper{typeid(Src)};
 			auto tgt = analog_wrapper{typeid(Tgt)};
 			return binding_t(src, tgt, passthrough);
@@ -143,7 +143,7 @@ namespace polar::support::action {
 			return true;
 		}
 
-		bool should_continue(core::ref source, Decimal value) const {
+		bool should_continue(core::ref source, math::decimal value) const {
 			value = passthrough.value_or(value);
 
 			if(auto b = get_cont_if_bool()) {

@@ -14,6 +14,8 @@
 #include <polar/component/text.h>
 #include <polar/core/polar.h>
 #include <polar/math/constants.h>
+#include <polar/math/mat.h>
+#include <polar/math/point.h>
 #include <polar/support/action/controller.h>
 #include <polar/support/action/keyboard.h>
 #include <polar/support/action/mouse.h>
@@ -150,7 +152,7 @@ namespace polar::system::renderer {
 		}
 		initGL();
 
-		setclearcolor(Point4(0.0f));
+		setclearcolor(math::point4(0.0f));
 
 		GL(glGenVertexArrays(1, &viewportVAO));
 		GL(glBindVertexArray(viewportVAO));
@@ -162,12 +164,12 @@ namespace polar::system::renderer {
 		const float step = 0.1f;
 		for(float x = -1; x < 1; x += step) {
 			for(float y = -1; y < 1; y += step) {
-				viewportPoints.emplace_back(Point2(x, y));
-				viewportPoints.emplace_back(Point2(x + step, y));
-				viewportPoints.emplace_back(Point2(x, y + step));
-				viewportPoints.emplace_back(Point2(x, y + step));
-				viewportPoints.emplace_back(Point2(x + step, y));
-				viewportPoints.emplace_back(Point2(x + step, y + step));
+				viewportPoints.emplace_back(math::point2(x, y));
+				viewportPoints.emplace_back(math::point2(x + step, y));
+				viewportPoints.emplace_back(math::point2(x, y + step));
+				viewportPoints.emplace_back(math::point2(x, y + step));
+				viewportPoints.emplace_back(math::point2(x + step, y));
+				viewportPoints.emplace_back(math::point2(x + step, y + step));
 			}
 		}
 
@@ -187,52 +189,52 @@ namespace polar::system::renderer {
 		debug_box_points.clear();
 
 		// front
-		debug_box_points.emplace_back(Point3(-1, -1,  1));
-		debug_box_points.emplace_back(Point3( 1, -1,  1));
-		debug_box_points.emplace_back(Point3(-1,  1,  1));
-		debug_box_points.emplace_back(Point3(-1,  1,  1));
-		debug_box_points.emplace_back(Point3( 1, -1,  1));
-		debug_box_points.emplace_back(Point3( 1,  1,  1));
+		debug_box_points.emplace_back(math::point3(-1, -1,  1));
+		debug_box_points.emplace_back(math::point3( 1, -1,  1));
+		debug_box_points.emplace_back(math::point3(-1,  1,  1));
+		debug_box_points.emplace_back(math::point3(-1,  1,  1));
+		debug_box_points.emplace_back(math::point3( 1, -1,  1));
+		debug_box_points.emplace_back(math::point3( 1,  1,  1));
 
 		// left
-		debug_box_points.emplace_back(Point3(-1, -1, -1));
-		debug_box_points.emplace_back(Point3(-1, -1,  1));
-		debug_box_points.emplace_back(Point3(-1,  1, -1));
-		debug_box_points.emplace_back(Point3(-1,  1, -1));
-		debug_box_points.emplace_back(Point3(-1, -1,  1));
-		debug_box_points.emplace_back(Point3(-1,  1,  1));
+		debug_box_points.emplace_back(math::point3(-1, -1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1,  1));
+		debug_box_points.emplace_back(math::point3(-1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1,  1));
+		debug_box_points.emplace_back(math::point3(-1,  1,  1));
 
 		// back
-		debug_box_points.emplace_back(Point3( 1, -1, -1));
-		debug_box_points.emplace_back(Point3(-1, -1, -1));
-		debug_box_points.emplace_back(Point3( 1,  1, -1));
-		debug_box_points.emplace_back(Point3( 1,  1, -1));
-		debug_box_points.emplace_back(Point3(-1, -1, -1));
-		debug_box_points.emplace_back(Point3(-1,  1, -1));
+		debug_box_points.emplace_back(math::point3( 1, -1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1, -1));
+		debug_box_points.emplace_back(math::point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1, -1));
+		debug_box_points.emplace_back(math::point3(-1,  1, -1));
 
 		// right
-		debug_box_points.emplace_back(Point3( 1, -1,  1));
-		debug_box_points.emplace_back(Point3( 1, -1, -1));
-		debug_box_points.emplace_back(Point3( 1,  1,  1));
-		debug_box_points.emplace_back(Point3( 1,  1,  1));
-		debug_box_points.emplace_back(Point3( 1, -1, -1));
-		debug_box_points.emplace_back(Point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3( 1, -1,  1));
+		debug_box_points.emplace_back(math::point3( 1, -1, -1));
+		debug_box_points.emplace_back(math::point3( 1,  1,  1));
+		debug_box_points.emplace_back(math::point3( 1,  1,  1));
+		debug_box_points.emplace_back(math::point3( 1, -1, -1));
+		debug_box_points.emplace_back(math::point3( 1,  1, -1));
 
 		// top
-		debug_box_points.emplace_back(Point3(-1,  1,  1));
-		debug_box_points.emplace_back(Point3( 1,  1,  1));
-		debug_box_points.emplace_back(Point3(-1,  1, -1));
-		debug_box_points.emplace_back(Point3(-1,  1, -1));
-		debug_box_points.emplace_back(Point3( 1,  1,  1));
-		debug_box_points.emplace_back(Point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1,  1,  1));
+		debug_box_points.emplace_back(math::point3( 1,  1,  1));
+		debug_box_points.emplace_back(math::point3(-1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1,  1, -1));
+		debug_box_points.emplace_back(math::point3( 1,  1,  1));
+		debug_box_points.emplace_back(math::point3( 1,  1, -1));
 
 		// bottom
-		debug_box_points.emplace_back(Point3(-1, -1, -1));
-		debug_box_points.emplace_back(Point3( 1, -1, -1));
-		debug_box_points.emplace_back(Point3(-1, -1,  1));
-		debug_box_points.emplace_back(Point3(-1, -1,  1));
-		debug_box_points.emplace_back(Point3( 1, -1, -1));
-		debug_box_points.emplace_back(Point3( 1, -1,  1));
+		debug_box_points.emplace_back(math::point3(-1, -1, -1));
+		debug_box_points.emplace_back(math::point3( 1, -1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1,  1));
+		debug_box_points.emplace_back(math::point3(-1, -1,  1));
+		debug_box_points.emplace_back(math::point3( 1, -1, -1));
+		debug_box_points.emplace_back(math::point3( 1, -1,  1));
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, debug_box_vbo));
 		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_box_points.size(), debug_box_points.data(), GL_STATIC_DRAW));
@@ -249,14 +251,14 @@ namespace polar::system::renderer {
 
 		debug_ball_points.clear();
 
-		Point3 up(0, 1, 0);
-		Point3 right(1, 0, 0);
-		Point3 dir(0, 0, -1);
+		math::point3 up(0, 1, 0);
+		math::point3 right(1, 0, 0);
+		math::point3 dir(0, 0, -1);
 
-		constexpr Decimal k = math::PI_OVER<10>;
+		constexpr math::decimal k = math::PI_OVER<10>;
 
-		for(Decimal phi = -math::PI_OVER<2>; phi < math::PI_OVER<2>; phi += k) {
-			for(Decimal theta = 0; theta < math::TWO_PI; theta += k) {
+		for(math::decimal phi = -math::PI_OVER<2>; phi < math::PI_OVER<2>; phi += k) {
+			for(math::decimal theta = 0; theta < math::TWO_PI; theta += k) {
 				auto p = glm::rotate(glm::rotate(dir, phi,     right), theta,     up);
 				auto q = glm::rotate(glm::rotate(dir, phi,     right), theta + k, up);
 				auto r = glm::rotate(glm::rotate(dir, phi + k, right), theta,     up);
@@ -310,7 +312,7 @@ namespace polar::system::renderer {
 		inited = true;
 	}
 
-	void gl32::render(Mat4 proj, Mat4 view, float delta) {
+	void gl32::render(math::mat4x4 proj, math::mat4x4 view, float delta) {
 		auto assetM = engine->get<asset>().lock();
 
 		std::unordered_map<std::string, GLuint> globals;
@@ -366,7 +368,7 @@ namespace polar::system::renderer {
 
 					auto property = model->get<model_p>().lock();
 					if(property) {
-						Mat4 modelMatrix(1);
+						math::mat4x4 modelMatrix(1);
 
 						if(pos != nullptr) {
 							modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
@@ -419,7 +421,7 @@ namespace polar::system::renderer {
 						auto sc   = engine->get<component::scale   >(objectID);
 
 						if(phys != nullptr) {
-							Mat4 modelMatrix(1);
+							math::mat4x4 modelMatrix(1);
 
 							if(pos != nullptr) {
 								modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
@@ -556,7 +558,7 @@ namespace polar::system::renderer {
 		fps_object = engine->add();
 
 		if(dt.Seconds() > 0) {
-			fps = glm::mix(fps, 1 / dt.Seconds(), Decimal(0.1));
+			fps = glm::mix(fps, 1 / dt.Seconds(), math::decimal(0.1));
 		}
 
 		if(showFPS) {
@@ -567,15 +569,15 @@ namespace polar::system::renderer {
 			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
 
 			engine->add<component::text>(fps_object, font, oss.str());
-			engine->add<component::screenposition>(fps_object, Point2(5, 5), support::ui::origin::topleft);
-			engine->add<component::color>(fps_object, Point4(1, 1, 1, 0.8));
-			engine->add<component::scale>(fps_object, Point3(0.125));
+			engine->add<component::screenposition>(fps_object, math::point2(5, 5), support::ui::origin::topleft);
+			engine->add<component::color>(fps_object, math::point4(1, 1, 1, 0.8));
+			engine->add<component::scale>(fps_object, math::point3(0.125));
 		}
 
 		auto sch = engine->get<sched>().lock();
 		float delta = sch->delta<support::sched::clock::integrator>();
 
-		Mat4 cameraView(1);
+		math::mat4x4 cameraView(1);
 		auto pairRight =
 		    engine->objects.right.equal_range(typeid(component::playercamera));
 		for(auto itRight = pairRight.first; itRight != pairRight.second;
@@ -637,7 +639,7 @@ namespace polar::system::renderer {
 		SDL_ClearError();
 	}
 
-	void gl32::rendersprite(core::weak_ref object, Mat4 proj, Mat4 view) {
+	void gl32::rendersprite(core::weak_ref object, math::mat4x4 proj, math::mat4x4 view) {
 		using origin_t = support::ui::origin;
 
 		auto sprite    = engine->get<component::sprite::base>(object);
@@ -646,53 +648,53 @@ namespace polar::system::renderer {
 		auto scale     = engine->get<component::scale>(object);
 		auto color     = engine->get<component::color>(object);
 
-		auto coord = Point2(0);
+		auto coord = math::point2(0);
 
 		// anchor point + local position component - alignment offset
 		if(screenPos) {
 			auto p = screenPos->position.get();
 			switch(screenPos->origin) {
 			case origin_t::bottomleft:
-				coord = Point2(0, 0);
-				coord += p * Point2(1, 1);
+				coord = math::point2(0, 0);
+				coord += p * math::point2(1, 1);
 				break;
 			case origin_t::bottomright:
-				coord = Point2(width, 0);
-				coord += p * Point2(-1, 1);
+				coord = math::point2(width, 0);
+				coord += p * math::point2(-1, 1);
 				break;
 			case origin_t::topleft:
-				coord = Point2(0, height);
-				coord += p * Point2(1, -1);
+				coord = math::point2(0, height);
+				coord += p * math::point2(1, -1);
 				break;
 			case origin_t::topright:
-				coord = Point2(width, height);
-				coord += p * Point2(-1, -1);
+				coord = math::point2(width, height);
+				coord += p * math::point2(-1, -1);
 				break;
 			case origin_t::left:
-				coord = Point2(0, height / 2);
-				coord += p * Point2(1, 0);
+				coord = math::point2(0, height / 2);
+				coord += p * math::point2(1, 0);
 				break;
 			case origin_t::right:
-				coord = Point2(width, height / 2);
-				coord += p * Point2(-1, 0);
+				coord = math::point2(width, height / 2);
+				coord += p * math::point2(-1, 0);
 				break;
 			case origin_t::bottom:
-				coord = Point2(width / 2, 0);
-				coord += p * Point2(0, 1);
+				coord = math::point2(width / 2, 0);
+				coord += p * math::point2(0, 1);
 				break;
 			case origin_t::top:
-				coord = Point2(width / 2, height);
-				coord += p * Point2(0, -1);
+				coord = math::point2(width / 2, height);
+				coord += p * math::point2(0, -1);
 				break;
 			case origin_t::center:
-				coord = Point2(width / 2, height / 2);
-				coord += p * Point2(1, 1);
+				coord = math::point2(width / 2, height / 2);
+				coord += p * math::point2(1, 1);
 				break;
 			}
 		}
 
 		// offset y coord away from anchor point
-		Decimal offsetY = 0;
+		math::decimal offsetY = 0;
 		if(screenPos) {
 			switch(screenPos->origin) {
 			default:
@@ -710,7 +712,7 @@ namespace polar::system::renderer {
 			}
 		}
 
-		Mat4 transform(1);
+		math::mat4x4 transform(1);
 
 		auto vr = engine->get<system::vr>().lock();
 		if(vr && vr->ready()) {
@@ -723,46 +725,46 @@ namespace polar::system::renderer {
 
 			//static glm::quat rot{1, 0, 0, 0};
 			//auto delta = glm::inverse(rot) * mRotation;
-			//rot *= glm::pow(delta, Decimal(0.002));
+			//rot *= glm::pow(delta, math::decimal(0.002));
 
 			// map to plane in 3D space
 			transform = proj;
 			if(!sprite->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
-			//transform = glm::rotate(transform, theta, Point3(0, 1, 0));
-			transform = glm::translate(transform, Point3(0, 0, -(zNear + zFar) / 2.0));
-			transform = glm::scale(transform, Point3(2.0 / width, 2.0 / height, 1));
+			//transform = glm::rotate(transform, theta, math::point3(0, 1, 0));
+			transform = glm::translate(transform, math::point3(0, 0, -(zNear + zFar) / 2.0));
+			transform = glm::scale(transform, math::point3(2.0 / width, 2.0 / height, 1));
 
 			// scale down for VR viewing
-			Decimal uiScale = 1;
+			math::decimal uiScale = 1;
 			uiScale /= 8;
-			transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
-			transform = glm::scale(transform, Point3(1, 1, (zFar - zNear) / 4.0));
+			transform = glm::scale(transform, math::point3(uiScale, uiScale, 1));
+			transform = glm::scale(transform, math::point3(1, 1, (zFar - zNear) / 4.0));
 		}
 
 		// translate to bottom left corner
-		transform = glm::translate(transform, Point3(-1, -1, 0));
+		transform = glm::translate(transform, math::point3(-1, -1, 0));
 
 		// normalize bounds
-		transform = glm::scale(transform, Point3(2, 2, 1));
+		transform = glm::scale(transform, math::point3(2, 2, 1));
 
 		// scale to one pixel
-		transform = glm::scale(transform, Point3(1.0 / width, 1.0 / height, 1));
+		transform = glm::scale(transform, math::point3(1.0 / width, 1.0 / height, 1));
 
 		// translate to screen coord
-		transform = glm::translate(transform, Point3(coord.x, coord.y, 0));
+		transform = glm::translate(transform, math::point3(coord.x, coord.y, 0));
 
 		// scale by scale component
 		if(scale) { transform = glm::scale(transform, scale->sc.get()); }
 
 		uploaduniform(spriteProgram, "u_color",
-		              color ? color->col.get() : Point4(1));
+		              color ? color->col.get() : math::point4(1));
 
 		// scale to sprite size
-		auto sc   = Point3(sprite->surface->w, sprite->surface->h, 1);
-		transform = glm::scale(transform, sc / Decimal(2));
+		auto sc   = math::point3(sprite->surface->w, sprite->surface->h, 1);
+		transform = glm::scale(transform, sc / math::decimal(2));
 
 		// translate by one sprite size
-		transform = glm::translate(transform, Point3(1, offsetY, 0));
+		transform = glm::translate(transform, math::point3(1, offsetY, 0));
 
 		uploaduniform(spriteProgram, "u_transform", transform);
 
@@ -770,7 +772,7 @@ namespace polar::system::renderer {
 		GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(viewportPoints.size())));
 	}
 
-	void gl32::rendertext(core::weak_ref object, Mat4 proj, Mat4 view) {
+	void gl32::rendertext(core::weak_ref object, math::mat4x4 proj, math::mat4x4 view) {
 		using origin_t = support::ui::origin;
 
 		auto text      = engine->get<component::text>(object);
@@ -783,7 +785,7 @@ namespace polar::system::renderer {
 		}
 
 		// calculate intended width of string
-		Decimal stringWidth = 0;
+		math::decimal stringWidth = 0;
 		for(auto c : text->str) { stringWidth += text->as->glyphs[c].advance; }
 
 		// add required padding to string width
@@ -808,62 +810,62 @@ namespace polar::system::renderer {
 		// scale string width by scale component
 		if(scale) { stringWidth *= scale->sc.get().x; }
 
-		auto coord = Point2(0);
+		auto coord = math::point2(0);
 
 		// anchor point + local position component - alignment offset
 		if(screenPos) {
 			auto p = screenPos->position.get();
 			switch(screenPos->origin) {
 			case origin_t::bottomleft:
-				coord = Point2(0, 0);
-				coord += p * Point2(1, 1);
+				coord = math::point2(0, 0);
+				coord += p * math::point2(1, 1);
 				coord.x -= 0;
 				break;
 			case origin_t::bottomright:
-				coord = Point2(width, 0);
-				coord += p * Point2(-1, 1);
+				coord = math::point2(width, 0);
+				coord += p * math::point2(-1, 1);
 				coord.x -= stringWidth;
 				break;
 			case origin_t::topleft:
-				coord = Point2(0, height);
-				coord += p * Point2(1, -1);
+				coord = math::point2(0, height);
+				coord += p * math::point2(1, -1);
 				coord.x -= 0;
 				break;
 			case origin_t::topright:
-				coord = Point2(width, height);
-				coord += p * Point2(-1, -1);
+				coord = math::point2(width, height);
+				coord += p * math::point2(-1, -1);
 				coord.x -= stringWidth;
 				break;
 			case origin_t::left:
-				coord = Point2(0, height / 2);
-				coord += p * Point2(1, 0);
+				coord = math::point2(0, height / 2);
+				coord += p * math::point2(1, 0);
 				coord.x -= 0;
 				break;
 			case origin_t::right:
-				coord = Point2(width, height / 2);
-				coord += p * Point2(-1, 0);
+				coord = math::point2(width, height / 2);
+				coord += p * math::point2(-1, 0);
 				coord.x -= stringWidth;
 				break;
 			case origin_t::bottom:
-				coord = Point2(width / 2, 0);
-				coord += p * Point2(0, 1);
+				coord = math::point2(width / 2, 0);
+				coord += p * math::point2(0, 1);
 				coord.x -= stringWidth / 2;
 				break;
 			case origin_t::top:
-				coord = Point2(width / 2, height);
-				coord += p * Point2(0, -1);
+				coord = math::point2(width / 2, height);
+				coord += p * math::point2(0, -1);
 				coord.x -= stringWidth / 2;
 				break;
 			case origin_t::center:
-				coord = Point2(width / 2, height / 2);
-				coord += p * Point2(1, 1);
+				coord = math::point2(width / 2, height / 2);
+				coord += p * math::point2(1, 1);
 				coord.x -= stringWidth / 2;
 				break;
 			}
 		}
 
 		// offset y coord away from anchor point
-		Decimal offsetY = 0;
+		math::decimal offsetY = 0;
 		if(screenPos) {
 			switch(screenPos->origin) {
 			default:
@@ -881,7 +883,7 @@ namespace polar::system::renderer {
 			}
 		}
 
-		Mat4 transform(1);
+		math::mat4x4 transform(1);
 
 		auto vr = engine->get<system::vr>().lock();
 		if(vr && vr->ready()) {
@@ -894,59 +896,59 @@ namespace polar::system::renderer {
 
 			//static glm::quat rot{1, 0, 0, 0};
 			//auto delta = glm::inverse(rot) * mRotation;
-			//rot *= glm::pow(delta, Decimal(0.002));
+			//rot *= glm::pow(delta, math::decimal(0.002));
 
 			// map to plane in 3D space
 			transform = proj;
 			if(!text->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
-			//transform = glm::rotate(transform, theta, Point3(0, 1, 0));
-			transform = glm::translate(transform, Point3(0, 0, -(zNear + zFar) / 2.0));
-			transform = glm::scale(transform, Point3(2.0 / width, 2.0 / height, 1));
+			//transform = glm::rotate(transform, theta, math::point3(0, 1, 0));
+			transform = glm::translate(transform, math::point3(0, 0, -(zNear + zFar) / 2.0));
+			transform = glm::scale(transform, math::point3(2.0 / width, 2.0 / height, 1));
 
 			// scale down for VR viewing
-			Decimal uiScale = 1;
+			math::decimal uiScale = 1;
 			uiScale /= 8;
-			transform = glm::scale(transform, Point3(uiScale, uiScale, 1));
-			transform = glm::scale(transform, Point3(1, 1, (zFar - zNear) / 4.0));
+			transform = glm::scale(transform, math::point3(uiScale, uiScale, 1));
+			transform = glm::scale(transform, math::point3(1, 1, (zFar - zNear) / 4.0));
 		}
 
 		// translate to bottom left corner
-		transform = glm::translate(transform, Point3(-1, -1, 0));
+		transform = glm::translate(transform, math::point3(-1, -1, 0));
 
 		// normalize bounds
-		transform = glm::scale(transform, Point3(2, 2, 1));
+		transform = glm::scale(transform, math::point3(2, 2, 1));
 
 		// scale to one pixel
-		transform = glm::scale(transform, Point3(1.0 / width, 1.0 / height, 1));
+		transform = glm::scale(transform, math::point3(1.0 / width, 1.0 / height, 1));
 
 		// translate to screen coord
-		transform = glm::translate(transform, Point3(coord.x, coord.y, 0));
+		transform = glm::translate(transform, math::point3(coord.x, coord.y, 0));
 
 		// scale by scale component
 		if(scale) { transform = glm::scale(transform, scale->sc.get()); }
 
 		uploaduniform(spriteProgram, "u_color",
-		              color ? color->col.get() : Point4(1));
+		              color ? color->col.get() : math::point4(1));
 
-		Decimal pen = 0;
+		math::decimal pen = 0;
 		for(auto c : text->str) {
-			Mat4 glyphTransform = transform;
+			math::mat4x4 glyphTransform = transform;
 
 			// translate by glyph pen
-			glyphTransform = glm::translate(glyphTransform, Point3(pen, 0, 0));
+			glyphTransform = glm::translate(glyphTransform, math::point3(pen, 0, 0));
 
 			// translate by glyph min x
 			glyphTransform = glm::translate(
-			    glyphTransform, Point3(text->as->glyphs[c].min.x, 0, 0));
+			    glyphTransform, math::point3(text->as->glyphs[c].min.x, 0, 0));
 
 			// scale to glyph size
-			auto sc        = Point3(text->as->glyphs[c].surface->w,
+			auto sc        = math::point3(text->as->glyphs[c].surface->w,
                              text->as->glyphs[c].surface->h, 1);
-			glyphTransform = glm::scale(glyphTransform, sc / Decimal(2));
+			glyphTransform = glm::scale(glyphTransform, sc / math::decimal(2));
 
 			// translate by one glyph size
 			glyphTransform =
-			    glm::translate(glyphTransform, Point3(1, offsetY, 0));
+			    glm::translate(glyphTransform, math::point3(1, offsetY, 0));
 
 			uploaduniform(spriteProgram, "u_transform", glyphTransform);
 
@@ -1029,17 +1031,17 @@ namespace polar::system::renderer {
 		case SDL_MOUSEMOTION:
 			if(act) {
 				// XXX: this is hacky
-				act->accumulate<mouse::position_x>(Decimal(ev.motion.x));
-				act->accumulate<mouse::position_y>(Decimal(ev.motion.y));
+				act->accumulate<mouse::position_x>(math::decimal(ev.motion.x));
+				act->accumulate<mouse::position_y>(math::decimal(ev.motion.y));
 
-				act->accumulate<mouse::motion_x>(Decimal(ev.motion.xrel));
-				act->accumulate<mouse::motion_y>(Decimal(ev.motion.yrel));
+				act->accumulate<mouse::motion_x>(math::decimal(ev.motion.xrel));
+				act->accumulate<mouse::motion_y>(math::decimal(ev.motion.yrel));
 			}
 			break;
 		case SDL_MOUSEWHEEL:
 			if(act) {
-				act->accumulate<mouse::wheel_x>(Decimal(ev.wheel.x));
-				act->accumulate<mouse::wheel_y>(Decimal(ev.wheel.y));
+				act->accumulate<mouse::wheel_x>(math::decimal(ev.wheel.x));
+				act->accumulate<mouse::wheel_y>(math::decimal(ev.wheel.y));
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
@@ -1235,7 +1237,7 @@ namespace polar::system::renderer {
 			// upload projection matrix to pipeline stage
 			project(node.program);
 			// upload resolution
-			uploaduniform(node.program, "u_resolution", Point2(width, height));
+			uploaduniform(node.program, "u_resolution", math::point2(width, height));
 		}
 
 		for(auto uniform : uniformsU32) {
@@ -1372,8 +1374,8 @@ namespace polar::system::renderer {
 
 			const GLsizei stride = sizeof(polar::asset::vertex);
 			const GLvoid *p_ptr = NULL;
-			const GLvoid *n_ptr = (GLvoid *)sizeof(Point3);
-			const GLvoid *t_ptr = (GLvoid *)(sizeof(Point3) * 2);
+			const GLvoid *n_ptr = (GLvoid *)sizeof(math::point3);
+			const GLvoid *t_ptr = (GLvoid *)(sizeof(math::point3) * 2);
 
 			GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, p_ptr));
 			GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, n_ptr));
@@ -1574,12 +1576,12 @@ namespace polar::system::renderer {
 		}
 	}
 
-	void gl32::setclearcolor(const Point4 &color) {
+	void gl32::setclearcolor(const math::point4 &color) {
 		GL(glClearColor(color.r, color.g, color.b, color.a));
 	}
 
-	Decimal gl32::getuniform_decimal(const std::string &name,
-	                                 const Decimal def) {
+	math::decimal gl32::getuniform_decimal(const std::string &name,
+	                                       const math::decimal def) {
 		auto it = uniformsFloat.find(name);
 		if(it != uniformsFloat.end()) {
 			return it->second;
@@ -1589,7 +1591,7 @@ namespace polar::system::renderer {
 		}
 	}
 
-	Point3 gl32::getuniform_point3(const std::string &name, const Point3 def) {
+	math::point3 gl32::getuniform_point3(const std::string &name, const math::point3 def) {
 		auto it = uniformsPoint3.find(name);
 		if(it != uniformsPoint3.end()) {
 			return it->second;
@@ -1607,7 +1609,7 @@ namespace polar::system::renderer {
 		changedUniformsU32.emplace_back(name);
 	}
 
-	void gl32::setuniform(const std::string &name, Decimal x, bool force) {
+	void gl32::setuniform(const std::string &name, math::decimal x, bool force) {
 		auto it = uniformsFloat.find(name);
 		if(!force && it != uniformsFloat.cend() && it->second == x) { return; }
 
@@ -1615,7 +1617,7 @@ namespace polar::system::renderer {
 		changedUniformsFloat.emplace_back(name);
 	}
 
-	void gl32::setuniform(const std::string &name, Point3 p, bool force) {
+	void gl32::setuniform(const std::string &name, math::point3 p, bool force) {
 		auto it = uniformsPoint3.find(name);
 		if(!force && it != uniformsPoint3.cend() && it->second == p) { return; }
 
@@ -1647,7 +1649,7 @@ namespace polar::system::renderer {
 	}
 
 	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         Decimal x) {
+	                         math::decimal x) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) {
@@ -1660,7 +1662,7 @@ namespace polar::system::renderer {
 	}
 
 	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         Point2 p) {
+	                         math::point2 p) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) {
@@ -1672,7 +1674,7 @@ namespace polar::system::renderer {
 	}
 
 	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         Point3 p) {
+	                         math::point3 p) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) {
@@ -1684,7 +1686,7 @@ namespace polar::system::renderer {
 	}
 
 	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         Point4 p) {
+	                         math::point4 p) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) {
@@ -1695,7 +1697,7 @@ namespace polar::system::renderer {
 		return true;
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name, Mat4 m) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, math::mat4x4 m) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
 		if(loc == -1) {
@@ -1706,19 +1708,19 @@ namespace polar::system::renderer {
 		return true;
 	}
 
-	Mat4 gl32::calculate_projection() {
-		auto heightF = static_cast<Decimal>(height);
+	math::mat4x4 gl32::calculate_projection() {
+		auto heightF = static_cast<math::decimal>(height);
 		auto fovy =
-		    2.0f * glm::atan(heightF, Decimal(2) * pixelDistanceFromScreen) +
+		    2.0f * glm::atan(heightF, math::decimal(2) * pixelDistanceFromScreen) +
 		    fovPlus;
 		auto projection = glm::perspective(
-		    fovy, static_cast<Decimal>(width) / heightF, zNear, zFar);
+		    fovy, static_cast<math::decimal>(width) / heightF, zNear, zFar);
 		// auto projection = glm::infinitePerspective(fovy,
-		// static_cast<Decimal>(width) / heightF, zNear);
+		// static_cast<math::decimal>(width) / heightF, zNear);
 		return projection;
 	}
 
-	void gl32::project(GLuint programID, Mat4 proj) {
+	void gl32::project(GLuint programID, math::mat4x4 proj) {
 		GL(glUseProgram(programID));
 		uploaduniform(programID, "u_projection", proj);
 	}

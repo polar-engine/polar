@@ -1,14 +1,14 @@
 #pragma once
 
-#include <polar/core/types.h>
+#include <polar/math/point.h>
 #include <polar/util/sdl.h>
 
 namespace polar::support::font {
 	struct glyphentry {
 		bool active          = false;
 		int origin           = 0;
-		Point2i min          = Point2i(0);
-		Point2i max          = Point2i(0);
+		math::point2i min    = math::point2i(0);
+		math::point2i max    = math::point2i(0);
 		int advance          = 0;
 		SDL_Surface *surface = nullptr;
 	};

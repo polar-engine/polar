@@ -16,7 +16,7 @@ namespace polar::system {
 		std::vector<size_t> stack;
 		int current = 0;
 
-		menuitem_t back_item = menuitem_t("Back", [this](Decimal) {
+		menuitem_t back_item = menuitem_t("Back", [this](math::decimal) {
 			navigate(0, -1, true);
 			return false;
 		});
@@ -64,14 +64,14 @@ namespace polar::system {
 		inline void update(DeltaTicks &) override { render(current, true); }
 
 	  public:
-		const Decimal uiBase = 0.3125;
-		const Decimal uiTextHeight = 160;
-		const Decimal uiTextWidth  = 550;
+		const math::decimal uiBase = 0.3125;
+		const math::decimal uiTextHeight = 160;
+		const math::decimal uiTextWidth  = 550;
 
-		Decimal uiScale = uiBase;
+		math::decimal uiScale = uiBase;
 
 		static bool supported() { return true; }
-		menu(core::polar *engine, Decimal uiScale, menuitem_vector_t _menu)
+		menu(core::polar *engine, math::decimal uiScale, menuitem_vector_t _menu)
 		    : base(engine), _menu(_menu), uiScale(uiScale) {}
 
 		inline void render_all() {
@@ -103,7 +103,7 @@ namespace polar::system {
 			}
 		}
 
-		inline Decimal actual_height() const {
+		inline math::decimal actual_height() const {
 			return max_items() * uiBase;
 		}
 	};

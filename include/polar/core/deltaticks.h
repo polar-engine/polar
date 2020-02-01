@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <polar/core/types.h>
+#include <polar/math/number.h>
 
 #define ENGINE_TICKS_PER_SECOND 100000
 
@@ -10,7 +10,7 @@ typedef std::chrono::duration<uint64_t, std::ratio<1, ENGINE_TICKS_PER_SECOND>>
 
 class DeltaTicks {
   public:
-	using seconds_type = Decimal;
+	using seconds_type = polar::math::decimal;
 
 	DeltaTicksBase value;
 

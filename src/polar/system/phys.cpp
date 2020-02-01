@@ -47,8 +47,8 @@ namespace polar::system {
 		keep(eventM->listenfor("integrator", "ticked", f));
 
 		add<support::phys::detector::box, support::phys::detector::box>([](core::polar *engine, auto a, auto b) {
-			Point3 originA{0};
-			Point3 originB{0};
+			math::point3 originA{0};
+			math::point3 originB{0};
 			if(auto p = engine->get<component::position>(a.object)) {
 				originA += p->pos.get();
 			}
@@ -56,8 +56,8 @@ namespace polar::system {
 				originB += p->pos.get();
 			}
 
-			Point3 scaleA = a.detector->size;
-			Point3 scaleB = b.detector->size;
+			math::point3 scaleA = a.detector->size;
+			math::point3 scaleB = b.detector->size;
 			if(auto s = engine->get<component::scale>(a.object)) {
 				scaleA *= s->sc.get();
 			}
@@ -76,8 +76,8 @@ namespace polar::system {
 		});
 
 		add<support::phys::detector::ball, support::phys::detector::ball>([](core::polar *engine, auto a, auto b) {
-			Point3 originA{0};
-			Point3 originB{0};
+			math::point3 originA{0};
+			math::point3 originB{0};
 			if(auto p = engine->get<component::position>(a.object)) {
 				originA += p->pos.get();
 			}
@@ -85,8 +85,8 @@ namespace polar::system {
 				originB += p->pos.get();
 			}
 
-			Point3 scaleA = a.detector->size;
-			Point3 scaleB = b.detector->size;
+			math::point3 scaleA = a.detector->size;
+			math::point3 scaleB = b.detector->size;
 			if(auto s = engine->get<component::scale>(a.object)) {
 				scaleA *= s->sc.get();
 			}

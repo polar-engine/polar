@@ -478,9 +478,9 @@ int main(int argc, char **argv) {
 	};
 	converters["obj"] = [](const std::string &data, core::serializer &s) {
 		asset::model asset;
-		std::vector<Point3> positions;
-		std::vector<Point3> normals;
-		std::vector<Point2> texcoords;
+		std::vector<math::point3> positions;
+		std::vector<math::point3> normals;
+		std::vector<math::point2> texcoords;
 
 		std::istringstream iss(data);
 		std::string line;
@@ -490,15 +490,15 @@ int main(int argc, char **argv) {
 			std::string directive;
 			std::getline(ls, directive, ' ');
 			if(directive == "v") {
-				Point3 p;
+				math::point3 p;
 				ls >> p.x >> p.y >> p.z;
 				positions.emplace_back(p);
 			} else if(directive == "vn") {
-				Point3 n;
+				math::point3 n;
 				ls >> n.x >> n.y >> n.z;
 				normals.emplace_back(n);
 			} else if(directive == "vt") {
-				Point2 t;
+				math::point2 t;
 				ls >> t.x >> t.y;
 				texcoords.emplace_back(t);
 			} else if(directive == "f") {

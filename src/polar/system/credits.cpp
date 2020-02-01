@@ -7,25 +7,25 @@
 
 namespace polar::system {
 	void credits::render_all() {
-		const Decimal pad     = 75;
-		const Decimal forepad = 720;
+		const math::decimal pad     = 75;
+		const math::decimal forepad = 720;
 		height                = -pad + forepad;
 
 		for(auto &section : _credits) {
 			height += pad;
 			section.object = engine->add();
 			engine->add<component::text>(section.object, font, section.value);
-			engine->add<component::screenposition>(section.object, Point2(0, height), origin_t::top);
-			engine->add<component::scale>(section.object, Point3(0.3125));
-			height += Decimal(0.3125 * 1.12) * font->lineSkip;
+			engine->add<component::screenposition>(section.object, math::point2(0, height), origin_t::top);
+			engine->add<component::scale>(section.object, math::point3(0.3125));
+			height += math::decimal(0.3125 * 1.12) * font->lineSkip;
 
 			for(size_t n = 0; n < section.names.size(); ++n) {
 				auto &name = section.names[n];
 				section.name_objects[n] = engine->add();
 				engine->add<component::text>(section.name_objects[n], font, name);
-				engine->add<component::screenposition>(section.name_objects[n], Point2(0, height), origin_t::top);
-				engine->add<component::scale>(section.name_objects[n], Point3(0.1875));
-				height += Decimal(0.1875) * font->lineSkip;
+				engine->add<component::screenposition>(section.name_objects[n], math::point2(0, height), origin_t::top);
+				engine->add<component::scale>(section.name_objects[n], math::point3(0.1875));
+				height += math::decimal(0.1875) * font->lineSkip;
 			}
 		}
 	}
@@ -48,7 +48,7 @@ namespace polar::system {
 	}
 
 	void credits::update(DeltaTicks &dt) {
-		Decimal delta = dt.Seconds() * 50;
+		math::decimal delta = dt.Seconds() * 50;
 
 		for(auto &section : _credits) {
 			auto sectionText = engine->get<component::text>(section.object);

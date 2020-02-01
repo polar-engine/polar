@@ -1,5 +1,5 @@
 #include <polar/component/sprite/slider.h>
-#include <polar/core/types.h>
+#include <polar/math/types.h>
 
 namespace polar::component::sprite {
 		void slider::render_me() {

@@ -57,8 +57,8 @@ namespace polar::system::renderer {
 		core::ref fps_object;
 
 		std::unordered_map<std::string, glm::uint32> uniformsU32;
-		std::unordered_map<std::string, Decimal> uniformsFloat;
-		std::unordered_map<std::string, Point3> uniformsPoint3;
+		std::unordered_map<std::string, math::decimal> uniformsFloat;
+		std::unordered_map<std::string, math::point3> uniformsPoint3;
 
 		std::vector<std::string> changedUniformsU32;
 		std::vector<std::string> changedUniformsFloat;
@@ -66,9 +66,9 @@ namespace polar::system::renderer {
 
 		void init() override;
 		void update(DeltaTicks &) override;
-		void rendersprite(core::weak_ref, Mat4 = Mat4(1), Mat4 view = Mat4(1));
-		void rendertext(core::weak_ref, Mat4 proj = Mat4(1), Mat4 view = Mat4(1));
-		void render(Mat4 proj, Mat4 view, float delta);
+		void rendersprite(core::weak_ref, math::mat4x4 = math::mat4x4(1), math::mat4x4 view = math::mat4x4(1));
+		void rendertext(core::weak_ref, math::mat4x4 proj = math::mat4x4(1), math::mat4x4 view = math::mat4x4(1));
+		void render(math::mat4x4 proj, math::mat4x4 view, float delta);
 
 		std::shared_ptr<model_p> getpooledmodelproperty(const GLsizei required);
 
@@ -77,8 +77,8 @@ namespace polar::system::renderer {
 		void component_added(core::weak_ref, std::type_index, std::weak_ptr<component::base>) override;
 		void component_removed(core::weak_ref, std::type_index) override;
 
-		Mat4 calculate_projection();
-		void project(GLuint programID, Mat4 proj);
+		math::mat4x4 calculate_projection();
+		void project(GLuint programID, math::mat4x4 proj);
 		inline void project(GLuint programID) { project(programID, calculate_projection()); }
 
 		void initGL();
@@ -87,7 +87,7 @@ namespace polar::system::renderer {
 		GLuint makeprogram(std::shared_ptr<polar::asset::shaderprogram>);
 
 	  public:
-		Decimal fps = 60.0;
+		math::decimal fps = 60.0;
 
 		static bool supported();
 		gl32(core::polar *engine, const std::vector<std::string> &names)
@@ -117,28 +117,21 @@ namespace polar::system::renderer {
 		void setfullscreen(bool fullscreen) override;
 		void setdepthtest(bool depthtest) override;
 		void setpipeline(const std::vector<std::string> &names) override;
-		void setclearcolor(const Point4 &color) override;
+		void setclearcolor(const math::point4 &color) override;
 
-		Decimal getuniform_decimal(const std::string &name,
-		                           const Decimal def) override;
-		Point3 getuniform_point3(const std::string &name,
-		                         const Point3 def) override;
+		math::decimal getuniform_decimal(const std::string &name, const math::decimal def) override;
+		math::point3 getuniform_point3(const std::string &name, const math::point3 def) override;
 
-		void setuniform(const std::string &name, glm::uint32 x,
-		                bool force = false) override;
-		void setuniform(const std::string &name, Decimal x,
-		                bool force = false) override;
-		void setuniform(const std::string &name, Point3 p,
-		                bool force = false) override;
+		void setuniform(const std::string &name, glm::uint32 x, bool force = false) override;
+		void setuniform(const std::string &name, math::decimal x, bool force = false) override;
+		void setuniform(const std::string &name, math::point3 p, bool force = false) override;
 
-		bool uploaduniform(GLuint program, const std::string &name,
-		                   glm::int32 x);
-		bool uploaduniform(GLuint program, const std::string &name,
-		                   glm::uint32 x);
-		bool uploaduniform(GLuint program, const std::string &name, Decimal x);
-		bool uploaduniform(GLuint program, const std::string &name, Point2 p);
-		bool uploaduniform(GLuint program, const std::string &name, Point3 p);
-		bool uploaduniform(GLuint program, const std::string &name, Point4 p);
-		bool uploaduniform(GLuint program, const std::string &name, Mat4 m);
+		bool uploaduniform(GLuint program, const std::string &name, glm::int32 x);
+		bool uploaduniform(GLuint program, const std::string &name, glm::uint32 x);
+		bool uploaduniform(GLuint program, const std::string &name, math::decimal x);
+		bool uploaduniform(GLuint program, const std::string &name, math::point2 p);
+		bool uploaduniform(GLuint program, const std::string &name, math::point3 p);
+		bool uploaduniform(GLuint program, const std::string &name, math::point4 p);
+		bool uploaduniform(GLuint program, const std::string &name, math::mat4x4 m);
 	};
 } // namespace polar::system::renderer

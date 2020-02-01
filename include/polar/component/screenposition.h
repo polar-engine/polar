@@ -11,10 +11,10 @@ namespace polar::component {
 		using origin_t   = support::ui::origin;
 
 	  public:
-		integrable<Point2> position;
+		integrable<math::point2> position;
 		origin_t origin;
 
-		screenposition(Point2 position = Point2(0),
+		screenposition(math::point2 position = math::point2(0),
 		               origin_t origin = origin_t::bottomleft)
 		    : position(position), origin(origin) {
 			add<property::integrable>();

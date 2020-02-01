@@ -14,7 +14,7 @@ namespace polar::support::ui::control {
 		virtual float get() { return 0; }
 		virtual bool activate() { return false; }
 		virtual bool navigate(int) { return false; }
-		virtual void render(core::polar *, core::ref, Point2, float) {
+		virtual void render(core::polar *, core::ref, math::point2, float) {
 		}
 	};
 
@@ -43,14 +43,14 @@ namespace polar::support::ui::control {
 			return true;
 		}
 
-		void render(core::polar *engine, core::ref object, Point2 origin, float scale) override {
-			Decimal pad = 15;
-			Point2 offset = Point2(4 * scale, 0); // edgeOffset + edgePadding (SliderSprite)s
-			Point4 color = state ? Point4(0, 1, 0, 1) : Point4(1, 0, 0, 1);
+		void render(core::polar *engine, core::ref object, math::point2 origin, float scale) override {
+			math::decimal pad = 15;
+			math::point2 offset = math::point2(4 * scale, 0); // edgeOffset + edgePadding (SliderSprite)s
+			math::point4 color = state ? math::point4(0, 1, 0, 1) : math::point4(1, 0, 0, 1);
 
 			engine->add_as<component::sprite::base, component::sprite::box>(object);
 			engine->add<component::screenposition>(object, origin + pad + offset);
-			engine->add<component::scale>(object, Point3(scale));
+			engine->add<component::scale>(object, math::point3(scale));
 			engine->add<component::color>(object, color);
 		}
 	};
@@ -75,13 +75,13 @@ namespace polar::support::ui::control {
 			return changed;
 		}
 
-		void render(core::polar *engine, core::ref object, Point2 origin, float scale) override {
-			Decimal pad = 15;
+		void render(core::polar *engine, core::ref object, math::point2 origin, float scale) override {
+			math::decimal pad = 15;
 			float alpha = float(value - min) / float(max - min);
 
 			engine->add_as<component::sprite::base, component::sprite::slider>(object, 12 * 8, 12, alpha);
 			engine->add<component::screenposition>(object, origin + pad);
-			engine->add<component::scale>(object, Point3(scale));
+			engine->add<component::scale>(object, math::point3(scale));
 		}
 	};
 } // namespace polar::support::ui::control

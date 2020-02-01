@@ -5,10 +5,10 @@
 namespace polar::support::phys::responder {
 	class rigid : public base {
 	  public:
-		Point3 bounce{1};
+		math::point3 bounce{1};
 
 		rigid() = default;
-		rigid(Point3 bounce) : bounce(bounce) {}
+		rigid(math::point3 bounce) : bounce(bounce) {}
 
 		void respond(core::polar *engine, core::weak_ref object, DeltaTicks) override {
 			if(auto p = engine->get<component::position>(object)) {

@@ -9,7 +9,7 @@ namespace polar::system {
 	template<typename K, typename FS> class config : public base {
 	  public:
 		using key_t     = K;
-		using value_t   = Decimal;
+		using value_t   = math::decimal;
 		using handler_t = std::function<void(core::polar *, key_t, value_t)>;
 
 	  private:

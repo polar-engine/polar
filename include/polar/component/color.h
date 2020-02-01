@@ -9,9 +9,9 @@ namespace polar::component {
 		using integrable = support::integrator::integrable<T>;
 
 	  public:
-		integrable<Point4> col;
+		integrable<math::point4> col;
 
-		color(Point4 col = Point4(1)) : col(col) {
+		color(math::point4 col = math::point4(1)) : col(col) {
 			add<property::integrable>();
 			get<property::integrable>().lock()->add(&this->col);
 		}
