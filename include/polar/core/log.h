@@ -1,15 +1,18 @@
 #pragma once
 
 #include <array>
+#include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
-#include <polar/math/point.h>
-#include <polar/math/quat.h>
-#include <polar/support/log/priority.h>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include <polar/math/point.h>
+#include <polar/math/quat.h>
+#include <polar/support/log/priority.h>
 
 namespace polar::core {
 	inline std::ostream & operator<<(std::ostream &os, const math::point2 &p) {
