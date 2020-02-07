@@ -33,7 +33,7 @@ namespace polar::core {
 		using state_initializer = std::function<void(polar *, state &)>;
 		using bimap             = boost::bimap<
 			boost::bimaps::multiset_of<weak_ref>,
-			boost::bimaps::unordered_multiset_of<std::type_index>,
+			boost::bimaps::multiset_of<std::type_index>,
 			boost::bimaps::set_of_relation<>,
 			boost::bimaps::with_info<std::shared_ptr<component::base>>
 		>;
