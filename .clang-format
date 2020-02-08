@@ -21,7 +21,7 @@ BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Attach
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
-ColumnLimit: 80
+ColumnLimit: 120
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat: false

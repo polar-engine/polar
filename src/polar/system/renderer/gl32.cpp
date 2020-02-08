@@ -19,8 +19,8 @@
 #include <polar/support/action/controller.h>
 #include <polar/support/action/keyboard.h>
 #include <polar/support/action/mouse.h>
-#include <polar/support/phys/detector/box.h>
 #include <polar/support/phys/detector/ball.h>
+#include <polar/support/phys/detector/box.h>
 #include <polar/system/asset.h>
 #include <polar/system/integrator.h>
 #include <polar/system/renderer/gl32.h>
@@ -33,9 +33,8 @@
 #endif
 
 namespace polar::system::renderer {
-	void GLAPIENTRY debugCB(GLenum source, GLenum type, GLuint id, GLenum severity,
-	                        GLsizei length, const GLchar* message,
-	                        const void* userParam) {
+	void GLAPIENTRY debugCB(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+	                        const GLchar *message, const void *userParam) {
 		(void)source;
 		(void)type;
 		(void)id;
@@ -67,9 +66,7 @@ namespace polar::system::renderer {
 	}
 
 	void gl32::initGL() {
-		if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) {
-			log()->fatal("gl", "failed to init SDL");
-		}
+		if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { log()->fatal("gl", "failed to init SDL"); }
 		if(!SDL(TTF_Init())) { log()->fatal("gl", "failed to init TTF"); }
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3))) {
 			log()->fatal("gl", "failed to set major version attribute");
@@ -77,8 +74,7 @@ namespace polar::system::renderer {
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1))) {
 			log()->fatal("gl", "failed to set minor version attribute");
 		}
-		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-		                            SDL_GL_CONTEXT_PROFILE_CORE))) {
+		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE))) {
 			log()->fatal("gl", "failed to set profile mask attribute");
 		}
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))) {
@@ -87,22 +83,16 @@ namespace polar::system::renderer {
 		if(!SDL(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG))) {
 			log()->fatal("gl", "failed to set context flags");
 		}
-		Uint32 window_flags = SDL_WINDOW_OPENGL
-		                    | SDL_WINDOW_SHOWN
-		                    | SDL_WINDOW_RESIZABLE
-		//                    | SDL_WINDOW_ALLOW_HIGHDPI
-		                    | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-		if(!SDL(window = SDL_CreateWindow(
-		            "Polar Engine", SDL_WINDOWPOS_CENTERED,
-		            SDL_WINDOWPOS_CENTERED, width, height, window_flags))) {
+		Uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN |
+		                      SDL_WINDOW_RESIZABLE
+		                      //                    | SDL_WINDOW_ALLOW_HIGHDPI
+		                      | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+		if(!SDL(window = SDL_CreateWindow("Polar Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+		                                  window_flags))) {
 			log()->fatal("gl", "failed to create window");
 		}
-		if(!SDL(context = SDL_GL_CreateContext(window))) {
-			log()->fatal("gl", "failed to create OpenGL context");
-		}
-		if(!SDL(SDL_GL_SetSwapInterval(1))) {
-			log()->critical("gl", "failed to set swap interval");
-		}
+		if(!SDL(context = SDL_GL_CreateContext(window))) { log()->fatal("gl", "failed to create OpenGL context"); }
+		if(!SDL(SDL_GL_SetSwapInterval(1))) { log()->critical("gl", "failed to set swap interval"); }
 
 		if(!SDL(SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE))) {
 			log()->fatal("gl", "failed to set relative mouse mode");
@@ -139,15 +129,14 @@ namespace polar::system::renderer {
 		if(glewIsExtensionSupported("KHR_debug")) {
 			GL(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
 			GL(glDebugMessageCallback(debugCB, nullptr));
-			GL(glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
-			                         0, nullptr, GL_TRUE));
+			GL(glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE));
 		}
 	}
 
 	void gl32::init() {
 		auto vr = engine->get<system::vr>().lock();
 		if(vr && vr->ready()) {
-			width = vr->width();
+			width  = vr->width();
 			height = vr->height();
 		}
 		initGL();
@@ -174,7 +163,8 @@ namespace polar::system::renderer {
 		}
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, viewport_vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * viewportPoints.size(), viewportPoints.data(), GL_STATIC_DRAW));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * viewportPoints.size(), viewportPoints.data(),
+		                GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
@@ -189,55 +179,56 @@ namespace polar::system::renderer {
 		debug_box_points.clear();
 
 		// front
-		debug_box_points.emplace_back(math::point3(-1, -1,  1));
-		debug_box_points.emplace_back(math::point3( 1, -1,  1));
-		debug_box_points.emplace_back(math::point3(-1,  1,  1));
-		debug_box_points.emplace_back(math::point3(-1,  1,  1));
-		debug_box_points.emplace_back(math::point3( 1, -1,  1));
-		debug_box_points.emplace_back(math::point3( 1,  1,  1));
+		debug_box_points.emplace_back(math::point3(-1, -1, 1));
+		debug_box_points.emplace_back(math::point3(1, -1, 1));
+		debug_box_points.emplace_back(math::point3(-1, 1, 1));
+		debug_box_points.emplace_back(math::point3(-1, 1, 1));
+		debug_box_points.emplace_back(math::point3(1, -1, 1));
+		debug_box_points.emplace_back(math::point3(1, 1, 1));
 
 		// left
 		debug_box_points.emplace_back(math::point3(-1, -1, -1));
-		debug_box_points.emplace_back(math::point3(-1, -1,  1));
-		debug_box_points.emplace_back(math::point3(-1,  1, -1));
-		debug_box_points.emplace_back(math::point3(-1,  1, -1));
-		debug_box_points.emplace_back(math::point3(-1, -1,  1));
-		debug_box_points.emplace_back(math::point3(-1,  1,  1));
+		debug_box_points.emplace_back(math::point3(-1, -1, 1));
+		debug_box_points.emplace_back(math::point3(-1, 1, -1));
+		debug_box_points.emplace_back(math::point3(-1, 1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1, 1));
+		debug_box_points.emplace_back(math::point3(-1, 1, 1));
 
 		// back
-		debug_box_points.emplace_back(math::point3( 1, -1, -1));
+		debug_box_points.emplace_back(math::point3(1, -1, -1));
 		debug_box_points.emplace_back(math::point3(-1, -1, -1));
-		debug_box_points.emplace_back(math::point3( 1,  1, -1));
-		debug_box_points.emplace_back(math::point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3(1, 1, -1));
+		debug_box_points.emplace_back(math::point3(1, 1, -1));
 		debug_box_points.emplace_back(math::point3(-1, -1, -1));
-		debug_box_points.emplace_back(math::point3(-1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1, 1, -1));
 
 		// right
-		debug_box_points.emplace_back(math::point3( 1, -1,  1));
-		debug_box_points.emplace_back(math::point3( 1, -1, -1));
-		debug_box_points.emplace_back(math::point3( 1,  1,  1));
-		debug_box_points.emplace_back(math::point3( 1,  1,  1));
-		debug_box_points.emplace_back(math::point3( 1, -1, -1));
-		debug_box_points.emplace_back(math::point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3(1, -1, 1));
+		debug_box_points.emplace_back(math::point3(1, -1, -1));
+		debug_box_points.emplace_back(math::point3(1, 1, 1));
+		debug_box_points.emplace_back(math::point3(1, 1, 1));
+		debug_box_points.emplace_back(math::point3(1, -1, -1));
+		debug_box_points.emplace_back(math::point3(1, 1, -1));
 
 		// top
-		debug_box_points.emplace_back(math::point3(-1,  1,  1));
-		debug_box_points.emplace_back(math::point3( 1,  1,  1));
-		debug_box_points.emplace_back(math::point3(-1,  1, -1));
-		debug_box_points.emplace_back(math::point3(-1,  1, -1));
-		debug_box_points.emplace_back(math::point3( 1,  1,  1));
-		debug_box_points.emplace_back(math::point3( 1,  1, -1));
+		debug_box_points.emplace_back(math::point3(-1, 1, 1));
+		debug_box_points.emplace_back(math::point3(1, 1, 1));
+		debug_box_points.emplace_back(math::point3(-1, 1, -1));
+		debug_box_points.emplace_back(math::point3(-1, 1, -1));
+		debug_box_points.emplace_back(math::point3(1, 1, 1));
+		debug_box_points.emplace_back(math::point3(1, 1, -1));
 
 		// bottom
 		debug_box_points.emplace_back(math::point3(-1, -1, -1));
-		debug_box_points.emplace_back(math::point3( 1, -1, -1));
-		debug_box_points.emplace_back(math::point3(-1, -1,  1));
-		debug_box_points.emplace_back(math::point3(-1, -1,  1));
-		debug_box_points.emplace_back(math::point3( 1, -1, -1));
-		debug_box_points.emplace_back(math::point3( 1, -1,  1));
+		debug_box_points.emplace_back(math::point3(1, -1, -1));
+		debug_box_points.emplace_back(math::point3(-1, -1, 1));
+		debug_box_points.emplace_back(math::point3(-1, -1, 1));
+		debug_box_points.emplace_back(math::point3(1, -1, -1));
+		debug_box_points.emplace_back(math::point3(1, -1, 1));
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, debug_box_vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_box_points.size(), debug_box_points.data(), GL_STATIC_DRAW));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_box_points.size(), debug_box_points.data(),
+		                GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
@@ -259,9 +250,9 @@ namespace polar::system::renderer {
 
 		for(math::decimal phi = -math::PI_OVER<2>; phi < math::PI_OVER<2>; phi += k) {
 			for(math::decimal theta = 0; theta < math::TWO_PI; theta += k) {
-				auto p = glm::rotate(glm::rotate(dir, phi,     right), theta,     up);
-				auto q = glm::rotate(glm::rotate(dir, phi,     right), theta + k, up);
-				auto r = glm::rotate(glm::rotate(dir, phi + k, right), theta,     up);
+				auto p = glm::rotate(glm::rotate(dir, phi, right), theta, up);
+				auto q = glm::rotate(glm::rotate(dir, phi, right), theta + k, up);
+				auto r = glm::rotate(glm::rotate(dir, phi + k, right), theta, up);
 				auto s = glm::rotate(glm::rotate(dir, phi + k, right), theta + k, up);
 
 				debug_ball_points.emplace_back(p);
@@ -274,7 +265,8 @@ namespace polar::system::renderer {
 		}
 
 		GL(glBindBuffer(GL_ARRAY_BUFFER, debug_ball_vbo));
-		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_ball_points.size(), debug_ball_points.data(), GL_STATIC_DRAW));
+		GL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * debug_ball_points.size(), debug_ball_points.data(),
+		                GL_STATIC_DRAW));
 		GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL));
 		GL(glEnableVertexAttribArray(0));
 
@@ -282,7 +274,7 @@ namespace polar::system::renderer {
 		makepipeline(pipelineNames);
 		log()->trace("gl", "MakePipeline done");
 
-		auto assetM = engine->get<asset>().lock();
+		auto assetM     = engine->get<asset>().lock();
 		spriteProgram   = makeprogram(assetM->get<polar::asset::shaderprogram>("sprite"));
 		identityProgram = makeprogram(assetM->get<polar::asset::shaderprogram>("identity"));
 		debugProgram    = makeprogram(assetM->get<polar::asset::shaderprogram>("debug"));
@@ -290,16 +282,10 @@ namespace polar::system::renderer {
 		/* 8x8 Bayer ordered dithering pattern
 		 * each input pixel is scared to the range of 0->63 before lookup
 		 */
-		static const char ditherPattern[] = {
-			 0, 32,  8, 40,  2, 34, 10, 42,
-			48, 16, 56, 24, 50, 18, 58, 26,
-			12, 44,  4, 36, 14, 46,  6, 38,
-			60, 28, 52, 20, 62, 30, 54, 22,
-			 3, 35, 11, 43,  1, 33,  9, 41,
-			51, 19, 59, 27, 49, 17, 57, 25,
-			15, 47,  7, 39, 13, 45,  5, 37,
-			63, 31, 55, 23, 61, 29, 53, 21
-		};
+		static const char ditherPattern[] = {0,  32, 8,  40, 2,  34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26,
+		                                     12, 44, 4,  36, 14, 46, 6,  38, 60, 28, 52, 20, 62, 30, 54, 22,
+		                                     3,  35, 11, 43, 1,  33, 9,  41, 51, 19, 59, 27, 49, 17, 57, 25,
+		                                     15, 47, 7,  39, 13, 45, 5,  37, 63, 31, 55, 23, 61, 29, 53, 21};
 
 		GL(glGenTextures(1, &ditherTex));
 		GL(glBindTexture(GL_TEXTURE_2D, ditherTex));
@@ -326,8 +312,7 @@ namespace polar::system::renderer {
 			GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 			uploaduniform(node.program, "u_view", view);
-			uploaduniform(node.program, "u_invViewProj",
-			              glm::inverse(proj * view));
+			uploaduniform(node.program, "u_invViewProj", glm::inverse(proj * view));
 
 			unsigned int texPos = 0;
 			GL(glActiveTexture(GL_TEXTURE0 + texPos));
@@ -349,7 +334,7 @@ namespace polar::system::renderer {
 			case 0: {
 				auto pairRight = engine->objects.right.equal_range(typeid(component::model));
 				for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-					auto model = static_cast<component::model *>(itRight->info.get());
+					auto model                     = static_cast<component::model *>(itRight->info.get());
 					component::position *pos       = nullptr;
 					component::orientation *orient = nullptr;
 					component::scale *sc           = nullptr;
@@ -370,15 +355,11 @@ namespace polar::system::renderer {
 					if(property) {
 						math::mat4x4 modelMatrix(1);
 
-						if(pos != nullptr) {
-							modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
-						}
+						if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta)); }
 						if(orient != nullptr) {
 							modelMatrix *= glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
 						}
-						if(sc != nullptr) {
-							modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(delta));
-						}
+						if(sc != nullptr) { modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(delta)); }
 
 						GLenum drawMode = GL_TRIANGLES;
 
@@ -386,8 +367,8 @@ namespace polar::system::renderer {
 
 						if(model->asset->material) {
 							auto mat = assetM->get<polar::asset::material>(*model->asset->material);
-							uploaduniform(node.program, "u_ambient",  mat->ambient);
-							uploaduniform(node.program, "u_diffuse",  mat->diffuse);
+							uploaduniform(node.program, "u_ambient", mat->ambient);
+							uploaduniform(node.program, "u_diffuse", mat->diffuse);
 							uploaduniform(node.program, "u_specular", mat->specular);
 							uploaduniform(node.program, "u_specular_exponent", mat->specular_exponent);
 						}
@@ -416,27 +397,21 @@ namespace polar::system::renderer {
 
 					for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 						auto objectID = itRight->get_left();
-						auto phys = engine->get<component::phys    >(objectID);
-						auto pos  = engine->get<component::position>(objectID);
-						auto sc   = engine->get<component::scale   >(objectID);
+						auto phys     = engine->get<component::phys>(objectID);
+						auto pos      = engine->get<component::position>(objectID);
+						auto sc       = engine->get<component::scale>(objectID);
 
 						if(phys != nullptr) {
 							math::mat4x4 modelMatrix(1);
 
-							if(pos != nullptr) {
-								modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta));
-							}
-							if(sc != nullptr) {
-								modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(delta));
-							}
-							if(phys->detector) {
-								modelMatrix = glm::scale(modelMatrix, phys->detector->size);
-							}
+							if(pos != nullptr) { modelMatrix = glm::translate(modelMatrix, pos->pos.temporal(delta)); }
+							if(sc != nullptr) { modelMatrix = glm::scale(modelMatrix, sc->sc.temporal(delta)); }
+							if(phys->detector) { modelMatrix = glm::scale(modelMatrix, phys->detector->size); }
 
 							uploaduniform(debugProgram, "u_model", modelMatrix);
 
 							auto &det = *phys->detector;
-							auto ti = std::type_index(typeid(det));
+							auto ti   = std::type_index(typeid(det));
 							if(ti == typeid(support::phys::detector::box)) {
 								GL(glBindVertexArray(debug_box_vao));
 								GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(debug_box_points.size())));
@@ -451,9 +426,7 @@ namespace polar::system::renderer {
 			}
 			default:
 				// for each previous global output
-				for(auto &pair : nodes[i - 1].globalOuts) {
-					globals.emplace(pair);
-				}
+				for(auto &pair : nodes[i - 1].globalOuts) { globals.emplace(pair); }
 
 				// for each input
 				for(auto &pair : node.ins) {
@@ -483,29 +456,25 @@ namespace polar::system::renderer {
 		}
 
 		// render sprites and text
-		//GL(glEnable(GL_BLEND));
+		// GL(glEnable(GL_BLEND));
 		{
-			//GL(glBindFramebuffer(GL_FRAMEBUFFER, nodes.back().fbo));
+			// GL(glBindFramebuffer(GL_FRAMEBUFFER, nodes.back().fbo));
 			GL(glUseProgram(spriteProgram));
 			uploaduniform(spriteProgram, "u_texture", 0);
 			GL(glActiveTexture(GL_TEXTURE0));
 			GL(glBindVertexArray(viewportVAO));
 
-			auto pairRight = engine->objects.right.equal_range(
-			    typeid(component::sprite::base));
-			for(auto itRight = pairRight.first; itRight != pairRight.second;
-			    ++itRight) {
+			auto pairRight = engine->objects.right.equal_range(typeid(component::sprite::base));
+			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 				rendersprite(itRight->get_left(), proj, view);
 			}
 
-			pairRight =
-			    engine->objects.right.equal_range(typeid(component::text));
-			for(auto itRight = pairRight.first; itRight != pairRight.second;
-			    ++itRight) {
+			pairRight = engine->objects.right.equal_range(typeid(component::text));
+			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
 				rendertext(itRight->get_left(), proj, view);
 			}
 		}
-		//GL(glDisable(GL_BLEND));
+		// GL(glDisable(GL_BLEND));
 
 		// mirror
 		GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -557,9 +526,7 @@ namespace polar::system::renderer {
 
 		fps_object = engine->add();
 
-		if(dt.Seconds() > 0) {
-			fps = glm::mix(fps, 1 / dt.Seconds(), math::decimal(0.1));
-		}
+		if(dt.Seconds() > 0) { fps = glm::mix(fps, 1 / dt.Seconds(), math::decimal(0.1)); }
 
 		if(showFPS) {
 			std::ostringstream oss;
@@ -574,45 +541,33 @@ namespace polar::system::renderer {
 			engine->add<component::scale>(fps_object, math::point3(0.125));
 		}
 
-		auto sch = engine->get<sched>().lock();
+		auto sch    = engine->get<sched>().lock();
 		float delta = sch->delta<support::sched::clock::integrator>();
 
 		math::mat4x4 cameraView(1);
-		auto pairRight =
-		    engine->objects.right.equal_range(typeid(component::playercamera));
-		for(auto itRight = pairRight.first; itRight != pairRight.second;
-		    ++itRight) {
-			auto camera =
-			    static_cast<component::playercamera *>(itRight->info.get());
+		auto pairRight = engine->objects.right.equal_range(typeid(component::playercamera));
+		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
+			auto camera = static_cast<component::playercamera *>(itRight->info.get());
 
 			component::position *pos       = nullptr;
 			component::orientation *orient = nullptr;
 			// component::scale *sc           = nullptr;
 
-			auto pairLeft =
-			    engine->objects.left.equal_range(itRight->get_left());
-			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second;
-			    ++itLeft) {
+			auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
+			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
 				auto type = itLeft->get_right();
 				if(type == typeid(component::position)) {
-					pos =
-					    static_cast<component::position *>(itLeft->info.get());
+					pos = static_cast<component::position *>(itLeft->info.get());
 				} else if(type == typeid(component::orientation)) {
-					orient = static_cast<component::orientation *>(
-					    itLeft->info.get());
+					orient = static_cast<component::orientation *>(itLeft->info.get());
 				}
 			}
 
-			cameraView = glm::translate(
-			    cameraView, -camera->distance.temporal(delta));
+			cameraView = glm::translate(cameraView, -camera->distance.temporal(delta));
 			cameraView *= glm::toMat4(camera->orientation.temporal(delta));
 			if(orient != nullptr) { cameraView *= glm::toMat4(orient->orient.temporal(delta)); }
-			cameraView = glm::translate(
-			    cameraView, -camera->position.temporal(delta));
-			if(pos != nullptr) {
-				cameraView = glm::translate(
-				    cameraView, -pos->pos.temporal(delta));
-			}
+			cameraView = glm::translate(cameraView, -camera->position.temporal(delta));
+			if(pos != nullptr) { cameraView = glm::translate(cameraView, -pos->pos.temporal(delta)); }
 		}
 
 		auto vr = engine->get<system::vr>().lock();
@@ -723,14 +678,14 @@ namespace polar::system::renderer {
 			glm::vec4 mPerspective;
 			glm::decompose(view, mScale, mRotation, mTranslation, mSkew, mPerspective);
 
-			//static glm::quat rot{1, 0, 0, 0};
-			//auto delta = glm::inverse(rot) * mRotation;
-			//rot *= glm::pow(delta, math::decimal(0.002));
+			// static glm::quat rot{1, 0, 0, 0};
+			// auto delta = glm::inverse(rot) * mRotation;
+			// rot *= glm::pow(delta, math::decimal(0.002));
 
 			// map to plane in 3D space
 			transform = proj;
 			if(!sprite->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
-			//transform = glm::rotate(transform, theta, math::point3(0, 1, 0));
+			// transform = glm::rotate(transform, theta, math::point3(0, 1, 0));
 			transform = glm::translate(transform, math::point3(0, 0, -(zNear + zFar) / 2.0));
 			transform = glm::scale(transform, math::point3(2.0 / width, 2.0 / height, 1));
 
@@ -756,8 +711,7 @@ namespace polar::system::renderer {
 		// scale by scale component
 		if(scale) { transform = glm::scale(transform, scale->sc.get()); }
 
-		uploaduniform(spriteProgram, "u_color",
-		              color ? color->col.get() : math::point4(1));
+		uploaduniform(spriteProgram, "u_color", color ? color->col.get() : math::point4(1));
 
 		// scale to sprite size
 		auto sc   = math::point3(sprite->surface->w, sprite->surface->h, 1);
@@ -780,9 +734,7 @@ namespace polar::system::renderer {
 		auto scale     = engine->get<component::scale>(object);
 		auto color     = engine->get<component::color>(object);
 
-		if(!text || text->str.empty()) {
-			return;
-		}
+		if(!text || text->str.empty()) { return; }
 
 		// calculate intended width of string
 		math::decimal stringWidth = 0;
@@ -894,14 +846,14 @@ namespace polar::system::renderer {
 			glm::vec4 mPerspective;
 			glm::decompose(view, mScale, mRotation, mTranslation, mSkew, mPerspective);
 
-			//static glm::quat rot{1, 0, 0, 0};
-			//auto delta = glm::inverse(rot) * mRotation;
-			//rot *= glm::pow(delta, math::decimal(0.002));
+			// static glm::quat rot{1, 0, 0, 0};
+			// auto delta = glm::inverse(rot) * mRotation;
+			// rot *= glm::pow(delta, math::decimal(0.002));
 
 			// map to plane in 3D space
 			transform = proj;
 			if(!text->fixedToViewport) { transform *= glm::inverse(glm::toMat4(mRotation)); }
-			//transform = glm::rotate(transform, theta, math::point3(0, 1, 0));
+			// transform = glm::rotate(transform, theta, math::point3(0, 1, 0));
 			transform = glm::translate(transform, math::point3(0, 0, -(zNear + zFar) / 2.0));
 			transform = glm::scale(transform, math::point3(2.0 / width, 2.0 / height, 1));
 
@@ -927,8 +879,7 @@ namespace polar::system::renderer {
 		// scale by scale component
 		if(scale) { transform = glm::scale(transform, scale->sc.get()); }
 
-		uploaduniform(spriteProgram, "u_color",
-		              color ? color->col.get() : math::point4(1));
+		uploaduniform(spriteProgram, "u_color", color ? color->col.get() : math::point4(1));
 
 		math::decimal pen = 0;
 		for(auto c : text->str) {
@@ -938,22 +889,18 @@ namespace polar::system::renderer {
 			glyphTransform = glm::translate(glyphTransform, math::point3(pen, 0, 0));
 
 			// translate by glyph min x
-			glyphTransform = glm::translate(
-			    glyphTransform, math::point3(text->as->glyphs[c].min.x, 0, 0));
+			glyphTransform = glm::translate(glyphTransform, math::point3(text->as->glyphs[c].min.x, 0, 0));
 
 			// scale to glyph size
-			auto sc        = math::point3(text->as->glyphs[c].surface->w,
-                             text->as->glyphs[c].surface->h, 1);
+			auto sc        = math::point3(text->as->glyphs[c].surface->w, text->as->glyphs[c].surface->h, 1);
 			glyphTransform = glm::scale(glyphTransform, sc / math::decimal(2));
 
 			// translate by one glyph size
-			glyphTransform =
-			    glm::translate(glyphTransform, math::point3(1, offsetY, 0));
+			glyphTransform = glm::translate(glyphTransform, math::point3(1, offsetY, 0));
 
 			uploaduniform(spriteProgram, "u_transform", glyphTransform);
 
-			GL(glBindTexture(GL_TEXTURE_2D,
-			                 fontCache[text->as].entries[c].texture));
+			GL(glBindTexture(GL_TEXTURE_2D, fontCache[text->as].entries[c].texture));
 			GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(viewportPoints.size())));
 
 			pen += text->as->glyphs[c].advance;
@@ -988,12 +935,12 @@ namespace polar::system::renderer {
 				height = ev.window.data2;
 
 				if(vr && vr->ready()) {
-					width = vr->width();
+					width  = vr->width();
 					height = vr->height();
 				} else {
 					int w, h;
 					SDL(SDL_GL_GetDrawableSize(window, &w, &h));
-					width = w;
+					width  = w;
 					height = h;
 				}
 
@@ -1005,28 +952,20 @@ namespace polar::system::renderer {
 		case SDL_KEYDOWN:
 			if(ev.key.repeat == 0) {
 				key = mkKeyFromSDL(ev.key.keysym.sym);
-				if(act) {
-					act->trigger_digital(kb::key_ti(key), true);
-				}
+				if(act) { act->trigger_digital(kb::key_ti(key), true); }
 			}
 			break;
 		case SDL_KEYUP:
 			key = mkKeyFromSDL(ev.key.keysym.sym);
-			if(act) {
-				act->trigger_digital(kb::key_ti(key), false);
-			}
+			if(act) { act->trigger_digital(kb::key_ti(key), false); }
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			if(act) {
-				act->trigger_digital(kb::key_ti(key), true);
-			}
+			if(act) { act->trigger_digital(kb::key_ti(key), true); }
 			break;
 		case SDL_MOUSEBUTTONUP:
 			key = mkMouseButtonFromSDL(ev.button.button);
-			if(act) {
-				act->trigger_digital(kb::key_ti(key), false);
-			}
+			if(act) { act->trigger_digital(kb::key_ti(key), false); }
 			break;
 		case SDL_MOUSEMOTION:
 			if(act) {
@@ -1045,30 +984,20 @@ namespace polar::system::renderer {
 			}
 			break;
 		case SDL_CONTROLLERBUTTONDOWN:
-			key = mkButtonFromSDL(
-			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			if(act) {
-				act->trigger_digital(kb::key_ti(key), true);
-			}
+			key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(ev.cbutton.button));
+			if(act) { act->trigger_digital(kb::key_ti(key), true); }
 			break;
 		case SDL_CONTROLLERBUTTONUP:
-			key = mkButtonFromSDL(
-			    static_cast<SDL_GameControllerButton>(ev.cbutton.button));
-			if(act) {
-				act->trigger_digital(kb::key_ti(key), false);
-			}
+			key = mkButtonFromSDL(static_cast<SDL_GameControllerButton>(ev.cbutton.button));
+			if(act) { act->trigger_digital(kb::key_ti(key), false); }
 			break;
 		case SDL_CONTROLLERAXISMOTION:
 			switch(ev.caxis.axis) {
 			case 0: // x axis
-				if(act) {
-					act->accumulate<controller::motion_x>(ev.caxis.value);
-				}
+				if(act) { act->accumulate<controller::motion_x>(ev.caxis.value); }
 				break;
 			case 1: // y axis
-				if(act) {
-					act->accumulate<controller::motion_y>(ev.caxis.value);
-				}
+				if(act) { act->accumulate<controller::motion_y>(ev.caxis.value); }
 				break;
 			}
 			break;
@@ -1081,9 +1010,7 @@ namespace polar::system::renderer {
 		auto assetM = engine->get<asset>().lock();
 		std::vector<std::shared_ptr<polar::asset::shaderprogram>> assets;
 		for(auto &node : nodes) {
-			for(auto &out : node.globalOuts) {
-				GL(glDeleteTextures(1, &out.second));
-			}
+			for(auto &out : node.globalOuts) { GL(glDeleteTextures(1, &out.second)); }
 			for(auto &out : node.outs) { GL(glDeleteTextures(1, &out.second)); }
 			GL(glDeleteFramebuffers(1, &node.fbo));
 			GL(glDeleteProgram(node.program));
@@ -1095,13 +1022,11 @@ namespace polar::system::renderer {
 			auto as = assetM->get<polar::asset::shaderprogram>(name);
 			assets.emplace_back(as);
 			nodes.emplace_back(makeprogram(as));
-			for(auto &uniform : as->uniforms) {
-				nodes.back().uniforms.emplace(uniform);
-			}
+			for(auto &uniform : as->uniforms) { nodes.back().uniforms.emplace(uniform); }
 		}
 
 		for(unsigned int i = 0; i < nodes.size(); ++i) {
-			auto &as = assets[i];
+			auto &as   = assets[i];
 			auto &node = nodes[i];
 
 			std::vector<GLenum> drawBuffers;
@@ -1110,22 +1035,17 @@ namespace polar::system::renderer {
 			GL(glGenFramebuffers(1, &node.fbo));
 			GL(glBindFramebuffer(GL_FRAMEBUFFER, node.fbo));
 
-			auto fOut = [this, &drawBuffers,
-			             &colorAttachment](polar::asset::shaderoutput &out) {
+			auto fOut = [this, &drawBuffers, &colorAttachment](polar::asset::shaderoutput &out) {
 				using outputtype = support::shader::outputtype;
 
 				GLuint texture;
 				GL(glGenTextures(1, &texture));
 				GL(glBindTexture(GL_TEXTURE_2D, texture));
 
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-				                   GL_CLAMP_TO_EDGE));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-				                   GL_CLAMP_TO_EDGE));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-				                   GL_NEAREST));
-				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-				                   GL_NEAREST));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 
 				GLenum internalFormat = 0, format = 0, type = 0, attachment = 0;
 
@@ -1184,22 +1104,18 @@ namespace polar::system::renderer {
 					drawBuffers.emplace_back(attachment);
 				}
 
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height,
-				                0, format, type, NULL));
-				GL(glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture,
-				                        0));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL));
+				GL(glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0));
 
 				return texture;
 			};
 
 			for(auto &out : as->outs) { node.outs.emplace(out.key, fOut(out)); }
-			for(auto &out : as->globalOuts) {
-				node.globalOuts.emplace(out.key, fOut(out));
-			}
+			for(auto &out : as->globalOuts) { node.globalOuts.emplace(out.key, fOut(out)); }
 
 			if(i < nodes.size() - 1) {
 				auto &nextAsset = assets[i + 1];
-				auto &nextNode = nodes[i + 1];
+				auto &nextNode  = nodes[i + 1];
 
 				for(auto &in : nextAsset->ins) {
 					auto it = node.outs.find(in.key);
@@ -1209,13 +1125,10 @@ namespace polar::system::renderer {
 					nextNode.ins.emplace(in.key, in.name);
 				}
 
-				for(auto &in : nextAsset->globalIns) {
-					nextNode.globalIns.emplace(in.key, in.name);
-				}
+				for(auto &in : nextAsset->globalIns) { nextNode.globalIns.emplace(in.key, in.name); }
 			}
 
-			GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()),
-			                 drawBuffers.data()));
+			GL(glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data()));
 
 			GLenum status;
 			GL(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
@@ -1227,8 +1140,7 @@ namespace polar::system::renderer {
 			case GL_FRAMEBUFFER_UNSUPPORTED:
 				log()->fatal("gl", "framebuffer unsupported");
 			default:
-				msg << "framebuffer status incomplete (0x" << std::hex << status
-				    << ')';
+				msg << "framebuffer status incomplete (0x" << std::hex << status << ')';
 				log()->fatal("gl", msg.str());
 			}
 		}
@@ -1240,15 +1152,9 @@ namespace polar::system::renderer {
 			uploaduniform(node.program, "u_resolution", math::point2(width, height));
 		}
 
-		for(auto uniform : uniformsU32) {
-			setuniform(uniform.first, uniform.second, true);
-		}
-		for(auto uniform : uniformsFloat) {
-			setuniform(uniform.first, uniform.second, true);
-		}
-		for(auto uniform : uniformsPoint3) {
-			setuniform(uniform.first, uniform.second, true);
-		}
+		for(auto uniform : uniformsU32) { setuniform(uniform.first, uniform.second, true); }
+		for(auto uniform : uniformsFloat) { setuniform(uniform.first, uniform.second, true); }
+		for(auto uniform : uniformsPoint3) { setuniform(uniform.first, uniform.second, true); }
 	}
 
 	GLuint gl32::makeprogram(std::shared_ptr<polar::asset::shaderprogram> as) {
@@ -1269,18 +1175,12 @@ namespace polar::system::renderer {
 			}
 
 			GLuint id;
-			if(!GL(id = glCreateShader(type))) {
-				log()->fatal("gl", "failed to create shader");
-			}
+			if(!GL(id = glCreateShader(type))) { log()->fatal("gl", "failed to create shader"); }
 
 			const GLchar *src = shader.source.c_str();
 			const GLint len   = static_cast<GLint>(shader.source.length());
-			if(!GL(glShaderSource(id, 1, &src, &len))) {
-				log()->fatal("gl", "failed to upload shader source");
-			}
-			if(!GL(glCompileShader(id))) {
-				log()->fatal("gl", "shader compilation is unsupported on this platform");
-			}
+			if(!GL(glShaderSource(id, 1, &src, &len))) { log()->fatal("gl", "failed to upload shader source"); }
+			if(!GL(glCompileShader(id))) { log()->fatal("gl", "shader compilation is unsupported on this platform"); }
 
 			GLint status;
 			if(!GL(glGetShaderiv(id, GL_COMPILE_STATUS, &status))) {
@@ -1295,8 +1195,7 @@ namespace polar::system::renderer {
 
 				if(infoLen > 0) {
 					auto infoLog = std::unique_ptr<char[]>(new char[infoLen]);
-					if(!GL(glGetShaderInfoLog(id, infoLen, NULL,
-					                          infoLog.get()))) {
+					if(!GL(glGetShaderInfoLog(id, infoLen, NULL, infoLog.get()))) {
 						log()->fatal("gl", "failed to get shader info log");
 					}
 					log()->debug("gl", "shader info log:");
@@ -1309,24 +1208,16 @@ namespace polar::system::renderer {
 		}
 
 		GLuint programID;
-		if(!GL(programID = glCreateProgram())) {
-			log()->fatal("gl", "failed to create program");
-		}
+		if(!GL(programID = glCreateProgram())) { log()->fatal("gl", "failed to create program"); }
 
 		for(auto id : ids) {
-			if(!GL(glAttachShader(programID, id))) {
-				log()->fatal("gl", "failed to attach shader to program");
-			}
+			if(!GL(glAttachShader(programID, id))) { log()->fatal("gl", "failed to attach shader to program"); }
 
 			/* flag shader for deletion */
-			if(!GL(glDeleteShader(id))) {
-				log()->fatal("gl", "failed to flag shader for deletion");
-			}
+			if(!GL(glDeleteShader(id))) { log()->fatal("gl", "failed to flag shader for deletion"); }
 		}
 
-		if(!GL(glLinkProgram(programID))) {
-			log()->fatal("gl", "program linking is unsupported on this platform");
-		}
+		if(!GL(glLinkProgram(programID))) { log()->fatal("gl", "program linking is unsupported on this platform"); }
 
 		GLint status;
 		if(!GL(glGetProgramiv(programID, GL_LINK_STATUS, &status))) {
@@ -1341,8 +1232,7 @@ namespace polar::system::renderer {
 
 			if(infoLen > 0) {
 				auto infoLog = std::unique_ptr<char[]>(new char[infoLen]);
-				if(!GL(glGetProgramInfoLog(programID, infoLen, NULL,
-				                           infoLog.get()))) {
+				if(!GL(glGetProgramInfoLog(programID, infoLen, NULL, infoLog.get()))) {
 					log()->fatal("gl", "failed to get program info log");
 				}
 				log()->debug("gl", "program info log:");
@@ -1353,8 +1243,7 @@ namespace polar::system::renderer {
 		return programID;
 	}
 
-	std::shared_ptr<gl32::model_p>
-	gl32::getpooledmodelproperty(const GLsizei) {
+	std::shared_ptr<gl32::model_p> gl32::getpooledmodelproperty(const GLsizei) {
 		if(modelPropertyPool.empty()) {
 			model_p prop;
 
@@ -1373,9 +1262,9 @@ namespace polar::system::renderer {
 			GL(glBindBuffer(GL_ARRAY_BUFFER, prop.vbos[0]));
 
 			const GLsizei stride = sizeof(polar::asset::vertex);
-			const GLvoid *p_ptr = NULL;
-			const GLvoid *n_ptr = (GLvoid *)sizeof(math::point3);
-			const GLvoid *t_ptr = (GLvoid *)(sizeof(math::point3) * 2);
+			const GLvoid *p_ptr  = NULL;
+			const GLvoid *n_ptr  = (GLvoid *)sizeof(math::point3);
+			const GLvoid *t_ptr  = (GLvoid *)(sizeof(math::point3) * 2);
 
 			GL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, p_ptr));
 			GL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, n_ptr));
@@ -1387,7 +1276,7 @@ namespace polar::system::renderer {
 
 			return std::make_shared<model_p>(prop);
 		} else {
-			auto it = modelPropertyPool.begin();
+			auto it   = modelPropertyPool.begin();
 			auto prop = *it;
 			modelPropertyPool.erase(it);
 			return prop;
@@ -1419,7 +1308,7 @@ namespace polar::system::renderer {
 		// textures
 
 		auto assetM = engine->get<asset>().lock();
-		auto mat = assetM->get<polar::asset::material>(*model->asset->material);
+		auto mat    = assetM->get<polar::asset::material>(*model->asset->material);
 		if(mat->diffuse_map) {
 			auto diffuse_map = assetM->get<polar::asset::image>(*mat->diffuse_map);
 
@@ -1427,7 +1316,8 @@ namespace polar::system::renderer {
 			GL(glBindTexture(GL_TEXTURE_2D, prop->diffuse_map));
 
 			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, diffuse_map->width, diffuse_map->height, 0, format, GL_UNSIGNED_BYTE, diffuse_map->pixels.data()));
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, diffuse_map->width, diffuse_map->height, 0, format,
+			                GL_UNSIGNED_BYTE, diffuse_map->pixels.data()));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
@@ -1441,7 +1331,8 @@ namespace polar::system::renderer {
 			GL(glBindTexture(GL_TEXTURE_2D, prop->specular_map));
 
 			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, specular_map->width, specular_map->height, 0, format, GL_UNSIGNED_BYTE, specular_map->pixels.data()));
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, specular_map->width, specular_map->height, 0, format,
+			                GL_UNSIGNED_BYTE, specular_map->pixels.data()));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
@@ -1455,7 +1346,8 @@ namespace polar::system::renderer {
 			GL(glBindTexture(GL_TEXTURE_2D, prop->normal_map));
 
 			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, normal_map->width, normal_map->height, 0, format, GL_UNSIGNED_BYTE, normal_map->pixels.data()));
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, normal_map->width, normal_map->height, 0, format,
+			                GL_UNSIGNED_BYTE, normal_map->pixels.data()));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
@@ -1469,12 +1361,9 @@ namespace polar::system::renderer {
 	void gl32::component_added(core::weak_ref, std::type_index ti, std::weak_ptr<component::base> ptr) {
 		if(ti == typeid(component::model)) {
 			auto model = std::static_pointer_cast<component::model>(ptr.lock());
-			if(!model->has<model_p>()) {
-				uploadmodel(model);
-			}
+			if(!model->has<model_p>()) { uploadmodel(model); }
 		} else if(ti == typeid(component::sprite::base)) {
-			auto sprite =
-			    std::static_pointer_cast<component::sprite::base>(ptr.lock());
+			auto sprite = std::static_pointer_cast<component::sprite::base>(ptr.lock());
 			sprite->render();
 			sprite_p prop;
 
@@ -1482,7 +1371,8 @@ namespace polar::system::renderer {
 			GL(glBindTexture(GL_TEXTURE_2D, prop.texture));
 
 			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w, sprite->surface->h, 0, format, GL_UNSIGNED_BYTE, sprite->surface->pixels));
+			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, sprite->surface->w, sprite->surface->h, 0, format,
+			                GL_UNSIGNED_BYTE, sprite->surface->pixels));
 			GL(glGenerateMipmap(GL_TEXTURE_2D));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
@@ -1491,9 +1381,8 @@ namespace polar::system::renderer {
 
 			sprite->add<sprite_p>(prop);
 		} else if(ti == typeid(component::text)) {
-			auto text = std::static_pointer_cast<component::text>(ptr.lock());
-			auto &cache =
-			    fontCache.emplace(text->as, fontcache_t()).first->second;
+			auto text   = std::static_pointer_cast<component::text>(ptr.lock());
+			auto &cache = fontCache.emplace(text->as, fontcache_t()).first->second;
 
 			for(auto c : text->str) {
 				auto &entry = cache.entries[c];
@@ -1505,18 +1394,13 @@ namespace polar::system::renderer {
 					GL(glBindTexture(GL_TEXTURE_2D, entry.texture));
 
 					GLint format = GL_RGBA;
-					GL(glTexImage2D(GL_TEXTURE_2D, 0, format, glyph.surface->w,
-					                glyph.surface->h, 0, format,
+					GL(glTexImage2D(GL_TEXTURE_2D, 0, format, glyph.surface->w, glyph.surface->h, 0, format,
 					                GL_UNSIGNED_BYTE, glyph.surface->pixels));
 					GL(glGenerateMipmap(GL_TEXTURE_2D));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-					                   GL_CLAMP_TO_EDGE));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-					                   GL_CLAMP_TO_EDGE));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-					                   GL_LINEAR));
-					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-					                   GL_LINEAR_MIPMAP_NEAREST));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+					GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
 					entry.active = true;
 				}
@@ -1552,8 +1436,7 @@ namespace polar::system::renderer {
 	void gl32::setfullscreen(bool fullscreen) {
 		this->fullscreen = fullscreen;
 		if(inited) {
-			if(!SDL(SDL_SetWindowFullscreen(
-			       window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) {
+			if(!SDL(SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0))) {
 				log()->critical("gl", "failed to set fullscreen mode");
 			}
 		}
@@ -1576,12 +1459,9 @@ namespace polar::system::renderer {
 		}
 	}
 
-	void gl32::setclearcolor(const math::point4 &color) {
-		GL(glClearColor(color.r, color.g, color.b, color.a));
-	}
+	void gl32::setclearcolor(const math::point4 &color) { GL(glClearColor(color.r, color.g, color.b, color.a)); }
 
-	math::decimal gl32::getuniform_decimal(const std::string &name,
-	                                       const math::decimal def) {
+	math::decimal gl32::getuniform_decimal(const std::string &name, const math::decimal def) {
 		auto it = uniformsFloat.find(name);
 		if(it != uniformsFloat.end()) {
 			return it->second;
@@ -1625,73 +1505,55 @@ namespace polar::system::renderer {
 		changedUniformsPoint3.emplace_back(name);
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         glm::int32 x) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, glm::int32 x) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		GL(glUniform1i(loc, x));
 		return true;
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         glm::uint32 x) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, glm::uint32 x) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		GL(glUniform1ui(loc, x));
 		log()->trace("gl", "uniform ", name, " = ", x);
 		return true;
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         math::decimal x) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, math::decimal x) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		auto x2 = float(x);
 		GL(glUniform1f(loc, x2));
 		log()->trace("gl", "uniform ", name, " = ", x);
 		return true;
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         math::point2 p) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, math::point2 p) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		auto p2 = glm::vec2(p);
 		GL(glUniform2f(loc, p2.x, p2.y));
 		return true;
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         math::point3 p) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, math::point3 p) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		auto p2 = glm::vec3(p);
 		GL(glUniform3f(loc, p2.x, p2.y, p2.z));
 		return true;
 	}
 
-	bool gl32::uploaduniform(GLuint program, const std::string &name,
-	                         math::point4 p) {
+	bool gl32::uploaduniform(GLuint program, const std::string &name, math::point4 p) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		auto p2 = glm::vec4(p);
 		GL(glUniform4f(loc, p2.x, p2.y, p2.z, p2.w));
 		return true;
@@ -1700,21 +1562,16 @@ namespace polar::system::renderer {
 	bool gl32::uploaduniform(GLuint program, const std::string &name, math::mat4x4 m) {
 		GLint loc;
 		GL(loc = glGetUniformLocation(program, name.c_str()));
-		if(loc == -1) {
-			return false;
-		} // -1 if uniform does not exist in program
+		if(loc == -1) { return false; } // -1 if uniform does not exist in program
 		auto m2 = glm::mat4(m);
 		GL(glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m2)));
 		return true;
 	}
 
 	math::mat4x4 gl32::calculate_projection() {
-		auto heightF = static_cast<math::decimal>(height);
-		auto fovy =
-		    2.0f * glm::atan(heightF, math::decimal(2) * pixelDistanceFromScreen) +
-		    fovPlus;
-		auto projection = glm::perspective(
-		    fovy, static_cast<math::decimal>(width) / heightF, zNear, zFar);
+		auto heightF    = static_cast<math::decimal>(height);
+		auto fovy       = 2.0f * glm::atan(heightF, math::decimal(2) * pixelDistanceFromScreen) + fovPlus;
+		auto projection = glm::perspective(fovy, static_cast<math::decimal>(width) / heightF, zNear, zFar);
 		// auto projection = glm::infinitePerspective(fovy,
 		// static_cast<math::decimal>(width) / heightF, zNear);
 		return projection;
