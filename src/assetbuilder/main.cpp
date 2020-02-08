@@ -346,8 +346,7 @@ int main(int argc, char **argv) {
 				}
 
 				uint16_t formatTag;
-				iss.read(reinterpret_cast<char *>(&formatTag),
-				         sizeof(formatTag));
+				iss.read(reinterpret_cast<char *>(&formatTag), sizeof(formatTag));
 				formatTag = swaple(formatTag);
 				if(formatTag != 1) {
 					log()->fatal("assetbuilder::wav", "format tag must be PCM");
@@ -355,8 +354,7 @@ int main(int argc, char **argv) {
 				riffSizeAccum += sizeof(formatTag);
 
 				uint16_t numChannels;
-				iss.read(reinterpret_cast<char *>(&numChannels),
-				         sizeof(numChannels));
+				iss.read(reinterpret_cast<char *>(&numChannels), sizeof(numChannels));
 				numChannels = swaple(numChannels);
 				if(numChannels != 1 && numChannels != 2) {
 					log()->fatal("assetbuilder::wav", "number of channels must be 1 or 2");
@@ -365,26 +363,22 @@ int main(int argc, char **argv) {
 				asset.stereo = numChannels == 2;
 
 				uint32_t sampleRate;
-				iss.read(reinterpret_cast<char *>(&sampleRate),
-				         sizeof(sampleRate));
+				iss.read(reinterpret_cast<char *>(&sampleRate), sizeof(sampleRate));
 				sampleRate = swaple(sampleRate);
 				riffSizeAccum += sizeof(sampleRate);
 				asset.sampleRate = sampleRate;
 
 				uint32_t avgByteRate;
-				iss.read(reinterpret_cast<char *>(&avgByteRate),
-				         sizeof(avgByteRate));
+				iss.read(reinterpret_cast<char *>(&avgByteRate), sizeof(avgByteRate));
 				avgByteRate = swaple(avgByteRate);
 				riffSizeAccum += sizeof(avgByteRate);
 
 				uint16_t blockAlign;
-				iss.read(reinterpret_cast<char *>(&blockAlign),
-				         sizeof(blockAlign));
+				iss.read(reinterpret_cast<char *>(&blockAlign), sizeof(blockAlign));
 				blockAlign = swaple(blockAlign);
 				riffSizeAccum += sizeof(blockAlign);
 
-				iss.read(reinterpret_cast<char *>(&bitsPerSample),
-				         sizeof(bitsPerSample));
+				iss.read(reinterpret_cast<char *>(&bitsPerSample), sizeof(bitsPerSample));
 				bitsPerSample = swaple(bitsPerSample);
 				if(bitsPerSample != 16 && bitsPerSample != 24) {
 					log()->fatal("assetbuilder::wav", "bits per sample must be 16 or 24");
@@ -408,9 +402,14 @@ int main(int argc, char **argv) {
 
 				asset.samples.resize(chunkSize / bytesPerSample);
 				for(uint32_t i = 0; i < chunkSize; i += bytesPerSample) {
-					int16_t sample = *(int16_t *)&data[i + 1];
-					sample = swaple(sample);
-					asset.samples[i / bytesPerSample] = sample;
+					uint64_t usample64 = 0;
+					for(uint8_t b = 0; b < bytesPerSample; ++b) {
+						size_t shift = b << 3; // b * 8
+						usample64 |= *reinterpret_cast<uint8_t *>(&data[i + b]) << shift;
+					}
+					uint16_t usample16 = usample64 >> (bitsPerSample - 16); // drop lower bits of precision
+					int16_t sample16 = *reinterpret_cast<int16_t *>(&usample16);
+					asset.samples[i / bytesPerSample] = sample16;
 				}
 
 				if(chunkSize % 2 == 1) {
