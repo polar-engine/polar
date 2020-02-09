@@ -113,6 +113,10 @@ namespace polar::system::renderer {
 			}
 		}
 
+		bool getfullscreen() override {
+			return fullscreen;
+		}
+
 		void setmousecapture(bool capture) override;
 		void setfullscreen(bool fullscreen) override;
 		void setdepthtest(bool depthtest) override;

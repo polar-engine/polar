@@ -46,6 +46,14 @@ namespace polar::system::renderer {
 					ptr->debug_draw = x ? true : false;
 				}
 			));
+			l.emplace_back("fullscreen", make_accessor<base>(
+				[] (base *ptr) {
+					return ptr->getfullscreen();
+				},
+				[] (base *ptr, auto x) {
+					ptr->setfullscreen(x);
+				}
+			));
 			l.emplace_back("width", make_accessor<base>(
 				[] (base *ptr) {
 					return ptr->getwidth();
@@ -70,6 +78,8 @@ namespace polar::system::renderer {
 
 		inline void setwidth(uint16_t w) { resize(w, height); }
 		inline void setheight(uint16_t h) { resize(width, h); }
+
+		virtual bool getfullscreen() = 0;
 
 		virtual void resize(uint16_t, uint16_t)                                      = 0;
 		virtual void setmousecapture(bool)                                           = 0;
