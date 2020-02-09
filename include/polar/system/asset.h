@@ -4,20 +4,24 @@
 #include <polar/core/path.h>
 #include <polar/core/serializer.h>
 #include <polar/fs/local.h>
+#include <polar/support/asset/asset_ref.h>
 #include <polar/support/asset/partial.h>
 #include <polar/system/base.h>
 #include <unordered_map>
 
 namespace polar::system {
 	class asset : public base {
-		using partial = support::asset::partial;
+		using partial                        = support::asset::partial;
+		template<typename T> using asset_ref = support::asset::asset_ref<T>;
+
 	  private:
 		std::unordered_map<core::path, partial> partials;
 
 		core::path assets_path = "";
 		bool assets_path_valid = false;
+
 	  public:
-		core::path & get_assets_path() {
+		core::path &get_assets_path() {
 			if(!assets_path_valid) {
 #if defined(_WIN32) || defined(__linux__)
 				assets_path = fs::local::app_dir() / "assets";
@@ -68,8 +72,7 @@ namespace polar::system {
 				if(!partial.done) {
 					auto &path = pair.first;
 					bool eof   = false;
-					partial.contents += fs::local::read(
-					    path, partial.contents.size(), 262144, &eof);
+					partial.contents += fs::local::read(path, partial.contents.size(), 262144, &eof);
 					if(eof) {
 						partial.done = true;
 						log()->verbose("asset", "async loaded asset ", path);
@@ -90,16 +93,15 @@ namespace polar::system {
 		}
 
 		template<typename T> partial &forcepartial(const std::string name) {
-			static_assert(std::is_base_of<polar::asset::base, T>::value,
-			              "polar::system::asset::forcepartial requires "
-			              "typename of type polar::asset::base");
+			static_assert(std::is_base_of<polar::asset::base, T>::value, "polar::system::asset::forcepartial requires "
+			                                                             "typename of type polar::asset::base");
 			auto path = get_path<T>(name);
 
 			auto it = partials.find(path);
 			if(it == partials.end()) {
 				log()->verbose("asset", "loading asset ", path);
 				auto [it2, r] = partials.emplace(path, partial());
-				it = it2;
+				it            = it2;
 			}
 			auto &partial = it->second;
 			if(!partial.done) {
@@ -110,8 +112,7 @@ namespace polar::system {
 			return partial;
 		}
 
-		template<typename T, typename... Ts>
-		std::shared_ptr<T> get(const std::string name, Ts &&... args) {
+		template<typename T, typename... Ts> std::shared_ptr<T> get(const std::string name, Ts &&... args) {
 			static_assert(std::is_base_of<polar::asset::base, T>::value,
 			              "polar::system::asset::get requires typename of type "
 			              "polar::asset::base");
@@ -124,8 +125,7 @@ namespace polar::system {
 				std::istringstream ss(partial.contents);
 				core::deserializer deserializer(ss);
 				deserializer >> *asset;
-				partial.asset =
-				    std::static_pointer_cast<polar::asset::base>(asset);
+				partial.asset = std::static_pointer_cast<polar::asset::base>(asset);
 
 				// free up raw asset data
 				std::string().swap(partial.contents);
@@ -133,6 +133,10 @@ namespace polar::system {
 				log()->verbose("asset", "deserialized asset ", polar::asset::name<T>(), '/', name);
 			}
 			return std::static_pointer_cast<T>(partial.asset);
+		}
+
+		template<typename T, typename... Ts> std::shared_ptr<T> get(asset_ref<T> ref, Ts &&... args) {
+			return get<T>(ref.name(), std::forward<Ts>(args)...);
 		}
 	};
 } // namespace polar::system

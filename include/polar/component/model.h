@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/gtc/random.hpp>
+#include <polar/asset/material.h>
 #include <polar/asset/model.h>
 #include <polar/component/base.h>
 #include <polar/core/log.h>
@@ -11,7 +12,7 @@ namespace polar::component {
 	  public:
 		std::shared_ptr<asset::model> asset;
 
-		model(std::shared_ptr<asset::model> asset) : asset(asset) {}
+		model(decltype(asset) asset) : asset(asset) {}
 
 		virtual std::string name() const override { return "model"; }
 
