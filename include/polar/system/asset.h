@@ -135,8 +135,16 @@ namespace polar::system {
 			return std::static_pointer_cast<T>(partial.asset);
 		}
 
-		template<typename T, typename... Ts> std::shared_ptr<T> get(asset_ref<T> ref, Ts &&... args) {
-			return get<T>(ref.name(), std::forward<Ts>(args)...);
+		template<typename T, typename... Ts> std::shared_ptr<T> get(asset_ref<T> &ref, Ts &&... args) {
+			std::shared_ptr<T> ptr;
+
+			if(auto opt = ref.cache()) {
+				ptr = *opt;
+			} else {
+				ptr = get<T>(ref.name(), std::forward<Ts>(args)...);
+				ref.set(ptr);
+			}
+			return ptr;
 		}
 	};
 } // namespace polar::system
