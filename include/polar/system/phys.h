@@ -22,8 +22,7 @@ namespace polar::system {
 		};
 
 		template<typename T> struct pair_comparator {
-			bool operator()(const std::pair<T, T> &lhs,
-			                const std::pair<T, T> &rhs) const {
+			bool operator()(const std::pair<T, T> &lhs, const std::pair<T, T> &rhs) const {
 				auto lhsMin = std::min(lhs.first, lhs.second);
 				auto lhsMax = std::max(lhs.first, lhs.second);
 				auto rhsMin = std::min(rhs.first, rhs.second);
@@ -47,9 +46,9 @@ namespace polar::system {
 
 		using resolver_base = resolver_t<detector_base, detector_base>;
 
-		std::unordered_map<pair_t, std::shared_ptr<resolver_base>,
-		                   pair_hasher<ti_t>, pair_comparator<ti_t>>
-		    resolvers;
+		std::unordered_map<pair_t, std::shared_ptr<resolver_base>, pair_hasher<ti_t>, pair_comparator<ti_t>> resolvers;
+
+		void tick(DeltaTicks);
 
 	  protected:
 		void init() override;
@@ -61,17 +60,14 @@ namespace polar::system {
 		virtual std::string name() const override { return "phys"; }
 
 		template<typename T, typename U,
-		         typename = typename std::enable_if<
-		             std::is_base_of<detector_base, T>::value>::type,
-		         typename = typename std::enable_if<
-		             std::is_base_of<detector_base, U>::value>::type>
+		         typename = typename std::enable_if<std::is_base_of<detector_base, T>::value>::type,
+		         typename = typename std::enable_if<std::is_base_of<detector_base, U>::value>::type>
 		void add(resolver_t<T, U> resolver) {
 			// reinterpret_pointer_cast isn't standard yet
 			auto typedPtr = new decltype(resolver)(resolver);
 			auto ptr      = reinterpret_cast<resolver_base *>(typedPtr);
 			auto sp       = std::shared_ptr<resolver_base>(ptr);
-			auto pair     = std::make_pair(std::type_index(typeid(T)),
-                                       std::type_index(typeid(U)));
+			auto pair     = std::make_pair(std::type_index(typeid(T)), std::type_index(typeid(U)));
 			resolvers.emplace(pair, sp);
 		}
 	};
