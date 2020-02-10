@@ -1,12 +1,12 @@
 #pragma once
 
+#include <boost/container/flat_map.hpp>
 #include <memory>
 #include <typeindex>
-#include <unordered_map>
 
 namespace polar::core {
 	template<typename C> class ecs {
-		typedef std::unordered_map<std::type_index, std::shared_ptr<C>> component_map_t;
+		using component_map_t = boost::container::flat_map<std::type_index, std::shared_ptr<C>>;
 
 	  private:
 		component_map_t components;
