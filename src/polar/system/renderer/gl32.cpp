@@ -351,7 +351,7 @@ namespace polar::system::renderer {
 						}
 					}
 
-					auto property = model->get<model_p>().lock();
+					auto property = model->get<model_p>();
 					if(property) {
 						math::mat4x4 modelMatrix(1);
 
@@ -598,7 +598,7 @@ namespace polar::system::renderer {
 		using origin_t = support::ui::origin;
 
 		auto sprite    = engine->get<component::sprite::base>(object);
-		auto prop      = sprite->get<property::gl32::sprite>().lock();
+		auto prop      = sprite->get<property::gl32::sprite>();
 		auto screenPos = engine->get<component::screenposition>(object);
 		auto scale     = engine->get<component::scale>(object);
 		auto color     = engine->get<component::color>(object);
@@ -1412,13 +1412,13 @@ namespace polar::system::renderer {
 		if(ti == typeid(component::model)) {
 			auto model = engine->get<component::model>(object);
 			if(model != nullptr) {
-				auto prop = model->get<model_p>().lock();
+				auto prop = model->get<model_p>();
 				if(prop) { modelPropertyPool.emplace(prop); }
 			}
 		} else if(ti == typeid(component::sprite::base)) {
 			auto text = engine->get<component::sprite::base>(object);
 			if(text != nullptr) {
-				auto prop = text->get<sprite_p>().lock();
+				auto prop = text->get<sprite_p>();
 				if(prop) { GL(glDeleteTextures(1, &prop->texture)); }
 			}
 		}

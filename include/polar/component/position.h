@@ -12,7 +12,7 @@ namespace polar::component {
 		integrable<math::point3> pos;
 		position(const math::point3 pos = math::point3(0)) : pos(pos) {
 			add<property::integrable>();
-			get<property::integrable>().lock()->add(&this->pos);
+			get<property::integrable>()->add(&this->pos);
 		}
 
 		virtual std::string name() const override { return "position"; }

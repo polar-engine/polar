@@ -20,6 +20,7 @@ namespace polar::core {
 			if(!has<T>()) { return add(new T()); }
 		}
 
+		// TODO: return the newly added component
 		template<typename T, typename... Ts> inline auto add(Ts &&... args) {
 			return add_as<T, T>(std::forward<Ts>(args)...);
 		}
@@ -49,18 +50,19 @@ namespace polar::core {
 
 		inline bool has(std::type_index ti) const { return components.find(ti) != components.end(); }
 
-		inline std::weak_ptr<C> get(std::type_index ti) const {
+		inline std::shared_ptr<C> get(std::type_index ti) const {
 			auto it = components.find(ti);
 			if(it == components.end()) {
-				return std::weak_ptr<C>();
+				return std::shared_ptr<C>();
 			} else {
 				return it->second;
 			}
 		}
 
-		template<typename T> inline std::weak_ptr<T> get() const {
+		template<typename T> inline std::shared_ptr<T> get() const {
 			static_assert(std::is_base_of<C, T>::value, "ecs::get requires template argument of correct type");
-			return std::static_pointer_cast<T, C>(get(typeid(T)).lock());
+			auto baseptr = get(typeid(T));
+			return std::static_pointer_cast<T, C>(baseptr);
 		}
 
 		inline const component_map_t *const get() const { return &components; }

@@ -5,8 +5,7 @@
 
 namespace polar::component {
 	class playercamera : public base {
-		template<typename T>
-		using integrable = support::integrator::integrable<T>;
+		template<typename T> using integrable = support::integrator::integrable<T>;
 
 	  public:
 		integrable<math::point3> distance;
@@ -16,10 +15,9 @@ namespace polar::component {
 		playercamera(const math::point3 &distance = math::point3(0, 0, 0),
 		             const math::point3 &position = math::point3(0, 0, 0),
 		             const math::point3 &euler    = math::point3(0, 0, 0))
-		    : distance(distance), position(position),
-		      orientation(math::point3(euler)) {
+		    : distance(distance), position(position), orientation(math::point3(euler)) {
 			add<property::integrable>();
-			auto prop = get<property::integrable>().lock();
+			auto prop = get<property::integrable>();
 			if(prop) {
 				prop->add(&this->distance);
 				prop->add(&this->position);

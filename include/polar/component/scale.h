@@ -13,7 +13,7 @@ namespace polar::component {
 
 		scale(math::point3 sc = math::point3(1)) : sc(sc) {
 			add<property::integrable>();
-			get<property::integrable>().lock()->add(&this->sc);
+			get<property::integrable>()->add(&this->sc);
 		}
 
 		virtual std::string name() const override { return "scale"; }
