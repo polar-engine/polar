@@ -280,7 +280,7 @@ namespace polar::system::renderer {
 		debugProgram    = makeprogram(assetM->get<polar::asset::shaderprogram>("debug"));
 
 		/* 8x8 Bayer ordered dithering pattern
-		 * each input pixel is scared to the range of 0->63 before lookup
+		 * each input pixel is scaled to the range of 0->63 before lookup
 		 */
 		static const char ditherPattern[] = {0,  32, 8,  40, 2,  34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26,
 		                                     12, 44, 4,  36, 14, 46, 6,  38, 60, 28, 52, 20, 62, 30, 54, 22,
