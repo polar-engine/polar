@@ -47,8 +47,7 @@ namespace polar::core {
 			}
 		}
 
-		log()->verbose("core", "built on ", buildinfo_date(), " at ",
-		                        buildinfo_time());
+		log()->verbose("core", "built on ", buildinfo_date(), " at ", buildinfo_time());
 	}
 
 	void polar::run(const std::string &initialState) {
@@ -60,13 +59,12 @@ namespace polar::core {
 		states[initialState].first(this, stack.back());
 		stack.back().init();
 
-		std::chrono::time_point<std::chrono::high_resolution_clock>
-		    now = std::chrono::high_resolution_clock::now(),
-		    then;
+		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(),
+		                                                            then;
 
 		uint64_t frameID = 0;
 		while(running) {
-			now = std::chrono::high_resolution_clock::now();
+			now                = std::chrono::high_resolution_clock::now();
 			DeltaTicksBase dtb = std::chrono::duration_cast<DeltaTicksBase>(now - then);
 
 			// skip frame if no time elapsed
@@ -77,6 +75,12 @@ namespace polar::core {
 				log()->trace("core", "frame #", frameID++, " (", dt.Ticks(), ')');
 
 				for(auto &state : stack) { state.update(dt); }
+
+				// perform deletions at end of iteration to avoid invalidation
+
+				for(auto &[r, ti] : components_to_remove) { remove_now(r, ti); }
+
+				for(auto &r : objects_to_remove) { remove_now(r); }
 
 				// perform transition at end of iteration to avoid invalidation
 				if(transition != "") {
@@ -116,11 +120,9 @@ namespace polar::core {
 	}
 
 	ref polar::add() {
-		auto r = ref(std::make_shared<destructor>());
+		auto r    = ref(std::make_shared<destructor>());
 		auto weak = weak_ref(r);
-		r.dtor()->set([this, weak] {
-			remove(weak);
-		});
+		r.dtor()->set([this, weak] { remove(weak); });
 		return r;
 	}
 
@@ -152,20 +154,16 @@ namespace polar::core {
 		}
 	}
 
-	void polar::remove(weak_ref object) {
+	void polar::remove_now(weak_ref object) {
 		auto pairLeft = objects.left.equal_range(object);
 		for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
-			for(auto &state : stack) {
-				state.component_removed(object, it->get_right());
-			}
+			for(auto &state : stack) { state.component_removed(object, it->get_right()); }
 		}
 		objects.left.erase(object);
 	}
 
-	void polar::remove(weak_ref object, std::type_index ti) {
-		for(auto &state : stack) {
-			state.component_removed(object, ti);
-		}
+	void polar::remove_now(weak_ref object, std::type_index ti) {
+		for(auto &state : stack) { state.component_removed(object, ti); }
 		objects.erase(bimap::value_type(object, ti));
 	}
 } // namespace polar::core

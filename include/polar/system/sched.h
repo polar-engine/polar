@@ -70,8 +70,11 @@ namespace polar::system {
 			bindings.insert(binding_bimap::value_type(id, ti, handler));
 			clocks.emplace(ti, std::make_unique<Clock>());
 
-			return core::ref([this, id] {
-				bindings.left.erase(id);
+			auto sch = engine->get<sched>();
+			return core::ref([sch, id] {
+				if(auto ptr = sch.lock()) {
+					ptr->bindings.left.erase(id);
+				}
 			});
 		}
 
@@ -80,8 +83,11 @@ namespace polar::system {
 
 			timers.emplace(id, timer{clock_base(seconds), [r] (auto) {}});
 
-			return core::ref([this, id] {
-				timers.erase(id);
+			auto sch = engine->get<sched>();
+			return core::ref([sch, id] {
+				if(auto ptr = sch.lock()) {
+					ptr->timers.erase(id);
+				}
 			});
 		}
 
