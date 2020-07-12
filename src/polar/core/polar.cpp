@@ -132,7 +132,7 @@ namespace polar::core {
 
 	void polar::insert(weak_ref object, std::shared_ptr<component::base> component, std::type_index ti) {
 		log()->trace("core", "inserting component: ", ti.name());
-		objects.insert(bimap::value_type(object, ti, component));
+		objects.insert(relation{object, ti, component});
 		for(auto &state : stack) { state.component_added(object, ti, component); }
 		log()->trace("core", "inserted component");
 	}
@@ -146,24 +146,24 @@ namespace polar::core {
 	}
 
 	component::base *polar::get(weak_ref object, std::type_index ti) {
-		auto it = objects.find(bimap::relation(object, ti));
-		if(it != objects.end()) {
-			return it->info.get();
+		auto it = objects.get<tag::pair>().find(relation{object, ti});
+		if(it != objects.get<tag::pair>().end()) {
+			return it->ptr.get();
 		} else {
 			return nullptr;
 		}
 	}
 
 	void polar::remove_now(weak_ref object) {
-		auto pairLeft = objects.left.equal_range(object);
-		for(auto it = pairLeft.first; it != pairLeft.second; ++it) {
-			for(auto &state : stack) { state.component_removed(object, it->get_right()); }
+		auto pair = objects.get<tag::ref>().equal_range(object);
+		for(auto it = pair.first; it != pair.second; ++it) {
+			for(auto &state : stack) { state.component_removed(object, it->ti); }
 		}
-		objects.left.erase(object);
+		objects.get<tag::ref>().erase(object);
 	}
 
 	void polar::remove_now(weak_ref object, std::type_index ti) {
 		for(auto &state : stack) { state.component_removed(object, ti); }
-		objects.erase(bimap::value_type(object, ti));
+		objects.get<tag::pair>().erase(relation{object, ti});
 	}
 } // namespace polar::core

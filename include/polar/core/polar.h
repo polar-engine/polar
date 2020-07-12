@@ -3,10 +3,14 @@
 #ifndef POLAR_H
 #define POLAR_H
 
-#include <boost/bimap.hpp>
-#include <boost/bimap/multiset_of.hpp>
-#include <boost/bimap/set_of.hpp>
-#include <boost/bimap/unordered_multiset_of.hpp>
+//#include <boost/bimap.hpp>
+//#include <boost/bimap/multiset_of.hpp>
+//#include <boost/bimap/set_of.hpp>
+//#include <boost/bimap/unordered_multiset_of.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <polar/component/base.h>
 #include <polar/core/log.h>
 #include <polar/core/stack.h>
@@ -27,13 +31,57 @@ namespace polar::core {
 #include <polar/core/state.h>
 
 namespace polar::core {
+	namespace tag {
+		struct ref  {};
+		struct ti   {};
+		struct pair {};
+	} // namespace tag
+
+	struct relation {
+		struct pair_comp {
+			inline bool operator()(const relation &lhs, const relation &rhs) const {
+				if(lhs.r != rhs.r) {
+					return lhs.r < rhs.r;
+				} else {
+					return lhs.ti < rhs.ti;
+				}
+			}
+
+			/*
+			inline bool operator()(const relation &lhs, const std::type_index &rhs) const {
+				return lhs.ti < rhs;
+			}
+
+			inline bool operator()(const std::type_index &lhs, const relation &rhs) const {
+				return lhs < rhs.ti;
+			}
+			*/
+		};
+
+		weak_ref r;
+		std::type_index ti;
+		std::shared_ptr<component::base> ptr;
+	};
+
 	class polar {
 	  public:
 		using priority_t        = support::debug::priority;
 		using state_initializer = std::function<void(polar *, state &)>;
+
+		/*
 		using bimap =
 		    boost::bimap<boost::bimaps::multiset_of<weak_ref>, boost::bimaps::multiset_of<std::type_index>,
 		                 boost::bimaps::set_of_relation<>, boost::bimaps::with_info<std::shared_ptr<component::base>>>;
+		*/
+
+		using bimap = boost::multi_index_container<
+			relation,
+			boost::multi_index::indexed_by<
+				boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag::ref >, boost::multi_index::member<relation, weak_ref,        &relation::r>>,
+				boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag::ti  >, boost::multi_index::member<relation, std::type_index, &relation::ti>>,
+				boost::multi_index::ordered_unique    <boost::multi_index::tag<tag::pair>, boost::multi_index::identity<relation>, relation::pair_comp>
+			>
+		>;
 
 	  private:
 		bool initDone = false;

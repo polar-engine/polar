@@ -50,14 +50,14 @@ namespace polar::system {
 	void phys::tick(DeltaTicks dt) {
 		auto seconds = dt.Seconds();
 
-		auto range = engine->objects.right.equal_range(typeid(component::phys));
+		auto range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::phys));
 		for(auto it1 = range.first; it1 != range.second; ++it1) {
-			auto obj1  = it1->get_left();
-			auto comp1 = it1->info.get();
+			auto obj1  = it1->r;
+			auto comp1 = it1->ptr.get();
 			auto phys1 = static_cast<component::phys *>(comp1);
 			for(auto it2 = std::next(it1); it2 != range.second; ++it2) {
-				auto obj2  = it2->get_left();
-				auto comp2 = it2->info.get();
+				auto obj2  = it2->r;
+				auto comp2 = it2->ptr.get();
 				if(comp1 != comp2) {
 					auto phys2  = static_cast<component::phys *>(comp2);
 					auto &det1  = *phys1->detector;

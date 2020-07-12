@@ -332,22 +332,22 @@ namespace polar::system::renderer {
 
 			switch(i) {
 			case 0: {
-				auto pairRight = engine->objects.right.equal_range(typeid(component::model));
-				for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-					auto model                     = static_cast<component::model *>(itRight->info.get());
+				auto ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::model));
+				for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+					auto model                     = static_cast<component::model *>(ti_it->ptr.get());
 					component::position *pos       = nullptr;
 					component::orientation *orient = nullptr;
 					component::scale *sc           = nullptr;
 
-					auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
-					for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
-						auto type = itLeft->get_right();
+					auto ref_range = engine->objects.get<core::tag::ref>().equal_range(ti_it->r);
+					for(auto ref_it = ref_range.first; ref_it != ref_range.second; ++ref_it) {
+						auto type = ref_it->ti;
 						if(type == typeid(component::position)) {
-							pos = static_cast<component::position *>(itLeft->info.get());
+							pos = static_cast<component::position *>(ref_it->ptr.get());
 						} else if(type == typeid(component::orientation)) {
-							orient = static_cast<component::orientation *>(itLeft->info.get());
+							orient = static_cast<component::orientation *>(ref_it->ptr.get());
 						} else if(type == typeid(component::scale)) {
-							sc = static_cast<component::scale *>(itLeft->info.get());
+							sc = static_cast<component::scale *>(ref_it->ptr.get());
 						}
 					}
 
@@ -395,8 +395,8 @@ namespace polar::system::renderer {
 					project(debugProgram, proj);
 					uploaduniform(debugProgram, "u_view", view);
 
-					for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-						auto objectID = itRight->get_left();
+					for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+						auto objectID = ti_it->r;
 						auto phys     = engine->get<component::phys>(objectID);
 						auto pos      = engine->get<component::position>(objectID);
 						auto sc       = engine->get<component::scale>(objectID);
@@ -464,14 +464,14 @@ namespace polar::system::renderer {
 			GL(glActiveTexture(GL_TEXTURE0));
 			GL(glBindVertexArray(viewportVAO));
 
-			auto pairRight = engine->objects.right.equal_range(typeid(component::sprite::base));
-			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-				rendersprite(itRight->get_left(), proj, view);
+			auto ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::sprite::base));
+			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+				rendersprite(ti_it->r, proj, view);
 			}
 
-			pairRight = engine->objects.right.equal_range(typeid(component::text));
-			for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-				rendertext(itRight->get_left(), proj, view);
+			ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::text));
+			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+				rendertext(ti_it->r, proj, view);
 			}
 		}
 		// GL(glDisable(GL_BLEND));
@@ -545,21 +545,22 @@ namespace polar::system::renderer {
 		float delta = sch->delta<support::sched::clock::integrator>();
 
 		math::mat4x4 cameraView(1);
-		auto pairRight = engine->objects.right.equal_range(typeid(component::playercamera));
-		for(auto itRight = pairRight.first; itRight != pairRight.second; ++itRight) {
-			auto camera = static_cast<component::playercamera *>(itRight->info.get());
+
+		auto ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::playercamera));
+		for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+			auto camera = static_cast<component::playercamera *>(ti_it->ptr.get());
 
 			component::position *pos       = nullptr;
 			component::orientation *orient = nullptr;
 			// component::scale *sc           = nullptr;
 
-			auto pairLeft = engine->objects.left.equal_range(itRight->get_left());
-			for(auto itLeft = pairLeft.first; itLeft != pairLeft.second; ++itLeft) {
-				auto type = itLeft->get_right();
+			auto ref_range = engine->objects.get<core::tag::ref>().equal_range(ti_it->r);
+			for(auto ref_it = ref_range.first; ref_it != ref_range.second; ++ref_it) {
+				auto type = ref_it->ti;
 				if(type == typeid(component::position)) {
-					pos = static_cast<component::position *>(itLeft->info.get());
+					pos = static_cast<component::position *>(ref_it->ptr.get());
 				} else if(type == typeid(component::orientation)) {
-					orient = static_cast<component::orientation *>(itLeft->info.get());
+					orient = static_cast<component::orientation *>(ref_it->ptr.get());
 				}
 			}
 

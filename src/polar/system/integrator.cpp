@@ -5,8 +5,9 @@
 
 namespace polar::system {
 	void integrator::tick(DeltaTicks::seconds_type seconds) {
-		for(auto it = engine->objects.left.begin(); it != engine->objects.left.end(); ++it) {
-			auto property = it->info->get<property::integrable>();
+		auto &index = engine->objects.get<core::tag::ref>();
+		for(auto it = index.begin(); it != index.end(); ++it) {
+			auto property = it->ptr->get<property::integrable>();
 			if(property) {
 				for(auto integrable : *property->get()) { integrable->integrate(seconds); }
 			}
@@ -17,8 +18,9 @@ namespace polar::system {
 	void integrator::revert_by(size_t n) {
 		if(n == 0) { return; }
 
-		for(auto it = engine->objects.left.begin(); it != engine->objects.left.end(); ++it) {
-			auto property = it->info->get<property::integrable>();
+		auto &index = engine->objects.get<core::tag::ref>();
+		for(auto it = index.begin(); it != index.end(); ++it) {
+			auto property = it->ptr->get<property::integrable>();
 			if(property) {
 				for(auto integrable : *property->get()) { integrable->revert_by(n); }
 			}
@@ -26,8 +28,9 @@ namespace polar::system {
 	}
 
 	void integrator::revert_to(size_t n) {
-		for(auto it = engine->objects.left.begin(); it != engine->objects.left.end(); ++it) {
-			auto property = it->info->get<property::integrable>();
+		auto &index = engine->objects.get<core::tag::ref>();
+		for(auto it = index.begin(); it != index.end(); ++it) {
+			auto property = it->ptr->get<property::integrable>();
 			if(property) {
 				for(auto integrable : *property->get()) { integrable->revert_to(n); }
 			}
