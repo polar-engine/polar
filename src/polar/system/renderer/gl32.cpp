@@ -1308,51 +1308,53 @@ namespace polar::system::renderer {
 		// textures
 
 		auto assetM = engine->get<asset>().lock();
-		auto mat    = assetM->get<polar::asset::material>(*model->asset->material);
-		if(mat->diffuse_map) {
-			auto diffuse_map = assetM->get<polar::asset::image>(*mat->diffuse_map);
+		if(model->asset->material) {
+			auto mat    = assetM->get<polar::asset::material>(*model->asset->material);
+			if(mat->diffuse_map) {
+				auto diffuse_map = assetM->get<polar::asset::image>(*mat->diffuse_map);
 
-			GL(glGenTextures(1, &prop->diffuse_map));
-			GL(glBindTexture(GL_TEXTURE_2D, prop->diffuse_map));
+				GL(glGenTextures(1, &prop->diffuse_map));
+				GL(glBindTexture(GL_TEXTURE_2D, prop->diffuse_map));
 
-			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, diffuse_map->width, diffuse_map->height, 0, format,
-			                GL_UNSIGNED_BYTE, diffuse_map->pixels.data()));
-			GL(glGenerateMipmap(GL_TEXTURE_2D));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
-		}
-		if(mat->specular_map) {
-			auto specular_map = assetM->get<polar::asset::image>(*mat->specular_map);
+				GLint format = GL_RGBA;
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, format, diffuse_map->width, diffuse_map->height, 0, format,
+								GL_UNSIGNED_BYTE, diffuse_map->pixels.data()));
+				GL(glGenerateMipmap(GL_TEXTURE_2D));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+			}
+			if(mat->specular_map) {
+				auto specular_map = assetM->get<polar::asset::image>(*mat->specular_map);
 
-			GL(glGenTextures(1, &prop->specular_map));
-			GL(glBindTexture(GL_TEXTURE_2D, prop->specular_map));
+				GL(glGenTextures(1, &prop->specular_map));
+				GL(glBindTexture(GL_TEXTURE_2D, prop->specular_map));
 
-			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, specular_map->width, specular_map->height, 0, format,
-			                GL_UNSIGNED_BYTE, specular_map->pixels.data()));
-			GL(glGenerateMipmap(GL_TEXTURE_2D));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
-		}
-		if(mat->normal_map) {
-			auto normal_map = assetM->get<polar::asset::image>(*mat->normal_map);
+				GLint format = GL_RGBA;
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, format, specular_map->width, specular_map->height, 0, format,
+								GL_UNSIGNED_BYTE, specular_map->pixels.data()));
+				GL(glGenerateMipmap(GL_TEXTURE_2D));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+			}
+			if(mat->normal_map) {
+				auto normal_map = assetM->get<polar::asset::image>(*mat->normal_map);
 
-			GL(glGenTextures(1, &prop->normal_map));
-			GL(glBindTexture(GL_TEXTURE_2D, prop->normal_map));
+				GL(glGenTextures(1, &prop->normal_map));
+				GL(glBindTexture(GL_TEXTURE_2D, prop->normal_map));
 
-			GLint format = GL_RGBA;
-			GL(glTexImage2D(GL_TEXTURE_2D, 0, format, normal_map->width, normal_map->height, 0, format,
-			                GL_UNSIGNED_BYTE, normal_map->pixels.data()));
-			GL(glGenerateMipmap(GL_TEXTURE_2D));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+				GLint format = GL_RGBA;
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, format, normal_map->width, normal_map->height, 0, format,
+								GL_UNSIGNED_BYTE, normal_map->pixels.data()));
+				GL(glGenerateMipmap(GL_TEXTURE_2D));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+			}
 		}
 
 		model->add<model_p>(prop);
