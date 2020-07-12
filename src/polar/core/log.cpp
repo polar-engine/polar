@@ -10,6 +10,7 @@ namespace polar::core {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.data(), msg.data(), NULL);
 #endif
 		std::cerr << title << ": " << msg << std::endl;
+		throw std::runtime_error("fatal error");
 	}
 
 	logger::logger(priority_t priority)
