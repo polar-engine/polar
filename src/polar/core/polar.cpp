@@ -146,8 +146,8 @@ namespace polar::core {
 	}
 
 	component::base *polar::get(weak_ref object, std::type_index ti) {
-		auto it = objects.get<tag::pair>().find(relation{object, ti});
-		if(it != objects.get<tag::pair>().end()) {
+		auto it = objects.get<index::pair>().find(relation{object, ti});
+		if(it != objects.get<index::pair>().end()) {
 			return it->ptr.get();
 		} else {
 			return nullptr;
@@ -155,15 +155,15 @@ namespace polar::core {
 	}
 
 	void polar::remove_now(weak_ref object) {
-		auto pair = objects.get<tag::ref>().equal_range(object);
+		auto pair = objects.get<index::ref>().equal_range(object);
 		for(auto it = pair.first; it != pair.second; ++it) {
 			for(auto &state : stack) { state.component_removed(object, it->ti); }
 		}
-		objects.get<tag::ref>().erase(object);
+		objects.get<index::ref>().erase(object);
 	}
 
 	void polar::remove_now(weak_ref object, std::type_index ti) {
 		for(auto &state : stack) { state.component_removed(object, ti); }
-		objects.get<tag::pair>().erase(relation{object, ti});
+		objects.get<index::pair>().erase(relation{object, ti});
 	}
 } // namespace polar::core

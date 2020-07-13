@@ -31,11 +31,11 @@ namespace polar::core {
 #include <polar/core/state.h>
 
 namespace polar::core {
-	namespace tag {
+	namespace index {
 		struct ref  {};
 		struct ti   {};
 		struct pair {};
-	} // namespace tag
+	} // namespace index
 
 	struct relation {
 		struct pair_comp {
@@ -77,9 +77,9 @@ namespace polar::core {
 		using bimap = boost::multi_index_container<
 			relation,
 			boost::multi_index::indexed_by<
-				boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag::ref >, boost::multi_index::member<relation, weak_ref,        &relation::r>>,
-				boost::multi_index::ordered_non_unique<boost::multi_index::tag<tag::ti  >, boost::multi_index::member<relation, std::type_index, &relation::ti>>,
-				boost::multi_index::ordered_unique    <boost::multi_index::tag<tag::pair>, boost::multi_index::identity<relation>, relation::pair_comp>
+				boost::multi_index::ordered_non_unique<boost::multi_index::tag<index::ref >, boost::multi_index::member<relation, weak_ref,        &relation::r>>,
+				boost::multi_index::ordered_non_unique<boost::multi_index::tag<index::ti  >, boost::multi_index::member<relation, std::type_index, &relation::ti>>,
+				boost::multi_index::ordered_unique    <boost::multi_index::tag<index::pair>, boost::multi_index::identity<relation>, relation::pair_comp>
 			>
 		>;
 

@@ -50,7 +50,7 @@ namespace polar::system {
 	void phys::tick(DeltaTicks dt) {
 		auto seconds = dt.Seconds();
 
-		auto range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::phys));
+		auto range = engine->objects.get<core::index::ti>().equal_range(typeid(component::phys));
 		for(auto it1 = range.first; it1 != range.second; ++it1) {
 			auto obj1  = it1->r;
 			auto comp1 = it1->ptr.get();

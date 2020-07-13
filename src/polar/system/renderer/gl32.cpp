@@ -332,14 +332,14 @@ namespace polar::system::renderer {
 
 			switch(i) {
 			case 0: {
-				auto ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::model));
+				auto ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::model));
 				for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
 					auto model                     = static_cast<component::model *>(ti_it->ptr.get());
 					component::position *pos       = nullptr;
 					component::orientation *orient = nullptr;
 					component::scale *sc           = nullptr;
 
-					auto ref_range = engine->objects.get<core::tag::ref>().equal_range(ti_it->r);
+					auto ref_range = engine->objects.get<core::index::ref>().equal_range(ti_it->r);
 					for(auto ref_it = ref_range.first; ref_it != ref_range.second; ++ref_it) {
 						auto type = ref_it->ti;
 						if(type == typeid(component::position)) {
@@ -464,12 +464,12 @@ namespace polar::system::renderer {
 			GL(glActiveTexture(GL_TEXTURE0));
 			GL(glBindVertexArray(viewportVAO));
 
-			auto ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::sprite::base));
+			auto ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::sprite::base));
 			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
 				rendersprite(ti_it->r, proj, view);
 			}
 
-			ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::text));
+			ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::text));
 			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
 				rendertext(ti_it->r, proj, view);
 			}
@@ -546,7 +546,7 @@ namespace polar::system::renderer {
 
 		math::mat4x4 cameraView(1);
 
-		auto ti_range = engine->objects.get<core::tag::ti>().equal_range(typeid(component::playercamera));
+		auto ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::playercamera));
 		for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
 			auto camera = static_cast<component::playercamera *>(ti_it->ptr.get());
 
@@ -554,7 +554,7 @@ namespace polar::system::renderer {
 			component::orientation *orient = nullptr;
 			// component::scale *sc           = nullptr;
 
-			auto ref_range = engine->objects.get<core::tag::ref>().equal_range(ti_it->r);
+			auto ref_range = engine->objects.get<core::index::ref>().equal_range(ti_it->r);
 			for(auto ref_it = ref_range.first; ref_it != ref_range.second; ++ref_it) {
 				auto type = ref_it->ti;
 				if(type == typeid(component::position)) {

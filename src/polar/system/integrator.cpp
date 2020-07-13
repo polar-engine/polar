@@ -5,7 +5,7 @@
 
 namespace polar::system {
 	void integrator::tick(DeltaTicks::seconds_type seconds) {
-		auto &index = engine->objects.get<core::tag::ref>();
+		auto &index = engine->objects.get<core::index::ref>();
 		for(auto it = index.begin(); it != index.end(); ++it) {
 			auto property = it->ptr->get<property::integrable>();
 			if(property) {
@@ -18,7 +18,7 @@ namespace polar::system {
 	void integrator::revert_by(size_t n) {
 		if(n == 0) { return; }
 
-		auto &index = engine->objects.get<core::tag::ref>();
+		auto &index = engine->objects.get<core::index::ref>();
 		for(auto it = index.begin(); it != index.end(); ++it) {
 			auto property = it->ptr->get<property::integrable>();
 			if(property) {
@@ -28,7 +28,7 @@ namespace polar::system {
 	}
 
 	void integrator::revert_to(size_t n) {
-		auto &index = engine->objects.get<core::tag::ref>();
+		auto &index = engine->objects.get<core::index::ref>();
 		for(auto it = index.begin(); it != index.end(); ++it) {
 			auto property = it->ptr->get<property::integrable>();
 			if(property) {
