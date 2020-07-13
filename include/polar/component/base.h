@@ -32,6 +32,8 @@ namespace polar::component {
 		using accessor_pair = std::pair<std::string, accessor_type>;
 		using accessor_list = std::vector<accessor_pair>;
 
+		virtual ~base() {}
+
 		virtual std::string name() const = 0;
 
 		virtual accessor_list accessors() const {
