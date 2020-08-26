@@ -30,16 +30,16 @@ class DeltaTicks {
 		    seconds * ENGINE_TICKS_PER_SECOND));
 	}
 
-	inline bool operator<(const DeltaTicksBase &rhs) { return value < rhs; }
-	inline bool operator<(const DeltaTicks &rhs) { return *this < rhs.value; }
-	inline bool operator>(const DeltaTicksBase &rhs) { return value < rhs; }
-	inline bool operator>(const DeltaTicks &rhs) { return *this < rhs.value; }
-	inline bool operator<=(const DeltaTicksBase &rhs) { return !(*this > rhs); }
-	inline bool operator<=(const DeltaTicks &rhs) {
+	inline bool operator<(const DeltaTicksBase &rhs) const { return value < rhs; }
+	inline bool operator<(const DeltaTicks &rhs) const { return *this < rhs.value; }
+	inline bool operator>(const DeltaTicksBase &rhs) const { return value < rhs; }
+	inline bool operator>(const DeltaTicks &rhs) const { return *this < rhs.value; }
+	inline bool operator<=(const DeltaTicksBase &rhs) const { return !(*this > rhs); }
+	inline bool operator<=(const DeltaTicks &rhs) const {
 		return !(*this > rhs.value);
 	}
-	inline bool operator>=(const DeltaTicksBase &rhs) { return !(*this < rhs); }
-	inline bool operator>=(const DeltaTicks &rhs) {
+	inline bool operator>=(const DeltaTicksBase &rhs) const { return !(*this < rhs); }
+	inline bool operator>=(const DeltaTicks &rhs) const {
 		return !(*this < rhs.value);
 	}
 
