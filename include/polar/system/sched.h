@@ -1,29 +1,10 @@
 #pragma once
 
-#include <boost/bimap.hpp>
-#include <boost/bimap/set_of.hpp>
-#include <boost/bimap/unordered_multiset_of.hpp>
-#include <polar/support/sched/clock/base.h>
 #include <polar/system/base.h>
 
 namespace polar::system {
 	class sched : public base {
-	  public:
-		using handler_type = std::function<void(DeltaTicks)>;
-
 	  private:
-		using clock_base = support::sched::clock::base;
-
-		struct timer {
-			clock_base clock;
-			handler_type handler;
-		};
-
-		core::id nextID = 1;
-
-		std::unordered_map<core::id, timer> timers;
-
-	  protected:
 		void update(DeltaTicks &dt) override {
 			std::map<component::clock::base *, std::vector<component::listener *>> clocks;
 
@@ -42,18 +23,6 @@ namespace polar::system {
 					}
 				}
 			}
-
-			for(auto it = timers.begin(); it != timers.end();) {
-				auto &timer = it->second;
-
-				timer.clock.accumulate(dt);
-				if(timer.clock.tick()) {
-					timer.handler(timer.clock.timestep);
-					it = timers.erase(it);
-				} else {
-					++it;
-				}
-			}
 		}
 
 	  public:
@@ -61,18 +30,5 @@ namespace polar::system {
 		sched(core::polar *engine) : base(engine) {}
 
 		virtual std::string name() const override { return "sched"; }
-
-		auto keep(core::ref r, math::decimal seconds) {
-			auto id = nextID++;
-
-			timers.emplace(id, timer{clock_base(seconds), [r] (auto) {}});
-
-			auto sch = engine->get<sched>();
-			return core::ref([sch, id] {
-				if(auto ptr = sch.lock()) {
-					ptr->timers.erase(id);
-				}
-			});
-		}
 	};
 } // namespace polar::system
