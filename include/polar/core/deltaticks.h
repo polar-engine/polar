@@ -14,7 +14,7 @@ class DeltaTicks {
 
 	DeltaTicksBase value;
 
-	DeltaTicks() {}
+	DeltaTicks() = default;
 	DeltaTicks(DeltaTicksBase value) : value(value) {}
 	DeltaTicks(DeltaTicksBase::rep ticks) : value(ticks) {}
 
