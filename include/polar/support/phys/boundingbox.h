@@ -138,7 +138,7 @@ namespace polar::support::phys {
 
 				/* find time of collision and time of exit for all three
 				 * axes
-				 * prevent division by zero by setting entry time to minumum
+				 * prevent division by zero by setting entry time to minimum
 				 * infinity and exit time to maximum infinity
 				 */
 				if(bVel[i] == 0.0f) {
