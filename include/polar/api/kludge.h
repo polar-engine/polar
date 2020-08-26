@@ -706,9 +706,9 @@ namespace polar::api {
 			case expr_type::component_getter:
 				if(auto getter = e.get<component::base::accessor_type>().getter) {
 					auto ti = e.get(0).get<std::type_index>();
-					auto pair = engine->objects.right.equal_range(ti);
-					for(auto it = pair.first; it != pair.second; ++it) {
-						ret = getter.value()(it->info.get());
+					auto ti_range = engine->objects.get<core::index::ti>().equal_range(ti);
+					for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+						ret = getter.value()(ti_it->ptr.get());
 					}
 				}
 				break;
@@ -721,9 +721,9 @@ namespace polar::api {
 				if(auto setter = e.get<component::base::accessor_type>().setter) {
 					auto ti = e.get(0).get(0).get<std::type_index>();
 					auto rhs_value = std::get<math::decimal>(rhs);
-					auto pair = engine->objects.right.equal_range(ti);
-					for(auto it = pair.first; it != pair.second; ++it) {
-						setter.value()(it->info.get(), rhs_value);
+					auto it_range = engine->objects.get<core::index::ti>().equal_range(ti);
+					for(auto ti_it = it_range.first; ti_it != it_range.second; ++ti_it) {
+						setter.value()(ti_it->ptr.get(), rhs_value);
 					}
 				}
 				break;
