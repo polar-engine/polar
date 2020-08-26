@@ -1,11 +1,12 @@
 #pragma once
 
 #include <boost/circular_buffer.hpp>
+#include <polar/component/clock/simulation.h>
+#include <polar/component/listener.h>
 #include <polar/support/action/binding.h>
 #include <polar/support/action/lifetime.h>
-#include <polar/support/sched/clock/integrator.h>
 #include <polar/system/base.h>
-#include <polar/system/sched.h>
+#include <polar/tag/clock/simulation.h>
 
 namespace polar::system {
 	class action : public system::base {
@@ -64,8 +65,14 @@ namespace polar::system {
 		inline void force_tick() { tick(); }
 
 		void init() override {
-			auto sch = engine->get<sched>().lock();
-			keep(sch->bind<support::sched::clock::integrator>([this](auto) { tick(); }));
+			auto clock = engine->own<tag::clock::simulation>();
+			engine->add_as<component::clock::base, component::clock::simulation>(clock);
+
+			core::ref listener;
+			keep(listener = engine->add());
+			engine->add<component::listener>(listener, clock, [this](auto) {
+				tick();
+			});
 		}
 
 		void tick() {

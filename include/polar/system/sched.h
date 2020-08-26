@@ -11,12 +11,6 @@ namespace polar::system {
 	  public:
 		using handler_type = std::function<void(DeltaTicks)>;
 
-		using binding_bimap = boost::bimap<
-			boost::bimaps::set_of<core::id>,
-			boost::bimaps::unordered_multiset_of<std::type_index>,
-			boost::bimaps::set_of_relation<>,
-			boost::bimaps::with_info<handler_type>
-		>;
 	  private:
 		using clock_base = support::sched::clock::base;
 
@@ -26,18 +20,25 @@ namespace polar::system {
 		};
 
 		core::id nextID = 1;
-		binding_bimap bindings;
-		std::unordered_map<std::type_index, std::unique_ptr<clock_base>> clocks;
 
 		std::unordered_map<core::id, timer> timers;
+
 	  protected:
 		void update(DeltaTicks &dt) override {
-			for(auto &[ti, clock] : clocks) {
+			std::map<component::clock::base *, std::vector<component::listener *>> clocks;
+
+			auto ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::listener));
+			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
+				auto listener = static_cast<component::listener *>(ti_it->ptr.get());
+				auto clock = engine->get<component::clock::base>(listener->ref());
+				clocks[clock].emplace_back(listener);
+			}
+
+			for(auto &[clock, listeners] : clocks) {
 				clock->accumulate(dt);
 				while(clock->tick()) {
-					auto pairRight = bindings.right.equal_range(ti);
-					for(auto it = pairRight.first; it != pairRight.second; ++it) {
-						it->info(clock->timestep);
+					for(auto &listener : listeners) {
+						listener->trigger(clock->timestep);
 					}
 				}
 			}
@@ -54,29 +55,12 @@ namespace polar::system {
 				}
 			}
 		}
+
 	  public:
 		static bool supported() { return true; }
 		sched(core::polar *engine) : base(engine) {}
 
 		virtual std::string name() const override { return "sched"; }
-
-		template<
-			typename Clock,
-			typename = typename std::enable_if<std::is_base_of<clock_base, Clock>::value>::type
-		> auto bind(handler_type handler) {
-			std::type_index ti = typeid(Clock);
-			auto id = nextID++;
-
-			bindings.insert(binding_bimap::value_type(id, ti, handler));
-			clocks.emplace(ti, std::make_unique<Clock>());
-
-			auto sch = engine->get<sched>();
-			return core::ref([sch, id] {
-				if(auto ptr = sch.lock()) {
-					ptr->bindings.left.erase(id);
-				}
-			});
-		}
 
 		auto keep(core::ref r, math::decimal seconds) {
 			auto id = nextID++;
@@ -89,13 +73,6 @@ namespace polar::system {
 					ptr->timers.erase(id);
 				}
 			});
-		}
-
-		template<
-			typename Clock,
-			typename = typename std::enable_if<std::is_base_of<clock_base, Clock>::value>::type
-		> auto delta() {
-			return clocks[typeid(Clock)]->delta();
 		}
 	};
 } // namespace polar::system

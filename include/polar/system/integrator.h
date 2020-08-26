@@ -2,9 +2,10 @@
 
 #include <atomic>
 #include <cstdint>
+#include <polar/component/clock/simulation.h>
+#include <polar/component/listener.h>
 #include <polar/support/integrator/integrable.h>
-#include <polar/support/sched/clock/integrator.h>
-#include <polar/system/sched.h>
+#include <polar/tag/clock/simulation.h>
 
 namespace polar::system {
 	class integrator : public base {
@@ -14,10 +15,14 @@ namespace polar::system {
 
 	  protected:
 		void init() override {
-			auto sch = engine->get<sched>().lock();
-			keep(sch->bind<support::sched::clock::integrator>([this] (auto dt) {
+			auto clock = engine->own<tag::clock::simulation>();
+			engine->add_as<component::clock::base, component::clock::simulation>(clock);
+
+			core::ref listener;
+			keep(listener = engine->add());
+			engine->add<component::listener>(listener, clock, [this](auto dt) {
 				tick(dt.Seconds());
-			}));
+			});
 		}
 	  public:
 		static bool supported() { return true; }

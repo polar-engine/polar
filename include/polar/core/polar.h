@@ -11,6 +11,7 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
+#include <map>
 #include <polar/component/base.h>
 #include <polar/core/log.h>
 #include <polar/core/stack.h>
@@ -46,16 +47,6 @@ namespace polar::core {
 					return lhs.ti < rhs.ti;
 				}
 			}
-
-			/*
-			inline bool operator()(const relation &lhs, const std::type_index &rhs) const {
-				return lhs.ti < rhs;
-			}
-
-			inline bool operator()(const std::type_index &lhs, const relation &rhs) const {
-				return lhs < rhs.ti;
-			}
-			*/
 		};
 
 		weak_ref r;
@@ -89,11 +80,13 @@ namespace polar::core {
 		std::unordered_map<std::string, std::pair<state_initializer, state_initializer>> states;
 		std::vector<state> stack;
 
+		std::map<std::type_index, weak_ref> tagged_objects;
+
 		std::vector<weak_ref> objects_to_remove;
 		std::vector<std::pair<weak_ref, std::type_index>> components_to_remove;
 
 		component::base *get(weak_ref, std::type_index);
-		void insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
+		std::shared_ptr<component::base> insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
 		void remove_now(weak_ref, std::type_index);
 
 		void remove(weak_ref r, std::type_index ti) { components_to_remove.emplace_back(r, ti); }
@@ -134,6 +127,27 @@ namespace polar::core {
 
 		void remove(weak_ref r) { objects_to_remove.emplace_back(r); }
 
+		template<
+			typename T,
+			typename = typename std::enable_if<std::is_base_of<tag::base, T>::value>::type
+		> inline ref own() {
+			std::type_index ti = typeid(T);
+			auto it = tagged_objects.find(ti);
+			if(it == tagged_objects.end()) {
+				auto r    = ref(std::make_shared<destructor>());
+				auto weak = weak_ref(r);
+				r.dtor()->set([this, ti, weak] {
+					tagged_objects.erase(ti);
+					remove(weak);
+				});
+
+				tagged_objects.emplace(ti, r);
+				return r;
+			} else {
+				return it->second.own();
+			}
+		}
+
 		template<typename T, typename... Ts,
 		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
 		inline std::shared_ptr<T> add(weak_ref object, Ts &&... args) {
@@ -150,14 +164,13 @@ namespace polar::core {
 		template<typename T, typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
 		inline std::shared_ptr<T> insert(weak_ref object, T *component) {
 			auto ptr = std::shared_ptr<T>(component);
-			insert(object, ptr);
-			return ptr;
+			return insert(object, ptr);
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
 		inline std::shared_ptr<T> insert(weak_ref object, std::shared_ptr<T> component) {
-			insert(object, component, typeid(T));
-			return component;
+			auto ptr = insert(object, component, typeid(T));
+			return std::static_pointer_cast<T>(ptr);
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>

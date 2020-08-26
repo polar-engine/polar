@@ -1,16 +1,23 @@
+#include <polar/component/clock/simulation.h>
+#include <polar/component/listener.h>
 #include <polar/component/phys.h>
 #include <polar/component/position.h>
 #include <polar/component/scale.h>
 #include <polar/support/phys/detector/ball.h>
 #include <polar/support/phys/detector/box.h>
-#include <polar/support/sched/clock/integrator.h>
 #include <polar/system/phys.h>
-#include <polar/system/sched.h>
+#include <polar/tag/clock/simulation.h>
 
 namespace polar::system {
 	void phys::init() {
-		auto sch = engine->get<sched>().lock();
-		keep(sch->bind<support::sched::clock::integrator>([this](auto dt) { tick(dt); }));
+		auto clock = engine->own<tag::clock::simulation>();
+		engine->add_as<component::clock::base, component::clock::simulation>(clock);
+
+		core::ref listener;
+		keep(listener = engine->add());
+		engine->add<component::listener>(listener, clock, [this](auto dt) {
+			tick(dt);
+		});
 
 		add<support::phys::detector::box, support::phys::detector::box>([](core::polar *engine, auto a, auto b) {
 			math::point3 originA{0};

@@ -24,7 +24,6 @@
 #include <polar/system/asset.h>
 #include <polar/system/integrator.h>
 #include <polar/system/renderer/gl32.h>
-#include <polar/system/sched.h>
 #include <polar/system/vr.h>
 
 #if defined(_WIN32)
@@ -541,8 +540,9 @@ namespace polar::system::renderer {
 			engine->add<component::scale>(fps_object, math::point3(0.125));
 		}
 
-		auto sch    = engine->get<sched>().lock();
-		float delta = sch->delta<support::sched::clock::integrator>();
+		auto clock_ref = engine->own<tag::clock::simulation>();
+		auto clock     = engine->add_as<component::clock::base, component::clock::simulation>(clock_ref);
+		float delta    = clock->delta();
 
 		math::mat4x4 cameraView(1);
 

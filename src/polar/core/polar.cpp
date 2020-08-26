@@ -130,11 +130,15 @@ namespace polar::core {
 		for(auto &state : stack) { state.system_added(ti, ptr); }
 	}
 
-	void polar::insert(weak_ref object, std::shared_ptr<component::base> component, std::type_index ti) {
+	std::shared_ptr<component::base> polar::insert(weak_ref object, std::shared_ptr<component::base> component, std::type_index ti) {
 		log()->trace("core", "inserting component: ", ti.name());
-		objects.insert(relation{object, ti, component});
+
+		auto [it, r] = objects.get<index::pair>().insert(relation{object, ti, component});
 		for(auto &state : stack) { state.component_added(object, ti, component); }
+
 		log()->trace("core", "inserted component");
+
+		return it->ptr;
 	}
 
 	std::weak_ptr<system::base> polar::get(std::type_index ti) {
