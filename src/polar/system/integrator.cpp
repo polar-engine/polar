@@ -1,6 +1,5 @@
 #include <polar/core/polar.h>
 #include <polar/property/integrable.h>
-#include <polar/system/event.h>
 #include <polar/system/integrator.h>
 
 namespace polar::system {
@@ -12,7 +11,6 @@ namespace polar::system {
 				for(auto integrable : *property->get()) { integrable->integrate(seconds); }
 			}
 		}
-		engine->get<event>().lock()->firein("integrator", "ticked", seconds);
 	}
 
 	void integrator::revert_by(size_t n) {
