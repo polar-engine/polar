@@ -1411,15 +1411,15 @@ namespace polar::system::renderer {
 		}
 	}
 
-	void gl32::component_removed(core::weak_ref object, std::type_index ti) {
+	void gl32::component_removed(core::weak_ref object, std::type_index ti, std::weak_ptr<component::base> ptr) {
 		if(ti == typeid(component::model)) {
-			auto model = engine->get<component::model>(object);
+			auto model = std::static_pointer_cast<component::model>(ptr.lock());
 			if(model != nullptr) {
 				auto prop = model->get<model_p>();
 				if(prop) { modelPropertyPool.emplace(prop); }
 			}
 		} else if(ti == typeid(component::sprite::base)) {
-			auto text = engine->get<component::sprite::base>(object);
+			auto text = std::static_pointer_cast<component::sprite::base>(ptr.lock());
 			if(text != nullptr) {
 				auto prop = text->get<sprite_p>();
 				if(prop) { GL(glDeleteTextures(1, &prop->texture)); }

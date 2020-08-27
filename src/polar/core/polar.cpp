@@ -161,13 +161,17 @@ namespace polar::core {
 	void polar::remove_now(weak_ref object) {
 		auto pair = objects.get<index::ref>().equal_range(object);
 		for(auto it = pair.first; it != pair.second; ++it) {
-			for(auto &state : stack) { state.component_removed(object, it->ti); }
+			for(auto &state : stack) { state.component_removed(object, it->ti, it->ptr); }
 		}
 		objects.get<index::ref>().erase(object);
 	}
 
 	void polar::remove_now(weak_ref object, std::type_index ti) {
-		for(auto &state : stack) { state.component_removed(object, ti); }
-		objects.get<index::pair>().erase(relation{object, ti});
+		auto it = objects.get<index::pair>().find(relation{object, ti});
+
+		if(it != objects.get<index::pair>().end()) {
+			for(auto &state : stack) { state.component_removed(object, ti, it->ptr); }
+			objects.get<index::pair>().erase(it);
+		}
 	}
 } // namespace polar::core

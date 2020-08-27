@@ -42,7 +42,7 @@ namespace polar::system {
 			if(channelIndexMain == channelSize) { channelIndexMain = 0; }
 		}
 
-		void component_removed(core::weak_ref object, std::type_index ti) override {
+		void component_removed(core::weak_ref object, std::type_index ti, std::weak_ptr<component::base>) override {
 			if(ti != typeid(audiosource)) { return; }
 
 			channel[channelIndexMain] = message_t::remove(object);

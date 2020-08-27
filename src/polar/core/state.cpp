@@ -51,12 +51,12 @@ namespace polar::core {
 		}
 	}
 
-	void state::component_removed(weak_ref object, std::type_index ti) {
+	void state::component_removed(weak_ref object, std::type_index ti, std::shared_ptr<component::base> ptr) {
 		for(auto &pairSystem : *systems.get()) {
 			auto &system = pairSystem.second;
 			auto &deref  = *system;
 			log()->trace("core", "notifying system of component removed: ", typeid(deref).name(), ", ", ti.name());
-			system->component_removed(object, ti);
+			system->component_removed(object, ti, ptr);
 			log()->trace("core", "notified system of component removed");
 		}
 	}

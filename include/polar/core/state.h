@@ -107,7 +107,7 @@ namespace polar::core {
 
 		void system_added(std::type_index, std::shared_ptr<system::base>);
 		void component_added(weak_ref, std::type_index, std::shared_ptr<component::base>);
-		void component_removed(weak_ref, std::type_index);
+		void component_removed(weak_ref, std::type_index, std::shared_ptr<component::base>);
 	};
 } // namespace polar::core
 
