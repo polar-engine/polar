@@ -62,6 +62,8 @@ namespace polar::system {
 		static bool supported() { return true; }
 		tweener(core::polar *engine) : base(engine) {}
 
+		virtual std::string name() const override { return "tweener"; }
+
 		inline auto tween(T from, T to, double in, bool loop, tween_handler fn,
 		                  double pause, T initial) {
 			auto id    = nextID++;

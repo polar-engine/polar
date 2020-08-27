@@ -75,6 +75,8 @@ namespace polar::system {
 	public:
 		static bool supported() { return true; }
 
+		virtual std::string name() const override { return "vr"; }
+
 		static math::mat4x4 pose_view(::vr::TrackedDevicePose_t pose) {
 			auto vr_view = pose.mDeviceToAbsoluteTracking;
 			return math::mat4x4(vr_view.m[0][0], vr_view.m[1][0], vr_view.m[2][0], 0,

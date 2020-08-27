@@ -23,6 +23,8 @@ namespace polar::system {
 		    : base(engine), path(path) {}
 		~config() { save(); }
 
+		virtual std::string name() const override { return "config"; }
+
 		void on(key_t k, handler_t h) { handlers[k] = h; }
 
 		template<typename T> T get(key_t k) {

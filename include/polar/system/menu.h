@@ -74,6 +74,8 @@ namespace polar::system {
 		menu(core::polar *engine, math::decimal uiScale, menuitem_vector_t _menu)
 		    : base(engine), _menu(_menu), uiScale(uiScale) {}
 
+		virtual std::string name() const override { return "menu"; }
+
 		inline void render_all() {
 			auto size = current_size();
 
