@@ -55,7 +55,6 @@ set(POLAR_SRCS
 	src/polar/support/work/worker.cpp
 	src/polar/fs/local.cpp
 	src/polar/util/buildinfo.cpp
-	src/glew.c
 )
 
 set(ASSETBUILDER_SRCS
@@ -114,6 +113,7 @@ else()
 endif()
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2TTF REQUIRED)
 find_package(OpenVR REQUIRED)
@@ -124,6 +124,7 @@ find_library(PORTAUDIO_LIB portaudio PATHS ${LIB_SEARCH_PATH})
 set(POLAR_INCLUDE_DIRS
 	${Boost_INCLUDE_DIRS}
 	${GLM_INCLUDE_DIR}
+	${GLEW_INCLUDE_DIR}
 	${SDL2_INCLUDE_DIR}
 	${SDL2TTF_INCLUDE_DIR}
 	${OpenVR_INCLUDE_DIR}
@@ -138,6 +139,7 @@ set(POLAR_LIBS ${POLAR_LIBS}
 	${Boost_LIBRARIES}
 	${PORTAUDIO_LIB}
 	${OPENGL_LIBRARIES}
+	${GLEW_LIBRARY}
 	${SDL2_LIBRARY}
 	${SDL2TTF_LIBRARY}
 	${OpenVR_LIBRARY}
@@ -145,6 +147,7 @@ set(POLAR_LIBS ${POLAR_LIBS}
 )
 
 set(POLAR_DYLIBS
+	${GLEW_DYLIB}
 	${SDL2_DYLIB}
 	${SDL2TTF_DYLIBS}
 	${OpenVR_DYLIB}
