@@ -8,6 +8,9 @@
 namespace polar::system::opengl {
 	class framebuffer : public base {
 	  private:
+		using fbs_type = std::set<core::weak_ref>;
+		std::map<core::weak_ref, fbs_type> windows;
+
 		void component_added(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::framebuffer)) {
 				auto comp = std::static_pointer_cast<component::framebuffer>(ptr.lock());
@@ -15,16 +18,40 @@ namespace polar::system::opengl {
 				if(auto win = engine->get<component::window>(comp->win)) {
 					auto [fb, tex] = build_fb(win->size);
 					engine->add<component::opengl::framebuffer>(wr, fb, tex);
+
+					windows[comp->win].emplace(wr);
 				}
 			}
 		}
 
-		void component_removed(core::weak_ref, std::type_index ti, std::weak_ptr<component::base> ptr) override {
+		void component_removed(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::opengl::framebuffer)) {
 				auto comp = std::static_pointer_cast<component::opengl::framebuffer>(ptr.lock());
 
 				GL(glDeleteTextures(1, &comp->tex));
 				GL(glDeleteFramebuffers(1, &comp->fb));
+			} else if(ti == typeid(component::framebuffer)) {
+				auto comp = std::static_pointer_cast<component::framebuffer>(ptr.lock());
+
+				auto search = windows.find(comp->win);
+				if(search != windows.end()) {
+					search->second.erase(wr);
+				}
+			}
+		}
+
+		void mutate(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
+			if(ti == typeid(component::window)) {
+				auto win = std::static_pointer_cast<component::window>(ptr.lock());
+
+				for(auto fb_ref : windows[wr]) {
+					auto fb = engine->get<component::opengl::framebuffer>(fb_ref);
+
+					GL(glBindTexture(GL_TEXTURE_2D, fb->tex));
+					GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win->size.x, win->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+
+					log()->debug("opengl::framebuffer", "win mutated, updating fb!");
+				}
 			}
 		}
 

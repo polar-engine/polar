@@ -149,12 +149,12 @@ namespace polar::core {
 		return std::weak_ptr<system::base>();
 	}
 
-	component::base *polar::get(weak_ref object, std::type_index ti) {
+	std::shared_ptr<component::base> polar::get(weak_ref object, std::type_index ti) {
 		auto it = objects.get<index::pair>().find(relation{object, ti});
 		if(it != objects.get<index::pair>().end()) {
-			return it->ptr.get();
+			return it->ptr;
 		} else {
-			return nullptr;
+			return {};
 		}
 	}
 

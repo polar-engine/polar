@@ -12,6 +12,8 @@
 namespace polar::system::opengl {
 	class window : public base {
 	  private:
+		std::map<Uint32, core::weak_ref> windows;
+
 		void update(DeltaTicks &dt) override {
 			SDL_Event event;
 			while(SDL_PollEvent(&event)) { handle_event(event); }
@@ -82,14 +84,31 @@ namespace polar::system::opengl {
 				}
 
 				engine->add<component::opengl::window>(wr, win, ctx);
+
+				windows[SDL_GetWindowID(win)] = wr;
 			}
 		}
 
 		void component_removed(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::opengl::window)) {
 				auto comp = std::static_pointer_cast<component::opengl::window>(ptr.lock());
+
+				windows.erase(SDL_GetWindowID(comp->win));
+
 				SDL(SDL_GL_DeleteContext(comp->ctx));
 				SDL(SDL_DestroyWindow(comp->win));
+			}
+		}
+
+		void mutate(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
+			if(ti == typeid(component::window)) {
+				if(auto glwin = engine->get<component::opengl::window>(wr)) {
+					auto win = std::static_pointer_cast<component::window>(ptr.lock());
+
+					SDL(SDL_SetWindowSize(glwin->win, win->size.x, win->size.y));
+					SDL(SDL_GL_MakeCurrent(glwin->win, glwin->ctx));
+					GL(glViewport(0, 0, win->size.x, win->size.y));
+				}
 			}
 		}
 
@@ -110,21 +129,9 @@ namespace polar::system::opengl {
 			case SDL_WINDOWEVENT:
 				switch(ev.window.event) {
 				case SDL_WINDOWEVENT_RESIZED:
-					//GL(glViewport(0, 0, ev.window.data1, ev.window.data2));
-
-					/* XXX
-					if(vr && vr->ready()) {
-						width  = vr->width();
-						height = vr->height();
-					} else {
-						int w, h;
-						SDL(SDL_GL_GetDrawableSize(SDL_GetWindowFromID(ev.window.windowID), &w, &h));
-						width  = w;
-						height = h;
+					if(auto win = engine->mutate<component::window>(windows[ev.window.windowID])) {
+						win->size = {ev.window.data1, ev.window.data2};
 					}
-
-					rebuild();
-					*/
 					break;
 				}
 				break;

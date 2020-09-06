@@ -108,6 +108,16 @@ namespace polar::core {
 		void system_added(std::type_index, std::shared_ptr<system::base>);
 		void component_added(weak_ref, std::type_index, std::shared_ptr<component::base>);
 		void component_removed(weak_ref, std::type_index, std::shared_ptr<component::base>);
+
+		void mutate(weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) {
+			for(auto &pairSystem : *systems.get()) {
+				auto &system = pairSystem.second;
+				auto &deref  = *system;
+				log()->trace("core", "notifying system of component mutation: ", typeid(deref).name(), ", ", ti.name());
+				system->mutate(wr, ti, ptr);
+				log()->trace("core", "notified system of component mutation");
+			}
+		}
 	};
 } // namespace polar::core
 

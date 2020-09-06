@@ -3,10 +3,6 @@
 #ifndef POLAR_H
 #define POLAR_H
 
-//#include <boost/bimap.hpp>
-//#include <boost/bimap/multiset_of.hpp>
-//#include <boost/bimap/set_of.hpp>
-//#include <boost/bimap/unordered_multiset_of.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
@@ -14,6 +10,7 @@
 #include <map>
 #include <polar/component/base.h>
 #include <polar/core/log.h>
+#include <polar/core/mutable_component.h>
 #include <polar/core/stack.h>
 #include <polar/math/types.h>
 #include <polar/util/buildinfo.h>
@@ -59,12 +56,6 @@ namespace polar::core {
 		using priority_t        = support::debug::priority;
 		using state_initializer = std::function<void(polar *, state &)>;
 
-		/*
-		using bimap =
-		    boost::bimap<boost::bimaps::multiset_of<weak_ref>, boost::bimaps::multiset_of<std::type_index>,
-		                 boost::bimaps::set_of_relation<>, boost::bimaps::with_info<std::shared_ptr<component::base>>>;
-		*/
-
 		using bimap = boost::multi_index_container<
 			relation,
 			boost::multi_index::indexed_by<
@@ -75,8 +66,8 @@ namespace polar::core {
 		>;
 
 	  private:
-		bool initDone = false;
-		bool running  = false;
+		bool running = false;
+
 		std::unordered_map<std::string, std::pair<state_initializer, state_initializer>> states;
 		std::vector<state> stack;
 
@@ -85,7 +76,9 @@ namespace polar::core {
 		std::vector<weak_ref> objects_to_remove;
 		std::vector<std::pair<weak_ref, std::type_index>> components_to_remove;
 
-		component::base *get(weak_ref, std::type_index);
+		std::weak_ptr<system::base> get(std::type_index ti);
+
+		std::shared_ptr<component::base> get(weak_ref, std::type_index);
 		std::shared_ptr<component::base> insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
 		void remove_now(weak_ref, std::type_index);
 
@@ -93,22 +86,21 @@ namespace polar::core {
 
 	  public:
 		bimap objects;
-		std::string transition;
 
+		std::string transition;
 		std::unordered_set<std::string> arguments;
 
 		polar(std::vector<std::string> args);
 
 		~polar() {
-			/* release stack in reverse order */
+			// release stack in reverse order
 			while(!stack.empty()) { stack.pop_back(); }
 		}
 
-		std::weak_ptr<system::base> get(std::type_index ti);
+		// states
 
-		inline void add(
-		    const std::string &name, const state_initializer &init,
-		    const state_initializer &destroy = [](polar *, state &) {}) {
+		inline void add(const std::string &name, const state_initializer &init,
+		                const state_initializer &destroy = [](polar *, state &) {}) {
 			states.emplace(name, std::make_pair(init, destroy));
 		}
 
@@ -116,15 +108,19 @@ namespace polar::core {
 
 		inline void quit() { running = false; }
 
+		// systems
+
+		void insert(std::type_index, std::shared_ptr<system::base>);
+
 		template<typename T, typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
 		inline std::weak_ptr<T> get() {
 			return std::static_pointer_cast<T, system::base>(get(typeid(T)).lock());
 		}
 
-		ref add();
-		void insert(std::type_index, std::shared_ptr<system::base>);
-		void remove_now(weak_ref);
+		// objects
 
+		ref add();
+		void remove_now(weak_ref);
 		void remove(weak_ref r) { objects_to_remove.emplace_back(r); }
 
 		template<
@@ -147,6 +143,8 @@ namespace polar::core {
 				return it->second.own();
 			}
 		}
+
+		// components
 
 		template<typename T, typename... Ts,
 		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
@@ -174,8 +172,23 @@ namespace polar::core {
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
-		inline T *get(weak_ref object) {
-			return static_cast<T *>(get(object, typeid(T)));
+		inline std::shared_ptr<const T> get(weak_ref wr) {
+			return std::static_pointer_cast<T, component::base>(get(wr, typeid(T)));
+		}
+
+		template<typename T, typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>
+		inline mutable_component<T> mutate(weak_ref wr) {
+			std::type_index ti = typeid(T);
+			auto base = get(wr, ti);
+			auto ptr = std::static_pointer_cast<T>(base);
+
+			auto mc = mutable_component<T>(ptr, [this, wr, ti, base] {
+				for(auto &state : stack) {
+					state.mutate(wr, ti, base);
+				}
+			});
+
+			return mc;
 		}
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>

@@ -11,7 +11,7 @@ namespace polar::support::phys::responder {
 		rigid(math::point3 bounce) : bounce(bounce) {}
 
 		void respond(core::polar *engine, core::weak_ref object, DeltaTicks) override {
-			if(auto p = engine->get<component::position>(object)) {
+			if(auto p = engine->mutate<component::position>(object)) {
 				p->pos.revert_by(1);
 				if(p->pos.hasderivative()) {
 					p->pos.derivative() *= -bounce;

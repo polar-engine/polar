@@ -52,7 +52,7 @@ namespace polar::system {
 
 		for(auto &section : _credits) {
 			auto sectionText = engine->get<component::text>(section.object);
-			auto sectionPos = engine->get<component::screenposition>(section.object);
+			auto sectionPos = engine->mutate<component::screenposition>(section.object);
 			auto sectionScale = engine->get<component::scale>(section.object);
 
 			auto sectionRealScale = sectionText->as->lineSkip * sectionScale->sc.get().y;
@@ -61,7 +61,7 @@ namespace polar::system {
 
 			for(auto object : section.name_objects) {
 				auto nameText  = engine->get<component::text>(object);
-				auto namePos   = engine->get<component::screenposition>(object);
+				auto namePos   = engine->mutate<component::screenposition>(object);
 				auto nameScale = engine->get<component::scale>(object);
 
 				auto nameRealScale = nameText->as->lineSkip * nameScale->sc.get().y;
