@@ -42,31 +42,15 @@ namespace polar::system::opengl {
 
 						// model matrix
 
-						std::shared_ptr<component::position> pos;
-						std::shared_ptr<component::orientation> orient;
-						std::shared_ptr<component::scale> sc;
-
-						auto ref_range = engine->objects.get<core::index::ref>().equal_range(model_ref);
-						for(auto ref_it = ref_range.first; ref_it != ref_range.second; ++ref_it) {
-							auto ti = ref_it->ti;
-							if(ti == typeid(component::position)) {
-								pos = std::static_pointer_cast<component::position>(ref_it->ptr);
-							} else if(ti == typeid(component::orientation)) {
-								orient = std::static_pointer_cast<component::orientation>(ref_it->ptr);
-							} else if(ti == typeid(component::scale)) {
-								sc = std::static_pointer_cast<component::scale>(ref_it->ptr);
-							}
-						}
-
 						math::mat4x4 u_model(1);
 
-						if(pos != nullptr) {
+						if(auto pos = engine->get<component::position>(model_ref)) {
 							u_model = glm::translate(u_model, pos->pos.temporal(delta));
 						}
-						if(orient != nullptr) {
+						if(auto orient = engine->get<component::orientation>(model_ref)) {
 							u_model *= glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
 						}
-						if(sc != nullptr) {
+						if(auto sc = engine->get<component::scale>(model_ref)) {
 							u_model = glm::scale(u_model, sc->sc.temporal(delta));
 						}
 

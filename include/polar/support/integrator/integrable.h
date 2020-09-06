@@ -47,7 +47,8 @@ namespace polar::support::integrator {
 	class integrable_base {
 	  public:
 		virtual ~integrable_base() {}
-		virtual bool hasderivative(const unsigned char = 0)             = 0;
+		virtual bool hasderivative() const                              = 0;
+		virtual bool hasderivative(const unsigned char)                 = 0;
 		virtual integrable_base &getderivative(const unsigned char = 0) = 0;
 		virtual void integrate(const DeltaTicks::seconds_type)          = 0;
 		virtual bool revert_by(size_t = 0)                              = 0;
@@ -56,7 +57,7 @@ namespace polar::support::integrator {
 
 	template<typename T, class D = T> class integrable : public integrable_base {
 	  private:
-		using derivative_t = std::unique_ptr<integrable<D>>;
+		using derivative_type = std::shared_ptr<integrable<D>>;
 
 		struct history_entry {
 			T value;
@@ -64,7 +65,7 @@ namespace polar::support::integrator {
 		};
 
 		T value;
-		derivative_t deriv;
+		derivative_type deriv;
 		std::optional<target_t<T>> _target;
 
 	  public:
@@ -95,38 +96,46 @@ namespace polar::support::integrator {
 			return static_cast<_To>(history.back().value);
 		}
 
-		inline bool hasderivative(const unsigned char n = 0) override {
+		inline bool hasderivative() const override {
+			return !!deriv;
+		}
+
+		inline bool hasderivative(const unsigned char n) override {
 			if(!deriv) {
 				return false;
 			} else if(n == 0) {
 				return true;
 			} else {
-				return derivative().hasderivative(n - 1);
+				return derivative(0).hasderivative(n - 1);
 			}
 		}
 
 		inline integrable_base &
 		getderivative(const unsigned char n = 0) override {
 			if(n == 0) {
-				if(!deriv) { deriv = derivative_t(new integrable<D>()); }
+				if(!deriv) { deriv = derivative_type(new integrable<D>()); }
 				return *deriv;
 			} else {
-				return derivative().derivative(n - 1);
+				return derivative(0).derivative(n - 1);
 			}
 		}
 
-		inline integrable<D> &derivative(const unsigned char n = 0) {
+		inline std::shared_ptr<const integrable<D>> derivative() const {
+			return deriv;
+		}
+
+		inline integrable<D>& derivative(const unsigned char n) {
 			if(n == 0) {
-				if(!deriv) { deriv = derivative_t(new integrable<D>()); }
+				if(!deriv) { deriv = derivative_type(new integrable<D>()); }
 				return *deriv;
 			} else {
-				return derivative().derivative(n - 1);
+				return derivative(0).derivative(n - 1);
 			}
 		}
 
-		inline integrable<T> temporal_integrable(const math::decimal seconds) {
-			if(hasderivative()) {
-				D delta = integrable_interp<D>(integrable_id<D>(), derivative().temporal(seconds), seconds);
+		inline integrable<T> temporal_integrable(const math::decimal seconds) const {
+			if(auto d = derivative()) {
+				D delta = integrable_interp<D>(integrable_id<D>(), d->temporal(seconds), seconds);
 				integrable<T> ret(integrable_sum(value, delta));
 				if(auto t = _target) {
 					ret.target(t->value, t->factor);
@@ -137,9 +146,9 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline T temporal(const math::decimal seconds) {
-			if(hasderivative()) {
-				D delta = integrable_interp<D>(integrable_id<D>(), derivative().temporal(seconds), seconds);
+		inline T temporal(const math::decimal seconds) const {
+			if(auto d = derivative()) {
+				D delta = integrable_interp<D>(integrable_id<D>(), d->temporal(seconds), seconds);
 				integrable<T> ret(integrable_sum(value, delta));
 				return integrable_sum(value, delta);
 			} else {
@@ -160,7 +169,7 @@ namespace polar::support::integrator {
 					value = integrable_sum(value, delta);
 				}
 
-				derivative().integrate(seconds);
+				derivative(0).integrate(seconds);
 			}
 
 			if(_target) {
@@ -182,7 +191,7 @@ namespace polar::support::integrator {
 				auto &entry = history[size - n - 1];
 				value   = entry.value;
 				_target = entry.target;
-				return hasderivative() ? derivative().revert_by(n) : true;
+				return hasderivative() ? derivative(0).revert_by(n) : true;
 			}
 		}
 
@@ -193,7 +202,8 @@ namespace polar::support::integrator {
 				auto &entry = history[n];
 				value   = entry.value;
 				_target = entry.target;
-				return hasderivative() ? derivative().revert_to(n) : true;
+
+				return hasderivative() ? derivative(0).revert_to(n) : true;
 			}
 		}
 

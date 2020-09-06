@@ -14,7 +14,7 @@ namespace polar::support::phys::responder {
 			if(auto p = engine->mutate<component::position>(object)) {
 				p->pos.revert_by(1);
 				if(p->pos.hasderivative()) {
-					p->pos.derivative() *= -bounce;
+					p->pos.derivative(0) *= -bounce;
 				}
 			}
 		}

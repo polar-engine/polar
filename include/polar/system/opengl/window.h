@@ -18,11 +18,6 @@ namespace polar::system::opengl {
 			SDL_Event event;
 			while(SDL_PollEvent(&event)) { handle_event(event); }
 			SDL_ClearError();
-
-			auto ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::opengl::window));
-			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
-				auto comp = std::static_pointer_cast<component::opengl::window>(ti_it->ptr);
-			}
 		}
 
 		void component_added(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
