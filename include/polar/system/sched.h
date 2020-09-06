@@ -5,22 +5,41 @@
 namespace polar::system {
 	class sched : public base {
 	  private:
+		std::map<core::weak_ref, std::set<core::weak_ref>> clocks;
+
 		void update(DeltaTicks &dt) override {
-			std::map<core::ref, std::vector<component::listener *>> clocks;
+			for(auto &pair : clocks) {
+				auto clock = engine->mutate<component::clock::base>(pair.first);
 
-			auto ti_range = engine->objects.get<core::index::ti>().equal_range(typeid(component::listener));
-			for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
-				auto listener = static_cast<component::listener *>(ti_it->ptr.get());
-				clocks[listener->ref()].emplace_back(listener);
-			}
-
-			for(auto &[clock_ref, listeners] : clocks) {
-				auto clock = engine->mutate<component::clock::base>(clock_ref);
 				clock->accumulate(dt);
+
 				while(clock->tick()) {
-					for(auto &listener : listeners) {
-						listener->trigger(clock->timestep);
+					for(auto &listener_ref : pair.second) {
+						if(auto listener = engine->get<component::listener>(listener_ref)) {
+							listener->trigger(clock->timestep);
+						}
 					}
+				}
+			}
+		}
+
+		void component_added(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
+			if(ti == typeid(component::listener)) {
+				auto listener = std::static_pointer_cast<component::listener>(ptr.lock());
+
+				if(auto clock = engine->get<component::clock::base>(listener->ref())) {
+					clocks[listener->ref()].emplace(wr);
+				}
+			}
+		}
+
+		void component_removed(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
+			if(ti == typeid(component::listener)) {
+				auto listener = std::static_pointer_cast<component::listener>(ptr.lock());
+
+				auto search = clocks.find(listener->ref());
+				if(search != clocks.end()) {
+					search->second.erase(wr);
 				}
 			}
 		}
