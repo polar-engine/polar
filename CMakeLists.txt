@@ -50,7 +50,6 @@ set(POLAR_SRCS
 	src/polar/system/integrator.cpp
 	src/polar/system/menu.cpp
 	src/polar/system/phys.cpp
-	src/polar/system/renderer/gl32.cpp
 	src/polar/system/work.cpp
 	src/polar/support/work/worker.cpp
 	src/polar/fs/local.cpp
