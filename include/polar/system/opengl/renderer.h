@@ -1,5 +1,6 @@
 #pragma once
 
+#include <polar/component/material.h>
 #include <polar/component/opengl/framebuffer.h>
 #include <polar/component/opengl/stage.h>
 #include <polar/component/opengl/texture.h>
@@ -61,11 +62,11 @@ namespace polar::system::opengl {
 							if(auto fb_diffuse = engine->get<component::opengl::framebuffer>(material->diffuse)) {
 								GL(glActiveTexture(GL_TEXTURE0));
 								GL(glBindTexture(GL_TEXTURE_2D, fb_diffuse->tex));
-								upload(stage->program, "u_diffuse", glm::int32(0));
+								upload(stage->program, "u_diffuse_map", glm::int32(0));
 							} else if(auto texture = engine->get<component::opengl::texture>(material->diffuse)) {
 								GL(glActiveTexture(GL_TEXTURE0));
 								GL(glBindTexture(GL_TEXTURE_2D, texture->tex));
-								upload(stage->program, "u_diffuse", glm::int32(0));
+								upload(stage->program, "u_diffuse_map", glm::int32(0));
 							}
 						}
 

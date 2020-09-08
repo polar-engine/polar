@@ -207,8 +207,11 @@ namespace polar::support::integrator {
 			}
 		}
 
-		inline T &operator*() { return value; }
-		inline T *operator->() { return &value; }
+		inline const T & operator*() const { return value; }
+		inline const T * const operator->() const { return &value; }
+
+		inline T & operator*() { return value; }
+		inline T * operator->() { return &value; }
 
 		inline integrable<T> &operator=(const T &rhs) {
 			value = rhs;

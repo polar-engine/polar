@@ -76,8 +76,6 @@ namespace polar::core {
 		std::vector<weak_ref> objects_to_remove;
 		std::vector<std::pair<weak_ref, std::type_index>> components_to_remove;
 
-		std::weak_ptr<system::base> get(std::type_index ti);
-
 		std::shared_ptr<component::base> get(weak_ref, std::type_index);
 		std::shared_ptr<component::base> insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
 		void remove_now(weak_ref, std::type_index);
@@ -111,6 +109,7 @@ namespace polar::core {
 		// systems
 
 		void insert(std::type_index, std::shared_ptr<system::base>);
+		std::weak_ptr<system::base> get(std::type_index ti);
 
 		template<typename T, typename = typename std::enable_if<std::is_base_of<system::base, T>::value>::type>
 		inline std::weak_ptr<T> get() {
