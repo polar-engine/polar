@@ -7,6 +7,7 @@ namespace polar::component {
 	class framebuffer : public base {
 	  public:
 		core::ref win;
+		math::point4 clear_color;
 
 		framebuffer(core::ref win) : win(win) {}
 

@@ -3,6 +3,7 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 #include <polar/component/camera.h>
+#include <polar/component/color.h>
 #include <polar/component/material.h>
 #include <polar/component/opengl/framebuffer.h>
 #include <polar/component/opengl/stage.h>
@@ -43,15 +44,42 @@ namespace polar::system::opengl {
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 				}
 
+				math::point4 col(0, 0, 0, 0);
+				if(auto color = engine->get<component::color>(target_ref)) {
+					col = color->col.temporal(delta);
+				}
+				GL(glClearColor(col.r, col.g, col.b, col.a));
+
 				GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 				for(auto &[camera_ref, scene_ref] : cameras) {
 					auto camera = engine->get<component::camera>(camera_ref);
 
+					math::mat4x4 u_view(1);
+
+					component::position *pos       = nullptr;
+					component::orientation *orient = nullptr;
+					// component::scale *sc           = nullptr;
+
+					//cameraView = glm::translate(cameraView, -camera->distance.temporal(delta));
+					//cameraView *= glm::toMat4(camera->orientation.temporal(delta));
+					if(auto sc = engine->get<component::scale>(camera_ref)) {
+						u_view = glm::scale(u_view, 1.0f / sc->sc.temporal(delta));
+					}
+					if(auto orient = engine->get<component::orientation>(camera_ref)) {
+						u_view *= glm::toMat4(orient->orient.temporal(delta));
+					}
+					//cameraView = glm::translate(cameraView, -camera->position.temporal(delta));
+					if(auto pos = engine->get<component::position>(camera_ref)) {
+						u_view = glm::translate(u_view, -pos->pos.temporal(delta));
+					}
+
 					for(auto &[stage_ref, materials] : scenes[scene_ref]) {
 						auto stage = engine->get<component::opengl::stage>(stage_ref);
 
 						GL(glUseProgram(stage->program));
+
+						upload(stage->program, "u_view", u_view);
 
 						for(auto &[material_ref, models] : materials) {
 							auto material = engine->get<component::material>(material_ref);

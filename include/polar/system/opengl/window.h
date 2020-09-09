@@ -61,9 +61,6 @@ namespace polar::system::opengl {
 				// GLEW calls glGetString(EXTENSIONS) which causes GL_INVALID_ENUM on core contexts
 				glGetError();
 
-				auto &col = comp->clear_color;
-				GL(glClearColor(col.r, col.g, col.b, col.a));
-
 				GL(glEnable(GL_DEPTH_TEST));
 				GL(glEnable(GL_BLEND));
 				GL(glEnable(GL_CULL_FACE));

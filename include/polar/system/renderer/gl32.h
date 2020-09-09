@@ -19,8 +19,6 @@ namespace polar::system::renderer {
 
 		void update(DeltaTicks &) override;
 
-		math::mat4x4 calculate_projection();
-
 		void resize(uint16_t w, uint16_t h) override {
 			width = w;
 			height = h;

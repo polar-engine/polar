@@ -10,10 +10,6 @@ namespace polar::system::renderer {
 		math::decimal fovPlus           = math::decimal(glm::radians(10.0));
 
 	  public:
-		math::decimal zNear                   = math::decimal(0.1);
-		math::decimal zFar                    = math::decimal(1000.0);
-		math::decimal pixelDistanceFromScreen = math::decimal(1000.0);
-
 		bool showFPS = false;
 		bool debug_draw = false;
 
