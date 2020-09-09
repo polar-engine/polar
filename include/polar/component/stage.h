@@ -7,9 +7,8 @@ namespace polar::component {
 	class stage : public base {
 	  public:
 		std::string source;
-		core::ref target;
 
-		stage(std::string source, core::ref target) : source(source), target(target) {}
+		stage(std::string source) : source(source) {}
 
 		virtual std::string name() const override { return "stage"; }
 	};

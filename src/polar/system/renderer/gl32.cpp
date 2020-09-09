@@ -92,8 +92,7 @@ namespace polar::system::renderer {
 		auto heightF    = static_cast<math::decimal>(height);
 		auto fovy       = 2.0f * glm::atan(heightF, math::decimal(2) * pixelDistanceFromScreen) + fovPlus;
 		auto projection = glm::perspective(fovy, static_cast<math::decimal>(width) / heightF, zNear, zFar);
-		// auto projection = glm::infinitePerspective(fovy,
-		// static_cast<math::decimal>(width) / heightF, zNear);
+		// auto projection = glm::infinitePerspective(fovy, static_cast<math::decimal>(width) / heightF, zNear);
 		return projection;
 	}
 } // namespace polar::system::renderer
