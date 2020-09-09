@@ -7,8 +7,12 @@ namespace polar::component {
 	  public:
 		core::ref scene;
 		core::ref target;
+		math::mat4x4 projection;
 
-		camera(core::ref scene, core::ref target) : scene(scene), target(target) {}
+		camera(core::ref scene,
+		       core::ref target,
+		       math::mat4x4 projection = math::mat4x4(1))
+		  : scene(scene), target(target), projection(projection) {}
 
 		virtual std::string name() const override { return "camera"; }
 	};

@@ -38,10 +38,6 @@ namespace polar::system::renderer {
 			engine->add<component::scale>(fps_object, math::point3(0.125));
 		}
 
-		auto clock_ref = engine->own<tag::clock::simulation>();
-		auto clock     = engine->add_as<component::clock::base, component::clock::simulation>(clock_ref);
-		float delta    = clock->delta();
-
 		/*
 		auto vr = engine->get<system::vr>().lock();
 		if(vr && vr->ready()) {

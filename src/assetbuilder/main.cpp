@@ -286,6 +286,9 @@ int main(int argc, char **argv) {
 				} else if(chunkType == "iCCP") {
 					iss.ignore(dataSize);
 					iss.ignore(4);
+				} else if(chunkType == "zTXt") {
+					iss.ignore(dataSize);
+					iss.ignore(4);
 				} else {
 					std::stringstream ss;
 					ss << "unrecognized chunk type `" << chunkType << '`';

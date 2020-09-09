@@ -57,10 +57,6 @@ namespace polar::system::opengl {
 
 					math::mat4x4 u_view(1);
 
-					component::position *pos       = nullptr;
-					component::orientation *orient = nullptr;
-					// component::scale *sc           = nullptr;
-
 					//cameraView = glm::translate(cameraView, -camera->distance.temporal(delta));
 					//cameraView *= glm::toMat4(camera->orientation.temporal(delta));
 					if(auto sc = engine->get<component::scale>(camera_ref)) {
@@ -79,6 +75,7 @@ namespace polar::system::opengl {
 
 						GL(glUseProgram(stage->program));
 
+						upload(stage->program, "u_projection", camera->projection);
 						upload(stage->program, "u_view", u_view);
 
 						for(auto &[material_ref, models] : materials) {

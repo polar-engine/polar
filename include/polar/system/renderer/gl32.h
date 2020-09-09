@@ -7,14 +7,7 @@
 
 namespace polar::system::renderer {
 	class gl32 : public base {
-
 	  private:
-		std::vector<glm::vec3> debug_box_points;
-		std::vector<glm::vec3> debug_ball_points;
-
-		GLuint debug_box_vao;
-		GLuint debug_ball_vao;
-
 		core::ref fps_object;
 
 		void update(DeltaTicks &) override;
@@ -26,17 +19,6 @@ namespace polar::system::renderer {
 			// XXX: SDL(SDL_SetWindowSize(window, width, height));
 			//rebuild();
 		}
-
-		/*
-		void rebuild() {
-			auto act = engine->get<action>().lock();
-			GL(glViewport(0, 0, width, height));
-			//makepipeline(pipelineNames);
-			if(act) {
-				act->trigger<action_resize>();
-			}
-		}
-		*/
 
 	  public:
 		math::decimal fps = 60.0;
