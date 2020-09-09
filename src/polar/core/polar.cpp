@@ -78,9 +78,17 @@ namespace polar::core {
 
 				// perform deletions at end of iteration to avoid invalidation
 
-				for(auto &[r, ti] : components_to_remove) { remove_now(r, ti); }
+				while(!components_to_remove.empty()) {
+					auto &[r, ti] = components_to_remove.front();
+					remove_now(r, ti);
+					components_to_remove.pop();
+				}
 
-				for(auto &r : objects_to_remove) { remove_now(r); }
+				while(!objects_to_remove.empty()) {
+					auto &r = objects_to_remove.front();
+					remove_now(r);
+					objects_to_remove.pop();
+				}
 
 				// perform transition at end of iteration to avoid invalidation
 				if(transition != "") {

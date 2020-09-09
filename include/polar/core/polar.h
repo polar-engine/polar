@@ -14,6 +14,7 @@
 #include <polar/core/stack.h>
 #include <polar/math/types.h>
 #include <polar/util/buildinfo.h>
+#include <queue>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -73,14 +74,14 @@ namespace polar::core {
 
 		std::map<std::type_index, weak_ref> tagged_objects;
 
-		std::vector<weak_ref> objects_to_remove;
-		std::vector<std::pair<weak_ref, std::type_index>> components_to_remove;
+		std::queue<weak_ref> objects_to_remove;
+		std::queue<std::pair<weak_ref, std::type_index>> components_to_remove;
 
 		std::shared_ptr<component::base> get(weak_ref, std::type_index);
 		std::shared_ptr<component::base> insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
-		void remove_now(weak_ref, std::type_index);
 
-		void remove(weak_ref r, std::type_index ti) { components_to_remove.emplace_back(r, ti); }
+		void remove_now(weak_ref, std::type_index);
+		void remove(weak_ref r, std::type_index ti) { components_to_remove.emplace(r, ti); }
 
 	  public:
 		bimap objects;
@@ -120,7 +121,7 @@ namespace polar::core {
 
 		ref add();
 		void remove_now(weak_ref);
-		void remove(weak_ref r) { objects_to_remove.emplace_back(r); }
+		void remove(weak_ref r) { objects_to_remove.emplace(r); }
 
 		template<
 			typename T,
