@@ -47,6 +47,8 @@ namespace polar::system::opengl {
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 				}
 
+				// XXX: GL(glViewport(0, 0, 1280, 1280));
+
 				math::point4 col(0, 0, 0, 0);
 				if(auto color = engine->get<component::color>(target_ref)) {
 					col = color->col.temporal(delta);
@@ -165,13 +167,24 @@ namespace polar::system::opengl {
 			} else if(ti == typeid(component::opengl::model)) {
 				if(auto model = engine->get<component::model>(wr)) {
 					if(auto material = engine->get<component::material>(model->material)) {
-						auto search = scenes.find(model->scene);
-						if(search != scenes.end()) {
-							auto search2 = search->second.find(material->stage);
-							if(search2 != search->second.end()) {
-								auto search3 = search2->second.find(model->material);
-								if(search3 != search2->second.end()) {
-									search3->second.erase(wr);
+						auto it_scene = scenes.find(model->scene);
+						if(it_scene != scenes.end()) {
+							auto &stages = it_scene->second;
+							auto it_stage = stages.find(material->stage);
+							if(it_stage != stages.end()) {
+								auto &mats = it_stage->second;
+								auto it_mat = mats.find(model->material);
+								if(it_mat != mats.end()) {
+									auto &models = it_mat->second;
+									models.erase(wr);
+
+									// cleanup
+									if(models.empty()) {
+										mats.erase(it_mat);
+										if(mats.empty()) {
+											stages.erase(it_stage);
+										}
+									}
 								}
 							}
 						}
