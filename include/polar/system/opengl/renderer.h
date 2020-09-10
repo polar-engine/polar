@@ -37,11 +37,8 @@ namespace polar::system::opengl {
 			float delta    = clock->delta();
 
 			for(auto &[target_ref, cameras] : targets) {
-				if(auto fb = engine->get<component::opengl::framebuffer>(target_ref)) {
-					GL(glBindFramebuffer(GL_FRAMEBUFFER, fb->fb));
-				} else if(auto fb = engine->mutate<component::opengl::double_framebuffer>(target_ref)) {
-					fb->active = 1 - fb->active;
-					GL(glBindFramebuffer(GL_FRAMEBUFFER, fb->fb[fb->active]));
+				if(auto comp = engine->mutate<component::opengl::framebuffer>(target_ref)) {
+					GL(glBindFramebuffer(GL_FRAMEBUFFER, comp->advance().fb));
 				} else if(auto win = engine->get<component::opengl::window>(target_ref)) {
 					SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -86,13 +83,9 @@ namespace polar::system::opengl {
 						for(auto &[material_ref, models] : materials) {
 							auto material = engine->get<component::material>(material_ref);
 							if(auto &diffuse_ref = material->diffuse) {
-								if(auto fb = engine->get<component::opengl::framebuffer>(*diffuse_ref)) {
+								if(auto comp = engine->get<component::opengl::framebuffer>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
-									GL(glBindTexture(GL_TEXTURE_2D, fb->tex));
-									upload(stage->program, "u_diffuse_map", glm::int32(0));
-								} else if(auto fb = engine->get<component::opengl::double_framebuffer>(*diffuse_ref)) {
-									GL(glActiveTexture(GL_TEXTURE0));
-									GL(glBindTexture(GL_TEXTURE_2D, fb->tex[1 - fb->active]));
+									GL(glBindTexture(GL_TEXTURE_2D, comp->prev().tex[0]));
 									upload(stage->program, "u_diffuse_map", glm::int32(0));
 								} else if(auto texture = engine->get<component::opengl::texture>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
@@ -136,8 +129,6 @@ namespace polar::system::opengl {
 				targets.emplace(wr, cameras_type{});
 			} else if(ti == typeid(component::opengl::framebuffer)) {
 				targets.emplace(wr, cameras_type{});
-			} else if(ti == typeid(component::opengl::double_framebuffer)) {
-				targets.emplace(wr, cameras_type{});
 			} else if(ti == typeid(component::camera)) {
 				auto camera = std::static_pointer_cast<component::camera>(ptr.lock());
 				targets[camera->target].emplace(wr, camera->scene);
@@ -154,8 +145,6 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::opengl::window)) {
 				targets.erase(wr);
 			} else if(ti == typeid(component::opengl::framebuffer)) {
-				targets.erase(wr);
-			} else if(ti == typeid(component::opengl::double_framebuffer)) {
 				targets.erase(wr);
 			} else if(ti == typeid(component::camera)) {
 				auto camera = std::static_pointer_cast<component::camera>(ptr.lock());
