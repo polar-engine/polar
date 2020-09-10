@@ -8,7 +8,7 @@ namespace polar::component::opengl {
 	  public:
 		struct data_type {
 			GLuint fb;
-			std::vector<GLuint> tex;
+			std::map<GLenum, GLuint> attachments;
 		};
 		using fbs_type = std::vector<data_type>;
 

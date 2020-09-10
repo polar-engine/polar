@@ -35,7 +35,9 @@ namespace polar::system::opengl {
 				auto comp = std::static_pointer_cast<component::opengl::framebuffer>(ptr.lock());
 
 				for(auto &fb : comp->fbs) {
-					GL(glDeleteTextures(fb.tex.size(), fb.tex.data()));
+					for(auto &pair : fb.attachments) {
+						GL(glDeleteTextures(1, &pair.second));
+					}
 					GL(glDeleteFramebuffers(1, &fb.fb));
 				}
 			} else if(ti == typeid(component::framebuffer)) {
@@ -56,9 +58,16 @@ namespace polar::system::opengl {
 					log()->debug("opengl::framebuffer", "win mutated, updating fb!");
 					if(auto comp = engine->get<component::opengl::framebuffer>(fb_ref)) {
 						for(auto &fb : comp->fbs) {
-							for(auto &tex : fb.tex) {
+							for(auto &[attachment, tex] : fb.attachments) {
 								GL(glBindTexture(GL_TEXTURE_2D, tex));
-								GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win->size.x, win->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+								switch(attachment) {
+								case GL_COLOR_ATTACHMENT0:
+									GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win->size.x, win->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+									break;
+								case GL_DEPTH_ATTACHMENT:
+									GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, win->size.x, win->size.y, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL));
+									break;
+								}
 							}
 						}
 					}
@@ -86,26 +95,24 @@ namespace polar::system::opengl {
 		}
 
 		component::opengl::framebuffer::data_type build_fb(math::point2i size, bool depth) {
-			GLuint fb;
+			component::opengl::framebuffer::data_type data;
 
-			GL(glGenFramebuffers(1, &fb));
-			GL(glBindFramebuffer(GL_FRAMEBUFFER, fb));
+			GL(glGenFramebuffers(1, &data.fb));
+			GL(glBindFramebuffer(GL_FRAMEBUFFER, data.fb));
 
 			std::vector<GLenum> draw_buffers = {GL_COLOR_ATTACHMENT0};
 			if(depth) {
 				draw_buffers.emplace_back(GL_DEPTH_ATTACHMENT);
 			}
 
-			std::vector<GLuint> tex;
-
 			GLuint tex_color = build_tex(size);
 			GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_color, 0));
-			tex.emplace_back(tex_color);
+			data.attachments.emplace(GL_COLOR_ATTACHMENT0, tex_color);
 
 			if(depth) {
 				GLuint tex_depth = build_tex(size, depth);
 				GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, tex_depth, 0));
-				tex.emplace_back(tex_depth);
+				data.attachments.emplace(GL_DEPTH_ATTACHMENT, tex_depth);
 			}
 
 			GL(glDrawBuffers(draw_buffers.size(), draw_buffers.data()));
@@ -124,7 +131,7 @@ namespace polar::system::opengl {
 				log()->fatal("opengl::framebuffer", msg.str());
 			}
 
-			return {fb, tex};
+			return data;
 		}
 
 	  public:

@@ -85,7 +85,7 @@ namespace polar::system::opengl {
 							if(auto &diffuse_ref = material->diffuse) {
 								if(auto comp = engine->get<component::opengl::framebuffer>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
-									GL(glBindTexture(GL_TEXTURE_2D, comp->prev().tex[0]));
+									GL(glBindTexture(GL_TEXTURE_2D, comp->prev().attachments[GL_COLOR_ATTACHMENT0]));
 									upload(stage->program, "u_diffuse_map", glm::int32(0));
 								} else if(auto texture = engine->get<component::opengl::texture>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
