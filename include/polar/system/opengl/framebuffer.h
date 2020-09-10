@@ -16,9 +16,14 @@ namespace polar::system::opengl {
 				auto comp = std::static_pointer_cast<component::framebuffer>(ptr.lock());
 
 				if(auto win = engine->get<component::window>(comp->win)) {
-					auto [fb, tex] = build_fb(win->size);
-					engine->add<component::opengl::framebuffer>(wr, fb, tex);
-
+					if(comp->double_buffer) {
+						auto [fb0, tex0] = build_fb(win->size);
+						auto [fb1, tex1] = build_fb(win->size);
+						engine->add<component::opengl::double_framebuffer>(wr, fb0, fb1, tex0, tex1);
+					} else {
+						auto [fb, tex] = build_fb(win->size);
+						engine->add<component::opengl::framebuffer>(wr, fb, tex);
+					}
 					windows[comp->win].emplace(wr);
 				}
 			}
@@ -30,6 +35,11 @@ namespace polar::system::opengl {
 
 				GL(glDeleteTextures(1, &comp->tex));
 				GL(glDeleteFramebuffers(1, &comp->fb));
+			} else if(ti == typeid(component::opengl::double_framebuffer)) {
+				auto comp = std::static_pointer_cast<component::opengl::double_framebuffer>(ptr.lock());
+
+				GL(glDeleteTextures(comp->tex.size(), comp->tex.data()));
+				GL(glDeleteFramebuffers(comp->fb.size(), comp->fb.data()));
 			} else if(ti == typeid(component::framebuffer)) {
 				auto comp = std::static_pointer_cast<component::framebuffer>(ptr.lock());
 
@@ -45,12 +55,17 @@ namespace polar::system::opengl {
 				auto win = std::static_pointer_cast<component::window>(ptr.lock());
 
 				for(auto fb_ref : windows[wr]) {
-					auto fb = engine->get<component::opengl::framebuffer>(fb_ref);
-
-					GL(glBindTexture(GL_TEXTURE_2D, fb->tex));
-					GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win->size.x, win->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
-
 					log()->debug("opengl::framebuffer", "win mutated, updating fb!");
+					if(auto fb = engine->get<component::opengl::framebuffer>(fb_ref)) {
+						GL(glBindTexture(GL_TEXTURE_2D, fb->tex));
+						GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win->size.x, win->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+					}
+					if(auto fb = engine->get<component::opengl::double_framebuffer>(fb_ref)) {
+						for(auto tex : fb->tex) {
+							GL(glBindTexture(GL_TEXTURE_2D, tex));
+							GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, win->size.x, win->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+						}
+					}
 				}
 			}
 		}
@@ -62,8 +77,8 @@ namespace polar::system::opengl {
 
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 
 			GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
 

@@ -39,6 +39,9 @@ namespace polar::system::opengl {
 			for(auto &[target_ref, cameras] : targets) {
 				if(auto fb = engine->get<component::opengl::framebuffer>(target_ref)) {
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, fb->fb));
+				} else if(auto fb = engine->mutate<component::opengl::double_framebuffer>(target_ref)) {
+					fb->active = 1 - fb->active;
+					GL(glBindFramebuffer(GL_FRAMEBUFFER, fb->fb[fb->active]));
 				} else if(auto win = engine->get<component::opengl::window>(target_ref)) {
 					SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -85,6 +88,10 @@ namespace polar::system::opengl {
 									GL(glActiveTexture(GL_TEXTURE0));
 									GL(glBindTexture(GL_TEXTURE_2D, fb->tex));
 									upload(stage->program, "u_diffuse_map", glm::int32(0));
+								} else if(auto fb = engine->get<component::opengl::double_framebuffer>(*diffuse_ref)) {
+									GL(glActiveTexture(GL_TEXTURE0));
+									GL(glBindTexture(GL_TEXTURE_2D, fb->tex[1 - fb->active]));
+									upload(stage->program, "u_diffuse_map", glm::int32(0));
 								} else if(auto texture = engine->get<component::opengl::texture>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
 									GL(glBindTexture(GL_TEXTURE_2D, texture->tex));
@@ -127,6 +134,8 @@ namespace polar::system::opengl {
 				targets.emplace(wr, cameras_type{});
 			} else if(ti == typeid(component::opengl::framebuffer)) {
 				targets.emplace(wr, cameras_type{});
+			} else if(ti == typeid(component::opengl::double_framebuffer)) {
+				targets.emplace(wr, cameras_type{});
 			} else if(ti == typeid(component::camera)) {
 				auto camera = std::static_pointer_cast<component::camera>(ptr.lock());
 				targets[camera->target].emplace(wr, camera->scene);
@@ -143,6 +152,8 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::opengl::window)) {
 				targets.erase(wr);
 			} else if(ti == typeid(component::opengl::framebuffer)) {
+				targets.erase(wr);
+			} else if(ti == typeid(component::opengl::double_framebuffer)) {
 				targets.erase(wr);
 			} else if(ti == typeid(component::camera)) {
 				auto camera = std::static_pointer_cast<component::camera>(ptr.lock());
