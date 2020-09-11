@@ -7,10 +7,8 @@ namespace polar::component {
 	class model : public base {
 	  public:
 		std::shared_ptr<asset::model> asset;
-		core::ref scene;
-		core::ref material;
 
-		model(decltype(asset) asset, core::ref scene, core::ref material) : asset(asset), scene(scene), material(material) {}
+		model(decltype(asset) asset) : asset(asset) {}
 
 		virtual std::string name() const override { return "model"; }
 	};

@@ -11,16 +11,18 @@
 #include <polar/component/opengl/window.h>
 #include <polar/component/orientation.h>
 #include <polar/component/position.h>
+#include <polar/component/renderable.h>
 #include <polar/component/scale.h>
 #include <polar/component/stage.h>
 
 namespace polar::system::opengl {
 	class renderer : public base {
 	  private:
-		using models_type    = boost::container::flat_set<core::weak_ref>;
-		using materials_type = boost::container::flat_map<core::weak_ref, models_type>;
-		using stages_type    = boost::container::flat_map<core::weak_ref, materials_type>;
-		using scenes_type    = std::map<core::weak_ref, stages_type>;
+		using renderables_type = boost::container::flat_set<core::weak_ref>;
+		using models_type      = boost::container::flat_map<core::weak_ref, renderables_type>;
+		using materials_type   = boost::container::flat_map<core::weak_ref, models_type>;
+		using stages_type      = boost::container::flat_map<core::weak_ref, materials_type>;
+		using scenes_type      = std::map<core::weak_ref, stages_type>;
 
 		// { scene => { stage => { material => { model } } } }
 		scenes_type scenes;
@@ -94,25 +96,28 @@ namespace polar::system::opengl {
 								}
 							}
 
-							for(auto &model_ref : models) {
+							for(auto &[model_ref, renderables] : models) {
 								auto model = engine->get<component::opengl::model>(model_ref);
 
-								math::mat4x4 u_model(1);
-
-								if(auto pos = engine->get<component::position>(model_ref)) {
-									u_model = glm::translate(u_model, pos->pos.temporal(delta));
-								}
-								if(auto orient = engine->get<component::orientation>(model_ref)) {
-									u_model *= glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
-								}
-								if(auto sc = engine->get<component::scale>(model_ref)) {
-									u_model = glm::scale(u_model, sc->sc.temporal(delta));
-								}
-
-								upload(stage->program, "u_model", u_model);
-
 								GL(glBindVertexArray(model->vao));
-								GL(glDrawArrays(GL_TRIANGLES, 0, model->count));
+
+								for(auto &renderable_ref : renderables) {
+									math::mat4x4 u_model(1);
+
+									if(auto pos = engine->get<component::position>(renderable_ref)) {
+										u_model = glm::translate(u_model, pos->pos.temporal(delta));
+									}
+									if(auto orient = engine->get<component::orientation>(renderable_ref)) {
+										u_model *= glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
+									}
+									if(auto sc = engine->get<component::scale>(renderable_ref)) {
+										u_model = glm::scale(u_model, sc->sc.temporal(delta));
+									}
+
+									upload(stage->program, "u_model", u_model);
+
+									GL(glDrawArrays(GL_TRIANGLES, 0, model->count));
+								}
 							}
 						}
 					}
@@ -132,10 +137,10 @@ namespace polar::system::opengl {
 			} else if(ti == typeid(component::camera)) {
 				auto camera = std::static_pointer_cast<component::camera>(ptr.lock());
 				targets[camera->target].emplace(wr, camera->scene);
-			} else if(ti == typeid(component::opengl::model)) {
-				if(auto model = engine->get<component::model>(wr)) {
-					if(auto material = engine->get<component::material>(model->material)) {
-						scenes[model->scene][material->stage][model->material].emplace(wr);
+			} else if(ti == typeid(component::renderable)) {
+				if(auto renderable = engine->get<component::renderable>(wr)) {
+					if(auto material = engine->get<component::material>(renderable->material)) {
+						scenes[renderable->scene][material->stage][renderable->material][renderable->model].emplace(wr);
 					}
 				}
 			}
@@ -153,25 +158,32 @@ namespace polar::system::opengl {
 				if(search != targets.end()) {
 					search->second.erase(wr);
 				}
-			} else if(ti == typeid(component::opengl::model)) {
-				if(auto model = engine->get<component::model>(wr)) {
-					if(auto material = engine->get<component::material>(model->material)) {
-						auto it_scene = scenes.find(model->scene);
-						if(it_scene != scenes.end()) {
-							auto &stages = it_scene->second;
-							auto it_stage = stages.find(material->stage);
-							if(it_stage != stages.end()) {
-								auto &mats = it_stage->second;
-								auto it_mat = mats.find(model->material);
-								if(it_mat != mats.end()) {
-									auto &models = it_mat->second;
-									models.erase(wr);
+			} else if(ti == typeid(component::renderable)) {
+				auto renderable = std::static_pointer_cast<component::renderable>(ptr.lock());
+
+				if(auto material = engine->get<component::material>(renderable->material)) {
+					auto it_scene = scenes.find(renderable->scene);
+					if(it_scene != scenes.end()) {
+						auto &stages = it_scene->second;
+						auto it_stage = stages.find(material->stage);
+						if(it_stage != stages.end()) {
+							auto &mats = it_stage->second;
+							auto it_mat = mats.find(renderable->material);
+							if(it_mat != mats.end()) {
+								auto &models = it_mat->second;
+								auto it_model = models.find(renderable->model);
+								if(it_model != models.end()) {
+									auto &renderables = it_model->second;
+									renderables.erase(wr);
 
 									// cleanup
-									if(models.empty()) {
-										mats.erase(it_mat);
-										if(mats.empty()) {
-											stages.erase(it_stage);
+									if(renderables.empty()) {
+										models.erase(it_model);
+										if(models.empty()) {
+											mats.erase(it_mat);
+											if(mats.empty()) {
+												stages.erase(it_stage);
+											}
 										}
 									}
 								}
