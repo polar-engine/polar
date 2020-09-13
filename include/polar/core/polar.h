@@ -31,9 +31,10 @@ namespace polar::core {
 
 namespace polar::core {
 	namespace index {
-		struct ref  {};
-		struct ti   {};
-		struct pair {};
+		struct ref           {};
+		struct ti            {};
+		struct rel_ordered   {};
+		struct rel_unordered {};
 	} // namespace index
 
 	struct relation {
@@ -50,6 +51,17 @@ namespace polar::core {
 		weak_ref r;
 		std::type_index ti;
 		std::shared_ptr<component::base> ptr;
+
+		friend inline size_t hash_value(const relation &rel) {
+			size_t seed = 0;
+			boost::hash_combine(seed, rel.r);
+			boost::hash_combine(seed, rel.ti);
+			return seed;
+		}
+
+		friend inline bool operator==(const relation &lhs, const relation &rhs) {
+			return lhs.r == rhs.r && lhs.ti == rhs.ti;
+		}
 	};
 
 	class polar {
@@ -60,9 +72,10 @@ namespace polar::core {
 		using bimap = boost::multi_index_container<
 			relation,
 			boost::multi_index::indexed_by<
-				boost::multi_index::ordered_non_unique<boost::multi_index::tag<index::ref >, boost::multi_index::member<relation, weak_ref,        &relation::r>>,
-				boost::multi_index::ordered_non_unique<boost::multi_index::tag<index::ti  >, boost::multi_index::member<relation, std::type_index, &relation::ti>>,
-				boost::multi_index::ordered_unique    <boost::multi_index::tag<index::pair>, boost::multi_index::identity<relation>, relation::pair_comp>
+				boost::multi_index::ordered_non_unique<boost::multi_index::tag<index::ref          >, boost::multi_index::member<relation, weak_ref,        &relation::r>>,
+				boost::multi_index::ordered_non_unique<boost::multi_index::tag<index::ti           >, boost::multi_index::member<relation, std::type_index, &relation::ti>>,
+				boost::multi_index::ordered_unique    <boost::multi_index::tag<index::rel_ordered  >, boost::multi_index::identity<relation>, relation::pair_comp>,
+				boost::multi_index::hashed_unique     <boost::multi_index::tag<index::rel_unordered>, boost::multi_index::identity<relation>>
 			>
 		>;
 

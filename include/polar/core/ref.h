@@ -23,15 +23,15 @@ namespace polar::core {
 		ref(dtor_type dtor) : _id(global_id++), _dtor(dtor) {}
 		ref(core::id id, dtor_type dtor) : _id(id), _dtor(dtor) {}
 
-		auto id() const {
+		inline auto id() const {
 			return _id;
 		}
 
-		auto dtor() const {
+		inline auto dtor() const {
 			return _dtor;
 		}
 
-		operator core::id() const {
+		inline operator core::id() const {
 			return id();
 		}
 
@@ -53,20 +53,26 @@ namespace polar::core {
 		weak_ref() = default;
 		weak_ref(ref r) : _id(r.id()), _dtor(r.dtor()) {}
 
-		auto id() const {
+		inline auto id() const {
 			return _id;
 		}
 
-		auto dtor() const {
+		inline auto dtor() const {
 			return _dtor;
 		}
 
-		auto own() const {
+		inline auto own() const {
 			return ref(id(), dtor().lock());
 		}
 
-		operator core::id() const {
+		inline operator core::id() const {
 			return id();
+		}
+
+		friend inline size_t hash_value(const weak_ref &wr) {
+			size_t seed = 0;
+			boost::hash_combine(seed, wr.id());
+			return seed;
 		}
 
 		friend inline bool operator==(const weak_ref &lhs, const weak_ref &rhs) {

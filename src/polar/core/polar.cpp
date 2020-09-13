@@ -131,6 +131,7 @@ namespace polar::core {
 		auto r    = ref(std::make_shared<destructor>());
 		auto weak = weak_ref(r);
 		r.dtor()->set([this, weak] { remove(weak); });
+		log()->trace("new object ", r.id());
 		return r;
 	}
 
@@ -141,7 +142,7 @@ namespace polar::core {
 	std::shared_ptr<component::base> polar::insert(weak_ref object, std::shared_ptr<component::base> component, std::type_index ti) {
 		log()->trace("core", "inserting component: ", ti.name());
 
-		auto [it, r] = objects.get<index::pair>().insert(relation{object, ti, component});
+		auto [it, r] = objects.get<index::rel_ordered>().insert(relation{object, ti, component});
 		for(auto &state : stack) { state.component_added(object, ti, component); }
 
 		log()->trace("core", "inserted component");
@@ -158,8 +159,8 @@ namespace polar::core {
 	}
 
 	std::shared_ptr<component::base> polar::get(weak_ref object, std::type_index ti) {
-		auto it = objects.get<index::pair>().find(relation{object, ti});
-		if(it != objects.get<index::pair>().end()) {
+		auto it = objects.get<index::rel_ordered>().find(relation{object, ti});
+		if(it != objects.get<index::rel_ordered>().end()) {
 			return it->ptr;
 		} else {
 			return {};
@@ -175,11 +176,11 @@ namespace polar::core {
 	}
 
 	void polar::remove_now(weak_ref object, std::type_index ti) {
-		auto it = objects.get<index::pair>().find(relation{object, ti});
+		auto it = objects.get<index::rel_ordered>().find(relation{object, ti});
 
-		if(it != objects.get<index::pair>().end()) {
+		if(it != objects.get<index::rel_ordered>().end()) {
 			for(auto &state : stack) { state.component_removed(object, ti, it->ptr); }
-			objects.get<index::pair>().erase(it);
+			objects.get<index::rel_ordered>().erase(it);
 		}
 	}
 } // namespace polar::core
