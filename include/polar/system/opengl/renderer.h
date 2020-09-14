@@ -79,7 +79,7 @@ namespace polar::system::opengl {
 
 						GL(glUseProgram(stage->program));
 
-						upload(stage->program, "u_projection", camera->projection);
+						upload(stage->program, "u_projection", camera->projection.eval(engine));
 						upload(stage->program, "u_view", u_view);
 
 						for(auto &[material_ref, models] : materials) {

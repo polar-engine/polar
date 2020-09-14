@@ -4,6 +4,7 @@
 #include <optional>
 #include <polar/core/ecs.h>
 #include <polar/math/types.h>
+#include <polar/node/base.h>
 #include <polar/property/base.h>
 #include <string>
 #include <vector>
