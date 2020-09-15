@@ -1,6 +1,5 @@
 #pragma once
 
-#include <polar/asset/shaderprogram.h>
 #include <polar/component/opengl/stage.h>
 #include <polar/component/stage.h>
 #include <polar/system/base.h>
@@ -13,12 +12,9 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::stage)) {
 				auto comp = std::static_pointer_cast<component::stage>(ptr.lock());
 
-				auto assetM = engine->get<asset>().lock();
+				log()->verbose("opengl::stage", "building shader program");
 
-				log()->verbose("opengl::stage", "building shader program `", comp->source, '`');
-				auto as = assetM->get<polar::asset::shaderprogram>(comp->source);
-
-				auto program_id = build_program(as);
+				auto program_id = build_program(comp->asset);
 				engine->add<component::opengl::stage>(wr, program_id);
 			}
 		}
