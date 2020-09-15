@@ -14,7 +14,6 @@
 #include <polar/system/action.h>
 #include <polar/system/asset.h>
 #include <polar/system/menu.h>
-#include <polar/system/renderer/base.h>
 #include <polar/system/tweener.h>
 
 namespace polar::system {
@@ -155,7 +154,7 @@ namespace polar::system {
 		auto scale = glm::min(actual_height() / math::decimal(size), actual_scale());
 		auto spacing = uiTextHeight * scale;
 
-		auto height = engine->get<renderer::base>().lock()->getheight();
+		auto height = 720; // XXX: engine->get<renderer::base>().lock()->getheight();
 		auto origin = height - y;
 
 		/* origin = 50 + spacing * (size - i - 1);
