@@ -10,6 +10,10 @@ namespace polar::component::opengl {
 
 		texture(GLuint tex) : tex(tex) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			return false;
+		}
+
 		virtual std::string name() const override { return "opengl_texture"; }
 	};
 } // namespace polar::component::opengl

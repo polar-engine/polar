@@ -41,6 +41,7 @@ set(POLAR_SRCS
 	src/polar/core/polar.cpp
 	src/polar/core/ref.cpp
 	src/polar/core/state.cpp
+	src/polar/core/store.cpp
 	src/polar/asset/font.cpp
 	src/polar/asset/level.cpp
 	src/polar/component/sprite/box.cpp

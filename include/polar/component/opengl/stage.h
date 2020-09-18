@@ -9,6 +9,10 @@ namespace polar::component::opengl {
 
 		stage(GLuint program) : program(program) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			return false;
+		}
+
 		virtual std::string name() const override { return "opengl_stage"; }
 	};
 } // namespace polar::component::opengl

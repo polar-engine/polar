@@ -92,10 +92,12 @@ namespace polar::system {
 		void render() {
 			buffer_object = engine->add();
 
+			/* XXX
 			auto assetM = engine->get<asset>().lock();
 			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
 
 			engine->add<component::text>(buffer_object, font, buffer);
+			*/
 			engine->add<component::screenposition>(buffer_object, math::point2(5, 5), support::ui::origin::topleft);
 			engine->add<component::color>(buffer_object, math::point4(1, 1, 1, 0.8));
 			engine->add<component::scale>(buffer_object, math::point3(0.1f));

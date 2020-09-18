@@ -31,10 +31,6 @@ namespace polar::core {
 			return _dtor;
 		}
 
-		inline operator core::id() const {
-			return id();
-		}
-
 		friend inline bool operator==(const ref &lhs, const ref &rhs) {
 			return lhs.id() == rhs.id();
 		}
@@ -65,10 +61,6 @@ namespace polar::core {
 			return ref(id(), dtor().lock());
 		}
 
-		inline operator core::id() const {
-			return id();
-		}
-
 		friend inline size_t hash_value(const weak_ref &wr) {
 			size_t seed = 0;
 			boost::hash_combine(seed, wr.id());
@@ -77,6 +69,10 @@ namespace polar::core {
 
 		friend inline bool operator==(const weak_ref &lhs, const weak_ref &rhs) {
 			return lhs.id() == rhs.id();
+		}
+
+		friend inline bool operator!=(const weak_ref &lhs, const weak_ref &rhs) {
+			return !(lhs == rhs);
 		}
 
 		friend inline bool operator<(const weak_ref &lhs, const weak_ref &rhs) {

@@ -16,6 +16,11 @@ namespace polar::component {
 			get<property::integrable>()->add(&this->sc);
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << sc;
+			return true;
+		}
+
 		virtual std::string name() const override { return "scale"; }
 
 		virtual accessor_list accessors() const override {

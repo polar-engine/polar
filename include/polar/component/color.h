@@ -15,6 +15,11 @@ namespace polar::component {
 			get<property::integrable>()->add(&this->col);
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << col;
+			return true;
+		}
+
 		virtual std::string name() const override { return "color"; }
 	};
 } // namespace polar::component

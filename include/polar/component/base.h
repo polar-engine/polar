@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+namespace polar::core {
+	class store_serializer;
+}
+
 namespace polar::component {
 	class base : public core::ecs<property::base> {
 	  public:
@@ -36,6 +40,8 @@ namespace polar::component {
 		virtual ~base() {}
 
 		virtual std::string name() const = 0;
+
+		virtual bool serialize(core::store_serializer &) const = 0;
 
 		virtual accessor_list accessors() const {
 			accessor_list l;

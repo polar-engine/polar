@@ -16,8 +16,8 @@ namespace polar::system::opengl {
 				GL(glBindTexture(GL_TEXTURE_2D, tex));
 
 				GLint format = GL_RGBA;
-				GL(glTexImage2D(GL_TEXTURE_2D, 0, format, comp->asset->width, comp->asset->height, 0, format,
-				                GL_UNSIGNED_BYTE, comp->asset->pixels.data()));
+				GL(glTexImage2D(GL_TEXTURE_2D, 0, format, comp->width, comp->height, 0, format,
+				                GL_UNSIGNED_BYTE, comp->pixels.data()));
 				GL(glGenerateMipmap(GL_TEXTURE_2D));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));

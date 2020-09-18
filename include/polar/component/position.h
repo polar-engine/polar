@@ -10,9 +10,15 @@ namespace polar::component {
 
 	  public:
 		integrable<math::point3> pos;
+
 		position(const math::point3 pos = math::point3(0)) : pos(pos) {
 			add<property::integrable>();
 			get<property::integrable>()->add(&this->pos);
+		}
+
+		bool serialize(core::store_serializer &s) const override {
+			s << pos;
+			return true;
 		}
 
 		virtual std::string name() const override { return "position"; }

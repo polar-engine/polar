@@ -11,6 +11,10 @@ namespace polar::component::opengl {
 
 		window(SDL_Window *win, SDL_GLContext ctx) : win(win), ctx(ctx) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			return false;
+		}
+
 		virtual std::string name() const override { return "opengl_window"; }
 	};
 } // namespace polar::component::opengl

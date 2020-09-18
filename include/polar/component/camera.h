@@ -14,6 +14,11 @@ namespace polar::component {
 		       wrapped_node<math::mat4x4> projection = math::mat4x4(1))
 		  : scene(scene), target(target), projection(projection) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << scene << target << projection;
+			return true;
+		}
+
 		virtual std::string name() const override { return "camera"; }
 	};
 } // namespace polar::component

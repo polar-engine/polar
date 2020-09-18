@@ -23,6 +23,10 @@ namespace polar::component {
 			h(dt);
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			return false;
+		}
+
 		std::string name() const override { return "listener"; }
 	};
 } // namespace polar::component

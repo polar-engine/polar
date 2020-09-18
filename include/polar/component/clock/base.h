@@ -14,6 +14,11 @@ namespace polar::component::clock {
 			timestep.SetSeconds(ts);
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << timestep;
+			return true;
+		}
+
 		auto frequency() const {
 			return math::decimal(1) / timestep.Seconds();
 		}

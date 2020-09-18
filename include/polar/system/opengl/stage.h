@@ -14,7 +14,7 @@ namespace polar::system::opengl {
 
 				log()->verbose("opengl::stage", "building shader program");
 
-				auto program_id = build_program(comp->asset);
+				auto program_id = build_program(comp);
 				engine->add<component::opengl::stage>(wr, program_id);
 			}
 		}
@@ -25,7 +25,7 @@ namespace polar::system::opengl {
 				GL(glDeleteProgram(comp->program));
 			}
 		}
-		GLuint build_program(std::shared_ptr<polar::asset::shaderprogram> as) {
+		GLuint build_program(std::shared_ptr<component::stage> as) {
 			using shadertype = support::shader::shadertype;
 
 			std::vector<GLuint> ids;

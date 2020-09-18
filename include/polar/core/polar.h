@@ -8,9 +8,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <map>
-#include <polar/component/base.h>
 #include <polar/core/log.h>
-#include <polar/core/mutable_component.h>
 #include <polar/core/stack.h>
 #include <polar/math/types.h>
 #include <polar/util/buildinfo.h>
@@ -24,6 +22,11 @@
 namespace polar::core {
 	class polar;
 }
+
+#include <polar/core/store.h>
+
+#include <polar/component/base.h>
+#include <polar/core/mutable_component.h>
 
 #include <polar/system/base.h>
 

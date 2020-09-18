@@ -10,6 +10,11 @@ namespace polar::component {
 
 		material(core::ref stage, decltype(diffuse) diffuse = {}) : stage(stage), diffuse(diffuse) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << stage << diffuse;
+			return true;
+		}
+
 		virtual std::string name() const override { return "material"; }
 	};
 } // namespace polar::component

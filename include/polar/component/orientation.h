@@ -15,6 +15,11 @@ namespace polar::component {
 			get<property::integrable>()->add(&this->orient);
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << orient;
+			return true;
+		}
+
 		orientation(const math::point3 euler) : orientation(math::quat(euler)) {}
 
 		virtual std::string name() const override { return "orientation"; }

@@ -299,8 +299,8 @@ int main(int argc, char **argv) {
 
 		// flip image for OpenGL coordinates
 
-		for(auto row = 0; row < asset.height / 2; ++row) {
-			for(auto col = 0; col < asset.width; ++col) {
+		for(size_t row = 0; row < asset.height / 2; ++row) {
+			for(size_t col = 0; col < asset.width; ++col) {
 				std::swap(asset.pixels[row * asset.width + col], asset.pixels[(asset.height - 1 - row) * asset.width + col]);
 			}
 		}

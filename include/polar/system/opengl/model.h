@@ -10,9 +10,9 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::model)) {
 				auto model = std::static_pointer_cast<component::model>(ptr.lock());
 
-				GLsizei count   = GLsizei(model->asset->triangles.size()) * 3;
-				GLsizeiptr size = model->asset->triangles.size() * sizeof(polar::asset::triangle);
-				void *data      = model->asset->triangles.data();
+				GLsizei count   = GLsizei(model->triangles.size()) * 3;
+				GLsizeiptr size = model->triangles.size() * sizeof(component::model::triangle);
+				void *data      = model->triangles.data();
 
 				GLuint vao;
 				GL(glGenVertexArrays(1, &vao));
@@ -30,7 +30,7 @@ namespace polar::system::opengl {
 
 				GL(glBindBuffer(GL_ARRAY_BUFFER, buffer));
 
-				const GLsizei stride = sizeof(polar::asset::vertex);
+				const GLsizei stride = sizeof(component::model::vertex);
 				const GLvoid *p_ptr  = NULL;
 				const GLvoid *n_ptr  = (GLvoid *)sizeof(math::point3);
 				const GLvoid *t_ptr  = (GLvoid *)(sizeof(math::point3) * 2);

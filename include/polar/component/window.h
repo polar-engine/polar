@@ -14,6 +14,11 @@ namespace polar::component {
 		       bool capture_cursor = false)
 		  : size(size), fullscreen(fullscreen), capture_cursor(capture_cursor) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			s << size << fullscreen << capture_cursor;
+			return true;
+		}
+
 		virtual std::string name() const override { return "window"; }
 	};
 } // namespace polar::component

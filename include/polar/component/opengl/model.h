@@ -12,6 +12,10 @@ namespace polar::component::opengl {
 
 		model(GLuint vao, GLuint buffer, size_t count) : vao(vao), buffer(buffer), count(count) {}
 
+		bool serialize(core::store_serializer &s) const override {
+			return false;
+		}
+
 		virtual std::string name() const override { return "opengl_model"; }
 	};
 } // namespace polar::component::opengl

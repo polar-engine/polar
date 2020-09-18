@@ -29,6 +29,11 @@ namespace polar::component {
 			);
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			//throw std::runtime_error("not implemented");
+			return false;
+		}
+
 		virtual std::string name() const override { return "phys"; }
 	};
 } // namespace polar::component

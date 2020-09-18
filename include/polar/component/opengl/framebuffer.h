@@ -46,6 +46,10 @@ namespace polar::component::opengl {
 			return current();
 		}
 
+		bool serialize(core::store_serializer &s) const override {
+			return false;
+		}
+
 		virtual std::string name() const override { return "opengl_framebuffer"; }
 	};
 } // namespace polar::component::opengl
