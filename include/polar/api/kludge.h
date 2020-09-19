@@ -258,9 +258,9 @@ namespace polar::api {
 
 		using token_range = std::pair<std::vector<token>::const_iterator, std::vector<token>::const_iterator>;
 	  protected:
-		core::polar *engine = nullptr;
+		core::polar &engine = nullptr;
 	  public:
-		kludge(core::polar *engine) : engine(engine) {}
+		kludge(core::polar &engine) : engine(engine) {}
 
 		std::pair<std::optional<char>, std::string_view>
 		lex_char(std::string_view str) const {
@@ -551,7 +551,7 @@ namespace polar::api {
 		}
 
 		bool reduce_access(expr &e) const {
-			auto api_system = engine->get<system::api>().lock();
+			auto api_system = engine.get<system::api>().lock();
 
 			bool ret = true;
 
@@ -683,7 +683,7 @@ namespace polar::api {
 			case expr_type::system_getter:
 				if(auto getter = e.get<system::base::accessor_type>().getter) {
 					auto ti = e.get(0).get<std::type_index>();
-					if(auto sys = engine->get(ti).lock()) {
+					if(auto sys = engine.get(ti).lock()) {
 						ret = getter.value()(sys.get());
 					}
 				}
@@ -697,7 +697,7 @@ namespace polar::api {
 				if(auto setter = e.get<system::base::accessor_type>().setter) {
 					auto ti = e.get(0).get(0).get<std::type_index>();
 					auto rhs_value = std::get<math::decimal>(rhs);
-					if(auto sys = engine->get(ti).lock()) {
+					if(auto sys = engine.get(ti).lock()) {
 						setter.value()(sys.get(), rhs_value);
 					}
 				}
@@ -706,7 +706,7 @@ namespace polar::api {
 			case expr_type::component_getter:
 				if(auto getter = e.get<component::base::accessor_type>().getter) {
 					auto ti = e.get(0).get<std::type_index>();
-					auto ti_range = engine->objects.get<core::index::ti>().equal_range(ti);
+					auto ti_range = engine.objects.get<core::index::ti>().equal_range(ti);
 					for(auto ti_it = ti_range.first; ti_it != ti_range.second; ++ti_it) {
 						ret = getter.value()(ti_it->ptr.get());
 					}
@@ -721,7 +721,7 @@ namespace polar::api {
 				if(auto setter = e.get<component::base::accessor_type>().setter) {
 					auto ti = e.get(0).get(0).get<std::type_index>();
 					auto rhs_value = std::get<math::decimal>(rhs);
-					auto it_range = engine->objects.get<core::index::ti>().equal_range(ti);
+					auto it_range = engine.objects.get<core::index::ti>().equal_range(ti);
 					for(auto ti_it = it_range.first; ti_it != it_range.second; ++ti_it) {
 						setter.value()(ti_it->ptr.get(), rhs_value);
 					}
@@ -729,7 +729,7 @@ namespace polar::api {
 				break;
 			}
 			case expr_type::builtin_engine_quit:
-				engine->quit();
+				engine.quit();
 				break;
 			default:
 				break;

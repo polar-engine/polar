@@ -9,13 +9,13 @@ namespace polar::system {
 
 		void update(DeltaTicks &dt) override {
 			for(auto &pair : clocks) {
-				auto clock = engine->mutate<component::clock::base>(pair.first);
+				auto clock = engine.mutate<component::clock::base>(pair.first);
 
 				clock->accumulate(dt);
 
 				while(clock->tick()) {
 					for(auto &listener_ref : pair.second) {
-						if(auto listener = engine->get<component::listener>(listener_ref)) {
+						if(auto listener = engine.get<component::listener>(listener_ref)) {
 							listener->trigger(clock->timestep);
 						}
 					}
@@ -27,7 +27,7 @@ namespace polar::system {
 			if(ti == typeid(component::listener)) {
 				auto listener = std::static_pointer_cast<component::listener>(ptr.lock());
 
-				if(auto clock = engine->get<component::clock::base>(listener->ref())) {
+				if(auto clock = engine.get<component::clock::base>(listener->ref())) {
 					clocks[listener->ref()].emplace(wr);
 				}
 			}
@@ -46,7 +46,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		sched(core::polar *engine) : base(engine) {}
+		sched(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "sched"; }
 	};

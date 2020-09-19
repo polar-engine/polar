@@ -55,8 +55,8 @@ namespace polar::core {
 
 		running = true;
 
-		stack.emplace_back(initialState, this);
-		states[initialState].first(this, stack.back());
+		stack.emplace_back(initialState, *this);
+		states[initialState].first(*this, stack.back());
 		stack.back().init();
 
 		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now(),
@@ -108,12 +108,12 @@ namespace polar::core {
 						switch(action.type) {
 						case StackActionType::Push:
 							log()->debug("core", "pushing state: ", action.name);
-							stack.emplace_back(action.name, this);
+							stack.emplace_back(action.name, *this);
 							{
 								log()->debug("core", "calling state initializer");
 								state &st = stack.back();
 								log()->debug("core", "calling state initializer");
-								states[action.name].first(this, st);
+								states[action.name].first(*this, st);
 							}
 							log()->debug("core", "pushed state");
 							stack.back().init();
@@ -121,7 +121,7 @@ namespace polar::core {
 						case StackActionType::Pop: {
 							auto &state = stack.back();
 							log()->debug("core", "popping state: ", state.name);
-							states[state.name].second(this, state);
+							states[state.name].second(*this, state);
 							stack.pop_back();
 							log()->debug("core", "popped state");
 							break;

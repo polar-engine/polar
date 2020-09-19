@@ -42,7 +42,7 @@ namespace polar::system {
 		};
 
 		template<typename T, typename U>
-		using resolver_t = std::function<bool(core::polar *, wrapped_detector<T>, wrapped_detector<U>)>;
+		using resolver_t = std::function<bool(core::polar &, wrapped_detector<T>, wrapped_detector<U>)>;
 
 		using resolver_base = resolver_t<detector_base, detector_base>;
 
@@ -55,7 +55,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		phys(core::polar *engine) : base(engine) {}
+		phys(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "phys"; }
 

@@ -8,7 +8,7 @@ namespace polar::system {
 	  public:
 		static bool supported() { return true; }
 
-		font(core::polar *engine) : base(engine) {
+		font(core::polar &engine) : base(engine) {
 			if(!SDL(TTF_Init())) { log()->fatal("font", "failed to init TTF"); }
 		}
 

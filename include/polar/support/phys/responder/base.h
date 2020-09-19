@@ -6,6 +6,6 @@ namespace polar::support::phys::responder {
 	class base {
 	  public:
 		virtual ~base() = default;
-		virtual void respond(core::polar *, core::weak_ref, DeltaTicks) {}
+		virtual void respond(core::polar &, core::weak_ref, DeltaTicks) {}
 	};
 } // namespace polar::support::phys::responder

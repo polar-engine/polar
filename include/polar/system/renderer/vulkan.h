@@ -504,11 +504,11 @@ namespace polar::system::renderer {
 
 			support::input::key key;
 
-			auto act = engine->get<action>().lock();
+			auto act = engine.get<action>().lock();
 
 			switch(ev.type) {
 			case SDL_QUIT:
-				engine->quit();
+				engine.quit();
 				break;
 			case SDL_WINDOWEVENT:
 				break;
@@ -617,7 +617,7 @@ namespace polar::system::renderer {
 
 		void makepipeline(const std::vector<std::string> &) override {}
 	  public:
-		vulkan(core::polar *engine) : base(engine) {}
+		vulkan(core::polar &engine) : base(engine) {}
 
 		~vulkan() {
 			for(auto &view : swapchainImageViews) {

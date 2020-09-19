@@ -71,7 +71,7 @@ namespace polar::system {
 		math::decimal uiScale = uiBase;
 
 		static bool supported() { return true; }
-		menu(core::polar *engine, math::decimal uiScale, menuitem_vector_t _menu)
+		menu(core::polar &engine, math::decimal uiScale, menuitem_vector_t _menu)
 		    : base(engine), _menu(_menu), uiScale(uiScale) {}
 
 		virtual std::string name() const override { return "menu"; }
@@ -87,7 +87,7 @@ namespace polar::system {
 		inline auto actual_scale() const {
 			auto scale = uiScale;
 
-			auto vr = engine->get<polar::system::vr>().lock();
+			auto vr = engine.get<polar::system::vr>().lock();
 			if(vr && vr->ready()) {
 				scale *= 2;
 			}
@@ -96,7 +96,7 @@ namespace polar::system {
 		}
 
 		inline size_t max_items() const {
-			auto vr = engine->get<polar::system::vr>().lock();
+			auto vr = engine.get<polar::system::vr>().lock();
 			if(vr && vr->ready()) {
 				return 14;
 			} else {

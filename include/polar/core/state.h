@@ -13,7 +13,7 @@
 namespace polar::core {
 	class state {
 	  private:
-		polar *engine;
+		polar &engine;
 		ecs<system::base> systems;
 		std::vector<std::shared_ptr<system::base>> orderedSystems;
 		std::vector<std::shared_ptr<system::base>> toErase;
@@ -24,8 +24,7 @@ namespace polar::core {
 		const std::string name;
 		std::unordered_map<std::string, Transition> transitions;
 
-		state(const std::string &name, polar *engine)
-		    : engine(engine), name(name) {}
+		state(const std::string &name, polar &engine) : engine(engine), name(name) {}
 
 		~state() noexcept {
 			/* release destructors before systems in case of dependencies */

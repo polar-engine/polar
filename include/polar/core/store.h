@@ -29,7 +29,7 @@ namespace polar::core {
 			insert(wr.own());
 		}
 
-		void serialize(polar *, std::ostream &);
-		static store deserialize(polar *, std::istream &);
+		void serialize(polar &, std::ostream &);
+		static store deserialize(polar &, std::istream &);
 	};
 } // namespace polar::core

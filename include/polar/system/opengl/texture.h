@@ -24,7 +24,7 @@ namespace polar::system::opengl {
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 				GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
 
-				engine->add<component::opengl::texture>(wr, tex);
+				engine.add<component::opengl::texture>(wr, tex);
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		texture(core::polar *engine) : base(engine) {}
+		texture(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "opengl_texture"; }
 	};

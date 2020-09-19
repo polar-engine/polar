@@ -28,7 +28,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		debug(core::polar *engine) : base(engine) {}
+		debug(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "opengl_debug"; }
 	};

@@ -35,7 +35,7 @@ namespace polar::system {
 	  private:
 		std::vector<core::ref> dtors;
 	  protected:
-		core::polar *engine;
+		core::polar &engine;
 
 		inline void keep(core::ref r) {
 			dtors.emplace_back(r);
@@ -44,7 +44,7 @@ namespace polar::system {
 	  public:
 		static bool supported() { return false; }
 
-		base(core::polar *engine) : engine(engine) {}
+		base(core::polar &engine) : engine(engine) {}
 		virtual ~base() {}
 
 		virtual std::string name() const = 0;

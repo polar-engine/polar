@@ -15,18 +15,18 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::framebuffer)) {
 				auto comp = std::static_pointer_cast<component::framebuffer>(ptr.lock());
 
-				if(auto win = engine->get<component::window>(comp->win)) {
-					auto glwin = engine->get<component::opengl::window>(comp->win);
+				if(auto win = engine.get<component::window>(comp->win)) {
+					auto glwin = engine.get<component::opengl::window>(comp->win);
 					SDL(SDL_GL_MakeCurrent(glwin->win, glwin->ctx));
 
 					if(comp->double_buffer) {
 						auto fb0 = build_fb(win->size, comp->depth);
 						auto fb1 = build_fb(win->size, comp->depth);
 						component::opengl::framebuffer::fbs_type fbs = {fb0, fb1};
-						engine->add<component::opengl::framebuffer>(wr, fbs);
+						engine.add<component::opengl::framebuffer>(wr, fbs);
 					} else {
 						auto fb = build_fb(win->size, comp->depth);
-						engine->add<component::opengl::framebuffer>(wr, fb);
+						engine.add<component::opengl::framebuffer>(wr, fb);
 					}
 					windows[comp->win].emplace(wr);
 				}
@@ -59,7 +59,7 @@ namespace polar::system::opengl {
 
 				for(auto fb_ref : windows[wr]) {
 					log()->debug("opengl::framebuffer", "win mutated, updating fb!");
-					if(auto comp = engine->get<component::opengl::framebuffer>(fb_ref)) {
+					if(auto comp = engine.get<component::opengl::framebuffer>(fb_ref)) {
 						for(auto &fb : comp->fbs) {
 							for(auto &[attachment, tex] : fb.attachments) {
 								GL(glBindTexture(GL_TEXTURE_2D, tex));
@@ -137,7 +137,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		framebuffer(core::polar *engine) : base(engine) {}
+		framebuffer(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "opengl_framebuffer"; }
 	};

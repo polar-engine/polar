@@ -9,7 +9,7 @@ namespace polar::system {
 
 		void update(DeltaTicks &dt) override {
 			for(auto it = objects.begin(); it != objects.end();) {
-				auto ptr = engine->mutate<component::ttl>(*it);
+				auto ptr = engine.mutate<component::ttl>(*it);
 				ptr->accumulate(dt);
 				if(!ptr->alive()) {
 					it = objects.erase(it);
@@ -21,7 +21,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		ttl(core::polar *engine) : base(engine) {}
+		ttl(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "ttl"; }
 

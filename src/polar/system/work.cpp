@@ -1,7 +1,7 @@
 #include <polar/system/work.h>
 
 namespace polar::system {
-	work::work(core::polar *engine) : base(engine) {
+	work::work(core::polar &engine) : base(engine) {
 		for(int i = 0; i < numWorkers; ++i) {
 			_workers.push_back(new worker_t());
 		}

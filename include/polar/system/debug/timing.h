@@ -9,13 +9,13 @@ namespace polar::system::debug {
 		std::chrono::high_resolution_clock::rep avg_count = 0;
 
 		void update(DeltaTicks &) override {
-			auto ref = engine->add();
-			engine->add<component::debug::timing>(ref);
+			auto ref = engine.add();
+			engine.add<component::debug::timing>(ref);
 
 			std::chrono::time_point<std::chrono::high_resolution_clock> begin = std::chrono::high_resolution_clock::now();
 
 			for(size_t i = 0; i < 100000; ++i) {
-				auto timing = engine->get<component::debug::timing>(ref);
+				auto timing = engine.get<component::debug::timing>(ref);
 			}
 
 			std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
@@ -34,7 +34,7 @@ namespace polar::system::debug {
 	  public:
 		static bool supported() { return true; }
 
-		timing(core::polar *engine) : base(engine) {}
+		timing(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "debug_timing"; }
 	};

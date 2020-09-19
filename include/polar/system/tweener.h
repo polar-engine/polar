@@ -8,7 +8,7 @@
 namespace polar::system {
 	template<typename T> class tweener : public base {
 	  public:
-		typedef std::function<void(core::polar *, const T &)> tween_handler;
+		typedef std::function<void(core::polar &, const T &)> tween_handler;
 		struct tween_desc {
 			T from;
 			T to;
@@ -60,7 +60,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		tweener(core::polar *engine) : base(engine) {}
+		tweener(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "tweener"; }
 

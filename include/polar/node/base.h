@@ -27,7 +27,7 @@ namespace polar::node {
 
 		virtual std::string name() const = 0;
 		virtual core::store_serializer & serialize(core::store_serializer &) const = 0;
-		virtual T eval(core::polar *) = 0;
+		virtual T eval(core::polar &) = 0;
 	};
 } // namespace polar::node
 
@@ -72,8 +72,8 @@ namespace polar {
 			return s;
 		}
 
-		T eval(core::polar *engine) const {
-			T r = std::visit([engine](auto &&arg) -> T {
+		T eval(core::polar &engine) const {
+			T r = std::visit([&engine](auto &&arg) -> T {
 				using VT = std::decay_t<decltype(arg)>;
 				if constexpr(std::is_same_v<VT, T>) {
 					return arg;

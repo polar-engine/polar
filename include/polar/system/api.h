@@ -45,7 +45,7 @@ namespace polar::system {
 	  public:
 		static bool supported() { return true; }
 
-		api(core::polar *engine) : base(engine) {}
+		api(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "api"; }
 

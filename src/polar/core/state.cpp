@@ -27,7 +27,7 @@ namespace polar::core {
 	}
 
 	void state::insert(std::type_index ti, std::shared_ptr<system::base> ptr) {
-		engine->insert(ti, ptr);
+		engine.insert(ti, ptr);
 	}
 
 	void state::system_added(std::type_index ti,

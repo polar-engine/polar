@@ -62,7 +62,7 @@ namespace polar::system {
 		}
 
 		static bool supported() { return true; }
-		asset(core::polar *engine) : base(engine) {}
+		asset(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "asset"; }
 

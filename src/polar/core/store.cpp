@@ -4,7 +4,7 @@
 #include <sstream>
 
 namespace polar::core {
-	void store::serialize(polar *engine, std::ostream &os) {
+	void store::serialize(polar &engine, std::ostream &os) {
 		std::ostringstream ss_data;
 		store_serializer ser(objects, workload, ss_data);
 
@@ -16,7 +16,7 @@ namespace polar::core {
 			store_serializer ser_object(objects, workload, ss_object);
 
 			auto &r = workload[i];
-			auto comp_range = engine->objects.get<index::ref>().equal_range(r);
+			auto comp_range = engine.objects.get<index::ref>().equal_range(r);
 
 			std::vector<std::string> serialized_comps;
 
@@ -39,7 +39,7 @@ namespace polar::core {
 		ser_final << serialized_objects;
 	}
 
-	store store::deserialize(polar *engine, std::istream &is) {
+	store store::deserialize(polar &engine, std::istream &is) {
 		store st;
 
 		store_deserializer deser(st.workload, is);
@@ -48,7 +48,7 @@ namespace polar::core {
 		deser >> serialized_objects;
 
 		for(size_t i = 0; i < serialized_objects.size(); ++i) {
-			st.insert(engine->add());
+			st.insert(engine.add());
 		}
 
 		log()->trace("store", "object count = ", serialized_objects.size());
@@ -69,7 +69,7 @@ namespace polar::core {
 				store_deserializer deser_comp(st.workload, ss_comp);
 
 				if(auto comp = registry::component::deserialize(deser_comp)) {
-					engine->insert(st.workload[i], comp->ptr, comp->ti);
+					engine.insert(st.workload[i], comp->ptr, comp->ti);
 				}
 			}
 		}

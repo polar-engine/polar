@@ -24,7 +24,7 @@ namespace polar::node {
 			return n;
 		}
 
-		math::mat4x4 eval(core::polar *engine) override {
+		math::mat4x4 eval(core::polar &engine) override {
 			return math::perspective(size.eval(engine), near.eval(engine), far.eval(engine));
 		}
 	NODE_END(perspective, math::mat4x4, perspective)

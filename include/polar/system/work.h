@@ -29,7 +29,7 @@ namespace polar::system {
 		    1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
 		static bool supported() { return true; }
 
-		work(core::polar *);
+		work(core::polar &);
 		~work() override;
 
 		inline void do_job(const job_fn &&fn,

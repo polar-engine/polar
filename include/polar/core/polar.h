@@ -70,7 +70,7 @@ namespace polar::core {
 	class polar {
 	  public:
 		using priority_t        = support::debug::priority;
-		using state_initializer = std::function<void(polar *, state &)>;
+		using state_initializer = std::function<void(polar &, state &)>;
 
 		using bimap = boost::multi_index_container<
 			relation,
@@ -115,7 +115,7 @@ namespace polar::core {
 		// states
 
 		inline void add(const std::string &name, const state_initializer &init,
-		                const state_initializer &destroy = [](polar *, state &) {}) {
+		                const state_initializer &destroy = [](auto, auto) {}) {
 			states.emplace(name, std::make_pair(init, destroy));
 		}
 

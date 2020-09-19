@@ -34,14 +34,14 @@ namespace polar::system::opengl {
 		targets_type targets;
 
 		void update(DeltaTicks &) override {
-			auto clock_ref = engine->own<tag::clock::simulation>();
-			auto clock     = engine->add_as<component::clock::base, component::clock::simulation>(clock_ref);
+			auto clock_ref = engine.own<tag::clock::simulation>();
+			auto clock     = engine.add_as<component::clock::base, component::clock::simulation>(clock_ref);
 			float delta    = clock->delta();
 
 			for(auto &[target_ref, cameras] : targets) {
-				if(auto comp = engine->mutate<component::opengl::framebuffer>(target_ref)) {
+				if(auto comp = engine.mutate<component::opengl::framebuffer>(target_ref)) {
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, comp->advance().fb));
-				} else if(auto win = engine->get<component::opengl::window>(target_ref)) {
+				} else if(auto win = engine.get<component::opengl::window>(target_ref)) {
 					SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
 					GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 				}
@@ -49,7 +49,7 @@ namespace polar::system::opengl {
 				// XXX: GL(glViewport(0, 0, 1280, 1280));
 
 				math::point4 col(0, 0, 0, 0);
-				if(auto color = engine->get<component::color>(target_ref)) {
+				if(auto color = engine.get<component::color>(target_ref)) {
 					col = color->col.temporal(delta);
 				}
 				GL(glClearColor(col.r, col.g, col.b, col.a));
@@ -57,25 +57,25 @@ namespace polar::system::opengl {
 				GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 				for(auto &[camera_ref, scene_ref] : cameras) {
-					auto camera = engine->get<component::camera>(camera_ref);
+					auto camera = engine.get<component::camera>(camera_ref);
 
 					math::mat4x4 u_view(1);
 
 					//cameraView = glm::translate(cameraView, -camera->distance.temporal(delta));
 					//cameraView *= glm::toMat4(camera->orientation.temporal(delta));
-					if(auto sc = engine->get<component::scale>(camera_ref)) {
+					if(auto sc = engine.get<component::scale>(camera_ref)) {
 						u_view = glm::scale(u_view, 1.0f / sc->sc.temporal(delta));
 					}
-					if(auto orient = engine->get<component::orientation>(camera_ref)) {
+					if(auto orient = engine.get<component::orientation>(camera_ref)) {
 						u_view *= glm::toMat4(orient->orient.temporal(delta));
 					}
 					//cameraView = glm::translate(cameraView, -camera->position.temporal(delta));
-					if(auto pos = engine->get<component::position>(camera_ref)) {
+					if(auto pos = engine.get<component::position>(camera_ref)) {
 						u_view = glm::translate(u_view, -pos->pos.temporal(delta));
 					}
 
 					for(auto &[stage_ref, materials] : scenes[scene_ref]) {
-						auto stage = engine->get<component::opengl::stage>(stage_ref);
+						auto stage = engine.get<component::opengl::stage>(stage_ref);
 
 						GL(glUseProgram(stage->program));
 
@@ -83,13 +83,13 @@ namespace polar::system::opengl {
 						upload(stage->program, "u_view", u_view);
 
 						for(auto &[material_ref, models] : materials) {
-							auto material = engine->get<component::material>(material_ref);
+							auto material = engine.get<component::material>(material_ref);
 							if(auto &diffuse_ref = material->diffuse) {
-								if(auto comp = engine->get<component::opengl::framebuffer>(*diffuse_ref)) {
+								if(auto comp = engine.get<component::opengl::framebuffer>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
 									GL(glBindTexture(GL_TEXTURE_2D, comp->prev().attachments[GL_COLOR_ATTACHMENT0]));
 									upload(stage->program, "u_diffuse_map", glm::int32(0));
-								} else if(auto texture = engine->get<component::opengl::texture>(*diffuse_ref)) {
+								} else if(auto texture = engine.get<component::opengl::texture>(*diffuse_ref)) {
 									GL(glActiveTexture(GL_TEXTURE0));
 									GL(glBindTexture(GL_TEXTURE_2D, texture->tex));
 									upload(stage->program, "u_diffuse_map", glm::int32(0));
@@ -97,20 +97,20 @@ namespace polar::system::opengl {
 							}
 
 							for(auto &[model_ref, renderables] : models) {
-								auto model = engine->get<component::opengl::model>(model_ref);
+								auto model = engine.get<component::opengl::model>(model_ref);
 
 								GL(glBindVertexArray(model->vao));
 
 								for(auto &renderable_ref : renderables) {
 									math::mat4x4 u_model(1);
 
-									if(auto pos = engine->get<component::position>(renderable_ref)) {
+									if(auto pos = engine.get<component::position>(renderable_ref)) {
 										u_model = glm::translate(u_model, pos->pos.temporal(delta));
 									}
-									if(auto orient = engine->get<component::orientation>(renderable_ref)) {
+									if(auto orient = engine.get<component::orientation>(renderable_ref)) {
 										u_model *= glm::toMat4(glm::inverse(orient->orient.temporal(delta)));
 									}
-									if(auto sc = engine->get<component::scale>(renderable_ref)) {
+									if(auto sc = engine.get<component::scale>(renderable_ref)) {
 										u_model = glm::scale(u_model, sc->sc.temporal(delta));
 									}
 
@@ -123,7 +123,7 @@ namespace polar::system::opengl {
 					}
 				}
 
-				if(auto win = engine->get<component::opengl::window>(target_ref)) {
+				if(auto win = engine.get<component::opengl::window>(target_ref)) {
 					SDL(SDL_GL_SwapWindow(win->win));
 				}
 			}
@@ -138,8 +138,8 @@ namespace polar::system::opengl {
 				auto camera = std::static_pointer_cast<component::camera>(ptr.lock());
 				targets[camera->target].emplace(wr, camera->scene);
 			} else if(ti == typeid(component::renderable)) {
-				if(auto renderable = engine->get<component::renderable>(wr)) {
-					if(auto material = engine->get<component::material>(renderable->material)) {
+				if(auto renderable = engine.get<component::renderable>(wr)) {
+					if(auto material = engine.get<component::material>(renderable->material)) {
 						scenes[renderable->scene][material->stage][renderable->material][renderable->model].emplace(wr);
 					}
 				}
@@ -161,7 +161,7 @@ namespace polar::system::opengl {
 			} else if(ti == typeid(component::renderable)) {
 				auto renderable = std::static_pointer_cast<component::renderable>(ptr.lock());
 
-				if(auto material = engine->get<component::material>(renderable->material)) {
+				if(auto material = engine.get<component::material>(renderable->material)) {
 					auto it_scene = scenes.find(renderable->scene);
 					if(it_scene != scenes.end()) {
 						auto &stages = it_scene->second;
@@ -260,7 +260,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		renderer(core::polar *engine) : base(engine) {}
+		renderer(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "opengl_renderer"; }
 	};

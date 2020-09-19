@@ -99,7 +99,7 @@ namespace polar::system {
 		inline auto last_left_hand_view()  const { return _last_left_hand_view; }
 		inline auto last_right_hand_view() const { return _last_right_hand_view; }
 
-		vr(core::polar *engine) : base(engine) {
+		vr(core::polar &engine) : base(engine) {
 			if(!::vr::VR_IsHmdPresent()) { return; }
 
 			::vr::HmdError err;
@@ -181,7 +181,7 @@ namespace polar::system {
 				// TODO: handle OpenVR events
 			}
 
-			auto action = engine->get<system::action>().lock();
+			auto action = engine.get<system::action>().lock();
 			if(action) {
 				namespace a_vr = support::action::vr;
 

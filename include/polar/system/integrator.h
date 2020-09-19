@@ -15,18 +15,18 @@ namespace polar::system {
 
 	  protected:
 		void init() override {
-			auto clock = engine->own<tag::clock::simulation>();
-			engine->add_as<component::clock::base, component::clock::simulation>(clock);
+			auto clock = engine.own<tag::clock::simulation>();
+			engine.add_as<component::clock::base, component::clock::simulation>(clock);
 
 			core::ref listener;
-			keep(listener = engine->add());
-			engine->add<component::listener>(listener, clock, [this](auto dt) {
+			keep(listener = engine.add());
+			engine.add<component::listener>(listener, clock, [this](auto dt) {
 				tick(dt.Seconds());
 			});
 		}
 	  public:
 		static bool supported() { return true; }
-		integrator(core::polar *engine) : base(engine) {}
+		integrator(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "integrator"; }
 

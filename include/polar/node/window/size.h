@@ -19,8 +19,8 @@ namespace polar::node::window {
 			return size(win);
 		}
 
-		math::point2 eval(core::polar *engine) override {
-			return engine->get<component::window>(window_ref)->size;
+		math::point2 eval(core::polar &engine) override {
+			return engine.get<component::window>(window_ref)->size;
 		}
 	NODE_END(size, math::point2, window_size)
 } // namespace polar::node

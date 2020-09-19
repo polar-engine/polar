@@ -10,7 +10,7 @@ namespace polar::system {
 	  public:
 		using key_t     = K;
 		using value_t   = math::decimal;
-		using handler_t = std::function<void(core::polar *, key_t, value_t)>;
+		using handler_t = std::function<void(core::polar &, key_t, value_t)>;
 
 	  private:
 		const std::string path;
@@ -19,7 +19,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		config(core::polar *engine, std::string path)
+		config(core::polar &engine, std::string path)
 		    : base(engine), path(path) {}
 		~config() { save(); }
 

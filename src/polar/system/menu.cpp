@@ -24,11 +24,11 @@ namespace polar::system {
 			if(item.control->activate()) {
 				render(current, true);
 				if(item.fn(item.control->get())) {
-					auto assetM = engine->get<asset>().lock();
-					auto sound = engine->add();
+					auto assetM = engine.get<asset>().lock();
+					auto sound = engine.add();
 					sounds[soundIndex++] = sound;
 					soundIndex %= sounds.size();
-					engine->add<component::audiosource>(
+					engine.add<component::audiosource>(
 					    sound, assetM->get<polar::asset::audio>("menu1"),
 					    support::audio::sourcetype::effect);
 				}
@@ -67,7 +67,7 @@ namespace polar::system {
 			while(right < 0) {
 				if(stack.empty()) {
 					if(force) {
-						engine->transition = "back";
+						engine.transition = "back";
 						return;
 					}
 				} else {
@@ -105,11 +105,11 @@ namespace polar::system {
 	}
 
 	void menu::beep() {
-		auto assetM = engine->get<asset>().lock();
-		auto sound = engine->add();
+		auto assetM = engine.get<asset>().lock();
+		auto sound = engine.add();
 		sounds[soundIndex++] = sound;
 		soundIndex %= sounds.size();
-		engine->add<component::audiosource>(
+		engine.add<component::audiosource>(
 		    sound, assetM->get<polar::asset::audio>("menu1"),
 		    support::audio::sourcetype::effect);
 	}
@@ -120,7 +120,7 @@ namespace polar::system {
 
 		auto &item = current_at(i);
 
-		auto item_object = engine->add();
+		auto item_object = engine.add();
 		if(replace) {
 			items.at(i) = item_object;
 		} else {
@@ -131,16 +131,16 @@ namespace polar::system {
 		math::decimal spacing = uiTextHeight * scale;
 		math::point2 origin = math::point2(60, 50 + spacing * (size - i - 1));
 
-		engine->add<component::text>(item_object, font, item.value);
-		engine->add<component::screenposition>(item_object, origin);
-		engine->add<component::scale>(item_object, math::point3(scale));
+		engine.add<component::text>(item_object, font, item.value);
+		engine.add<component::screenposition>(item_object, origin);
+		engine.add<component::scale>(item_object, math::point3(scale));
 
 		if(int(i) == current) {
-			engine->add<component::color>(item_object, math::point4(1, 1, selectionAlpha, 1));
+			engine.add<component::color>(item_object, math::point4(1, 1, selectionAlpha, 1));
 		}
 
 		if(item.control) {
-			auto control = engine->add();
+			auto control = engine.add();
 			auto offset = math::point2(uiTextWidth / uiBase * scale, 0);
 			offset.y -= 12 * scale;
 			item.control->render(engine, control, origin + offset, 8 * scale);
@@ -154,7 +154,7 @@ namespace polar::system {
 		auto scale = glm::min(actual_height() / math::decimal(size), actual_scale());
 		auto spacing = uiTextHeight * scale;
 
-		auto height = 720; // XXX: engine->get<renderer::base>().lock()->getheight();
+		auto height = 720; // XXX: engine.get<renderer::base>().lock()->getheight();
 		auto origin = height - y;
 
 		/* origin = 50 + spacing * (size - i - 1);
@@ -171,9 +171,9 @@ namespace polar::system {
 		namespace a = support::action::menu;
 		namespace mse = support::action::mouse;
 
-		auto assetM = engine->get<asset>().lock();
-		auto act    = engine->get<action>().lock();
-		auto tw     = engine->get<tweener<float>>().lock();
+		auto assetM = engine.get<asset>().lock();
+		auto act    = engine.get<action>().lock();
+		auto tw     = engine.get<tweener<float>>().lock();
 
 		assetM->request<polar::asset::audio>("menu1");
 

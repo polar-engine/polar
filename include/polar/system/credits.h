@@ -26,8 +26,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		credits(core::polar *engine, credits_vector_t _credits)
-		    : base(engine), _credits(_credits) {}
+		credits(core::polar &engine, credits_vector_t _credits) : base(engine), _credits(_credits) {}
 
 		virtual std::string name() const override { return "credits"; }
 	};

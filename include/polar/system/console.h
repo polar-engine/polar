@@ -60,7 +60,7 @@ namespace polar::system {
 			case key::Space:  buffer.push_back(' '); break;
 			case key::Enter:
 				process(buffer);
-				engine->transition = "back";
+				engine.transition = "back";
 				break;
 			case key::Backspace:
 				if(!buffer.empty()) { buffer.pop_back(); }
@@ -90,25 +90,25 @@ namespace polar::system {
 		}
 
 		void render() {
-			buffer_object = engine->add();
+			buffer_object = engine.add();
 
 			/* XXX
-			auto assetM = engine->get<asset>().lock();
+			auto assetM = engine.get<asset>().lock();
 			auto font   = assetM->get<polar::asset::font>("nasalization-rg");
 
-			engine->add<component::text>(buffer_object, font, buffer);
+			engine.add<component::text>(buffer_object, font, buffer);
 			*/
-			engine->add<component::screenposition>(buffer_object, math::point2(5, 5), support::ui::origin::topleft);
-			engine->add<component::color>(buffer_object, math::point4(1, 1, 1, 0.8));
-			engine->add<component::scale>(buffer_object, math::point3(0.1f));
+			engine.add<component::screenposition>(buffer_object, math::point2(5, 5), support::ui::origin::topleft);
+			engine.add<component::color>(buffer_object, math::point4(1, 1, 1, 0.8));
+			engine.add<component::scale>(buffer_object, math::point3(0.1f));
 		}
 	  protected:
 		void init() override {
 			namespace kb = polar::support::action::keyboard;
 
-			auto act = engine->get<action>().lock();
+			auto act = engine.get<action>().lock();
 			keep(act->bind<kb::key<key::Tilde>>(lifetime::on, [this](auto) {
-				engine->transition = "back";
+				engine.transition = "back";
 			}, -1, false));
 
 			keep(act->bind<kb::key<key::A        >>(lifetime::on, [this](auto) { handle(key::A);         }, -100, false));
@@ -202,7 +202,7 @@ namespace polar::system {
 	  public:
 		static bool supported() { return true; }
 
-		console(core::polar *engine) : base(engine) {}
+		console(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "console"; }
 	};

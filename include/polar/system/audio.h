@@ -61,7 +61,7 @@ namespace polar::system {
 
 		static bool supported() { return true; }
 
-		audio(core::polar *engine) : base(engine), muted(false) {
+		audio(core::polar &engine) : base(engine), muted(false) {
 			for(auto &vol : volumes) { vol = 100; }
 			Pa_Initialize();
 			Pa_OpenDefaultStream(&stream, 0, 2, paInt16, sampleRate,

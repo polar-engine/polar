@@ -45,7 +45,7 @@ namespace polar::system::opengl {
 
 				GL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 
-				engine->add<component::opengl::model>(wr, vao, buffer, count);
+				engine.add<component::opengl::model>(wr, vao, buffer, count);
 			}
 		}
 
@@ -61,7 +61,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		model(core::polar *engine) : base(engine) {}
+		model(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "opengl_model"; }
 	};

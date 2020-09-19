@@ -5,8 +5,8 @@
 namespace polar::support::phys::responder {
 	class death : public base {
 	  public:
-		void respond(core::polar *engine, core::weak_ref object, DeltaTicks) override {
-			engine->remove(object);
+		void respond(core::polar &engine, core::weak_ref object, DeltaTicks) override {
+			engine.remove(object);
 		}
 	};
 } // namespace polar::support::phys::responder

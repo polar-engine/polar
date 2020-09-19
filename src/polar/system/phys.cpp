@@ -10,25 +10,25 @@
 
 namespace polar::system {
 	void phys::init() {
-		auto clock = engine->own<tag::clock::simulation>();
-		engine->add_as<component::clock::base, component::clock::simulation>(clock);
+		auto clock = engine.own<tag::clock::simulation>();
+		engine.add_as<component::clock::base, component::clock::simulation>(clock);
 
 		core::ref listener;
-		keep(listener = engine->add());
-		engine->add<component::listener>(listener, clock, [this](auto dt) {
+		keep(listener = engine.add());
+		engine.add<component::listener>(listener, clock, [this](auto dt) {
 			tick(dt);
 		});
 
-		add<support::phys::detector::box, support::phys::detector::box>([](core::polar *engine, auto a, auto b) {
+		add<support::phys::detector::box, support::phys::detector::box>([](core::polar &engine, auto a, auto b) {
 			math::point3 originA{0};
 			math::point3 originB{0};
-			if(auto p = engine->get<component::position>(a.object)) { originA += p->pos.get(); }
-			if(auto p = engine->get<component::position>(b.object)) { originB += p->pos.get(); }
+			if(auto p = engine.get<component::position>(a.object)) { originA += p->pos.get(); }
+			if(auto p = engine.get<component::position>(b.object)) { originB += p->pos.get(); }
 
 			math::point3 scaleA = a.detector->size;
 			math::point3 scaleB = b.detector->size;
-			if(auto s = engine->get<component::scale>(a.object)) { scaleA *= s->sc.get(); }
-			if(auto s = engine->get<component::scale>(b.object)) { scaleB *= s->sc.get(); }
+			if(auto s = engine.get<component::scale>(a.object)) { scaleA *= s->sc.get(); }
+			if(auto s = engine.get<component::scale>(b.object)) { scaleB *= s->sc.get(); }
 
 			auto minA = originA - scaleA;
 			auto maxA = originA + scaleA;
@@ -39,16 +39,16 @@ namespace polar::system {
 			       maxA.z >= minB.z;
 		});
 
-		add<support::phys::detector::ball, support::phys::detector::ball>([](core::polar *engine, auto a, auto b) {
+		add<support::phys::detector::ball, support::phys::detector::ball>([](core::polar &engine, auto a, auto b) {
 			math::point3 originA{0};
 			math::point3 originB{0};
-			if(auto p = engine->get<component::position>(a.object)) { originA += p->pos.get(); }
-			if(auto p = engine->get<component::position>(b.object)) { originB += p->pos.get(); }
+			if(auto p = engine.get<component::position>(a.object)) { originA += p->pos.get(); }
+			if(auto p = engine.get<component::position>(b.object)) { originB += p->pos.get(); }
 
 			math::point3 scaleA = a.detector->size;
 			math::point3 scaleB = b.detector->size;
-			if(auto s = engine->get<component::scale>(a.object)) { scaleA *= s->sc.get(); }
-			if(auto s = engine->get<component::scale>(b.object)) { scaleB *= s->sc.get(); }
+			if(auto s = engine.get<component::scale>(a.object)) { scaleA *= s->sc.get(); }
+			if(auto s = engine.get<component::scale>(b.object)) { scaleB *= s->sc.get(); }
 
 			return glm::distance(originA, originB) <= scaleA.x + scaleB.x;
 		});
@@ -57,7 +57,7 @@ namespace polar::system {
 	void phys::tick(DeltaTicks dt) {
 		auto seconds = dt.Seconds();
 
-		auto range = engine->objects.get<core::index::ti>().equal_range(typeid(component::phys));
+		auto range = engine.objects.get<core::index::ti>().equal_range(typeid(component::phys));
 		for(auto it1 = range.first; it1 != range.second; ++it1) {
 			auto obj1  = it1->r;
 			auto comp1 = it1->ptr.get();

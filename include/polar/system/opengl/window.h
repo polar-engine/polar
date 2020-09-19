@@ -75,7 +75,7 @@ namespace polar::system::opengl {
 					log()->fatal("opengl::window", "failed to set relative mouse mode");
 				}
 
-				engine->add<component::opengl::window>(wr, win, ctx);
+				engine.add<component::opengl::window>(wr, win, ctx);
 
 				windows[SDL_GetWindowID(win)] = wr;
 			}
@@ -94,7 +94,7 @@ namespace polar::system::opengl {
 
 		void mutate(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::window)) {
-				if(auto glwin = engine->get<component::opengl::window>(wr)) {
+				if(auto glwin = engine.get<component::opengl::window>(wr)) {
 					auto win = std::static_pointer_cast<component::window>(ptr.lock());
 
 					SDL(SDL_SetWindowSize(glwin->win, win->size.x, win->size.y));
@@ -111,17 +111,17 @@ namespace polar::system::opengl {
 
 			support::input::key key;
 
-			auto act = engine->get<action>().lock();
-			auto vr  = engine->get<system::vr>().lock();
+			auto act = engine.get<action>().lock();
+			auto vr  = engine.get<system::vr>().lock();
 
 			switch(ev.type) {
 			case SDL_QUIT:
-				engine->quit();
+				engine.quit();
 				break;
 			case SDL_WINDOWEVENT:
 				switch(ev.window.event) {
 				case SDL_WINDOWEVENT_RESIZED:
-					if(auto win = engine->mutate<component::window>(windows[ev.window.windowID])) {
+					if(auto win = engine.mutate<component::window>(windows[ev.window.windowID])) {
 						win->size = {ev.window.data1, ev.window.data2};
 					}
 					break;
@@ -185,7 +185,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		window(core::polar *engine) : base(engine) {
+		window(core::polar &engine) : base(engine) {
 			if(!SDL(SDL_Init(SDL_INIT_EVERYTHING))) { log()->fatal("opengl::window", "failed to init SDL"); }
 
 			// set up controller joysticks

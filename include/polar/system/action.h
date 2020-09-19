@@ -54,7 +54,7 @@ namespace polar::system {
 
 	  public:
 		static bool supported() { return true; }
-		action(core::polar *engine) : base(engine) {}
+		action(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "action"; }
 
@@ -65,12 +65,12 @@ namespace polar::system {
 		inline void force_tick() { tick(); }
 
 		void init() override {
-			auto clock = engine->own<tag::clock::simulation>();
-			engine->add_as<component::clock::base, component::clock::simulation>(clock);
+			auto clock = engine.own<tag::clock::simulation>();
+			engine.add_as<component::clock::base, component::clock::simulation>(clock);
 
 			core::ref listener;
-			keep(listener = engine->add());
-			engine->add<component::listener>(listener, clock, [this](auto) {
+			keep(listener = engine.add());
+			engine.add<component::listener>(listener, clock, [this](auto) {
 				tick();
 			});
 		}

@@ -12,20 +12,20 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::stage)) {
 				auto comp = std::static_pointer_cast<component::stage>(ptr.lock());
 
-				auto win = engine->get<component::opengl::window>(comp->win);
+				auto win = engine.get<component::opengl::window>(comp->win);
 				SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
 
 				log()->verbose("opengl::stage", "building shader program");
 
 				auto program_id = build_program(comp);
-				engine->add<component::opengl::stage>(wr, program_id);
+				engine.add<component::opengl::stage>(wr, program_id);
 			}
 		}
 
 		void component_removed(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::opengl::stage)) {
-				auto stage = engine->get<component::stage>(wr);
-				auto win = engine->get<component::opengl::window>(stage->win);
+				auto stage = engine.get<component::stage>(wr);
+				auto win = engine.get<component::opengl::window>(stage->win);
 				SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
 
 				auto comp = std::static_pointer_cast<component::opengl::stage>(ptr.lock());
@@ -121,7 +121,7 @@ namespace polar::system::opengl {
 	  public:
 		static bool supported() { return true; }
 
-		stage(core::polar *engine) : base(engine) {}
+		stage(core::polar &engine) : base(engine) {}
 
 		virtual std::string name() const override { return "opengl_stage"; }
 	};
