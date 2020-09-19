@@ -37,6 +37,10 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::opengl::framebuffer)) {
 				auto comp = std::static_pointer_cast<component::opengl::framebuffer>(ptr.lock());
 
+				auto fb = engine.get<component::framebuffer>(wr);
+				auto glwin = engine.get<component::opengl::window>(fb->win);
+				SDL(SDL_GL_MakeCurrent(glwin->win, glwin->ctx));
+
 				for(auto &fb : comp->fbs) {
 					for(auto &pair : fb.attachments) {
 						GL(glDeleteTextures(1, &pair.second));
@@ -56,6 +60,8 @@ namespace polar::system::opengl {
 		void mutate(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::window)) {
 				auto win = std::static_pointer_cast<component::window>(ptr.lock());
+				auto glwin = engine.get<component::opengl::window>(wr);
+				SDL(SDL_GL_MakeCurrent(glwin->win, glwin->ctx));
 
 				for(auto fb_ref : windows[wr]) {
 					log()->debug("opengl::framebuffer", "win mutated, updating fb!");
