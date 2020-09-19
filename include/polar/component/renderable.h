@@ -3,8 +3,7 @@
 #include <polar/component/base.h>
 
 namespace polar::component {
-	class renderable : public base {
-	  public:
+	COMPONENT_BEGIN(renderable)
 		core::ref scene;
 		core::ref model;
 		core::ref material;
@@ -16,6 +15,15 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "renderable"; }
-	};
+		static std::shared_ptr<renderable> deserialize(core::store_deserializer &s) {
+			core::ref scene;
+			core::ref model;
+			core::ref material;
+
+			s >> scene >> model >> material;
+
+			auto c = std::make_shared<renderable>(scene, model, material);
+			return c;
+		}
+	COMPONENT_END(renderable, renderable)
 } // namespace polar::component

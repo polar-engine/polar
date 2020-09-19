@@ -18,7 +18,7 @@ namespace polar::node {
 			return s << size << near << far;
 		}
 
-		static perspective deserialize(core::deserializer &s) {
+		static perspective deserialize(core::store_deserializer &s) {
 			perspective n;
 			s >> n.size >> n.near >> n.far;
 			return n;
@@ -27,5 +27,5 @@ namespace polar::node {
 		math::mat4x4 eval(core::polar *engine) override {
 			return math::perspective(size.eval(engine), near.eval(engine), far.eval(engine));
 		}
-	NODE_END(perspective, math::mat4x4, "perspective")
+	NODE_END(perspective, math::mat4x4, perspective)
 } // namespace polar::node

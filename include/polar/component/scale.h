@@ -4,11 +4,10 @@
 #include <polar/property/integrable.h>
 
 namespace polar::component {
-	class scale : public base {
+	COMPONENT_BEGIN(scale)
 		template<typename T>
 		using integrable = support::integrator::integrable<T>;
 
-	  public:
 		integrable<math::point3> sc;
 
 		scale(math::point3 sc = math::point3(1)) : sc(sc) {
@@ -21,7 +20,11 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "scale"; }
+		static std::shared_ptr<scale> deserialize(core::store_deserializer &s) {
+			auto c = std::make_shared<scale>();
+			s >> c->sc;
+			return c;
+		}
 
 		virtual accessor_list accessors() const override {
 			accessor_list l;
@@ -51,5 +54,5 @@ namespace polar::component {
 			));
 			return l;
 		}
-	};
+	COMPONENT_END(scale, scale)
 } // namespace polar::component

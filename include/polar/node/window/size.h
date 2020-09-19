@@ -13,15 +13,14 @@ namespace polar::node::window {
 			return s << window_ref;
 		}
 
-		static size deserialize(core::deserializer &s) {
-			throw std::runtime_error("not implemented");
-			//size n;
-			//s >> n.window_ref; XXX
-			//return n;
+		static size deserialize(core::store_deserializer &s) {
+			core::ref win;
+			s >> win;
+			return size(win);
 		}
 
 		math::point2 eval(core::polar *engine) override {
 			return engine->get<component::window>(window_ref)->size;
 		}
-	NODE_END(size, math::point2, "window.size")
+	NODE_END(size, math::point2, window_size)
 } // namespace polar::node

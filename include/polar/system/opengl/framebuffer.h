@@ -16,6 +16,9 @@ namespace polar::system::opengl {
 				auto comp = std::static_pointer_cast<component::framebuffer>(ptr.lock());
 
 				if(auto win = engine->get<component::window>(comp->win)) {
+					auto glwin = engine->get<component::opengl::window>(comp->win);
+					SDL(SDL_GL_MakeCurrent(glwin->win, glwin->ctx));
+
 					if(comp->double_buffer) {
 						auto fb0 = build_fb(win->size, comp->depth);
 						auto fb1 = build_fb(win->size, comp->depth);

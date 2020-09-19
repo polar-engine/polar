@@ -3,8 +3,7 @@
 #include <polar/component/base.h>
 
 namespace polar::component {
-	class window : public base {
-	  public:
+	COMPONENT_BEGIN(window)
 		math::point2 size;
 		bool fullscreen;
 		bool capture_cursor;
@@ -19,6 +18,10 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "window"; }
-	};
+		static std::shared_ptr<window> deserialize(core::store_deserializer &s) {
+			auto c = std::make_shared<window>();
+			s >> c->size >> c->fullscreen >> c->capture_cursor;
+			return c;
+		}
+	COMPONENT_END(window, window)
 } // namespace polar::component

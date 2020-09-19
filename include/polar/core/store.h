@@ -11,6 +11,14 @@ namespace polar::core {
 		std::vector<ref> workload;
 
 	  public:
+		inline const ref * const begin() const {
+			return workload.data();
+		}
+
+		inline const ref * const end() const {
+			return workload.data() + workload.size();
+		}
+
 		inline void insert(ref r) {
 			size_t i = workload.size();
 			objects.emplace(r, i);
@@ -21,6 +29,7 @@ namespace polar::core {
 			insert(wr.own());
 		}
 
-		void serialize(polar *engine, std::ostream &os);
+		void serialize(polar *, std::ostream &);
+		static store deserialize(polar *, std::istream &);
 	};
 } // namespace polar::core

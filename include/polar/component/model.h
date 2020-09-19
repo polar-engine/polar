@@ -4,18 +4,22 @@
 #include <polar/component/base.h>
 
 namespace polar::component {
-	class model : public base {
-	  public:
+	COMPONENT_BEGIN(model)
 		struct vertex {
 			math::point3 position;
 			math::point3 normal;
 			math::point2 texcoord;
 
+			vertex() = default;
 			vertex(math::point3 position, math::point3 normal, math::point2 texcoord)
 			  : position(position), normal(normal), texcoord(texcoord) {}
 
 			friend inline core::store_serializer &operator<<(core::store_serializer &s, const vertex &v) {
 				return s << v.position << v.normal << v.texcoord;
+			}
+
+			friend inline core::store_deserializer &operator>>(core::store_deserializer &s, vertex &v) {
+				return s >> v.position >> v.normal >> v.texcoord;
 			}
 		};
 
@@ -24,15 +28,21 @@ namespace polar::component {
 			vertex q;
 			vertex r;
 
+			triangle() = default;
 			triangle(vertex p, vertex q, vertex r) : p(p), q(q), r(r) {}
 
 			friend inline core::store_serializer &operator<<(core::store_serializer &s, const triangle &t) {
 				return s << t.p << t.q << t.r;
 			}
+
+			friend inline core::store_deserializer &operator>>(core::store_deserializer &s, triangle &t) {
+				return s >> t.p >> t.q >> t.r;
+			}
 		};
 
 		std::vector<triangle> triangles;
 
+		model() = default;
 		model(std::shared_ptr<asset::model> as) {
 			for(auto &t : as->triangles) {
 				auto p = vertex(t.p.position, t.p.normal, t.p.texcoord);
@@ -47,6 +57,10 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "model"; }
-	};
+		static std::shared_ptr<model> deserialize(core::store_deserializer &s) {
+			auto c = std::make_shared<model>();
+			s >> c->triangles;
+			return c;
+		}
+	COMPONENT_END(model, model)
 } // namespace polar::component

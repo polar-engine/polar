@@ -49,26 +49,22 @@ namespace polar::core {
 
 	inline serializer &operator<<(serializer &s, const std::uint16_t i) {
 		std::uint16_t be = swapendian(i);
-		return s.write(reinterpret_cast<const char *>(&be),
-		               sizeof(std::uint16_t));
+		return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint16_t));
 	}
 
 	inline serializer &operator<<(serializer &s, const std::int16_t i) {
 		std::int16_t be = swapendian(i);
-		return s.write(reinterpret_cast<const char *>(&be),
-		               sizeof(std::int16_t));
+		return s.write(reinterpret_cast<const char *>(&be), sizeof(std::int16_t));
 	}
 
 	inline serializer &operator<<(serializer &s, const std::uint32_t i) {
 		std::uint32_t be = swapendian(i);
-		return s.write(reinterpret_cast<const char *>(&be),
-		               sizeof(std::uint32_t));
+		return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint32_t));
 	}
 
 	inline serializer &operator<<(serializer &s, const std::uint64_t i) {
 		std::uint64_t be = swapendian(i);
-		return s.write(reinterpret_cast<const char *>(&be),
-		               sizeof(std::uint64_t));
+		return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint64_t));
 	}
 
 	inline serializer &operator<<(serializer &s, const std::float_t f) {
@@ -296,26 +292,22 @@ namespace polar::core {
 
 		friend inline store_serializer &operator<<(store_serializer &s, const std::uint16_t i) {
 			std::uint16_t be = swapendian(i);
-			return s.write(reinterpret_cast<const char *>(&be),
-						   sizeof(std::uint16_t));
+			return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint16_t));
 		}
 
 		friend inline store_serializer &operator<<(store_serializer &s, const std::int16_t i) {
 			std::int16_t be = swapendian(i);
-			return s.write(reinterpret_cast<const char *>(&be),
-						   sizeof(std::int16_t));
+			return s.write(reinterpret_cast<const char *>(&be), sizeof(std::int16_t));
 		}
 
 		friend inline store_serializer &operator<<(store_serializer &s, const std::uint32_t i) {
 			std::uint32_t be = swapendian(i);
-			return s.write(reinterpret_cast<const char *>(&be),
-						   sizeof(std::uint32_t));
+			return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint32_t));
 		}
 
 		friend inline store_serializer &operator<<(store_serializer &s, const std::uint64_t i) {
 			std::uint64_t be = swapendian(i);
-			return s.write(reinterpret_cast<const char *>(&be),
-						   sizeof(std::uint64_t));
+			return s.write(reinterpret_cast<const char *>(&be), sizeof(std::uint64_t));
 		}
 
 		friend inline store_serializer &operator<<(store_serializer &s, const std::float_t f) {
@@ -384,15 +376,19 @@ namespace polar::core {
 			return s << q.w << q.x << q.y << q.z;
 		}
 
+		friend inline store_serializer &operator<<(store_serializer &s, const math::mat4x4 &m) {
+			return s << m[0] << m[1] << m[2] << m[3];
+		}
+
 		friend inline store_serializer &operator<<(store_serializer &s, const DeltaTicks &dt) {
 			return s << dt.Ticks();
 		}
 
-		template<typename T>
-		friend inline store_serializer &operator<<(store_serializer &s, const support::integrator::integrable<T> &x) {
+		template<typename T, typename D>
+		friend inline store_serializer &operator<<(store_serializer &s, const support::integrator::integrable<T, D> &x) {
 			s << *x;
 
-			std::optional<support::integrator::integrable<T>> deriv;
+			std::optional<support::integrator::integrable<D>> deriv;
 			if(x.hasderivative()) {
 				deriv = *x.derivative();
 			}
@@ -400,5 +396,163 @@ namespace polar::core {
 		}
 
 		friend store_serializer &operator<<(store_serializer &s, const core::ref &r);
+	};
+
+	class store_deserializer {
+	  private:
+		std::vector<ref> &workload;
+		std::istream &stream;
+
+	  public:
+		store_deserializer(decltype(workload) &workload, std::istream &stream) : workload(workload), stream(stream) {}
+
+		template<typename T>
+		inline store_deserializer &read(T *buf, const std::streamsize count) {
+			stream.read((char *)buf, count * sizeof(T));
+			return *this;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::uint8_t &i) {
+			return s.read(reinterpret_cast<char *>(&i), 1);
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, bool &b) {
+			return s.read(reinterpret_cast<char *>(&b), 1);
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::uint16_t &i) {
+			std::uint16_t be;
+			s.read(reinterpret_cast<char *>(&be), sizeof(std::uint16_t));
+			i = swapendian(be);
+			return s;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::int16_t &i) {
+			std::int16_t be;
+			s.read(reinterpret_cast<char *>(&be), sizeof(std::int16_t));
+			i = swapendian(be);
+			return s;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::uint32_t &i) {
+			std::uint32_t be;
+			s.read(reinterpret_cast<char *>(&be), sizeof(std::uint32_t));
+			i = swapendian(be);
+			return s;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::uint64_t &i) {
+			std::uint64_t be;
+			s.read(reinterpret_cast<char *>(&be), sizeof(std::uint64_t));
+			i = swapendian(be);
+			return s;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::float_t &f) {
+			return s >> *reinterpret_cast<std::uint32_t *>(&f);
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::double_t &f) {
+			return s >> *reinterpret_cast<std::uint64_t *>(&f);
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::string &str) {
+			std::uint32_t len;
+			s >> len;
+			str.clear();
+			str.resize(len);
+			return s.read(str.data(), len);
+		}
+
+		template<typename T>
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::optional<T> &opt) {
+			bool has_value;
+			s >> has_value;
+
+			if(has_value) {
+				T x;
+				s >> x;
+				opt.emplace(x);
+			} else {
+				opt.reset();
+			}
+
+			return s;
+		}
+
+		template<typename T, std::size_t N>
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::array<T, N> &arr) {
+			std::uint32_t len;
+			s >> len;
+			for(auto &elem : arr) { s >> elem; }
+			return s;
+		}
+
+		template<typename T>
+		friend inline store_deserializer &operator>>(store_deserializer &s, raw_vector<T> &vec) {
+			std::uint32_t len;
+			s >> len;
+			vec.resize(len);
+			s.read(vec.data(), len);
+			return s;
+		}
+
+		template<typename T>
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::vector<T> &vec) {
+			std::uint32_t len;
+			s >> len;
+			vec.resize(len);
+			for(auto &elem : vec) { s >> elem; }
+			return s;
+		}
+
+		template<typename T>
+		friend inline store_deserializer &operator>>(store_deserializer &s, std::set<T> &set) {
+			std::uint32_t len;
+			s >> len;
+			set.clear();
+			for(std::size_t i = 0; i < len; ++i) {
+				T elem;
+				s >> elem;
+				set.emplace(elem);
+			}
+			return s;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, math::point2 &p) {
+			return s >> p.x >> p.y;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, math::point3 &p) {
+			return s >> p.x >> p.y >> p.z;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, math::point4 &p) {
+			return s >> p.x >> p.y >> p.z >> p.w;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, math::quat &q) {
+			return s >> q.w >> q.x >> q.y >> q.z;
+		}
+
+		friend inline store_deserializer &operator>>(store_deserializer &s, math::mat4x4 &m) {
+			return s >> m[0] >> m[1] >> m[2] >> m[3];
+		}
+
+		template<typename T, typename D>
+		friend inline store_deserializer &operator>>(store_deserializer &s, support::integrator::integrable<T, D> &x) {
+			s >> *x;
+
+			std::optional<support::integrator::integrable<D>> deriv;
+			s >> deriv;
+
+			if(deriv) {
+				x.derivative(0) = *deriv;
+			}
+
+			return s;
+		}
+
+		friend store_deserializer &operator>>(store_deserializer &s, core::ref &r);
 	};
 } // namespace polar::core

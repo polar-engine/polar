@@ -4,8 +4,7 @@
 #include <polar/core/ref.h>
 
 namespace polar::component {
-	class framebuffer : public base {
-	  public:
+	COMPONENT_BEGIN(framebuffer)
 		core::ref win;
 		bool depth = false;
 		bool double_buffer = false;
@@ -17,6 +16,12 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "framebuffer"; }
-	};
+		static std::shared_ptr<framebuffer> deserialize(core::store_deserializer &s) {
+			core::ref win;
+			s >> win;
+			auto c = std::make_shared<framebuffer>(win);
+			s >> c->depth >> c->double_buffer;
+			return c;
+		}
+	COMPONENT_END(framebuffer, framebuffer)
 } // namespace polar::component

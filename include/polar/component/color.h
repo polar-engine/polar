@@ -4,10 +4,9 @@
 #include <polar/property/integrable.h>
 
 namespace polar::component {
-	class color : public base {
+	COMPONENT_BEGIN(color)
 		template<typename T> using integrable = support::integrator::integrable<T>;
 
-	  public:
 		integrable<math::point4> col;
 
 		color(math::point4 col = math::point4(1)) : col(col) {
@@ -20,6 +19,10 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "color"; }
-	};
+		static std::shared_ptr<color> deserialize(core::store_deserializer &s) {
+			auto c = std::make_shared<color>();
+			s >> c->col;
+			return c;
+		}
+	COMPONENT_END(color, color)
 } // namespace polar::component

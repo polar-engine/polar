@@ -4,10 +4,9 @@
 #include <polar/property/integrable.h>
 
 namespace polar::component {
-	class orientation : public base {
+	COMPONENT_BEGIN(orientation)
 		template<typename... Ts> using integrable = support::integrator::integrable<Ts...>;
 
-	  public:
 		integrable<math::quat, math::point3> orient;
 
 		orientation(const math::quat orient = math::quat{1, 0, 0, 0}) : orient(orient) {
@@ -20,8 +19,12 @@ namespace polar::component {
 			return true;
 		}
 
-		orientation(const math::point3 euler) : orientation(math::quat(euler)) {}
+		static std::shared_ptr<orientation> deserialize(core::store_deserializer &s) {
+			auto c = std::make_shared<orientation>();
+			s >> c->orient;
+			return c;
+		}
 
-		virtual std::string name() const override { return "orientation"; }
-	};
+		orientation(const math::point3 euler) : orientation(math::quat(euler)) {}
+	COMPONENT_END(orientation, orientation)
 } // namespace polar::component

@@ -6,7 +6,8 @@ namespace polar::system {
 	void integrator::tick(DeltaTicks::seconds_type seconds) {
 		auto &index = engine->objects.get<core::index::ref>();
 		for(auto it = index.begin(); it != index.end(); ++it) {
-			auto property = it->ptr->get<property::integrable>();
+			auto ptr = it->ptr;
+			auto property = ptr->get<property::integrable>();
 			if(property) {
 				for(auto integrable : *property->get()) { integrable->integrate(seconds); }
 			}

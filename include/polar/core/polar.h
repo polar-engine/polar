@@ -92,9 +92,9 @@ namespace polar::core {
 
 		std::queue<weak_ref> objects_to_remove;
 		std::queue<std::pair<weak_ref, std::type_index>> components_to_remove;
+		std::queue<std::pair<weak_ref, std::type_index>> components_to_notify;
 
 		std::shared_ptr<component::base> get(weak_ref, std::type_index);
-		std::shared_ptr<component::base> insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
 
 		void remove_now(weak_ref, std::type_index);
 		void remove(weak_ref r, std::type_index ti) { components_to_remove.emplace(r, ti); }
@@ -161,6 +161,8 @@ namespace polar::core {
 		}
 
 		// components
+
+		std::shared_ptr<component::base> insert(weak_ref, std::shared_ptr<component::base>, std::type_index);
 
 		template<typename T, typename... Ts,
 		         typename = typename std::enable_if<std::is_base_of<component::base, T>::value>::type>

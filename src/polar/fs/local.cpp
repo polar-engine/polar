@@ -93,7 +93,7 @@ namespace polar::fs {
 		if(file.fail()) { log()->fatal("fs::local", path, ": seekg"); }
 
 		auto sz = new char[static_cast<unsigned int>(len + 1)];
-		sz[len]  = '\0';
+		sz[len] = '\0';
 
 		file.read(sz, static_cast<unsigned int>(len));
 		if(file.fail()) { log()->fatal("fs::local", path, ": read"); }

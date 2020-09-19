@@ -4,16 +4,16 @@
 #include <polar/core/serializer.h>
 #include <variant>
 
-#define NODE_BEGIN(N, T)                                                        \
+#define NODE_BEGIN(N, T)                                                                                       \
 	struct N : polar::node::base<T> {
 
-#define NODE_END(N, T, NAME)                                                    \
-		std::string name() const override { return NAME; }                      \
-	  private:                                                                  \
-		static bool registered;                                                 \
-	};                                                                          \
-	bool N::registered = polar::core::registry::node<T>::reg(NAME, [](auto s) { \
-		return N::deserialize(s);                                               \
+#define NODE_END(N, T, NAME)                                                                                   \
+		std::string name() const override { return #NAME; }                                                    \
+	  private:                                                                                                 \
+		static bool registered;                                                                                \
+	};                                                                                                         \
+	static bool __POLAR_NODE_ ## NAME ## _registered = polar::core::registry::node<T>::reg(#NAME, [](auto s) { \
+		return N::deserialize(s);                                                                              \
 	});
 
 namespace polar::core {
@@ -58,16 +58,16 @@ namespace polar {
 			std::visit([&s](auto &&arg) {
 				using VT = std::decay_t<decltype(arg)>;
 				if constexpr(std::is_same_v<VT, T>) {
-					s << "" << arg;
+					s << uint8_t(0) << arg;
 				} else if constexpr(std::is_same_v<VT, std::shared_ptr<node::base<T>>>) {
-					s << arg->name();
+					s << uint8_t(1) << arg->name();
 					arg->serialize(s);
 				}
 			}, n.data);
 			return s;
 		}
 
-		friend inline core::deserializer & operator>>(core::deserializer &s, wrapped_node<T> &n) {
+		friend inline core::store_deserializer & operator>>(core::store_deserializer &s, wrapped_node<T> &n) {
 			n = core::registry::node<T>::deserialize(s);
 			return s;
 		}

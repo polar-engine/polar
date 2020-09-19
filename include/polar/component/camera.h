@@ -3,8 +3,7 @@
 #include <polar/component/base.h>
 
 namespace polar::component {
-	class camera : public base {
-	  public:
+	COMPONENT_BEGIN(camera)
 		core::ref scene;
 		core::ref target;
 		wrapped_node<math::mat4x4> projection;
@@ -19,6 +18,16 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "camera"; }
-	};
+		static std::shared_ptr<camera> deserialize(core::store_deserializer &s) {
+			core::ref scene;
+			core::ref target;
+
+			s >> scene >> target;
+
+			auto c = std::make_shared<camera>(scene, target);
+			s >> c->projection;
+
+			return c;
+		}
+	COMPONENT_END(camera, camera)
 } // namespace polar::component

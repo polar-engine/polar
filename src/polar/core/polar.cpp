@@ -74,6 +74,16 @@ namespace polar::core {
 
 				log()->trace("core", "frame #", frameID++, " (", dt.Ticks(), ')');
 
+				// send component notifications
+				while(!components_to_notify.empty()) {
+					auto &[r, ti] = components_to_notify.front();
+					auto it = objects.get<index::rel_ordered>().find(relation{r, ti});
+					if(it != objects.get<index::rel_ordered>().end()) {
+						for(auto &state : stack) { state.component_added(r, ti, it->ptr); }
+					}
+					components_to_notify.pop();
+				}
+
 				for(auto &state : stack) { state.update(dt); }
 
 				// perform deletions at end of iteration to avoid invalidation
@@ -143,7 +153,7 @@ namespace polar::core {
 		log()->trace("core", "inserting component: ", ti.name());
 
 		auto [it, r] = objects.get<index::rel_ordered>().insert(relation{object, ti, component});
-		for(auto &state : stack) { state.component_added(object, ti, component); }
+		components_to_notify.emplace(object, ti);
 
 		log()->trace("core", "inserted component");
 

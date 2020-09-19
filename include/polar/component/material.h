@@ -3,8 +3,7 @@
 #include <polar/component/base.h>
 
 namespace polar::component {
-	class material : public base {
-	  public:
+	COMPONENT_BEGIN(material)
 		core::ref stage;
 		std::optional<core::ref> diffuse;
 
@@ -15,6 +14,14 @@ namespace polar::component {
 			return true;
 		}
 
-		virtual std::string name() const override { return "material"; }
-	};
+		static std::shared_ptr<material> deserialize(core::store_deserializer &s) {
+			core::ref stage;
+			std::optional<core::ref> diffuse;
+
+			s >> stage >> diffuse;
+
+			auto c = std::make_shared<material>(stage, diffuse);
+			return c;
+		}
+	COMPONENT_END(material, material)
 } // namespace polar::component

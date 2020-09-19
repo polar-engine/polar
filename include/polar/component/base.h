@@ -9,6 +9,20 @@
 #include <string>
 #include <vector>
 
+#define COMPONENT_BEGIN(C)                                                                                            \
+	struct C : polar::component::base {
+
+#define COMPONENT_END(C, NAME)                                                                                        \
+		std::string name() const override { return #NAME; }                                                           \
+	};                                                                                                                \
+	static bool __POLAR_COMPONENT_ ## NAME ## _registered = polar::core::registry::component::reg(#NAME, [](auto s) { \
+		std::optional<polar::core::registry::component::wrapper_type> opt;                                            \
+		if(auto c = C::deserialize(s)) {                                                                              \
+			opt = {c, typeid(C)};                                                                                     \
+		}                                                                                                             \
+		return opt;                                                                                                   \
+	});
+
 namespace polar::core {
 	class store_serializer;
 }

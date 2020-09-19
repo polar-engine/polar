@@ -12,6 +12,9 @@ namespace polar::system::opengl {
 			if(ti == typeid(component::stage)) {
 				auto comp = std::static_pointer_cast<component::stage>(ptr.lock());
 
+				auto win = engine->get<component::opengl::window>(comp->win);
+				SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
+
 				log()->verbose("opengl::stage", "building shader program");
 
 				auto program_id = build_program(comp);
@@ -21,6 +24,10 @@ namespace polar::system::opengl {
 
 		void component_removed(core::weak_ref wr, std::type_index ti, std::weak_ptr<component::base> ptr) override {
 			if(ti == typeid(component::opengl::stage)) {
+				auto stage = engine->get<component::stage>(wr);
+				auto win = engine->get<component::opengl::window>(stage->win);
+				SDL(SDL_GL_MakeCurrent(win->win, win->ctx));
+
 				auto comp = std::static_pointer_cast<component::opengl::stage>(ptr.lock());
 				GL(glDeleteProgram(comp->program));
 			}
