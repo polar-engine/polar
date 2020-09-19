@@ -104,9 +104,6 @@ namespace polar::system::opengl {
 			GL(glBindFramebuffer(GL_FRAMEBUFFER, data.fb));
 
 			std::vector<GLenum> draw_buffers = {GL_COLOR_ATTACHMENT0};
-			if(depth) {
-				draw_buffers.emplace_back(GL_DEPTH_ATTACHMENT);
-			}
 
 			GLuint tex_color = build_tex(size);
 			GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_color, 0));
